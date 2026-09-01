@@ -408,9 +408,14 @@ def main() -> int:
     (args.out / "traceability.json").write_text(
         json.dumps({"meta": meta, "rows": [asdict(r) for r in rows]}, indent=2)
     )
-    (args.out / "index.html").write_text(render_index(
-        [("traceability.html", "Traceability matrix",
-          "REQ → commits → merged PRs, computed from trailers")], meta))
+    # The index lists whichever pages are actually present, so running this
+    # generator alone never publishes a link to a page that isn't there.
+    pages = [("traceability.html", "Traceability matrix",
+              "REQ → commits → merged PRs, computed from trailers")]
+    if (args.out / "standup.html").is_file():
+        pages.append(("standup.html", "Standup digest",
+                      "Per-role activity for the last 24h, derived from events"))
+    (args.out / "index.html").write_text(render_index(pages, meta))
 
     counts = {s: sum(1 for r in rows if r.status == s) for s in (GREEN, AMBER, RED)}
     print(f"traceability: {len(rows)} requirements — "
