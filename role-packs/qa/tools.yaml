@@ -1,0 +1,50 @@
+# QA tool allowlist. Read widely, write almost nothing — the asymmetry is
+# the role. A QA session that can edit src/ will eventually fix something
+# instead of reporting it.
+version: 0
+role: qa
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search
+  write:
+    - write_file          # tests/ only; see policy.yaml:write_scope
+    - edit_file
+  execute:
+    - shell
+  web:
+    - fetch_url
+
+shell:
+  allow:
+    - "git status"
+    - "git diff*"
+    - "git log*"
+    - "git show*"
+    - "gh pr view*"
+    - "gh pr diff*"
+    - "gh pr checks*"
+    - "gh pr comment*"
+    - "gh issue view*"
+    - "gh issue list*"
+    - "gh issue create*"        # bug reports
+    - "gh issue comment*"
+    - "gh issue edit*"          # qa:* labels
+    - "gh run view*"
+    - "gh api repos/*"          # timeline events for the rejection count
+  deny:
+    - "git push*"               # QA does not push; test PRs are a separate dispatch
+    - "gh pr merge*"
+    - "gh pr review*--approve*" # the verdict is a label, not a GitHub approval
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"

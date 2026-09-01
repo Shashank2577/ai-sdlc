@@ -19,7 +19,7 @@ that every committed pack still compiles.
 | Role | Pack | Story |
 |---|---|---|
 | Developer | `developer/` | P0-3 (#4) |
-| QA | — | P0-4 (#5) |
+| QA | `qa/` | P0-4 (#5) |
 | Orchestrator | — | P0-8 (#9) |
 
 The remaining roles from PRD §3 (PM/BA, architect, DevOps, tech writer,
