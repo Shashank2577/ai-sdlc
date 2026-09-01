@@ -56,6 +56,31 @@ Turns and wall clock are hard stops enforced by the runner — a budget an agent
 
 `max_retries` is the escalation ladder's last rung. The dispatcher counts how many sessions this work item has already burned — from its own session-end comments, so an agent cannot reset it — and refuses to start once the budget is spent, escalating with the three failures attached instead. `ignore_retry_ceiling: true` overrides it for one run.
 
+## The assignment loop
+
+`.github/workflows/orchestrate.yml` runs hourly, reads the board, and dispatches whatever fits under the WIP limit. Rules live in `role-packs/orchestrator/policy.yaml`:
+
+```yaml
+wip:
+  limit: 3
+  per_role: { developer: 3, qa: 2 }
+routing:
+  prefix: "role:"          # role:developer / role:qa labels
+  supported: [developer, qa]
+```
+
+An item is dispatched when it is open, `status:ready`, carries exactly one supported `role:*` label, and is not `needs-human`, `status:blocked` or `qa:rejected`. Anything else is skipped with a reason in the run log. An item with no role label is never guessed at — that is an unfinished refinement, not a developer story.
+
+Three is deliberately low. The bottleneck here is review, not agents: every extra branch in flight ages against `main`, competes for the same reviewer, and raises the odds two sessions touch the same file. Agents being idle costs nothing.
+
+When nothing is eligible the loop **says nothing** — no comment, no issue, no notification. A loop that reports "nothing to do" every hour gets muted, and then it is not there when it says something real. The run log still records every decision.
+
+Arming it needs a PAT: GitHub does not let a run authenticated with `GITHUB_TOKEN` start another workflow, which is what stops loops like this triggering themselves forever. Save a token with `actions:write` + `issues:read` as `ORCHESTRATOR_TOKEN`. Without it the loop still runs and still publishes its plan, in dry-run mode, and says why.
+
+```sh
+python3 scripts/assign.py --dry-run     # what would it do right now
+```
+
 ## Status
 
 Phase 0: proving the spine. Eight stories on the board. Self-hosting starts the moment P0-1 (the DoD check) merges — from that PR onward, every change to this system is machine-gated by the system. The one honest asterisk: the P0-1 PR itself is the last ungoverned change, because the gate has to exist before it can gate anything. It does gate its own PR, though. Check the workflow run on PR #1.

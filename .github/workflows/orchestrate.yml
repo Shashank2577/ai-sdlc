@@ -1,0 +1,91 @@
+# The assignment loop. Reads the board, dispatches what fits under the WIP
+# limit, and says nothing when there is nothing to do.
+#
+# Auth: dispatching another workflow needs a PAT. GitHub deliberately does
+# not let a run authenticated with GITHUB_TOKEN start another workflow —
+# without that rule, a loop like this one could trigger itself forever.
+# So: with ORCHESTRATOR_TOKEN set, the loop dispatches. Without it, the loop
+# still runs and still publishes its plan, but in dry-run mode, and says
+# why. A loop that silently fails every hour is worse than one that is
+# visibly not armed.
+name: Orchestrate
+
+on:
+  schedule:
+    # Hourly at :05. Frequent enough that a refined item does not wait long,
+    # rare enough that the loop is not the noisiest thing in the repo.
+    - cron: "5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Compute the plan and dispatch nothing"
+        required: false
+        default: false
+        type: boolean
+
+# Read the board and start workflows. It writes nothing to the tracker and
+# nothing to the repository — that asymmetry is the role.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: orchestrate
+  cancel-in-progress: false
+
+jobs:
+  assign:
+    name: assignment-loop
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
+      - name: Assignment-loop tests
+        run: python3 scripts/test_assign.py
+
+      - name: Decide whether the loop is armed
+        id: mode
+        env:
+          ORCHESTRATOR_TOKEN: ${{ secrets.ORCHESTRATOR_TOKEN }}
+          REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ORCHESTRATOR_TOKEN}" ]; then
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "> **Loop is not armed.** \`ORCHESTRATOR_TOKEN\` is not set, so"
+              echo "> this run computes the plan and dispatches nothing. GITHUB_TOKEN"
+              echo "> cannot start another workflow by design; arming the loop needs a"
+              echo "> PAT with \`actions:write\` and \`issues:read\` saved as"
+              echo "> \`ORCHESTRATOR_TOKEN\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${REQUESTED_DRY_RUN}" = "true" ]; then
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            echo "Dry run requested; nothing will be dispatched." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "armed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the loop
+        env:
+          # The PAT when there is one; otherwise the workflow token, which is
+          # enough to read the board for a dry run.
+          GH_TOKEN: ${{ secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.mode.outputs.armed }}" = "true" ]; then
+            python3 scripts/assign.py
+          else
+            python3 scripts/assign.py --dry-run
+          fi
