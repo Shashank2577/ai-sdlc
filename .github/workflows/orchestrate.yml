@@ -11,6 +11,13 @@
 name: Orchestrate
 
 on:
+  pull_request:
+    # Tests only — the loop itself never runs on a PR.
+    paths:
+      - "scripts/assign.py"
+      - "scripts/test_assign.py"
+      - "role-packs/orchestrator/**"
+      - ".github/workflows/orchestrate.yml"
   schedule:
     # Hourly at :05. Frequent enough that a refined item does not wait long,
     # rare enough that the loop is not the noisiest thing in the repo.
@@ -36,8 +43,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Runs everywhere, including pull requests. Selection decides how many
+  # agent sessions start; it gets checked before it is changed, not only
+  # when the cron next happens to fire.
+  tests:
+    name: assignment-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Assignment-loop tests
+        run: python3 scripts/test_assign.py
+
   assign:
     name: assignment-loop
+    needs: tests
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -49,9 +73,6 @@ jobs:
 
       - name: Install PyYAML
         run: python -m pip install --quiet pyyaml
-
-      - name: Assignment-loop tests
-        run: python3 scripts/test_assign.py
 
       - name: Decide whether the loop is armed
         id: mode
