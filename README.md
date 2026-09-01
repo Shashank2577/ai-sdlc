@@ -37,7 +37,24 @@ Two things have to be true first, and the workflow fails loudly rather than quie
 - **The issue is labelled `status:ready`.** This is the prompt-injection guard, not paperwork. The issue body goes verbatim into a session holding write credentials, and on a public repo anyone can open an issue — but only someone with write access can apply a label. So the only untrusted text an agent ever reads is text a maintainer approved.
 - **A harness credential exists** — repository secret `ANTHROPIC_API_KEY`, or `CLAUDE_CODE_OAUTH_TOKEN` for Pro/Max (`claude setup-token`). If both are set, the API key wins.
 
-The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure or cancellation it hands the item back as `status:ready` + `needs-human` with a structured note — goal, what ran, where it stopped, options A/B/C — so the human gets a decision, not a transcript.
+The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure, cancellation or a budget breach it hands the item back as `status:ready` + `needs-human` with a structured note — goal, attempts, blocker, costed options A/B/C — so the human gets a decision, not a transcript.
+
+### Budgets
+
+Budgets live in `role-packs/<role>/policy.yaml`, not in the workflow, so changing one is a reviewed PR against the pack:
+
+```yaml
+budgets:
+  turns: 30
+  tokens: 400000
+  wall_clock_minutes: 45
+  max_retries: 2
+  on_breach: escalate
+```
+
+Turns and wall clock are hard stops enforced by the runner — a budget an agent can talk itself past is not a budget. Tokens are measured after the fact from the session's execution log and posted to the work item every run, breach or not; cost is a first-class, per-story, visible metric, not something you find out about at the end of the month. Going over does not kill a session, it escalates one, which costs the work item a retry.
+
+`max_retries` is the escalation ladder's last rung. The dispatcher counts how many sessions this work item has already burned — from its own session-end comments, so an agent cannot reset it — and refuses to start once the budget is spent, escalating with the three failures attached instead. `ignore_retry_ceiling: true` overrides it for one run.
 
 ## Status
 
