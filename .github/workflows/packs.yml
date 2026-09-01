@@ -1,0 +1,55 @@
+# Role packs must stay compilable. A pack that no longer renders is a role
+# that can no longer be dispatched, and that should fail at review time
+# rather than at 3am inside a session.
+name: Packs
+
+on:
+  pull_request:
+    paths:
+      - "role-packs/**"
+      - "compiler/**"
+      - ".github/workflows/packs.yml"
+  push:
+    branches: [main]
+    paths:
+      - "role-packs/**"
+      - "compiler/**"
+
+permissions:
+  contents: read
+
+jobs:
+  packs:
+    name: packs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
+      - name: Compiler tests
+        run: python3 compiler/test_compile_pack.py
+
+      - name: Every committed pack compiles for claude-code
+        run: python3 compiler/compile-pack.py --check
+
+      - name: Render the packs (artifacts are inspectable in the run log)
+        run: |
+          set -euo pipefail
+          for manifest in role-packs/*/pack.yaml; do
+            role=$(basename "$(dirname "$manifest")")
+            python3 compiler/compile-pack.py --role "$role" \
+              --harness claude-code --out "${RUNNER_TEMP}/packs"
+          done
+          {
+            echo "## Compiled packs"
+            echo
+            echo '```'
+            find "${RUNNER_TEMP}/packs" -type f | sed "s|${RUNNER_TEMP}/packs/||" | sort
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
