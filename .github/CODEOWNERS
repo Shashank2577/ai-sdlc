@@ -1,0 +1,6 @@
+# Review routing per PRD §3. Inert until required reviews are enabled,
+# which needs a second identity (bot or human). Kept here so the routing
+# is versioned from day one.
+# /adrs/      -> human architect
+# /policies/  -> human delivery lead
+* @Shashank2577
