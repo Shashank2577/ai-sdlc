@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""Tests for the role-pack compiler. Stdlib only — runs anywhere python3 does.
+
+    python3 compiler/test_compile_pack.py
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import shutil
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+
+spec = importlib.util.spec_from_file_location("compile_pack", HERE / "compile-pack.py")
+cp = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cp)
+
+
+MINIMAL_PACK = {
+    "pack.yaml": """
+version: 0
+role: widget
+harness_compat:
+  claude-code:
+    supported: true
+identity:
+  git_user: widget-bot
+  provisioned: false
+""",
+    "charter.md": "# Widget — charter\n\nDo widget things.\n",
+    "tools.yaml": """
+version: 0
+role: widget
+shell:
+  allow:
+    - "git status"
+    - "git log*"
+  deny:
+    - "git push*--force*"
+""",
+    "policy.yaml": """
+version: 0
+role: widget
+budgets:
+  turns: 10
+  tokens: 1000
+  wall_clock_minutes: 5
+  max_retries: 1
+forbidden:
+  - push_to_default_branch
+hitl_triggers:
+  - budget_breach
+escalation:
+  label: needs-human
+""",
+}
+
+
+class PackFixture:
+    """A throwaway role-packs/ tree with the compiler pointed at it."""
+
+    def __init__(self, files: dict[str, str], role: str = "widget"):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.role = role
+        root = self.tmp / "role-packs" / role
+        root.mkdir(parents=True)
+        for name, body in files.items():
+            (root / name).write_text(body)
+        self._saved = (cp.REPO_ROOT, cp.PACKS_DIR)
+        cp.REPO_ROOT = self.tmp
+        cp.PACKS_DIR = self.tmp / "role-packs"
+
+    def add_skill(self, name: str, body: str) -> None:
+        d = cp.PACKS_DIR / self.role / "skills"
+        d.mkdir(exist_ok=True)
+        (d / f"{name}.md").write_text(body)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        cp.REPO_ROOT, cp.PACKS_DIR = self._saved
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+
+class TestValidation(unittest.TestCase):
+    def test_valid_pack_loads(self):
+        with PackFixture(MINIMAL_PACK):
+            pack = cp.read_pack("widget")
+            self.assertEqual(pack["role"], "widget")
+            self.assertEqual(pack["policy"]["budgets"]["turns"], 10)
+
+    def test_missing_role_directory(self):
+        with PackFixture(MINIMAL_PACK):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("nope")
+            self.assertIn("no role pack at role-packs/nope/", str(ctx.exception))
+
+    def test_missing_required_file_is_named(self):
+        files = dict(MINIMAL_PACK)
+        del files["tools.yaml"]
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("tools.yaml", str(ctx.exception))
+
+    def test_role_must_match_directory(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] = files["pack.yaml"].replace("role: widget", "role: gadget")
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("directory says", str(ctx.exception))
+
+    def test_unbudgeted_role_is_rejected(self):
+        files = dict(MINIMAL_PACK)
+        files["policy.yaml"] = files["policy.yaml"].replace("  tokens: 1000\n", "")
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("tokens", str(ctx.exception))
+            self.assertIn("unbudgeted role cannot be dispatched", str(ctx.exception))
+
+    def test_dangling_escalation_template_is_rejected(self):
+        files = dict(MINIMAL_PACK)
+        files["policy.yaml"] += "  template: role-packs/widget/templates/gone.md\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("does not exist", str(ctx.exception))
+
+    def test_invalid_yaml_names_the_file(self):
+        files = dict(MINIMAL_PACK)
+        files["tools.yaml"] = "shell:\n  allow:\n   - [unclosed\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("tools.yaml", str(ctx.exception))
+            self.assertIn("invalid YAML", str(ctx.exception))
+
+
+class TestBashRuleMapping(unittest.TestCase):
+    def test_exact_command(self):
+        self.assertEqual(cp.to_bash_rule("git status"), "Bash(git status)")
+
+    def test_trailing_wildcard_becomes_prefix_rule(self):
+        self.assertEqual(cp.to_bash_rule("git log*"), "Bash(git log:*)")
+
+    def test_interior_wildcard_is_unmappable(self):
+        # Silently dropping this would turn a deny rule into nothing at all.
+        self.assertIsNone(cp.to_bash_rule("git push*--force*"))
+
+
+class TestClaudeCodeOutput(unittest.TestCase):
+    def test_artifacts_and_permissions(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            out = cp.compile_claude_code(cp.read_pack("widget"))
+
+        self.assertIn("system-prompt.md", out)
+        self.assertIn("settings.json", out)
+
+        import json
+
+        settings = json.loads(out["settings.json"])
+        self.assertIn("Bash(git status)", settings["permissions"]["allow"])
+        self.assertIn("Bash(git log:*)", settings["permissions"]["allow"])
+        # The unmappable deny is reported, not swallowed.
+        self.assertEqual(settings["permissions"]["deny"], [])
+        self.assertIn("UNMAPPABLE.md", out)
+        self.assertIn("git push*--force*", out["UNMAPPABLE.md"])
+
+    def test_prompt_contains_charter_budget_and_skills(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nDistinctive skill body.\n")
+            prompt = cp.compile_claude_code(cp.read_pack("widget"))["system-prompt.md"]
+
+        self.assertIn("Do widget things.", prompt)          # charter
+        self.assertIn("Turns: 10", prompt)                  # budget
+        self.assertIn("push_to_default_branch", prompt)     # forbidden
+        self.assertIn("budget_breach", prompt)              # hitl trigger
+        self.assertIn("Distinctive skill body.", prompt)    # skills
+
+
+class TestRealPacksInThisRepo(unittest.TestCase):
+    """The packs actually committed here must compile. This is the check
+    that fails a PR when someone edits a pack into an invalid state."""
+
+    def test_every_committed_pack_compiles(self):
+        packs_dir = REPO_ROOT / "role-packs"
+        roles = sorted(p.name for p in packs_dir.iterdir() if (p / "pack.yaml").is_file())
+        self.assertTrue(roles, "no role packs found — expected at least developer")
+        for role in roles:
+            with self.subTest(role=role):
+                pack = cp.read_pack(role)
+                out = cp.compile_claude_code(pack)
+                self.assertTrue(out["system-prompt.md"].strip())
+                self.assertTrue(pack["skills"], f"{role} has no skills/")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
