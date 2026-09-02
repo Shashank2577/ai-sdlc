@@ -10,7 +10,20 @@ checks:
     required: [Work-Item, Requirement, Agent-Role, Harness]
   linked_work_item:
     enforced: true
-    rule: "PR body references at least one issue (#N)"
+    rule: >
+      PR body contains a GitHub closing keyword (one of: close, closes,
+      closed, fix, fixes, fixed, resolve, resolves, resolved) immediately
+      followed by a `#<issue>` reference, so the work item closes
+      automatically on merge. A bare `#<issue>` mention with no closing
+      keyword does not satisfy this check.
+    opt_out:
+      phrase: "Relates to #<issue> — it does not close it"
+      rule: >
+        A PR that deliberately does not close the issue it references (see
+        #47) may use this exact phrase in place of a closing keyword. The
+        opt-out must be explicit in the PR body — silence is not an
+        opt-out, and a bare mention without either a closing keyword or
+        this phrase fails the check.
   checklist_complete:
     enforced: true
     rule: "no unchecked '- [ ]' items remain in the PR body"
