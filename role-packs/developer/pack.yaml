@@ -8,6 +8,12 @@ mission: >-
   Turn a refined work item into a reviewable pull request, with provenance
   attached to every commit.
 
+# States the dispatch guard accepts this role from (#67). Explicit rather
+# than relying on the compiler's default, so a later change to that
+# default cannot silently change who this role is dispatched to review.
+dispatchable_from:
+  - status:ready
+
 identity:
   # The bot account that should author and sign this role's commits.
   # NOT YET PROVISIONED — see role-packs/developer/policy.yaml:identity.
