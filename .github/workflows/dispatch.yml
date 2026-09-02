@@ -28,6 +28,8 @@ on:
         options:
           - developer
           - qa
+          - product-manager
+          - devops
       max_turns:
         description: "Turn budget override; 0 uses the role pack's policy.yaml"
         required: false
@@ -430,6 +432,13 @@ jobs:
             --harness claude-code --out "${RUNNER_TEMP}/pack"
           settings="${RUNNER_TEMP}/pack/${ROLE}/claude-code/settings.json"
           echo "settings=${settings}" >> "$GITHUB_OUTPUT"
+
+          # Which credential this role runs with. The pack declares it; the
+          # dispatcher carries no role->secret table of its own, so adding a
+          # role does not mean editing this workflow.
+          token_secret=$(cat "${RUNNER_TEMP}/pack/${ROLE}/claude-code/token-secret")
+          echo "token_secret=${token_secret}" >> "$GITHUB_OUTPUT"
+          echo "Credential declared by the pack: ${token_secret}" >> "$GITHUB_STEP_SUMMARY"
           {
             echo "## Compiled permissions"
             echo
@@ -440,6 +449,33 @@ jobs:
         env:
           ROLE: ${{ inputs.role }}
 
+      # Falling back silently would leave a session failing on a permission
+      # wall with no clue why — which has already cost this repo several
+      # sessions and a lot of inference.
+      - name: Check the role's credential is configured
+        id: cred
+        env:
+          ROLE: ${{ inputs.role }}
+          DECLARED: ${{ steps.pack.outputs.token_secret }}
+          RESOLVED: ${{ secrets[steps.pack.outputs.token_secret] }}
+        run: |
+          set -euo pipefail
+          if [ -n "${RESOLVED}" ]; then
+            echo "using=${DECLARED}" >> "$GITHUB_OUTPUT"
+            echo "Session credential: \`${DECLARED}\`." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "using=GITHUB_TOKEN" >> "$GITHUB_OUTPUT"
+          echo "::warning::\`${DECLARED}\` is not configured on this repository. \
+          The session falls back to GITHUB_TOKEN, which cannot write \
+          .github/workflows/** and produces pull requests whose checks wait for \
+          manual approval. Add the secret to give this role the reach its pack declares."
+          {
+            echo "> **Falling back to \`GITHUB_TOKEN\`.** The \`${ROLE}\` pack declares"
+            echo "> \`${DECLARED}\`, which is not configured here. The session will run,"
+            echo "> but it cannot write \`.github/workflows/**\` and any pull request it"
+            echo "> opens will have its checks held for manual approval."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Run agent session
         id: agent
         # Wall-clock budget, enforced by the runner rather than requested in
@@ -463,7 +499,9 @@ jobs:
           settings: ${{ steps.pack.outputs.settings }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY == '' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Per-role, from the pack. Least privilege per role (PRD §13):
+          # widening one role's reach must not widen every role's.
+          github_token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
 
       # ---------------------------------------------------------------
       # 6. Session end. Always.

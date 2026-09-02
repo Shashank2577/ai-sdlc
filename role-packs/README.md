@@ -20,10 +20,18 @@ that every committed pack still compiles.
 |---|---|---|
 | Developer | `developer/` | P0-3 (#4) |
 | QA | `qa/` | P0-4 (#5) |
-| Orchestrator | — | P0-8 (#9) |
+| Orchestrator | `orchestrator/` | P0-8 (#9) |
+| Product Manager | `product-manager/` | P1-1 (#39) |
+| DevOps / SRE | `devops/` | P0-17 (#42) |
 
-The remaining roles from PRD §3 (PM/BA, architect, DevOps, tech writer,
-delivery manager) arrive in Phase 1. Each pack lands through a tracked
+The remaining roles from PRD §3 (architect, tech writer, delivery manager)
+arrive in Phase 1.
+
+**Each pack declares the credential it is dispatched with**
+(`identity.token_secret`). Roles at the same privilege level share one;
+`.github/workflows/**` belongs to DevOps alone, so a role that writes code
+cannot edit the check that reviews it. A pack that names no credential does
+not compile. Each pack lands through a tracked
 story, built by the process it will then participate in.
 
 **Pack changes are PRs.** The team's training is reviewed and versioned
