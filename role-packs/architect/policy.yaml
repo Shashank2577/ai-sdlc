@@ -1,0 +1,75 @@
+# Architect policy — budgets, forbidden actions, human-in-the-loop
+# triggers. PRD §13.
+version: 0
+role: architect
+
+budgets:
+  # Per work item, per session.
+  turns: 60
+  cost_usd: 5.00           # the ceiling: a breach here escalates
+  tokens: 400000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 45
+  max_retries: 2
+  on_breach: escalate       # pause work, apply needs-human, post spend summary
+
+forbidden:
+  # Structural — branch protection enforces these regardless of intent.
+  - push_to_default_branch
+  - force_push
+  - branch_deletion
+  - merging_own_pull_request
+  - approving_own_pull_request      # /adrs/ is CODEOWNERS-routed to a human
+  # Scope — enforced by review and by CODEOWNERS routing.
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_policies_directory       # policies/** is delivery-lead owned
+  - editing_other_role_packs
+  - editing_ci_pipelines             # DevOps owns .github/workflows/
+  - writing_application_code         # the decision is the artifact, not the build
+  - rewriting_published_history
+
+write_scope:
+  allow:
+    - "adrs/**"
+    - "role-packs/architect/**"
+  deny:
+    - ".github/**"
+    - "policies/**"
+    - "src/**"
+    - "infra/**"
+    - "tests/**"
+    - ".github/CODEOWNERS"
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/!(architect)/**"
+
+hitl_triggers:
+  # Conditions that end the session in an escalation rather than a PR.
+  - acceptance_criteria_contradictory
+  - acceptance_criteria_unmeetable
+  - change_requires_out_of_scope_write
+  - missing_credential_or_permission
+  - budget_breach
+  - three_failed_attempts_at_same_approach
+  - decision_reverses_a_prior_adr
+
+escalation:
+  template: role-packs/architect/templates/escalation-comment.md
+  label: needs-human
+  # Ladder per PRD §13. v0 implements retry and human; alternate-harness
+  # arrives with the second harness in Phase 3.
+  ladder:
+    - retry
+    - alternate_approach        # must state what will be done differently
+    - alternate_harness         # not available in single-harness mode
+    - human
+
+identity:
+  # Blocking on a human action, stated so it cannot be forgotten:
+  # provision the foundry-architect-bot machine account, add its signing
+  # key, scope its PAT (shares FOUNDRY_DEV_TOKEN in the interim), then flip
+  # pack.yaml identity.provisioned to true.
+  bot_account: foundry-architect-bot
+  provisioned: false
+  blocked_on: human

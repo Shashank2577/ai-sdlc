@@ -1,0 +1,49 @@
+# Architect role pack (P1-4) — harness-neutral, per PRD §3.
+# The compiler (compiler/compile-pack.py) renders this for a target
+# harness. Nothing in this file is Claude-Code-specific on purpose.
+version: 0
+role: architect
+name: Architect
+mission: >-
+  Turn a structural decision into an ADR with costed options, so it is
+  argued and recorded once instead of arriving unannounced inside a
+  feature PR.
+
+identity:
+  # The bot account that should author and sign this role's commits.
+  # NOT YET PROVISIONED — same gap as every other pack in this repo.
+  git_user: foundry-architect-bot
+  git_email: foundry-architect-bot@users.noreply.github.com
+  commit_trailer: "Agent-Role: architect"
+  # The architect writes documents, not pipelines: same privilege level
+  # as developer and QA, so it shares their credential rather than
+  # getting a new one (PRD §13, least privilege per role).
+  token_secret: FOUNDRY_DEV_TOKEN
+  signing: gpg          # required_signatures on main is currently off
+  provisioned: false
+
+harness_compat:
+  claude-code:
+    supported: true
+    model_pref: opus     # a wrong ADR is expensive to unwind; slow down
+  codex:
+    supported: true
+    model_pref: default
+  deepseek:
+    supported: true
+    model_pref: default
+
+# What a compiled session is handed, in this order.
+compiles_to:
+  - charter.md
+  - skills/
+  - policy.yaml         # budgets + forbidden actions, rendered as prose
+  - tools.yaml           # allowlist, rendered per harness
+
+produces:
+  - adrs
+  - branch
+  - commits
+  - pull_request
+  - comments
+  - status
