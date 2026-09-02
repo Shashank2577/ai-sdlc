@@ -99,11 +99,17 @@ requirements:
     checks:
       - {glob: ".github/workflows/deploy*.yml"}
       - {glob: "infra/**"}
-      - {glob: "policies/gates.yaml"}
+      # Two proxies were tried here and both were wrong, in the same
+      # direction. `policies/gates.yaml` counted because it declares the
+      # merge gate — but that is REQ-007's business and says nothing about
+      # an environment ladder. Then `environment:` in any workflow counted,
+      # because the Pages deploy uses that key: publishing a dashboard is
+      # not shipping a product. Both moved REQ-010 off zero without a line
+      # of deployment existing, which is exactly the flattery this page is
+      # for catching. The ladder itself has to be declared.
+      - {exists: policies/environments.yaml}
     notes: >-
-      policies/gates.yaml now exists and declares the merge and dispatch
-      gates, but no deployment of any kind does. This is still the largest
-      untouched area.
+      No deployment of any kind exists. Still the largest untouched area.
 
   REQ-011:
     summary: Visibility — boards, generated dashboards, computed matrix
