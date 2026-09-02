@@ -49,6 +49,7 @@ jobs:
           set -euo pipefail
           python3 dashboards/test_build.py
           python3 dashboards/test_standup.py
+          python3 dashboards/test_status.py
 
       # Standup first: build.py links whichever pages exist, so the index
       # only advertises the digest once the digest is actually on disk.
@@ -61,6 +62,8 @@ jobs:
             --out site --ref HEAD --repo "${GITHUB_REPOSITORY}" --window 24 \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
+      # Status reads traceability.json, so the matrix builds first; build.py
+      # writes the index last and links whichever pages exist.
       - name: Build the traceability matrix
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,6 +72,20 @@ jobs:
           python3 dashboards/build.py \
             --out site --ref HEAD --repo "${GITHUB_REPOSITORY}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the programme status page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 dashboards/status.py --out site --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # Re-run so the index links the status page now that it exists.
+      - name: Rebuild the index
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 dashboards/build.py --out site --repo "${GITHUB_REPOSITORY}"
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v3
