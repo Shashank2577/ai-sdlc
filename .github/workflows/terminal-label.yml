@@ -1,0 +1,59 @@
+# Terminal label, issue side. A closed issue must not keep a status:*
+# label — session-end reports happen before the PR merges, so nothing ever
+# advances the label past status:in-progress, and the board sync then
+# copies that stale label faithfully because labels are its source of
+# truth. scripts/sync-project.py's desired_fields already treats closed as
+# outranking any label for the *board*; this brings the same rule to the
+# label.
+#
+# status:blocked and needs-human survive a close on purpose (see
+# scripts/terminal-label.sh), as do qa:* verdicts.
+#
+# `issues` workflows only ever run from the default branch, so the
+# terminal-label job itself cannot be exercised by a run triggered from a
+# pull request. The test job below is triggered separately, on
+# pull_request, so it still runs as a normal PR check whenever this
+# workflow or its script changes — the test suite is the evidence for a
+# PR, not a live closed-issue event.
+name: Terminal label
+
+on:
+  issues:
+    types: [closed]
+  pull_request:
+    paths:
+      - scripts/terminal-label.sh
+      - scripts/test-terminal-label.sh
+      - .github/workflows/terminal-label.yml
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  terminal-label:
+    name: terminal-label
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Strip stale status:* labels from a closed issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS_JSON: ${{ toJSON(github.event.issue.labels) }}
+        run: bash scripts/terminal-label.sh
+
+  # A gate that fires on every close and can silently stop removing labels
+  # is theatre, not a control — it gets its own tests, and they run as a
+  # normal PR check whenever someone touches this workflow or its script,
+  # not only when someone remembers to run them by hand.
+  terminal-label-tests:
+    name: terminal-label-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the terminal-label script
+        run: bash scripts/test-terminal-label.sh
