@@ -1,0 +1,75 @@
+# Developer policy — budgets, forbidden actions, human-in-the-loop triggers.
+# PRD §13. Budgets here are the source of truth; the dispatcher reads them
+# (wired in P0-7). Until then the dispatcher's max_turns input is the only
+# enforced limit.
+version: 0
+role: developer
+
+budgets:
+  # Per work item, per session.
+  turns: 30
+  tokens: 400000
+  wall_clock_minutes: 45
+  max_retries: 2
+  # What happens at the ceiling: never a silent stop.
+  on_breach: escalate      # pause work, apply needs-human, post spend summary
+
+forbidden:
+  # Structural — branch protection enforces these regardless of intent.
+  - push_to_default_branch
+  - force_push
+  - branch_deletion
+  - merging_own_pull_request
+  # Scope — enforced by review and by CODEOWNERS routing.
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_policies_directory        # policies/** is delivery-lead owned
+  - editing_other_role_packs
+  - rewriting_published_history
+
+write_scope:
+  # Everything outside this list needs a human or another role.
+  allow:
+    - "src/**"
+    - "tests/**"
+    - "docs/**"
+    - "scripts/**"
+    - "compiler/**"
+    - ".github/workflows/**"          # DevOps-adjacent; cross-reviewed
+    - "role-packs/developer/**"
+  deny:
+    - "policies/**"
+    - ".github/CODEOWNERS"
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/!(developer)/**"
+
+hitl_triggers:
+  # Conditions that end the session in an escalation rather than a PR.
+  - acceptance_criteria_contradictory
+  - acceptance_criteria_unmeetable
+  - change_requires_out_of_scope_write
+  - missing_credential_or_permission
+  - budget_breach
+  - three_failed_attempts_at_same_approach
+
+escalation:
+  template: role-packs/developer/templates/escalation-comment.md
+  label: needs-human
+  # Ladder per PRD §13. v0 implements retry and human; alternate-harness
+  # arrives with the second harness in Phase 3.
+  ladder:
+    - retry
+    - alternate_approach        # must state what will be done differently
+    - alternate_harness         # not available in single-harness mode
+    - human
+
+identity:
+  # Blocking on a human action, stated so it cannot be forgotten:
+  # provision the foundry-dev-bot machine account, add its signing key,
+  # scope its PAT to contents+pull-requests, then flip pack.yaml
+  # identity.provisioned to true and turn on required_signatures for main.
+  bot_account: foundry-dev-bot
+  provisioned: false
+  blocked_on: human

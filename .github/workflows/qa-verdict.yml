@@ -1,0 +1,48 @@
+# QA veto, issue side.
+#
+#   closed + qa:rejected      -> reopen; the verdict outranks the close
+#   labeled qa:rejected x3    -> needs-human with a structured escalation
+#
+# `issues` workflows only ever run from the default branch, so neither job
+# does anything until this file is on main.
+name: QA verdict
+
+on:
+  issues:
+    types: [closed, labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  close-guard:
+    name: close-guard
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reopen if the work item is under a QA rejection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: close-guard
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/qa-verdict.sh
+
+  ladder:
+    name: rejection-ladder
+    if: github.event.action == 'labeled' && github.event.label.name == 'qa:rejected'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Escalate to a human on the third rejection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: ladder
+          ISSUE: ${{ github.event.issue.number }}
+          # THRESHOLD is deliberately unset: the script reads it from
+          # role-packs/qa/policy.yaml so the policy file stays the source
+          # of truth and cannot drift from the workflow.
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/qa-verdict.sh

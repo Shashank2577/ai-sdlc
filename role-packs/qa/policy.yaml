@@ -1,0 +1,74 @@
+# QA policy — budgets, forbidden actions, human-in-the-loop triggers.
+version: 0
+role: qa
+
+budgets:
+  # Review is cheaper than implementation, and a QA session that needs 30
+  # turns has stopped reviewing and started debugging.
+  turns: 20
+  tokens: 250000
+  wall_clock_minutes: 30
+  max_retries: 1
+  on_breach: escalate
+
+verdict:
+  # The rules the automation enforces. See .github/workflows/qa-verdict.yml
+  # and scripts/qa-gate.sh.
+  labels: [qa:approved, qa:rejected]
+  exactly_one: true
+  requires_comment: true
+  blocks_closure: qa:rejected
+  # Third rejection on one work item escalates. Counted from the tracker's
+  # own `labeled` timeline events, never from anything an agent reports.
+  rejection_escalation_threshold: 3
+
+forbidden:
+  - push_to_default_branch
+  - force_push
+  - merging_any_pull_request
+  - editing_source_outside_tests
+  - fixing_the_defect_it_found       # reject with specifics; a dev fixes it
+  - approving_without_evidence
+  - applying_both_verdict_labels
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_policies_directory
+  - editing_other_role_packs
+
+write_scope:
+  allow:
+    - "tests/**"
+    - "role-packs/qa/**"
+  deny:
+    - "src/**"
+    - "compiler/**"
+    - "scripts/**"
+    - "policies/**"
+    - ".github/**"
+    - "prds/**"
+    - "requirements/**"
+  # Beyond files: qa:* labels, comments on work items, and new bug issues.
+
+hitl_triggers:
+  - acceptance_criteria_untestable_as_written
+  - acceptance_criteria_contradict_prd
+  - verification_requires_unavailable_access
+  - third_rejection_on_one_work_item
+  - budget_breach
+
+escalation:
+  template: role-packs/qa/templates/escalation-comment.md
+  label: needs-human
+  ladder:
+    - retry
+    - alternate_approach
+    - alternate_harness
+    - human
+
+independence:
+  # PRD §11.2: a PR authored by one harness reviewed by another breaks
+  # correlated blind spots. Not enforceable in single-harness mode — stated
+  # so the gap is visible rather than forgotten.
+  prefer_different_harness_from_author: true
+  enforced: false
+  blocked_on: second_harness            # Phase 3

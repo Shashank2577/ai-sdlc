@@ -1,0 +1,84 @@
+# Orchestrator policy — WIP, budgets, forbidden actions, HITL triggers.
+version: 0
+role: orchestrator
+
+wip:
+  # The number that stops this system producing more branches than anyone
+  # can review. Reviewers are the bottleneck, not agents.
+  limit: 3
+  # What counts as in flight. Deliberately the label the dispatcher sets
+  # when a session actually starts, not the orchestrator's intent.
+  counts: [status:in-progress]
+  per_role:
+    # Optional caps under the global limit. Absent means "no extra cap".
+    developer: 3
+    qa: 2
+
+routing:
+  # v0 routes on labels, which works with any tracker. The GitHub Projects
+  # "Role" field would need a project-scoped token; see the story's PR.
+  field: label
+  prefix: "role:"
+  supported: [developer, qa]
+  # An item without one of these is unrefined, not "probably a dev story".
+  default: null
+
+eligibility:
+  require_labels: [status:ready]
+  exclude_labels: [needs-human, status:blocked, qa:rejected]
+  require_open: true
+
+budgets:
+  # The loop itself is cheap; these bound a session dispatched *as* the
+  # orchestrator, which only happens when a human asks it to reason about
+  # the board rather than just run the selection.
+  turns: 10
+  tokens: 60000
+  wall_clock_minutes: 10
+  max_retries: 1
+  on_breach: escalate
+
+forbidden:
+  - writing_source_code
+  - writing_tests
+  - push_to_default_branch
+  - force_push
+  - merging_any_pull_request
+  - setting_status_in_progress          # the dispatcher owns that transition
+  - removing_needs_human
+  - removing_status_blocked
+  - removing_qa_verdicts
+  - raising_its_own_wip_limit
+  - dispatching_items_without_a_role
+  - editing_policies_directory
+  - editing_other_role_packs
+
+write_scope:
+  allow:
+    - "role-packs/orchestrator/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - "policies/**"
+    - ".github/**"
+  # Beyond files: dispatching workflows, and comments on work items.
+
+hitl_triggers:
+  - nothing_eligible_while_items_sit_ready
+  - wip_limit_permanently_full
+  - every_eligible_item_missing_a_role
+  - budget_breach
+
+escalation:
+  template: role-packs/orchestrator/templates/escalation-comment.md
+  label: needs-human
+  ladder:
+    - retry
+    - alternate_approach
+    - alternate_harness
+    - human
+
+identity:
+  bot_account: foundry-orchestrator-bot
+  provisioned: false
+  blocked_on: human

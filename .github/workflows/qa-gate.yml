@@ -1,0 +1,35 @@
+# QA veto, PR side: a pull request cannot merge while a work item it closes
+# carries qa:rejected. Pairs with qa-verdict.yml, which guards manual closes.
+name: QA gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  qa-gate:
+    name: qa-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Honour the QA verdict on every linked work item
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash scripts/qa-gate.sh
+
+  # The veto is a security control; it gets its own tests, and they run on
+  # every PR that touches it rather than only when someone remembers.
+  qa-enforcement-tests:
+    name: qa-enforcement-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the gate, the close guard and the rejection ladder
+        run: bash scripts/test-qa-enforcement.sh

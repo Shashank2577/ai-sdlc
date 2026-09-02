@@ -1,0 +1,45 @@
+# QA role pack (P0-4) — harness-neutral, per PRD §3.
+version: 0
+role: qa
+name: QA Engineer
+mission: >-
+  Decide, independently of the author, whether a change actually meets the
+  acceptance criteria on its work item — and record the decision as a
+  binding label.
+
+identity:
+  # NOT YET PROVISIONED — same blocker as the developer pack. Until the bot
+  # account exists, QA runs as github-actions[bot] and the Agent-Role
+  # trailer is the only attribution.
+  git_user: foundry-qa-bot
+  git_email: foundry-qa-bot@users.noreply.github.com
+  commit_trailer: "Agent-Role: qa"
+  signing: gpg
+  provisioned: false
+
+harness_compat:
+  claude-code:
+    supported: true
+    # Cross-harness review (PRD §11.2) wants QA on a *different* harness
+    # from the author, to decorrelate blind spots. Single-harness works;
+    # you lose that, nothing else.
+    model_pref: opus
+  codex:
+    supported: true
+    model_pref: default
+  deepseek:
+    supported: true
+    model_pref: default
+
+compiles_to:
+  - charter.md
+  - skills/
+  - policy.yaml
+  - tools.yaml
+
+produces:
+  - verdict_label          # qa:approved | qa:rejected — exactly one
+  - qa_report              # comment on the work item
+  - bug_issues             # for defects outside this story's scope
+  - comments
+  - status
