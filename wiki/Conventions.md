@@ -41,10 +41,24 @@ honest provenance, not a gap.
 | `status:in-progress` | In Progress | a session is live |
 | `status:in-review` | In Review | PR open |
 | `status:blocked` | Blocked | escalates after 24h |
+| `needs-human` | overlays any column | a decision is waiting — see below |
 | _(closed)_ | Done | closed outranks any stale label |
 
 `role:*` routes assignment. `qa:approved` / `qa:rejected` are verdicts, and
-`qa:rejected` blocks closure. `needs-human` means a decision is waiting.
+`qa:rejected` blocks closure.
+
+`needs-human` covers two different waits, and looks identical on the board
+either way — read the comment on the issue to tell them apart:
+
+- a structured **escalation** (a failed session, a budget breach, a spent
+  retry ladder, three QA rejections, `status:blocked` past 24h), or
+- a held **approval gate** — most often dispatch approval, where an agent
+  applied `status:ready` to a story `policies/gates.yaml` marks critical,
+  and the gate handed it back on `status:needs-refinement` pending a person.
+
+Both are documented, with what happens if nobody answers, under
+[The approval gates](https://github.com/Shashank2577/foundry-program/wiki/Operating-the-System#the-approval-gates)
+on the Operating the System page.
 
 The board is a **view** of these labels, synced by `scripts/sync-project.py`.
 Editing a board field by hand is overwritten on the next sync — change the
