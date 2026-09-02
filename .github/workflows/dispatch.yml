@@ -493,19 +493,49 @@ jobs:
             --budget "$budget_json" --out "$spend" || breach=$?
           [ "$breach" = "3" ] || breach=0
 
-          # Expected outputs per the dispatch contract: what branch and PR
-          # did this work item actually produce? Capped at 100 PRs — a v0
-          # limit, honest rather than silent: on a busy repo an older PR for
-          # this work item can fall outside the window and read as "none".
+          # Expected outputs per the dispatch contract (PRD §11.2):
+          # [branch, commits, pr, comments, status]. An exit code is not a
+          # verdict — a session that finishes cleanly and ships nothing is a
+          # silent failure, which is the one category this system exists to
+          # remove. So check what it actually produced.
+          #
+          # Capped at 100 PRs — a v0 limit, honest rather than silent: on a
+          # busy repo an older PR for this work item can fall outside the
+          # window and read as "none".
           pr_json=$(gh pr list --state all --limit 100 --json number,url,headRefName,state 2>/dev/null || echo '[]')
           pr_line=$(
             jq -r --arg i "$ISSUE" '
               [ .[] | select(.headRefName | test("^(story|bug)/FDY-" + $i + "(-|$)")) ]
-              | if length == 0 then "_no branch matching `*/FDY-" + $i + "-*` found_"
+              | if length == 0 then "_none_"
                 else [ .[] | "[#\(.number)](\(.url)) — `\(.headRefName)` (\(.state))" ] | join("<br>")
                 end
             ' <<<"$pr_json"
           ) || pr_line="_could not query pull requests_"
+
+          has_pr=$(jq -r --arg i "$ISSUE" '
+            [ .[] | select(.headRefName | test("^(story|bug)/FDY-" + $i + "(-|$)")) ] | length > 0
+          ' <<<"$pr_json" 2>/dev/null || echo false)
+
+          branches=$(git ls-remote --heads origin \
+            "refs/heads/story/FDY-${ISSUE}-*" "refs/heads/bug/FDY-${ISSUE}-*" 2>/dev/null \
+            | awk '{print $2}' | sed 's|refs/heads/||' || true)
+          branch_line="_none_"
+          if [ -n "$branches" ]; then
+            branch_line=$(printf '%s\n' "$branches" \
+              | awk '{printf "%s`%s`", (NR > 1 ? "<br>" : ""), $0}')
+          fi
+
+          # A clean exit that shipped no pull request is not a success.
+          shipped_nothing=0
+          if [ "$outcome" = "success" ] && [ "$has_pr" != "true" ]; then
+            shipped_nothing=1
+            outcome="no-output"
+            if [ -n "$branches" ]; then
+              verdict="pushed a branch but opened no pull request"
+            else
+              verdict="produced no branch and no pull request"
+            fi
+          fi
 
           if [ "$breach" = "3" ]; then
             verdict="breached its budget"
@@ -524,6 +554,7 @@ jobs:
             echo "| Outcome | \`${outcome}\` |"
             echo "| Budget source | \`${BUDGET_SOURCE}\` |"
             echo "| Run | ${RUN_URL} |"
+            echo "| Branch | ${branch_line} |"
             echo "| Pull request | ${pr_line} |"
             echo
             echo "#### Spend"
@@ -538,8 +569,12 @@ jobs:
 
             if [ "$breach" = "3" ]; then
               blocker="the session ran past its budget. The breached lines are marked \`over\` in the Spend table above; the budget itself is \`${BUDGET_SOURCE}\`."
+            elif [ "$shipped_nothing" = "1" ] && [ -n "$branches" ]; then
+              blocker="the session finished cleanly and pushed \`${branches}\`, but never opened a pull request. The work exists on that branch; nothing reviews it."
+            elif [ "$shipped_nothing" = "1" ]; then
+              blocker="the session finished cleanly and produced nothing — no branch, no pull request. Whatever it edited lived only on the runner and is gone. See \"What the session did\" above for whether it got as far as editing files."
             else
-              blocker="the agent step reported \`${outcome}\`. Step-level detail and the full transcript are in the run log."
+              blocker="the agent step reported \`${outcome}\`. Step-level detail is in the run log."
             fi
 
             {
@@ -561,7 +596,22 @@ jobs:
               echo
               echo "**Options**"
               echo
-              if [ "$breach" = "3" ]; then
+              if [ "$shipped_nothing" = "1" ]; then
+                echo "- **A — check whether the session was allowed to push.** Free."
+                echo "  \"What the session did\" above shows its tool calls. Edits with"
+                echo "  no \`git push\` usually means the branch or push step failed, not"
+                echo "  that the work was impossible. \`role-packs/${ROLE}/tools.yaml\`"
+                echo "  permits \`git push origin story/*\` only."
+                echo "- **B — redispatch.** One session's spend. Right if A shows nothing"
+                echo "  structural — a session that edited files and stopped short may"
+                echo "  simply have lost the thread near the end of its budget."
+                echo "- **C — sharpen the work item's closing instruction.** Free. If"
+                echo "  sessions keep stopping before the PR, the charter is being read"
+                echo "  as \"make the change\" rather than \"open the pull request\"."
+                echo
+                echo "**Recommendation:** A. Shipping nothing twice for the same reason"
+                echo "is a system defect, not an unlucky session."
+              elif [ "$breach" = "3" ]; then
                 echo "- **A — read the Spend table above before spending again.** Free."
                 echo "  \"What the session did\" lists its tool calls and last actions;"
                 echo "  a breach after mostly reads means the story is big, a breach"
