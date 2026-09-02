@@ -4,12 +4,20 @@ Generated views over the program's own history. Nothing here is written by
 hand — if a page is wrong, the generator is wrong, and that is a bug issue.
 
 ```sh
-python3 dashboards/build.py --out site                 # needs gh auth
-python3 dashboards/build.py --out site --no-github     # git only, offline
+python3 dashboards/standup.py --out site               # digest first…
+python3 dashboards/build.py   --out site               # …then the matrix + index
+python3 dashboards/build.py   --out site --no-github   # git only, offline
+
 python3 dashboards/test_build.py                       # 17 tests
+python3 dashboards/test_standup.py                     # 19 tests
 ```
 
-Published by `.github/workflows/dashboards.yml` on every push to `main`.
+Order matters by one link: `build.py` writes the index and lists whichever
+pages are on disk, so running it alone never advertises a page that is not
+there.
+
+Published by `.github/workflows/dashboards.yml` on every push to `main` and
+daily at 06:10 UTC.
 
 ## Traceability matrix
 
@@ -39,6 +47,30 @@ correctly, where scraping subject lines for `(#123)` does not. If the lookup
 fails the build still completes and those rows fall back to amber, with the
 reason printed in the footer. A matrix that renders with a caveat beats no
 matrix.
+
+## Standup digest
+
+`standup.html` — the last 24 hours, computed from commit trailers, pull
+request state transitions, workflow run conclusions and label history.
+
+Nobody is asked what they did. Per-role activity comes from `Agent-Role:`
+trailers on commits that actually landed, so an agent that claims progress it
+did not make does not appear to have made it (REQ-006). "No commits in the
+window" is a legitimate and useful thing for the page to say.
+
+**Blocked items.** An item that has carried `status:blocked` for more than the
+window gets `needs-human` applied, with a costed escalation comment. The clock
+comes from the item's own `labeled` events, not from `updatedAt` — an item can
+be commented on daily and still be just as stuck.
+
+The threshold is strictly greater-than: at exactly 24h an item is not yet
+flagged. Boundary either way; this is the one that is tested.
+
+Escalation lives in a separate workflow (`.github/workflows/standup.yml`) from
+publishing. This one holds `issues: write` and never publishes; the dashboards
+workflow holds Pages permissions and never writes to the tracker. It recomputes
+the digest rather than consuming an artifact, so neither workflow depends on
+the other's run and the two cannot disagree.
 
 ## `traceability.json`
 

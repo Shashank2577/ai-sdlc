@@ -1,0 +1,80 @@
+# Standup escalations. Publishing and mutating the tracker are separate
+# workflows on purpose: this one writes labels and comments and never
+# publishes, so it needs `issues: write` and nothing else. The digest page
+# itself is built and deployed by dashboards.yml, which needs Pages
+# permissions and no write access to the tracker.
+#
+# It recomputes the digest rather than consuming an artifact from the other
+# workflow. The computation is deterministic from the same event sources, so
+# the two always agree, and neither workflow depends on the other's run.
+name: Standup
+
+on:
+  schedule:
+    # 06:15 UTC, five minutes after the digest is published, so the page a
+    # human opens already reflects what was just escalated.
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+    inputs:
+      window:
+        description: "Hours an item may sit status:blocked before escalation"
+        required: false
+        default: 24
+        type: number
+      dry_run:
+        description: "Compute and report, change nothing"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: standup
+  cancel-in-progress: false
+
+jobs:
+  escalate:
+    name: blocked-escalation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compute the digest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WINDOW: ${{ inputs.window || 24 }}
+        run: |
+          set -euo pipefail
+          python3 dashboards/standup.py \
+            --out "${RUNNER_TEMP}/site" --ref HEAD \
+            --repo "${GITHUB_REPOSITORY}" --window "${WINDOW}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Report what would be escalated
+        if: inputs.dry_run
+        run: |
+          set -euo pipefail
+          {
+            echo "## Dry run — nothing was changed"
+            echo
+            echo '```json'
+            jq '.blocked_stale' "${RUNNER_TEMP}/site/standup.json"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Apply needs-human to items blocked past the threshold
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIGEST: ${{ runner.temp }}/site/standup.json
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/standup-escalate.sh
