@@ -151,8 +151,21 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         rule = to_bash_rule(pattern)
         (deny if rule else unmappable).append(rule or f"deny:{pattern}")
 
+    # bypassPermissions, not acceptEdits. A prompt in a headless session is a
+    # denial, and an allowlist cannot enumerate a shell: two runs burned their
+    # whole budget on 27 denials each, including `claude --version`, which the
+    # charter instructs the agent to run.
+    #
+    # The allow list stays — it documents the happy path and is what a second
+    # harness would compile from — but the controls that actually hold are the
+    # deny list, branch protection with admin enforcement, and the token's
+    # scope. None of those depend on the allowlist being complete.
     settings = {
-        "permissions": {"allow": allow, "deny": deny, "defaultMode": "acceptEdits"},
+        "permissions": {
+            "allow": allow,
+            "deny": deny,
+            "defaultMode": "bypassPermissions",
+        },
     }
 
     out = {

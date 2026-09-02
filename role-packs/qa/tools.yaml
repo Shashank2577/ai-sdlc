@@ -19,7 +19,7 @@ tools:
 
 shell:
   allow:
-    - "git status"
+    - "git status*"
     - "git diff*"
     - "git log*"
     - "git show*"

@@ -308,6 +308,37 @@ class TestSpendReport(unittest.TestCase):
         md = SR.render(SR.check(spend, {"cost_usd": 5.0}), spend, "")
         self.assertIn("27 tool call(s) were denied", md)
 
+    def test_denied_calls_are_named_not_just_counted(self):
+        # Two sessions were lost to inferring which command was refused.
+        records = [
+            {"type": "assistant", "message": {"content": [
+                {"type": "tool_use", "id": "t1", "name": "Bash",
+                 "input": {"command": "claude --version"}}]}},
+            {"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "t1", "is_error": True,
+                 "content": "Claude requested permissions to use Bash, but you "
+                            "have not granted it yet."}]}},
+            {"type": "assistant", "message": {"content": [
+                {"type": "tool_use", "id": "t2", "name": "Read",
+                 "input": {"file_path": "ok.py"}}]}},
+            {"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "t2", "is_error": False,
+                 "content": "contents"}]}},
+        ]
+        denied = SR.denied_calls(records)
+        self.assertEqual(denied, ["Bash claude --version"])
+
+    def test_a_non_permission_error_is_not_counted_as_a_denial(self):
+        records = [
+            {"type": "assistant", "message": {"content": [
+                {"type": "tool_use", "id": "t1", "name": "Bash",
+                 "input": {"command": "pytest"}}]}},
+            {"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "t1", "is_error": True,
+                 "content": "2 tests failed"}]}},
+        ]
+        self.assertEqual(SR.denied_calls(records), [])
+
     def test_no_denials_adds_no_noise(self):
         p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000,
                                  total_cost_usd=0.5))
