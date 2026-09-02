@@ -1,0 +1,87 @@
+# The retro ceremony (P1-6). PRD §5 names it as one of five ceremonies;
+# §12 routes anything it surfaces into a role-pack skill through a
+# reviewed pull request, decided by a person. This workflow only observes
+# and writes one issue — it never touches role-packs/** itself, and
+# scripts/retro.py proposes no skill edit in its output.
+#
+# Event-derived, same rule as dashboards/standup.py: closed work items,
+# their dispatcher session-end comments, escalation comments, and check
+# failures in the window. Nobody is asked what was learned.
+#
+# `issues: write` is the only privileged scope: this creates at most one
+# issue per window and nothing else. GITHUB_TOKEN's default read access
+# already covers `gh run list` / `gh pr list` here, the same as
+# standup.yml, so nothing wider is requested.
+name: Retro
+
+on:
+  pull_request:
+    paths:
+      - "scripts/retro.py"
+      - "scripts/test_retro.py"
+      - ".github/workflows/retro.yml"
+  schedule:
+    # Monday 07:00 UTC — after the weekend, ahead of the week's first
+    # standup, covering the trailing 7 days by default.
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      window_days:
+        description: "Days of closed work items to fold into the window"
+        required: false
+        default: 7
+        type: number
+      dry_run:
+        description: "Compute the retro and print it; create no issue"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: retro
+  cancel-in-progress: false
+
+jobs:
+  # Runs everywhere, including pull requests, so a change to the
+  # extraction or window logic is checked before it next fires for real.
+  tests:
+    name: retro-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Retro generator tests
+        run: python3 scripts/test_retro.py
+
+  retro:
+    name: retro-ceremony
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the retro
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WINDOW_DAYS: ${{ inputs.window_days || 7 }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          args=(--repo "${GITHUB_REPOSITORY}" --window-days "${WINDOW_DAYS}" --run-url "${RUN_URL}")
+          if [ "${DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 scripts/retro.py "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
