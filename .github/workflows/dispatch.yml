@@ -30,6 +30,8 @@ on:
           - qa
           - product-manager
           - devops
+          - architect
+          - techwriter
       max_turns:
         description: "Turn budget override; 0 uses the role pack's policy.yaml"
         required: false

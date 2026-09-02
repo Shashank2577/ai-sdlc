@@ -14,6 +14,8 @@ wip:
     developer: 3
     qa: 2
     product-manager: 1
+    architect: 1
+    techwriter: 1
     # One at a time. A pipeline change reviewed in parallel with another
     # pipeline change is how two gates weaken at once.
     devops: 1
@@ -42,7 +44,7 @@ routing:
   # "Role" field would need a project-scoped token; see the story's PR.
   field: label
   prefix: "role:"
-  supported: [developer, qa, product-manager, devops]
+  supported: [developer, qa, product-manager, devops, architect, techwriter]
   # An item without one of these is unrefined, not "probably a dev story".
   default: null
 
