@@ -673,6 +673,21 @@ jobs:
             result=failure
           fi
 
+          # Where the item lands if this session failed. Computed here, not in
+          # the rollback, because the escalation text quotes it — referencing
+          # it before assignment aborted the whole step under `set -u`, which
+          # cost the comment, the escalation and the rollback together.
+          #
+          # It returns to the state its role dispatches from, so a failed QA
+          # session goes back to status:in-review rather than looking like
+          # unreviewed author work (#67). A shipped PR overrides that either
+          # way: `assign.py` would otherwise redispatch work already in
+          # review (#58).
+          new_status="${MATCHED_LABEL:-status:ready}"
+          if [ "$has_pr" = "true" ]; then
+            new_status="status:in-review"
+          fi
+
           {
             # Machine-readable first, and one definitive verdict rather than
             # something the counter has to re-derive. The old counter grepped
@@ -819,20 +834,8 @@ jobs:
           cat "$comment" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$result" = "failure" ]; then
-            # Every status:* label the session could have set (in-progress at
-            # start, in-review once a PR went up) is removed before the new
-            # one lands — otherwise the old one survives alongside it and the
-            # board shows a state nobody set (#58).
-            #
-            # The item returns to the state its role dispatches from, so a
-            # failed QA session goes back to status:in-review rather than
-            # looking like unreviewed author work (#67). A shipped PR
-            # overrides that either way: `assign.py` would otherwise
-            # redispatch work already sitting in review.
-            new_status="${MATCHED_LABEL:-status:ready}"
-            if [ "$has_pr" = "true" ]; then
-              new_status="status:in-review"
-            fi
+            # Labels are stripped and reapplied below; new_status was
+            # computed before the escalation, which quotes it.
             gh issue edit "$ISSUE" \
               --remove-label "status:ready" \
               --remove-label "status:in-progress" \
