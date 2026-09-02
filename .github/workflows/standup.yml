@@ -26,6 +26,14 @@ on:
         required: false
         default: false
         type: boolean
+  # scripts/test-standup-escalate.sh had no workflow running it at all —
+  # invisible to CI (#69). Path-scoped so a PR untouched by this workflow
+  # doesn't pay for it.
+  pull_request:
+    paths:
+      - scripts/standup-escalate.sh
+      - scripts/test-standup-escalate.sh
+      - .github/workflows/standup.yml
 
 permissions:
   contents: read
@@ -38,6 +46,9 @@ concurrency:
 jobs:
   escalate:
     name: blocked-escalation
+    # The real job mutates issues with a live token; it must never run from
+    # a pull_request event, only from the schedule or a manual dispatch.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,3 +89,16 @@ jobs:
           DIGEST: ${{ runner.temp }}/site/standup.json
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/standup-escalate.sh
+
+  # A gate that silently stops escalating stale work is theatre, not a
+  # control — it gets its own tests, run as a normal PR check whenever
+  # someone touches this workflow or its script, not only when someone
+  # remembers to run them by hand.
+  standup-escalate-tests:
+    name: standup-escalate-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the standup escalation script
+        run: bash scripts/test-standup-escalate.sh
