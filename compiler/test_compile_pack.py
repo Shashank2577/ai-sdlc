@@ -128,6 +128,40 @@ class TestValidation(unittest.TestCase):
             out = cp.compile_claude_code(cp.read_pack("widget"))
         self.assertEqual(out["token-secret"].strip(), "WIDGET_TOKEN")
 
+    def test_dispatchable_from_defaults_to_status_ready(self):
+        # #67: a pack silent on this inherits today's global behaviour
+        # rather than becoming un-dispatchable or wide open.
+        with PackFixture(MINIMAL_PACK):
+            pack = cp.read_pack("widget")
+            out = cp.compile_claude_code(pack)
+        self.assertEqual(pack["dispatchable_from"], ["status:ready"])
+        self.assertEqual(out["dispatchable-from"].strip(), "status:ready")
+
+    def test_dispatchable_from_is_declared_by_the_pack(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "dispatchable_from:\n  - status:in-review\n"
+        with PackFixture(files):
+            pack = cp.read_pack("widget")
+            out = cp.compile_claude_code(pack)
+        self.assertEqual(pack["dispatchable_from"], ["status:in-review"])
+        self.assertEqual(out["dispatchable-from"].strip(), "status:in-review")
+
+    def test_dispatchable_from_must_be_a_non_empty_list(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "dispatchable_from: []\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("dispatchable_from", str(ctx.exception))
+
+    def test_dispatchable_from_rejects_non_string_entries(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "dispatchable_from:\n  - 1\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("dispatchable_from", str(ctx.exception))
+
     def test_no_code_writing_role_may_edit_the_pipeline(self):
         # PRD §3 gives .github/workflows/ to DevOps. A role that writes code
         # must not be able to edit the check that reviews it.

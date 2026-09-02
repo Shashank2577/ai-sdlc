@@ -7,6 +7,12 @@ mission: >-
   acceptance criteria on its work item — and record the decision as a
   binding label.
 
+# States the dispatch guard accepts this role from (#67). QA reviews a
+# story once it has a PR open, which is status:in-review — not
+# status:ready, which is one stage earlier and belongs to the author.
+dispatchable_from:
+  - status:in-review
+
 identity:
   # NOT YET PROVISIONED — same blocker as the developer pack. Until the bot
   # account exists, QA runs as github-actions[bot] and the Agent-Role

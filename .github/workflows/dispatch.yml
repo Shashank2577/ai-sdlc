@@ -30,6 +30,9 @@ on:
           - qa
           - product-manager
           - devops
+          - architect
+          - techwriter
+          - delivery-lead
       max_turns:
         description: "Turn budget override; 0 uses the role pack's policy.yaml"
         required: false
@@ -72,19 +75,70 @@ jobs:
           fetch-depth: 0
 
       # ---------------------------------------------------------------
-      # 1. Guard.
+      # 1. Compile the role pack for this harness.
+      # ---------------------------------------------------------------
+      # Moved ahead of the guard (#67) because the guard needs to know
+      # which states this specific role may be dispatched from, and that
+      # is now the pack's call, not the workflow's — see dispatchable_from
+      # below.
+      - name: Compile the role pack for this harness
+        id: pack
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          python3 compiler/compile-pack.py --role "${ROLE}" \
+            --harness claude-code --out "${RUNNER_TEMP}/pack"
+          settings="${RUNNER_TEMP}/pack/${ROLE}/claude-code/settings.json"
+          echo "settings=${settings}" >> "$GITHUB_OUTPUT"
+
+          # Which credential this role runs with. The pack declares it; the
+          # dispatcher carries no role->secret table of its own, so adding a
+          # role does not mean editing this workflow.
+          token_secret=$(cat "${RUNNER_TEMP}/pack/${ROLE}/claude-code/token-secret")
+          echo "token_secret=${token_secret}" >> "$GITHUB_OUTPUT"
+          echo "Credential declared by the pack: ${token_secret}" >> "$GITHUB_STEP_SUMMARY"
+
+          # Which status:* labels this role may be dispatched from. Same
+          # pattern as token_secret above: the pack declares it, the
+          # dispatcher carries no role->state table of its own, and adding
+          # or changing a role's entry point is a pack PR, not a workflow
+          # edit (#67).
+          dispatchable_from=$(paste -sd, "${RUNNER_TEMP}/pack/${ROLE}/claude-code/dispatchable-from")
+          echo "dispatchable_from=${dispatchable_from}" >> "$GITHUB_OUTPUT"
+          echo "Dispatchable from (declared by the pack): ${dispatchable_from}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Compiled permissions"
+            echo
+            echo '```json'
+            cat "$settings"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          ROLE: ${{ inputs.role }}
+
+      # ---------------------------------------------------------------
+      # 2. Guard.
       # ---------------------------------------------------------------
       # This is the v0 prompt-injection guard. The issue body is fed
       # verbatim into a session that holds write credentials, and on a
       # public repo anyone can open an issue. Applying a label, however,
-      # requires write access. Gating on status:ready therefore means the
-      # only untrusted text an agent ever sees is text a maintainer has
+      # requires write access. Gating on a status:* label therefore means
+      # the only untrusted text an agent ever sees is text a maintainer has
       # explicitly approved. Fail closed, fail loud, mutate nothing.
-      - name: Guard — work item must be maintainer-approved (status:ready)
+      #
+      # Which labels count as approval is per-role (#67): a story author
+      # starts from status:ready, but QA reviewing that author's PR starts
+      # from status:in-review — that transition already happened under a
+      # human's status:ready, so requiring it a second time made QA
+      # structurally undispatchable. dispatchable_from, above, is that
+      # role's answer; this step just enforces it.
+      - name: Guard — work item must be dispatchable for this role
         id: guard
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue }}
+          ROLE: ${{ inputs.role }}
+          ACCEPTED: ${{ steps.pack.outputs.dispatchable_from }}
         run: |
           set -euo pipefail
           # Scratch files go to RUNNER_TEMP, never the checkout: anything left
@@ -103,14 +157,26 @@ jobs:
             exit 1
           fi
 
-          if ! jq -e '.labels[] | select(.name == "status:ready")' "$meta" > /dev/null; then
+          matched=""
+          IFS=',' read -ra accepted_labels <<< "$ACCEPTED"
+          for label in "${accepted_labels[@]}"; do
+            if jq -e --arg l "$label" '.labels[] | select(.name == $l)' "$meta" > /dev/null; then
+              matched="$label"
+              break
+            fi
+          done
+
+          if [ -z "$matched" ]; then
             have=$(jq -r 'if (.labels | length) == 0 then "(none)" else [.labels[].name] | join(", ") end' "$meta")
-            echo "::error::Work item #${ISSUE} is not labelled status:ready (labels: ${have}). \
-          Only maintainer-approved work is dispatched to an agent — refine the issue and apply status:ready first."
+            echo "::error::Work item #${ISSUE} is not labelled any of [${ACCEPTED}] (labels: ${have}). \
+          The \`${ROLE}\` role only starts from [${ACCEPTED}] — only maintainer-approved work is \
+          dispatched to an agent. Refine the issue and apply one of those labels first."
             exit 1
           fi
 
-          echo "Guard passed: #${ISSUE} is open and labelled status:ready." >> "$GITHUB_STEP_SUMMARY"
+          echo "matched_label=${matched}" >> "$GITHUB_OUTPUT"
+          echo "Guard passed: #${ISSUE} is open and labelled ${matched} (role \`${ROLE}\` accepts: [${ACCEPTED}])." \
+            >> "$GITHUB_STEP_SUMMARY"
 
       # Fail before touching the tracker if the session could never run.
       - name: Preflight — an agent credential must be configured
@@ -132,7 +198,7 @@ jobs:
 
 
       # ---------------------------------------------------------------
-      # 2. Budget + escalation ladder (P0-7).
+      # 3. Budget + escalation ladder (P0-7).
       # ---------------------------------------------------------------
       # Budgets live in the role pack, not here (PRD §13). Two things
       # happen before anything is dispatched: the budget is resolved, and
@@ -231,7 +297,7 @@ jobs:
           exit 1
 
       # ---------------------------------------------------------------
-      # 3. Session start.
+      # 4. Session start.
       # ---------------------------------------------------------------
       - name: Session start — announce on the work item, move to status:in-progress
         id: session_start
@@ -247,6 +313,7 @@ jobs:
           BUDGET_SOURCE: ${{ steps.budget.outputs.source }}
           PRIOR_FAILURES: ${{ steps.budget.outputs.prior_failures }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
         run: |
           set -euo pipefail
           comment="${RUNNER_TEMP}/start-comment.md"
@@ -268,10 +335,14 @@ jobs:
           Session end reports the outcome and the spend either way.
           EOF
           gh issue comment "$ISSUE" --body-file "$comment"
-          gh issue edit "$ISSUE" --remove-label "status:ready" --add-label "status:in-progress"
+          # Whichever dispatchable_from label the guard matched — status:ready
+          # for a developer, status:in-review for QA — is what comes off here.
+          # A hardcoded "status:ready" would silently no-op for any role that
+          # started from something else (#67).
+          gh issue edit "$ISSUE" --remove-label "${MATCHED_LABEL}" --add-label "status:in-progress"
 
       # ---------------------------------------------------------------
-      # 4. Assemble the prompt.
+      # 5. Assemble the prompt.
       # ---------------------------------------------------------------
       # Work item + CONVENTIONS.md + role charter + budget, written to a
       # file so the exact text handed to the session is one auditable
@@ -415,43 +486,18 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       # ---------------------------------------------------------------
-      # 5. Run the agent.
+      # 6. Run the agent.
       # ---------------------------------------------------------------
       # Auth: prefer ANTHROPIC_API_KEY; fall back to CLAUDE_CODE_OAUTH_TOKEN.
       # The preference is expressed here rather than left to the action's
       # internal precedence, so it stays true if that precedence changes.
-      # The role pack has rendered a settings.json since P0-3 and nothing
-      # ever consumed it. The first autonomous dispatch recorded 27
+      # The role pack renders a settings.json (step 1) and nothing consumed
+      # it until this was fixed — the first autonomous dispatch recorded 27
       # permission denials and shipped nothing as a result.
-      - name: Compile the role pack for this harness
-        id: pack
-        run: |
-          set -euo pipefail
-          python3 -m pip install --quiet pyyaml
-          python3 compiler/compile-pack.py --role "${ROLE}" \
-            --harness claude-code --out "${RUNNER_TEMP}/pack"
-          settings="${RUNNER_TEMP}/pack/${ROLE}/claude-code/settings.json"
-          echo "settings=${settings}" >> "$GITHUB_OUTPUT"
-
-          # Which credential this role runs with. The pack declares it; the
-          # dispatcher carries no role->secret table of its own, so adding a
-          # role does not mean editing this workflow.
-          token_secret=$(cat "${RUNNER_TEMP}/pack/${ROLE}/claude-code/token-secret")
-          echo "token_secret=${token_secret}" >> "$GITHUB_OUTPUT"
-          echo "Credential declared by the pack: ${token_secret}" >> "$GITHUB_STEP_SUMMARY"
-          {
-            echo "## Compiled permissions"
-            echo
-            echo '```json'
-            cat "$settings"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-        env:
-          ROLE: ${{ inputs.role }}
-
-      # Falling back silently would leave a session failing on a permission
-      # wall with no clue why — which has already cost this repo several
-      # sessions and a lot of inference.
+      #
+      # Falling back silently on the credential below would leave a session
+      # failing on a permission wall with no clue why — which has already
+      # cost this repo several sessions and a lot of inference.
       - name: Check the role's credential is configured
         id: cred
         env:
@@ -504,7 +550,7 @@ jobs:
           github_token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
 
       # ---------------------------------------------------------------
-      # 6. Session end. Always.
+      # 7. Session end. Always.
       # ---------------------------------------------------------------
       # A session that dies without reporting is an untracked action, which
       # is the one thing this system does not allow. So this step runs on
@@ -526,6 +572,7 @@ jobs:
           STARTED: ${{ steps.session_start.outcome }}
           AGENT_OUTCOME: ${{ steps.agent.outcome }}
           EXECUTION_FILE: ${{ steps.agent.outputs.execution_file }}
+          MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
         run: |
           set -euo pipefail
 
@@ -627,6 +674,21 @@ jobs:
             result=failure
           fi
 
+          # Where the item lands if this session failed. Computed here, not in
+          # the rollback, because the escalation text quotes it — referencing
+          # it before assignment aborted the whole step under `set -u`, which
+          # cost the comment, the escalation and the rollback together.
+          #
+          # It returns to the state its role dispatches from, so a failed QA
+          # session goes back to status:in-review rather than looking like
+          # unreviewed author work (#67). A shipped PR overrides that either
+          # way: `assign.py` would otherwise redispatch work already in
+          # review (#58).
+          new_status="${MATCHED_LABEL:-status:ready}"
+          if [ "$has_pr" = "true" ]; then
+            new_status="status:in-review"
+          fi
+
           {
             # Machine-readable first, and one definitive verdict rather than
             # something the counter has to re-derive. The old counter grepped
@@ -701,6 +763,19 @@ jobs:
                 echo
                 echo "**Recommendation:** A. Shipping nothing twice for the same reason"
                 echo "is a system defect, not an unlucky session."
+              elif [ "$has_pr" = "true" ]; then
+                echo "- **A — review the open pull request and finish it.** One"
+                echo "  session's spend at most. The work is already up, in the pull"
+                echo "  request above; finishing it is usually cheaper than redoing it."
+                echo "- **B — redispatch to continue from the open pull request.** One"
+                echo "  session's spend. Right if the PR is close but the session ran"
+                echo "  out of room before it was done."
+                echo "- **C — close the pull request and start over.** Right only if"
+                echo "  the approach taken is wrong, not merely incomplete."
+                echo
+                echo "**Recommendation:** A or B — the work already has a home. This is"
+                echo "a story in review that needs finishing, not a story to redispatch"
+                echo "as-is."
               elif [ "$breach" = "3" ]; then
                 echo "- **A — read the Spend table above before spending again.** Free."
                 echo "  \"What the session did\" lists its tool calls and last actions;"
@@ -739,9 +814,15 @@ jobs:
               echo "nothing reads this comment. The reply is the record; removing the"
               echo "label is what releases the work back to the loop."
               echo
-              echo "**State left behind:** work item returned to \`status:ready\` with"
-              echo "\`needs-human\`. Any branch the session pushed is still there;"
-              echo "nothing was deleted, force-pushed or merged."
+              if [ "$has_pr" = "true" ]; then
+                echo "**State left behind:** work item stays \`status:in-review\` with"
+                echo "\`needs-human\`. The pull request above is untouched; nothing was"
+                echo "merged, closed or force-pushed."
+              else
+                echo "**State left behind:** work item returned to \`${new_status}\` with"
+                echo "\`needs-human\`. Any branch the session pushed is still there;"
+                echo "nothing was deleted, force-pushed or merged."
+              fi
               if [ "$remaining" -le 0 ]; then
                 echo
                 echo "> The retry budget is now spent. The next dispatch will refuse to"
@@ -754,9 +835,15 @@ jobs:
           cat "$comment" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$result" = "failure" ]; then
-            # Hand the work item back in a dispatchable state, flagged.
+            # Labels are stripped and reapplied below; new_status was
+            # computed before the escalation, which quotes it.
             gh issue edit "$ISSUE" \
+              --remove-label "status:ready" \
               --remove-label "status:in-progress" \
-              --add-label "status:ready" \
+              --remove-label "status:in-review" \
+              --remove-label "status:blocked" \
+              --remove-label "status:needs-refinement"
+            gh issue edit "$ISSUE" \
+              --add-label "$new_status" \
               --add-label "needs-human"
           fi

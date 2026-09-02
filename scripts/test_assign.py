@@ -29,7 +29,7 @@ POLICY = {
     "routing": {"prefix": "role:", "supported": ["developer", "qa"], "default": None},
     "eligibility": {
         "require_labels": ["status:ready"],
-        "exclude_labels": ["needs-human", "status:blocked", "qa:rejected"],
+        "exclude_labels": ["needs-human", "status:blocked"],
         "require_open": True,
     },
 }
@@ -40,8 +40,14 @@ def issue(number, *labels, state="OPEN", title=None):
             "url": f"https://example/{number}", "labels": [{"name": n} for n in labels]}
 
 
+# Each role's own entry state (#79) — role-packs/<role>/pack.yaml's
+# dispatchable_from, mirrored here rather than read from disk so these
+# tests stay a pure function of fixtures the way plan() is.
+ENTRY_STATE = {"developer": "status:ready", "qa": "status:in-review"}
+
+
 def ready(number, role="developer", *extra):
-    return issue(number, "status:ready", f"role:{role}", *extra)
+    return issue(number, ENTRY_STATE.get(role, "status:ready"), f"role:{role}", *extra)
 
 
 class TestEligibility(unittest.TestCase):
@@ -67,11 +73,14 @@ class TestEligibility(unittest.TestCase):
         self.assertIn("status:blocked",
                       A.ineligible_reason(ready(1, "developer", "status:blocked"), POLICY))
 
-    def test_qa_rejected_blocks(self):
-        # Rejected work goes back through its author, not through fresh
-        # assignment.
-        self.assertIn("qa:rejected",
-                      A.ineligible_reason(ready(1, "developer", "qa:rejected"), POLICY))
+    def test_qa_rejected_does_not_block_a_fresh_developer_assignment(self):
+        # Superseded (#79): "goes back through its author, not through
+        # fresh assignment" assumed a human reassigns rejected work.
+        # dispatchable_from is what actually gates it — a rejected item
+        # cannot reach status:ready for role:developer without a human
+        # moving it there, and once it does, redispatching it *is* the
+        # fresh assignment that closes the rejection loop.
+        self.assertTrue(self.eligible(ready(1, "developer", "qa:rejected")))
 
     def test_no_role_label_is_never_guessed(self):
         reason = A.ineligible_reason(issue(1, "status:ready"), POLICY)
@@ -86,6 +95,38 @@ class TestEligibility(unittest.TestCase):
         reason = A.ineligible_reason(issue(1, "status:ready", "role:architect"), POLICY)
         self.assertIn("architect", reason)
         self.assertIn("developer, qa", reason)
+
+
+class TestPerRoleDispatchableFrom(unittest.TestCase):
+    """Each role's own `dispatchable_from` gates it (#79), read from
+    role-packs/<role>/pack.yaml the same way `dispatch.yml`'s guard reads
+    it — not one `status:ready` fixed for every role. The three scenarios
+    below are the issue's own acceptance criteria.
+    """
+
+    def eligible(self, iss):
+        return A.ineligible_reason(iss, POLICY) is None
+
+    def test_qa_in_review_is_eligible(self):
+        self.assertTrue(self.eligible(issue(1, "status:in-review", "role:qa")))
+
+    def test_developer_in_review_is_not_eligible(self):
+        # Work already under review is not a fresh developer assignment.
+        reason = A.ineligible_reason(issue(1, "status:in-review", "role:developer"), POLICY)
+        self.assertIn("missing status:ready", reason)
+
+    def test_developer_ready_is_eligible_as_today(self):
+        self.assertTrue(self.eligible(ready(1, "developer")))
+
+    def test_a_role_with_no_declared_dispatchable_from_falls_back_to_require_labels(self):
+        # role-packs/architect/pack.yaml declares no dispatchable_from, so
+        # the orchestrator's own eligibility.require_labels is the
+        # fallback, not the rule (#79).
+        policy = {**POLICY, "routing": {**POLICY["routing"], "supported": ["architect"]}}
+        self.assertIsNotNone(
+            A.ineligible_reason(issue(1, "status:in-review", "role:architect"), policy))
+        self.assertIsNone(
+            A.ineligible_reason(issue(1, "status:ready", "role:architect"), policy))
 
 
 class TestWipLimit(unittest.TestCase):
@@ -180,7 +221,7 @@ class TestQuietLoop(unittest.TestCase):
                    POLICY)
         self.assertEqual(p["dispatch"], [])
         self.assertEqual({s["number"] for s in p["skipped"]}, {1, 2})
-        self.assertIn("missing status:ready", p["skipped"][0]["reason"])
+        self.assertIn("no `role:*` label", p["skipped"][0]["reason"])
 
     def test_the_report_names_every_decision(self):
         p = A.plan([ready(1), issue(2, "status:ready"),
@@ -189,6 +230,52 @@ class TestQuietLoop(unittest.TestCase):
         self.assertIn("dispatch #1", report)
         self.assertIn("skip     #2", report)
         self.assertIn("1/3 in flight", report)
+
+
+class TestRoutingSymmetry(unittest.TestCase):
+    """The two lists that must agree, and twice have not.
+
+    `routing.supported` is delivery-lead scope; `dispatch.yml`'s role
+    choices are devops scope. A story adding a role can only edit one of
+    them, so they drift by construction — architect and techwriter shipped
+    routable-by-the-loop and unroutable-by-the-workflow (#62), and
+    delivery-lead did the same thing the same day (#76).
+    """
+
+    def _lists(self):
+        import yaml
+        root = HERE.parent
+        wf = yaml.safe_load((root / ".github/workflows/dispatch.yml").read_text())
+        # PyYAML 1.1 reads a bare `on:` key as the boolean True.
+        trigger = wf.get("on") or wf.get(True)
+        dispatch = set(trigger["workflow_dispatch"]["inputs"]["role"]["options"])
+        policy = yaml.safe_load(
+            (root / "role-packs/orchestrator/policy.yaml").read_text())
+        return dispatch, set(policy["routing"]["supported"])
+
+    def test_every_routable_role_can_be_dispatched(self):
+        dispatch, routing = self._lists()
+        self.assertEqual(routing - dispatch, set(),
+                         "in routing.supported but not in dispatch.yml — the loop "
+                         "will plan a dispatch the workflow rejects")
+
+    def test_every_dispatchable_role_is_routable(self):
+        dispatch, routing = self._lists()
+        self.assertEqual(dispatch - routing, set(),
+                         "in dispatch.yml but not in routing.supported — the role "
+                         "can only ever be dispatched by hand")
+
+    def test_every_pack_with_a_role_label_is_routable(self):
+        # A pack that compiles and has a label but no routing entry is a
+        # role nobody can be assigned work in.
+        import yaml
+        root = HERE.parent
+        _, routing = self._lists()
+        packs = {p.name for p in (root / "role-packs").iterdir()
+                 if (p / "pack.yaml").is_file()}
+        # The orchestrator is the dispatcher, not a dispatchee.
+        self.assertEqual(packs - routing - {"orchestrator"}, set(),
+                         "role packs with no routing entry")
 
 
 class TestPolicyLoading(unittest.TestCase):

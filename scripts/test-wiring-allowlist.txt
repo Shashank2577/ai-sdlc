@@ -1,0 +1,10 @@
+# Test files (test_*.py / test-*.sh) that no workflow executes, on purpose.
+#
+# scripts/check-test-wiring.sh treats every other such file as a bug: a
+# test nobody runs is a test that can fail for weeks with every check
+# green (#69). An entry here is the deliberate exception, not a shortcut —
+# it must name a real reason, or the check rejects the entry itself.
+#
+# Format: one entry per line, "<path from repo root><TAB><reason>".
+# Blank lines and lines starting with # are ignored.
+scripts/test-dispatch-session-end.sh	Tests a run: step embedded in dispatch.yml's single 849-line job, gated by a workflow-level concurrency group keyed on inputs.issue. Wiring a pull_request trigger into that workflow safely is its own reviewed change, not a footnote here — tracked in #84.

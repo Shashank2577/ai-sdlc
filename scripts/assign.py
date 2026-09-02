@@ -16,6 +16,7 @@ it is not there when it says something real.
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import re
 import subprocess
@@ -70,6 +71,28 @@ def role_of(issue: dict, routing: dict) -> str | None:
     return found[0] if found[0] in routing.get("supported", []) else None
 
 
+@functools.lru_cache(maxsize=None)
+def dispatchable_from(role: str) -> tuple[str, ...] | None:
+    """The states `role-packs/<role>/pack.yaml` declares this role may be
+    dispatched from — the same declaration `dispatch.yml`'s guard reads via
+    the compiler (#67). None means the pack declares nothing (or cannot be
+    read), and the caller falls back to `eligibility.require_labels`: that
+    fallback is for a silent pack, not the rule for every role.
+    """
+    path = REPO_ROOT / "role-packs" / role / "pack.yaml"
+    if not path.is_file():
+        return None
+    try:
+        import yaml
+        data = yaml.safe_load(path.read_text()) or {}
+    except Exception:
+        return None
+    states = data.get("dispatchable_from")
+    if not isinstance(states, list) or not states or not all(isinstance(s, str) for s in states):
+        return None
+    return tuple(states)
+
+
 def ineligible_reason(issue: dict, policy: dict) -> str | None:
     """None means eligible. Otherwise a sentence a human can act on."""
     elig, routing = policy["eligibility"], policy["routing"]
@@ -77,9 +100,6 @@ def ineligible_reason(issue: dict, policy: dict) -> str | None:
 
     if elig.get("require_open", True) and issue.get("state") != "OPEN":
         return "not open"
-    missing = [l for l in elig.get("require_labels", []) if l not in names]
-    if missing:
-        return f"missing {', '.join(missing)}"
     blocking = [l for l in elig.get("exclude_labels", []) if l in names]
     if blocking:
         return f"carries {', '.join(blocking)}"
@@ -90,9 +110,16 @@ def ineligible_reason(issue: dict, policy: dict) -> str | None:
         return f"no `{prefix}*` label — refinement is not finished"
     if len(role_labels) > 1:
         return f"several role labels ({', '.join(sorted(role_labels))})"
-    if role_of(issue, routing) is None:
+    role = role_of(issue, routing)
+    if role is None:
         return (f"role `{role_labels[0][len(prefix):]}` is not dispatchable "
                 f"(supported: {', '.join(routing.get('supported', []))})")
+
+    entry_states = dispatchable_from(role) or tuple(elig.get("require_labels", []))
+    if entry_states and not (set(entry_states) & names):
+        if len(entry_states) == 1:
+            return f"missing {entry_states[0]}"
+        return f"missing one of {', '.join(entry_states)}"
     return None
 
 

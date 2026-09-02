@@ -32,6 +32,12 @@ REQUIRED_POLICY_KEYS = ("budgets", "forbidden", "hitl_triggers", "escalation")
 REQUIRED_BUDGET_KEYS = ("turns", "cost_usd", "tokens", "wall_clock_minutes",
                         "max_retries")
 
+# A pack that does not declare which states it may be dispatched from
+# inherits today's global behaviour: maintainer-approved work only. Roles
+# that run later in the lifecycle (QA, at status:in-review) say so
+# explicitly in their own pack.yaml.
+DEFAULT_DISPATCHABLE_FROM = ["status:ready"]
+
 
 class PackError(Exception):
     """A pack is malformed. Always fatal — a half-valid pack is worse."""
@@ -72,6 +78,14 @@ def read_pack(role: str) -> dict:
             f"but the directory says `{role}`"
         )
 
+    dispatchable_from = pack.get("dispatchable_from", DEFAULT_DISPATCHABLE_FROM)
+    if (not isinstance(dispatchable_from, list) or not dispatchable_from
+            or not all(isinstance(s, str) and s.strip() for s in dispatchable_from)):
+        raise PackError(
+            f"role-packs/{role}/pack.yaml: dispatchable_from must be a "
+            "non-empty list of label strings"
+        )
+
     for key in REQUIRED_POLICY_KEYS:
         if key not in policy:
             raise PackError(f"role-packs/{role}/policy.yaml: missing `{key}`")
@@ -97,6 +111,7 @@ def read_pack(role: str) -> dict:
         "policy": policy,
         "tools": tools,
         "token_secret": pack["identity"]["token_secret"],
+        "dispatchable_from": dispatchable_from,
         "charter": (root / "charter.md").read_text(),
         "skills": [(p.stem, p.read_text()) for p in skills],
     }
@@ -180,6 +195,11 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         # The dispatcher reads this to pick the role's credential rather
         # than carrying a role->secret table of its own.
         "token-secret": pack["token_secret"] + "\n",
+        # Which status:* labels the guard accepts before dispatching this
+        # role. One per line — the dispatcher reads this instead of
+        # carrying a role->state table of its own (same pattern as
+        # token-secret above).
+        "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
     }
     if unmappable:
         out["UNMAPPABLE.md"] = (

@@ -210,5 +210,35 @@ check "an unknown mode is a hard error" 2 $? "$WORK/out" "unknown MODE"
 
 # ---------------------------------------------------------------------------
 echo
+echo "scripts/qa-verdict.sh — return-to-ready"
+# ---------------------------------------------------------------------------
+
+labels_json() {  # labels_json <name...>
+  python3 -c "
+import json,sys
+print(json.dumps([{'name': n} for n in sys.argv[1:]]))" "$@"
+}
+
+setup
+LABELS_JSON="$(labels_json status:in-review qa:rejected)" \
+  MODE=return-to-ready ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "an in-review story returns to status:ready" 0 $? "$WORK/out" "returned it to status:ready"
+assert "removed status:in-review and added status:ready" grep \
+  "gh issue edit 42 --remove-label status:in-review --add-label status:ready" "$STATE_DIR/calls.log"
+
+setup
+LABELS_JSON="$(labels_json status:ready qa:rejected)" \
+  MODE=return-to-ready ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "a story already at status:ready is left alone" 0 $? "$WORK/out" "Nothing to do"
+assert "made no gh calls" '!grep' "gh " "$STATE_DIR/calls.log"
+
+setup
+LABELS_JSON="$(labels_json status:blocked qa:rejected)" \
+  MODE=return-to-ready ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "a story at a different status is left alone" 0 $? "$WORK/out" "Nothing to do"
+assert "made no gh calls" '!grep' "gh " "$STATE_DIR/calls.log"
+
+# ---------------------------------------------------------------------------
+echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

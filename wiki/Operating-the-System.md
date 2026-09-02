@@ -23,6 +23,64 @@ The session comments on the issue, moves it to `status:in-progress`, works on a
 `story/FDY-<n>-<slug>` branch, opens a PR, and reports the outcome and the
 spend either way.
 
+## The approval gates
+
+Three human decisions gate this system. `policies/gates.yaml` declares each
+one — question, owner, default if nobody answers, SLA — and no role may
+write that file, including this one. This section says what a human sees;
+the policy is the rule.
+
+### Dispatch approval
+
+**Asks:** is this story approved to run unsupervised?
+**Answered by:** a person, and only a person — the gate's owner is `human`.
+
+Approval is not a label, it is an identity. The `issues: labeled` webhook
+carries who applied the label, so `status:ready` only *is* approval when a
+person applied it. That distinction only matters for **critical** work —
+`role:devops` items, anything touching policies, workflows, credentials,
+requirements, production, or sized `Estimate: L`/`XL` (the full list is
+`critical_when` in `policies/gates.yaml`). Routine work dispatches on an
+agent's own `status:ready`, same as always.
+
+When an agent applies `status:ready` to a critical story, the gate check
+(`scripts/gate-check.py`, wired to the `issues: labeled` event) catches it,
+comments why, strips the label back to `status:needs-refinement`, and adds
+`needs-human`. Nothing dispatches it until a person applies `status:ready`
+themselves — there's nothing else to do, and nothing an agent can do in
+their place.
+
+**If nobody answers:** the story simply sits on `status:needs-refinement` +
+`needs-human`, which is the gate's stated default — there's no separate
+timer that fires at the 24h SLA in `gates.yaml`; that number is what the
+policy expects of a person, not a mechanism that acts on its own if they
+miss it. It's a wait, not a decision made by default.
+
+### Merge
+
+**Asks:** should this pull request land?
+**Answered by:** a person, pressing merge.
+
+There's no label for this gate — it's enforced structurally instead:
+protected branch, admin enforcement included, required status checks, and
+`gh pr merge` sits on every role pack's tool deny list. If nobody merges,
+the PR just stays open; nothing times it out.
+
+### QA verdict
+
+**Asks:** does this meet its acceptance criteria?
+**Answered by:** the `qa` role — the one gate an agent, not a person, may
+satisfy — via the `qa:approved` label.
+
+See [The QA veto](#the-qa-veto) below for how `qa:rejected` blocks closure.
+If nobody answers, the story simply cannot close.
+
+### `needs-human` now means two things
+
+The label marks a structured escalation waiting for a decision (see "When
+something escalates" below) *and* a held approval gate, as above. Both look
+the same on the board; the comment on the issue says which one it is.
+
 ## Budgets
 
 Per role, in `role-packs/<role>/policy.yaml`. Changing one is a reviewed PR

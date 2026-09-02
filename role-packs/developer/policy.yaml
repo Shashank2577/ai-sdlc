@@ -7,10 +7,16 @@ role: developer
 
 budgets:
   # Per work item, per session.
-  turns: 60
-  # 60 turns: the first live session spent 31 and was still reading
-  # code, with no branch pushed. Read -> edit -> test -> commit -> push ->
-  # PR does not fit in 30.
+  # 90, from five sessions. A feature story finished in 23 turns (#22);
+  # role packs ran 45, 48, 61 and 67 (#49, #39, #64, #50), so 60 sat in the
+  # middle of that distribution and killed half of them. Writing a pack is
+  # seven files and ~500 lines.
+  #
+  # The variance is really per story type, not per role — one number cannot
+  # express both a 23-turn feature and a 67-turn pack. dispatch.yml's
+  # max_turns input already overrides per dispatch, which is the better
+  # lever once anyone is choosing it deliberately.
+  turns: 90
   cost_usd: 5.00          # the ceiling: a breach here escalates
   tokens: 400000            # tripwire only — reported, never a breach
   wall_clock_minutes: 45

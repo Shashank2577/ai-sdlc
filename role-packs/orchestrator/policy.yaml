@@ -14,9 +14,14 @@ wip:
     developer: 3
     qa: 2
     product-manager: 1
+    architect: 1
+    techwriter: 1
     # One at a time. A pipeline change reviewed in parallel with another
     # pipeline change is how two gates weaken at once.
     devops: 1
+    # Same reasoning as devops: a governance change reviewed in parallel
+    # with another governance change is how two policies drift at once.
+    delivery-lead: 1
 
 refill:
   # When the ready queue drops to or below this, the backlog needs refilling
@@ -42,13 +47,23 @@ routing:
   # "Role" field would need a project-scoped token; see the story's PR.
   field: label
   prefix: "role:"
-  supported: [developer, qa, product-manager, devops]
+  supported: [developer, qa, product-manager, devops, architect, techwriter, delivery-lead]
   # An item without one of these is unrefined, not "probably a dev story".
   default: null
 
 eligibility:
+  # Fallback only, for a role pack that declares no dispatchable_from of
+  # its own (#79) — not the rule every role is checked against. The rule
+  # is each role's own pack.yaml:dispatchable_from, read the way
+  # dispatch.yml's guard reads it.
   require_labels: [status:ready]
-  exclude_labels: [needs-human, status:blocked, qa:rejected]
+  # qa:rejected is deliberately absent (#79). A rejected item cannot reach
+  # status:ready for role:developer, or status:in-review for role:qa,
+  # without a human moving it there — dispatchable_from is already the
+  # gate. Excluding qa:rejected here on top of that blocked the very
+  # redispatch "fresh assignment" is supposed to mean: a human resets a
+  # fixed story to status:ready and the loop picks it back up.
+  exclude_labels: [needs-human, status:blocked]
   require_open: true
 
 budgets:

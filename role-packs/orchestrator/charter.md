@@ -27,14 +27,19 @@ An item is eligible when all of these hold. Any one of them failing makes it
 not eligible, and there is no partial credit.
 
 - Open.
-- Labelled `status:ready` — a maintainer has approved it (the same guard the
-  dispatcher enforces).
 - Labelled `role:<something>` the dispatcher supports.
+- Labelled one of that role's own `dispatchable_from` states (its pack.yaml,
+  read the way `dispatch.yml`'s guard reads it) — `status:ready` for a
+  developer, `status:in-review` for QA, and so on. A maintainer's label is
+  still what got it there; which label depends on the role (#79).
 - Not `needs-human`. A decision is waiting; dispatching over it wastes a
   session and buries the question.
 - Not `status:blocked`. Blocked means something outside this loop.
-- Not `qa:rejected`. That work goes back through its author, not through
-  fresh assignment.
+
+A rejected item (`qa:rejected`) is not excluded outright — it is already
+gated by the line above: it cannot reach `status:ready` for role:developer
+without a human moving it there. Once it does, redispatching it *is* the
+fresh assignment that closes the rejection loop.
 
 Ambiguity is never resolved by guessing. An item with no role label is not
 "probably a developer story" — it is unrefined, and the fix belongs on the

@@ -1,15 +1,23 @@
 # QA veto, issue side.
 #
-#   closed + qa:rejected      -> reopen; the verdict outranks the close
-#   labeled qa:rejected x3    -> needs-human with a structured escalation
+#   closed + qa:rejected           -> reopen; the verdict outranks the close
+#   labeled qa:rejected x3         -> needs-human with a structured escalation
+#   labeled/unlabeled qa:rejected  -> re-check qa-gate on every open PR the
+#                                      work item closes, so a verdict that
+#                                      lands after the last push doesn't sit
+#                                      behind a stale green check (#68)
+#   labeled qa:rejected            -> status:in-review reverts to status:ready,
+#                                      so the author's role is dispatchable
+#                                      again (#82); qa:rejected itself is
+#                                      untouched and keeps blocking the merge
 #
-# `issues` workflows only ever run from the default branch, so neither job
+# `issues` workflows only ever run from the default branch, so no job here
 # does anything until this file is on main.
 name: QA verdict
 
 on:
   issues:
-    types: [closed, labeled]
+    types: [closed, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -30,6 +38,70 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/qa-verdict.sh
 
+  # The gate re-evaluated here, not re-run: qa-gate.yml only fires on PR
+  # events, and a label lands on the issue it closes, which is not a PR
+  # event. Nothing re-checks the PR unless something does it explicitly.
+  #
+  # This job finds every open PR whose body closes the issue that just
+  # changed (the same closing-keyword match qa-gate.sh uses — the gate's
+  # own rule, run in reverse), replays scripts/qa-gate.sh for each one
+  # unmodified so the pass/fail logic has exactly one home, and posts the
+  # result as a commit status on the PR's head SHA under the `qa-gate`
+  # context. A status posted this way satisfies a required check the same
+  # as the Actions check run it is standing in for — GitHub's combined
+  # status API merges both by context/name — without re-running the whole
+  # qa-gate.yml workflow against a ref it would have to be taught to accept
+  # out-of-band.
+  recheck-prs:
+    name: recheck-prs
+    if: |
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+      github.event.label.name == 'qa:rejected'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Re-evaluate qa-gate on every open PR this work item closes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+
+          pattern='\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#'"${ISSUE}"'\b'
+
+          found=0
+          for pr in $(gh pr list --state open --json number --jq '.[].number'); do
+            body=$(gh pr view "$pr" --json body --jq '.body // ""')
+            echo "$body" | grep -Eqi "$pattern" || continue
+            found=1
+
+            echo "PR #${pr} closes #${ISSUE}; re-evaluating qa-gate."
+            sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid')
+
+            state=success
+            desc="qa-gate re-checked after the QA verdict on #${ISSUE} changed: passes."
+            if ! PR_NUMBER="$pr" bash scripts/qa-gate.sh; then
+              state=failure
+              desc="qa-gate re-checked after the QA verdict on #${ISSUE} changed: fails."
+            fi
+
+            gh api "repos/${GITHUB_REPOSITORY}/statuses/${sha}" \
+              --method POST \
+              -f state="$state" \
+              -f context="qa-gate" \
+              -f description="$desc" \
+              -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          done
+
+          if [ "$found" -eq 0 ]; then
+            echo "No open PR closes #${ISSUE}; nothing to re-evaluate."
+          fi
+
   ladder:
     name: rejection-ladder
     if: github.event.action == 'labeled' && github.event.label.name == 'qa:rejected'
@@ -45,4 +117,18 @@ jobs:
           # role-packs/qa/policy.yaml so the policy file stays the source
           # of truth and cannot drift from the workflow.
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/qa-verdict.sh
+
+  return-to-ready:
+    name: return-to-ready
+    if: github.event.action == 'labeled' && github.event.label.name == 'qa:rejected'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hand a rejected in-review story back to status:ready
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: return-to-ready
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS_JSON: ${{ toJSON(github.event.issue.labels) }}
         run: bash scripts/qa-verdict.sh
