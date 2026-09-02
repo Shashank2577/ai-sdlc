@@ -509,6 +509,11 @@ jobs:
           budget_json=$(printf '{"cost_usd":%s,"turns":%s,"tokens":%s,"wall_clock_minutes":%s}' \
             "$COST_USD" "$TURNS" "$TOKENS" "$WALL_CLOCK")
           spend="${RUNNER_TEMP}/spend.md"
+          # Pre-seed it: session end is the safety net, and `cat` on a file
+          # the reporter never wrote once killed this step under `set -e` —
+          # losing the spend report, the escalation and the label rollback
+          # together. Nothing in reporting may take down the report.
+          echo "_spend could not be measured for this session._" > "$spend"
           breach=0
           python3 scripts/spend-report.py \
             --execution "${EXECUTION_FILE:-/nonexistent}" \
