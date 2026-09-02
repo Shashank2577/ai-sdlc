@@ -21,10 +21,19 @@ while read -r sha; do
   done
 done < <(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA")
 
-# 2. PR body links a work item and has no unchecked DoD boxes.
+# 2. PR body closes a work item with a GitHub closing keyword (or opts out
+#    explicitly, per policies/dod.yaml's linked_work_item.opt_out) and has no
+#    unchecked DoD boxes. The closing-keyword regex is qa-gate.sh's — same
+#    rule, reused rather than rewritten, per #91/#92.
 body=$(gh pr view "$PR_NUMBER" --json body --jq '.body // ""')
-if ! grep -Eq '#[0-9]+' <<<"$body"; then
-  failures+=("PR body has no linked work item (expected an \`#<issue>\` reference)")
+closing_ref=$(grep -Eoi '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' <<<"$body" || true)
+opt_out=$(grep -E 'Relates to #[0-9]+ — it does not close it' <<<"$body" || true)
+if [ -z "$closing_ref" ] && [ -z "$opt_out" ]; then
+  if grep -Eq '#[0-9]+' <<<"$body"; then
+    failures+=("PR body mentions an issue but has no GitHub closing keyword — write \`Closes #<issue>\` (Fixes/Resolves also work) so the work item closes on merge, or, if this PR deliberately closes nothing, use the opt-out phrase \`Relates to #<issue> — it does not close it\`")
+  else
+    failures+=("PR body has no linked work item — write \`Closes #<issue>\` (Fixes/Resolves also work), or the opt-out phrase \`Relates to #<issue> — it does not close it\` if this PR deliberately closes nothing")
+  fi
 fi
 if grep -Fq -- '- [ ]' <<<"$body"; then
   failures+=("PR body has unchecked Definition of Done items")
@@ -45,6 +54,6 @@ if [ "${#failures[@]}" -gt 0 ]; then
   exit 1
 fi
 
-msg="DoD check passed: trailers on all commits, work item linked, checklist complete."
+msg="DoD check passed: trailers on all commits, work item linked with a closing keyword (or opt-out), checklist complete."
 echo "$msg" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 echo "$msg"
