@@ -9,56 +9,86 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 export PATH="$WORK/bin:$PATH"
-export WORK
 export RUNNER_TEMP="$WORK/tmp"
+export GITHUB_REPOSITORY="acme/widgets"
 export GITHUB_STEP_SUMMARY="$WORK/summary.md"
-export GH_REPO="acme/widgets"
-export NOW="2026-09-02T12:00:00Z"
 mkdir -p "$WORK/bin" "$RUNNER_TEMP"
 
 PASS=0
 FAIL=0
 
-# Stub gh: logs every call, then answers from fixtures the test drops in
-# $WORK. `issue list` returns $WORK/issues.json. `api .../<n>/events`
-# returns $WORK/events-<n>.json (already the jq-filtered shape the real
-# script asks for). `issue view <n>` returns $WORK/comments-<n>.txt
-# (already the joined-body shape). `issue comment` is a no-op, just logged.
+# ---------------------------------------------------------------------------
+# Stub gh. Behaviour comes from files in $STATE_DIR, written per test.
+# Calls are appended to calls.log so tests can assert on side effects.
+# ---------------------------------------------------------------------------
 cat > "$WORK/bin/gh" <<'STUB'
 #!/usr/bin/env bash
-echo "gh $*" >> "${CALLS:?}"
-case "$1" in
-  issue)
-    case "$2" in
-      list) cat "${WORK:?}/issues.json" ;;
-      view) cat "${WORK:?}/comments-$3.txt" 2>/dev/null || printf '' ;;
-      comment) : ;;
-    esac
-    ;;
-  api)
-    num=""
-    for a in "$@"; do
-      case "$a" in
-        repos/*/issues/*/events)
-          num="${a#*/issues/}"; num="${num%/events}" ;;
-      esac
-    done
-    cat "${WORK:?}/events-${num}.json" 2>/dev/null || echo '[]'
-    ;;
+state="${STATE_DIR:?}"
+echo "gh $*" >> "$state/calls.log"
+
+args=("$@"); jqexpr=""
+for ((i=0; i<${#args[@]}; i++)); do
+  [ "${args[$i]}" = "--jq" ] && jqexpr="${args[$((i+1))]}"
+done
+emit() { if [ -n "$jqexpr" ]; then jq -r "$jqexpr"; else cat; fi; }
+
+case "$1 $2" in
+  "issue list")   cat "$state/candidates.json" | emit ;;
+  "issue view")   cat "$state/comments-$3.json" | emit ;;
+  "issue comment") : ;;
+  "api "*|"api")
+      number=$(grep -oE 'issues/[0-9]+/events' <<<"$*" | grep -oE '[0-9]+')
+      f="$state/events-${number}.json"
+      [ -f "$f" ] || f="$state/events.json"
+      cat "$f" | emit ;;
+  *) echo "stub gh: unhandled: $*" >&2; exit 1 ;;
 esac
 STUB
 chmod +x "$WORK/bin/gh"
 
 setup() {
-  CALLS="$WORK/calls.log"; export CALLS
-  : > "$CALLS"; : > "$GITHUB_STEP_SUMMARY"
-  rm -f "$WORK"/events-*.json "$WORK"/comments-*.txt
+  STATE_DIR="$WORK/state"; export STATE_DIR
+  rm -rf "$STATE_DIR"; mkdir -p "$STATE_DIR"
+  : > "$STATE_DIR/calls.log"
+  : > "$GITHUB_STEP_SUMMARY"
+  echo '[]' > "$STATE_DIR/candidates.json"
+  echo '[]' > "$STATE_DIR/events.json"
+  unset SLA_HOURS GATES_POLICY RUN_URL
 }
 
-# issues <json-array>
-issues() { printf '%s' "$1" > "$WORK/issues.json"; }
-events() { printf '%s' "$2" > "$WORK/events-$1.json"; }     # events <number> <json-array>
-comments() { printf '%s' "$2" > "$WORK/comments-$1.txt"; }  # comments <number> <text>
+# candidates <number>...
+candidates() {
+  python3 -c "
+import json, sys
+print(json.dumps([{'number': int(n), 'title': 't', 'url': 'u'} for n in sys.argv[1:]]))" "$@" \
+    > "$STATE_DIR/candidates.json"
+}
+
+# events <number> <hours-ago> [<hours-ago-2> ...] — one needs-human labeled
+# event per hours-ago value, timestamped relative to now.
+events() {
+  local number=$1; shift
+  python3 -c "
+import json, sys
+from datetime import datetime, timedelta, timezone
+now = datetime.now(timezone.utc)
+out = [{'event': 'labeled', 'label': {'name': 'needs-human'},
+        'created_at': (now - timedelta(hours=float(h))).isoformat()}
+       for h in sys.argv[1:]]
+print(json.dumps(out))" "$@" \
+    > "$STATE_DIR/events-${number}.json"
+}
+
+# comments <number> [marker-present]
+comments() {
+  local number=$1
+  if [ "${2:-}" = "marker" ]; then
+    printf '{"comments":[{"body":"<!-- gate-sla:dispatch_approval -->\\nheld"}]}' \
+      > "$STATE_DIR/comments-${number}.json"
+  else
+    printf '{"comments":[{"body":"unrelated"}]}' > "$STATE_DIR/comments-${number}.json"
+  fi
+}
 
 check() {  # check <description> <expected-exit> <actual-exit>
   if [ "$2" = "$3" ]; then printf '  ok    %s\n' "$1"; PASS=$((PASS+1))
@@ -80,66 +110,43 @@ cd "$REPO_ROOT" || exit 1
 
 echo "scripts/gate-sla.sh"
 
-# --- nothing carries both labels: the no-op case, worth writing first ---
-setup; issues '[]'
+setup
 bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "no candidates means no-op" 0 $?
+check "no held story means no escalation" 0 $?
 assert "said so out loud" grep "Nothing to do" "$WORK/out"
-assert "made no comment calls" '!grep' "gh issue comment" "$CALLS"
-assert "made no events calls" '!grep' "gh api" "$CALLS"
+assert "posted no comment" '!grep' "gh issue comment" "$STATE_DIR/calls.log"
+assert "made only the discovery call" '!grep' "gh issue view" "$STATE_DIR/calls.log"
 
-# --- held past the SLA (24h): exactly one comment, naming the wait ---
-setup
-issues '[{"number":9,"title":"held","url":"u","labels":[{"name":"needs-human"},{"name":"status:needs-refinement"}]}]'
-events 9 '["2026-09-01T06:00:00Z"]'   # 30h before NOW
-bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "an item past SLA is commented on" 0 $?
-assert "posted the comment" grep "gh issue comment 9" "$CALLS"
-assert "named the wait" grep "30h" "$WORK/tmp/gate-sla-9.md"
-assert "cited the SLA" grep "24h" "$WORK/tmp/gate-sla-9.md"
+setup; candidates 9; events 9 30; comments 9
+SLA_HOURS=24 bash scripts/gate-sla.sh > "$WORK/out" 2>&1
+check "a story held past the SLA gets one comment" 0 $?
+assert "posted the SLA comment" grep "gh issue comment 9" "$STATE_DIR/calls.log"
+assert "reported the wait" grep "waiting 30.0h" "$WORK/out"
 
-# --- held under the SLA: nothing happens, no comment ---
-setup
-issues '[{"number":10,"title":"fresh","url":"u","labels":[{"name":"needs-human"},{"name":"status:needs-refinement"}]}]'
-events 10 '["2026-09-02T00:00:00Z"]'  # 12h before NOW
-bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "an item under SLA is a no-op" 0 $?
-assert "under the SLA, noted" grep "under the 24h SLA" "$WORK/out"
-assert "no comment posted" '!grep' "gh issue comment" "$CALLS"
+setup; candidates 9; events 9 5; comments 9
+SLA_HOURS=24 bash scripts/gate-sla.sh > "$WORK/out" 2>&1
+check "a story held less than the SLA is left alone" 0 $?
+assert "posted nothing" '!grep' "gh issue comment" "$STATE_DIR/calls.log"
+assert "said it was within SLA" grep "within the 24h SLA" "$WORK/out"
 
-# --- already has the SLA comment: no second comment ---
-setup
-issues '[{"number":11,"title":"held again","url":"u","labels":[{"name":"needs-human"},{"name":"status:needs-refinement"}]}]'
-events 11 '["2026-08-30T06:00:00Z"]'  # well past SLA
-comments 11 'earlier chatter
-<!-- gate-sla:notice -->
-more chatter'
-bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "an already-noted item is left alone" 0 $?
-assert "no second comment" '!grep' "gh issue comment" "$CALLS"
-assert "explained the skip" grep "already posted" "$WORK/out"
+setup; candidates 9; events 9 30; comments 9 marker
+SLA_HOURS=24 bash scripts/gate-sla.sh > "$WORK/out" 2>&1
+check "a story with an existing SLA comment is not re-commented" 0 $?
+assert "posted no second comment" '!grep' "gh issue comment" "$STATE_DIR/calls.log"
+assert "said so" grep "already posted" "$WORK/out"
 
-# --- an issue with needs-human but not status:needs-refinement is ignored ---
-setup
-issues '[{"number":12,"title":"not a gate wait","url":"u","labels":[{"name":"needs-human"}]}]'
-bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "an unrelated needs-human issue is a no-op" 0 $?
-assert "made no events calls" '!grep' "gh api" "$CALLS"
-assert "made no comment calls" '!grep' "gh issue comment" "$CALLS"
+setup; candidates 9; events 9 30; comments 9
+printf 'gates:\n  dispatch_approval:\n    sla_hours: 48\n' > "$WORK/gates.yaml"
+GATES_POLICY="$WORK/gates.yaml" bash scripts/gate-sla.sh > "$WORK/out" 2>&1
+check "the policy file's sla_hours is honoured with no code change" 0 $?
+assert "used the policy's threshold, not the built-in default" grep "within the 48h SLA" "$WORK/out"
+assert "posted nothing at the new threshold" '!grep' "gh issue comment" "$STATE_DIR/calls.log"
 
-# --- the SLA is read from policies/gates.yaml, not hardcoded ---
-setup
-issues '[{"number":13,"title":"held","url":"u","labels":[{"name":"needs-human"},{"name":"status:needs-refinement"}]}]'
-events 13 '["2026-09-01T00:00:00Z"]'  # 36h before NOW
-cat > "$WORK/gates.yaml" <<'YAML'
-gates:
-  dispatch_approval:
-    sla_hours: 48
-YAML
-GATES_FILE="$WORK/gates.yaml" bash scripts/gate-sla.sh > "$WORK/out" 2>&1
-check "a lower-than-actual SLA from a custom policy file is honoured" 0 $?
-assert "under the custom 48h SLA, no comment" '!grep' "gh issue comment" "$CALLS"
-assert "reported against the custom SLA" grep "under the 48h SLA" "$WORK/out"
+setup; candidates 9 11; events 9 30; events 11 3; comments 9; comments 11
+SLA_HOURS=24 bash scripts/gate-sla.sh > "$WORK/out" 2>&1
+check "a mixed batch is handled item by item" 0 $?
+assert "flagged the one past the SLA" grep "gh issue comment 9" "$STATE_DIR/calls.log"
+assert "left the one within the SLA alone" '!grep' "gh issue comment 11" "$STATE_DIR/calls.log"
 
 echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"

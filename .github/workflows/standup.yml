@@ -26,6 +26,16 @@ on:
         required: false
         default: false
         type: boolean
+  # scripts/test-standup-escalate.sh had no workflow running it at all —
+  # invisible to CI (#69). Path-scoped so a PR untouched by this workflow
+  # doesn't pay for it.
+  pull_request:
+    paths:
+      - scripts/standup-escalate.sh
+      - scripts/test-standup-escalate.sh
+      - scripts/gate-sla.sh
+      - scripts/test-gate-sla.sh
+      - .github/workflows/standup.yml
 
 permissions:
   contents: read
@@ -38,6 +48,9 @@ concurrency:
 jobs:
   escalate:
     name: blocked-escalation
+    # The real job mutates issues with a live token; it must never run from
+    # a pull_request event, only from the schedule or a manual dispatch.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,10 +92,29 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/standup-escalate.sh
 
-      - name: Escalate approval gates past their SLA
+      # policies/gates.yaml's dispatch-approval gate declares an SLA on
+      # needs-human + status:needs-refinement. A gate nobody enforces is a
+      # gate nobody reads, so past the SLA this names how long the wait
+      # has been (REQ-007). Idempotent on its own marker comment, so a
+      # dry run changes nothing either.
+      - name: Enforce the approval-gate SLA
         if: ${{ !inputs.dry_run }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/gate-sla.sh
+
+  # A gate that silently stops escalating stale work is theatre, not a
+  # control — it gets its own tests, run as a normal PR check whenever
+  # someone touches this workflow or its script, not only when someone
+  # remembers to run them by hand.
+  standup-escalate-tests:
+    name: standup-escalate-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the standup escalation script
+        run: bash scripts/test-standup-escalate.sh
+      - name: Test the approval-gate SLA script
+        run: bash scripts/test-gate-sla.sh
