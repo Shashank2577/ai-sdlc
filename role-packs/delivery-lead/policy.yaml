@@ -1,0 +1,83 @@
+# Delivery Lead policy — the governance owner. PRD §3, §7, §13.
+version: 0
+role: delivery-lead
+
+budgets:
+  # Same distribution as the other v0 roles (developer, devops): no
+  # sessions have run under this pack yet to measure from, so it starts
+  # at the shared default rather than guessing a tighter one.
+  turns: 90
+  cost_usd: 5.00           # the ceiling: a breach here escalates
+  tokens: 400000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 45
+  max_retries: 2
+  on_breach: escalate       # pause work, apply needs-human, post spend summary
+
+forbidden:
+  # Structural — branch protection enforces these regardless of intent.
+  - push_to_default_branch
+  - force_push
+  - branch_deletion
+  - merging_any_pull_request
+  - approving_any_pull_request      # a governance change reviewed by nobody
+  # The asymmetry this role exists for: it can widen another role's
+  # permissions, and it must never do so to unblock a story.
+  - granting_itself_more_scope
+  - widening_a_gate_to_unblock_a_story
+  # Scope — enforced by review and by CODEOWNERS routing.
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_ci_pipelines            # DevOps owns .github/workflows/
+  - writing_application_code
+  - writing_tests
+  - rewriting_published_history
+
+write_scope:
+  allow:
+    - "policies/**"
+    - "role-packs/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - ".github/workflows/**"
+    - ".github/actions/**"
+    - ".github/CODEOWNERS"
+    - "infra/**"
+    - "compiler/**"
+    - "prds/**"
+    - "requirements/**"
+
+hitl_triggers:
+  # Conditions that end the session in an escalation rather than a PR.
+  # Note: every story this pack opens already routes through
+  # policies/gates.yaml's `touches_governance` rule as critical, so these
+  # are on top of that gate, not instead of it.
+  - change_would_weaken_a_gate
+  - change_widens_another_roles_permissions
+  - acceptance_criteria_contradictory
+  - acceptance_criteria_unmeetable
+  - change_requires_out_of_scope_write
+  - missing_credential_or_permission
+  - budget_breach
+  - three_failed_attempts_at_same_approach
+
+escalation:
+  template: role-packs/delivery-lead/templates/escalation-comment.md
+  label: needs-human
+  # Ladder per PRD §13. v0 implements retry and human; alternate-harness
+  # arrives with the second harness in Phase 3.
+  ladder:
+    - retry
+    - alternate_approach        # must state what will be done differently
+    - alternate_harness         # not available in single-harness mode
+    - human
+
+identity:
+  # Blocking on a human action, stated so it cannot be forgotten:
+  # provision the foundry-delivery-lead-bot machine account, add its
+  # signing key, scope its PAT (shares FOUNDRY_DEV_TOKEN in the interim),
+  # then flip pack.yaml identity.provisioned to true.
+  bot_account: foundry-delivery-lead-bot
+  provisioned: false
+  blocked_on: human
