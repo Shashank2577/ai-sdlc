@@ -2,9 +2,15 @@
 """Turn a Claude Code execution log into a spend summary, and say whether
 the session stayed inside its budget.
 
-Cost is a first-class, per-story, visible metric (PRD §13). This prints a
-markdown table for the work-item comment and exits 3 when any budget line
-was breached, so the dispatcher can escalate on that alone.
+Cost is the ceiling (PRD §13): a breach means real money was spent, not
+that a large cached context was re-read. Turns, wall clock and cost can
+breach; tokens are a tripwire — reported, flagged when abnormal, never a
+reason to fail a session. That distinction is not theoretical. The first
+live dispatch cost $0.61 and "breached" a 400k token budget, because
+1.35M of its 1.41M tokens were cache reads.
+
+This prints a markdown table for the work-item comment and exits 3 when a
+breaching line was exceeded, so the dispatcher can escalate on that alone.
 
     spend-report.py --execution out.json --budget '{"turns":30,...}'
     spend-report.py --execution missing.json --budget '{}'   # degrades
@@ -52,6 +58,60 @@ def load_execution(path: Path) -> tuple[dict, str]:
     return {}, "execution log has no result record"
 
 
+def load_records(path: Path) -> list[dict]:
+    """Every message in the execution log, for the activity summary."""
+    if not path or not path.is_file():
+        return []
+    try:
+        text = path.read_text().strip()
+        if not text:
+            return []
+        try:
+            data = json.loads(text)
+            return data if isinstance(data, list) else [data]
+        except json.JSONDecodeError:
+            return [json.loads(line) for line in text.splitlines() if line.strip()]
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def describe_activity(records: list[dict]) -> str:
+    """What the session actually did, from its own tool calls.
+
+    The escalation used to say "read the transcript". The transcript is
+    written to the runner's temp directory and destroyed with the runner,
+    so that advice could never be followed. PRD §7 says humans are handed
+    decisions, not transcripts — so this summarises the trace onto the work
+    item, where it survives, instead of pointing at something that does not.
+    """
+    tools: dict[str, int] = {}
+    recent: list[str] = []
+    for record in records:
+        if record.get("type") != "assistant":
+            continue
+        for block in (record.get("message") or {}).get("content") or []:
+            if not isinstance(block, dict) or block.get("type") != "tool_use":
+                continue
+            name = block.get("name", "?")
+            tools[name] = tools.get(name, 0) + 1
+            args = block.get("input") or {}
+            detail = (args.get("file_path") or args.get("path") or args.get("pattern")
+                      or args.get("command") or "")
+            recent.append(f"{name} {str(detail)[:70]}".strip())
+
+    if not tools:
+        return ("**What the session did:** no tool calls were recorded. Either it "
+                "never started work, or the execution log did not capture the "
+                "trace — both are worth knowing before spending again.")
+
+    ranked = ", ".join(f"`{n}` ×{c}" for n, c in
+                       sorted(tools.items(), key=lambda kv: -kv[1])[:8])
+    lines = [f"**What the session did:** {sum(tools.values())} tool call(s) — {ranked}.",
+             "", "Last actions before it stopped:", ""]
+    lines += [f"- `{a}`" for a in recent[-5:]]
+    return "\n".join(lines)
+
+
 def summarise(result: dict) -> dict:
     usage = result.get("usage") or {}
     inp = int(usage.get("input_tokens") or 0)
@@ -65,6 +125,11 @@ def summarise(result: dict) -> dict:
         "output_tokens": out,
         "cache_read_tokens": cache_read,
         "cache_write_tokens": cache_write,
+        # Fresh tokens: what the session actually generated or sent anew.
+        # Cache reads are excluded — they are re-reads of context already
+        # paid for, and counting them made a 61-cent session look like a
+        # 1.4M-token overrun.
+        "fresh_tokens": inp + out + cache_write,
         "total_tokens": inp + out + cache_read + cache_write,
         "cost_usd": result.get("total_cost_usd"),
         "wall_clock_minutes": round(duration_ms / 60000, 1) if duration_ms else None,
@@ -73,42 +138,61 @@ def summarise(result: dict) -> dict:
 
 
 def check(spend: dict, budget: dict) -> list[dict]:
-    """One row per budget line. `used is None` means it was not measured."""
+    """One row per budget line. `used is None` means it was not measured.
+
+    `enforced` is the whole point: only cost, turns and wall clock can
+    fail a session. Tokens are a tripwire — over the line it says so, and
+    the session still passes.
+    """
     pairs = [
-        ("turns", "turns", spend["turns"], budget.get("turns")),
-        ("tokens", "tokens", spend["total_tokens"] or None, budget.get("tokens")),
+        ("cost", "USD", spend["cost_usd"], budget.get("cost_usd"), True),
+        ("turns", "turns", spend["turns"], budget.get("turns"), True),
         ("wall clock", "minutes", spend["wall_clock_minutes"],
-         budget.get("wall_clock_minutes")),
+         budget.get("wall_clock_minutes"), True),
+        ("fresh tokens", "tokens", spend["fresh_tokens"] or None,
+         budget.get("tokens"), False),
     ]
     rows = []
-    for label, unit, used, limit in pairs:
-        breached = used is not None and limit is not None and used > limit
-        rows.append({"label": label, "unit": unit, "used": used,
-                     "limit": limit, "breached": breached})
+    for label, unit, used, limit, enforced in pairs:
+        over = used is not None and limit is not None and used > limit
+        rows.append({"label": label, "unit": unit, "used": used, "limit": limit,
+                     "enforced": enforced, "over": over,
+                     "breached": over and enforced})
     return rows
 
 
-def render(rows: list[dict], spend: dict, note: str) -> str:
-    def fmt(v):
+def render(rows: list[dict], spend: dict, note: str, activity: str = "") -> str:
+    def fmt(v, money=False):
         if v is None:
             return "unknown"
+        if isinstance(v, float):
+            return f"{v:.4f}" if money else f"{v:g}"
         return f"{v:,}" if isinstance(v, int) else str(v)
 
     lines = ["| Budget line | Used | Limit | |", "|---|---|---|---|"]
     for r in rows:
-        mark = "over" if r["breached"] else ("—" if r["used"] is None else "ok")
-        lines.append(f"| {r['label']} ({r['unit']}) | {fmt(r['used'])} "
-                     f"| {fmt(r['limit'])} | {mark} |")
+        money = r["label"] == "cost"
+        if r["used"] is None:
+            mark = "—"
+        elif r["breached"]:
+            mark = "**over**"
+        elif r["over"]:
+            mark = "over (tripwire — not a breach)"
+        else:
+            mark = "ok"
+        lines.append(f"| {r['label']} ({r['unit']}) | {fmt(r['used'], money)} "
+                     f"| {fmt(r['limit'], money)} | {mark} |")
 
-    if spend.get("cost_usd") is not None:
-        lines.append(f"| cost (USD) | {spend['cost_usd']:.4f} | — | — |")
     if spend.get("total_tokens"):
         lines.append("")
         lines.append(
             f"Tokens: {spend['input_tokens']:,} in · {spend['output_tokens']:,} out · "
-            f"{spend['cache_read_tokens']:,} cache read · "
-            f"{spend['cache_write_tokens']:,} cache write."
+            f"{spend['cache_write_tokens']:,} cache write · "
+            f"{spend['cache_read_tokens']:,} cache read _(cache reads are excluded "
+            f"from the tripwire — they are re-reads of context already paid for)_."
         )
+    if activity:
+        lines += ["", activity]
     if note:
         lines += ["", f"_Spend not measured: {note}. Budget compliance is "
                       f"unknown for this session, which is reported rather than "
@@ -129,9 +213,10 @@ def main() -> int:
         sys.exit(f"spend-report: --budget is not valid JSON: {exc}")
 
     result, note = load_execution(args.execution)
+    records = load_records(args.execution)
     spend = summarise(result)
     rows = check(spend, budget)
-    markdown = render(rows, spend, note)
+    markdown = render(rows, spend, note, describe_activity(records))
 
     print(markdown, end="")
     if args.out:

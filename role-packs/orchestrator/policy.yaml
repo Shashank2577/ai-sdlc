@@ -33,7 +33,10 @@ budgets:
   # orchestrator, which only happens when a human asks it to reason about
   # the board rather than just run the selection.
   turns: 10
-  tokens: 60000
+  # The loop itself is cheap; this bounds a session dispatched *as* the
+  # orchestrator, which only happens when a human asks it to reason.
+  cost_usd: 1.00          # the ceiling: a breach here escalates
+  tokens: 60000            # tripwire only — reported, never a breach
   wall_clock_minutes: 10
   max_retries: 1
   on_breach: escalate

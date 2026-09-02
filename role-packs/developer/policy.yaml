@@ -7,8 +7,12 @@ role: developer
 
 budgets:
   # Per work item, per session.
-  turns: 30
-  tokens: 400000
+  turns: 60
+  # 60 turns: the first live session spent 31 and was still reading
+  # code, with no branch pushed. Read -> edit -> test -> commit -> push ->
+  # PR does not fit in 30.
+  cost_usd: 5.00          # the ceiling: a breach here escalates
+  tokens: 400000            # tripwire only — reported, never a breach
   wall_clock_minutes: 45
   max_retries: 2
   # What happens at the ceiling: never a silent stop.

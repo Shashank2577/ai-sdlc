@@ -238,6 +238,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue }}
           ROLE: ${{ inputs.role }}
+          COST_USD: ${{ steps.budget.outputs.cost_usd }}
           TURNS: ${{ steps.budget.outputs.turns }}
           TOKENS: ${{ steps.budget.outputs.tokens }}
           WALL_CLOCK: ${{ steps.budget.outputs.wall_clock_minutes }}
@@ -256,7 +257,7 @@ jobs:
           | Work item | \`${GITHUB_REPOSITORY}#${ISSUE}\` |
           | Role | \`${ROLE}\` |
           | Harness | \`claude-code\` (GitHub-hosted runner) |
-          | Budget | \`${TURNS}\` turns · \`${TOKENS}\` tokens · \`${WALL_CLOCK}\` min · \`${MAX_RETRIES}\` retries |
+          | Budget | \`\$${COST_USD}\` · \`${TURNS}\` turns · \`${WALL_CLOCK}\` min · \`${MAX_RETRIES}\` retries |
           | Budget source | \`${BUDGET_SOURCE}\` |
           | Prior failed sessions | ${PRIOR_FAILURES} |
           | Dispatched by | @${GITHUB_ACTOR} |
@@ -281,6 +282,7 @@ jobs:
           ISSUE: ${{ inputs.issue }}
           ROLE: ${{ inputs.role }}
           TURNS: ${{ steps.budget.outputs.turns }}
+          COST_USD: ${{ steps.budget.outputs.cost_usd }}
           TOKENS: ${{ steps.budget.outputs.tokens }}
           WALL_CLOCK: ${{ steps.budget.outputs.wall_clock_minutes }}
           BUDGET_SOURCE: ${{ steps.budget.outputs.source }}
@@ -324,9 +326,11 @@ jobs:
             echo "  limit, mid-thought, with no chance to tidy up."
             echo "- **Wall clock: ${WALL_CLOCK} minutes.** Also a hard stop, enforced"
             echo "  by the runner."
-            echo "- **Tokens: ${TOKENS}.** Measured after the fact and posted to the"
-            echo "  work item. Going over does not kill the session; it escalates it,"
-            echo "  which costs the work item a retry."
+            echo "- **Cost: \$${COST_USD}.** The ceiling. Measured after the fact and"
+            echo "  posted to the work item. Going over does not kill the session; it"
+            echo "  escalates it, which costs the work item a retry."
+            echo "- Tokens (${TOKENS}) are reported but never fail a session on their"
+            echo "  own — cache reads dominate the count and say little about spend."
             echo
             echo "Spend it front-loaded: land a correct, small change and open the PR."
             echo "When roughly a quarter is left and there is no PR yet, decide"
@@ -441,6 +445,7 @@ jobs:
           ISSUE: ${{ inputs.issue }}
           ROLE: ${{ inputs.role }}
           TURNS: ${{ steps.budget.outputs.turns }}
+          COST_USD: ${{ steps.budget.outputs.cost_usd }}
           TOKENS: ${{ steps.budget.outputs.tokens }}
           WALL_CLOCK: ${{ steps.budget.outputs.wall_clock_minutes }}
           MAX_RETRIES: ${{ steps.budget.outputs.max_retries }}
@@ -473,13 +478,14 @@ jobs:
 
           comment="${RUNNER_TEMP}/end-comment.md"
 
-          # Spend accounting. The execution log carries turns, tokens, wall
-          # clock and cost; exit 3 means a budget line was breached. A
-          # session with no measurable log is "unknown", never "breached" —
-          # firing the escalation ladder on tooling noise would teach
+          # Spend accounting. Cost is the ceiling; tokens are a tripwire that
+          # reports without failing (cache reads made a 61-cent session look
+          # like a 1.4M-token overrun). Exit 3 means an enforced line was
+          # breached. A session with no measurable log is "unknown", never
+          # "breached" — firing the ladder on tooling noise would teach
           # everyone to ignore it.
-          budget_json=$(printf '{"turns":%s,"tokens":%s,"wall_clock_minutes":%s}' \
-            "$TURNS" "$TOKENS" "$WALL_CLOCK")
+          budget_json=$(printf '{"cost_usd":%s,"turns":%s,"tokens":%s,"wall_clock_minutes":%s}' \
+            "$COST_USD" "$TURNS" "$TOKENS" "$WALL_CLOCK")
           spend="${RUNNER_TEMP}/spend.md"
           breach=0
           python3 scripts/spend-report.py \
@@ -549,16 +555,18 @@ jobs:
               echo "(${PRIOR_FAILURES} prior failed session(s), ${remaining} retry"
               echo "budget remaining). Guard passed; session started; prompt assembled"
               echo "from \`CONVENTIONS.md\` plus the \`${ROLE}\` charter; agent ran with"
-              echo "\`${TURNS}\` turns / \`${WALL_CLOCK}\` min / \`${TOKENS}\` tokens."
+              echo "\`${TURNS}\` turns / \`${WALL_CLOCK}\` min / \`\$${COST_USD}\` ceiling."
               echo
               echo "**Blocker:** ${blocker}"
               echo
               echo "**Options**"
               echo
               if [ "$breach" = "3" ]; then
-                echo "- **A — read the transcript before spending again.** Free. A budget"
-                echo "  breach usually means the session was looping, not that the story"
-                echo "  is big. Raising the ceiling on a loop just buys a longer loop."
+                echo "- **A — read the Spend table above before spending again.** Free."
+                echo "  \"What the session did\" lists its tool calls and last actions;"
+                echo "  a breach after mostly reads means the story is big, a breach"
+                echo "  after repeated edits to one file means it was looping. Raising"
+                echo "  the ceiling on a loop just buys a longer loop."
                 echo "- **B — raise the budget in the role pack.** One PR plus one"
                 echo "  session's spend. Right when the transcript shows steady progress"
                 echo "  that simply ran out of room. Edit \`role-packs/${ROLE}/policy.yaml\`"

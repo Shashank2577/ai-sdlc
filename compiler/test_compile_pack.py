@@ -48,6 +48,7 @@ version: 0
 role: widget
 budgets:
   turns: 10
+  cost_usd: 1.5
   tokens: 1000
   wall_clock_minutes: 5
   max_retries: 1
@@ -126,6 +127,16 @@ class TestValidation(unittest.TestCase):
             self.assertIn("tokens", str(ctx.exception))
             self.assertIn("unbudgeted role cannot be dispatched", str(ctx.exception))
 
+    def test_a_pack_without_a_cost_ceiling_is_rejected(self):
+        # Cost is the enforced budget line; a pack without one cannot be
+        # dispatched safely.
+        files = dict(MINIMAL_PACK)
+        files["policy.yaml"] = files["policy.yaml"].replace("  cost_usd: 1.5\n", "")
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("cost_usd", str(ctx.exception))
+
     def test_dangling_escalation_template_is_rejected(self):
         files = dict(MINIMAL_PACK)
         files["policy.yaml"] += "  template: role-packs/widget/templates/gone.md\n"
@@ -182,6 +193,7 @@ class TestClaudeCodeOutput(unittest.TestCase):
 
         self.assertIn("Do widget things.", prompt)          # charter
         self.assertIn("Turns: 10", prompt)                  # budget
+        self.assertIn("Cost ceiling: $1.5", prompt)         # the enforced line
         self.assertIn("push_to_default_branch", prompt)     # forbidden
         self.assertIn("budget_breach", prompt)              # hitl trigger
         self.assertIn("Distinctive skill body.", prompt)    # skills
