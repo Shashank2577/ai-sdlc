@@ -1,0 +1,56 @@
+# Budget resolution and spend accounting decide whether a session runs and
+# whether it escalated, so they get their own check. A miscounted budget is
+# either an agent that never starts or an agent that never stops.
+name: Budgets
+
+on:
+  pull_request:
+    paths:
+      - "scripts/read-budget.py"
+      - "scripts/spend-report.py"
+      - "scripts/test_budgets.py"
+      - "role-packs/*/policy.yaml"
+      - ".github/workflows/dispatch.yml"
+      - ".github/workflows/budgets.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/*budget*"
+      - "scripts/spend-report.py"
+      - "role-packs/*/policy.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  budgets:
+    name: budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Deliberately no `pip install pyyaml`. The dispatcher runs these on a
+      # bare runner, so the no-PyYAML fallback path is the one that has to
+      # work — installing it here would test the path that is least likely
+      # to run in production.
+      - name: Budget and spend tests
+        run: python3 scripts/test_budgets.py
+
+      - name: Every role pack resolves to a complete budget
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for manifest in role-packs/*/policy.yaml; do
+            role=$(basename "$(dirname "$manifest")")
+            found=1
+            python3 scripts/read-budget.py --role "$role" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No role packs with a policy.yaml yet; checking the built-in default."
+            python3 scripts/read-budget.py --role developer | tee -a "$GITHUB_STEP_SUMMARY"
+          fi

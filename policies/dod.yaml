@@ -1,0 +1,24 @@
+# Definition of Done — policy as code (PRD §8).
+# The enforced subset is implemented by scripts/dod-check.sh and runs as
+# a required status check on main. Items with enforced: false are
+# convention until a later story wires them into the check; each one
+# names the story that will do it.
+version: 0
+checks:
+  commit_trailers:
+    enforced: true
+    required: [Work-Item, Requirement, Agent-Role, Harness]
+  linked_work_item:
+    enforced: true
+    rule: "PR body references at least one issue (#N)"
+  checklist_complete:
+    enforced: true
+    rule: "no unchecked '- [ ]' items remain in the PR body"
+  tests_updated:
+    enforced: false     # wired in with P0-4 (QA pack)
+  coverage_non_negative:
+    enforced: false     # needs a test suite first (P0-4)
+  docs_touched_on_public_change:
+    enforced: false     # Phase 1
+  adr_linked_on_architectural_change:
+    enforced: false     # Phase 1

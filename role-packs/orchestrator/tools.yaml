@@ -1,0 +1,49 @@
+# Orchestrator tool allowlist. It reads the board and starts workflows.
+# It has no write access to source of any kind — that asymmetry is the role.
+version: 0
+role: orchestrator
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search
+  write:
+    - write_file          # role-packs/orchestrator/** only
+    - edit_file
+  execute:
+    - shell
+  web: []                 # nothing it does needs the internet
+
+shell:
+  allow:
+    - "gh issue list*"
+    - "gh issue view*"
+    - "gh issue comment*"
+    - "gh pr list*"
+    - "gh pr view*"
+    - "gh run list*"
+    - "gh run view*"
+    - "gh workflow run dispatch.yml*"
+    - "git log*"
+    - "git status"
+  deny:
+    # It must not be able to do the work it is assigning.
+    - "git commit*"
+    - "git push*"
+    - "gh pr create*"
+    - "gh pr merge*"
+    - "gh pr review*"
+    - "gh workflow disable*"
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Board reads when a harness has no gh shim"
+    - name: project
+      purpose: "GitHub Projects v2 field reads; needs a project-scoped token"
