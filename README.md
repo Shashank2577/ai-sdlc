@@ -74,7 +74,7 @@ routing:
   supported: [developer, qa]
 ```
 
-An item is dispatched when it is open, `status:ready`, carries exactly one supported `role:*` label, and is not `needs-human`, `status:blocked` or `qa:rejected`. Anything else is skipped with a reason in the run log. An item with no role label is never guessed at — that is an unfinished refinement, not a developer story.
+An item is dispatched when it is open, carries exactly one supported `role:*` label, is labelled one of *that role's own* `dispatchable_from` states from its pack (`status:ready` for a developer, `status:in-review` for QA — same declaration `dispatch.yml`'s guard reads), and is not `needs-human` or `status:blocked`. Anything else is skipped with a reason in the run log. An item with no role label is never guessed at — that is an unfinished refinement, not a developer story.
 
 Three is deliberately low. The bottleneck here is review, not agents: every extra branch in flight ages against `main`, competes for the same reviewer, and raises the odds two sessions touch the same file. Agents being idle costs nothing.
 
