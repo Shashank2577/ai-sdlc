@@ -60,7 +60,14 @@ while read -r row; do
     continue
   fi
 
-  since_epoch=$(date -u -d "$since" +%s)
+  # GNU date -d has no BSD/macOS equivalent; every workflow that runs this
+  # script already installs Python (dashboards/standup.py:parse_iso does
+  # the same fromisoformat conversion), so parse there instead of forking
+  # the two date implementations apart (#87).
+  since_epoch=$(python3 -c '
+import datetime, sys
+print(int(datetime.datetime.fromisoformat(sys.argv[1].replace("Z", "+00:00")).timestamp()))
+' "$since")
   hours=$(awk -v a="$now_epoch" -v b="$since_epoch" 'BEGIN{printf "%.1f", (a - b) / 3600}')
 
   if ! awk -v h="$hours" -v s="$SLA_HOURS" 'BEGIN{exit !(h > s)}'; then
