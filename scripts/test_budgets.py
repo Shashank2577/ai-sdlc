@@ -298,6 +298,23 @@ class TestSpendReport(unittest.TestCase):
         self.assertIn("1.2345", md)
         self.assertIn("cache read", md)
 
+    def test_permission_denials_are_surfaced(self):
+        # The first autonomous dispatch had 27 denials, visible only in the
+        # execution log. It read as "the session got lost".
+        p = self.write(execution(num_turns=41, usage=USAGE, duration_ms=240000,
+                                 total_cost_usd=0.68, permission_denials_count=27))
+        spend = SR.summarise(SR.load_execution(p)[0])
+        self.assertEqual(spend["permission_denials"], 27)
+        md = SR.render(SR.check(spend, {"cost_usd": 5.0}), spend, "")
+        self.assertIn("27 tool call(s) were denied", md)
+
+    def test_no_denials_adds_no_noise(self):
+        p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000,
+                                 total_cost_usd=0.5))
+        spend = SR.summarise(SR.load_execution(p)[0])
+        md = SR.render(SR.check(spend, {"cost_usd": 5.0}), spend, "")
+        self.assertNotIn("denied", md)
+
     def test_activity_summary_replaces_read_the_transcript(self):
         # The escalation used to say "read the transcript". It was written to
         # $RUNNER_TEMP and destroyed with the runner — impossible advice.
