@@ -75,6 +75,7 @@ requirements:
       - {grep: {glob: "role-packs/*/templates/escalation-comment.md", pattern: "Options"}}
       - {grep: {glob: .github/workflows/dispatch.yml, pattern: "needs-human"}}
       - {exists: scripts/spend-report.py}
+      - {exists: policies/gates.yaml}
 
   REQ-008:
     summary: Client layer — transcript to PRD, sign-offs, CRs, demos, portal
@@ -99,7 +100,10 @@ requirements:
       - {glob: ".github/workflows/deploy*.yml"}
       - {glob: "infra/**"}
       - {glob: "policies/gates.yaml"}
-    notes: No deployment of any kind exists. This is the largest untouched area.
+    notes: >-
+      policies/gates.yaml now exists and declares the merge and dispatch
+      gates, but no deployment of any kind does. This is still the largest
+      untouched area.
 
   REQ-011:
     summary: Visibility — boards, generated dashboards, computed matrix
