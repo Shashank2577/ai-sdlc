@@ -35,6 +35,7 @@ role: widget
 
 budgets:
   turns: 12
+  cost_usd: 2.50
   tokens: 90000
   wall_clock_minutes: 20
   max_retries: 1
@@ -68,6 +69,7 @@ class TestBudgetResolution(unittest.TestCase):
         with PackFixture(POLICY):
             budget, source = RB.resolve("widget", {})
         self.assertEqual(budget["turns"], 12)
+        self.assertEqual(budget["cost_usd"], 2.50)
         self.assertEqual(budget["tokens"], 90000)
         self.assertEqual(budget["max_retries"], 1)
         self.assertIn("policy.yaml", source)
@@ -97,6 +99,12 @@ class TestBudgetResolution(unittest.TestCase):
         self.assertNotIn("future_knob", budget)
         self.assertEqual(budget["turns"], 12)
 
+    def test_a_zero_cost_ceiling_is_refused(self):
+        with PackFixture(POLICY.replace("cost_usd: 2.50", "cost_usd: 0")):
+            with self.assertRaises(SystemExit) as ctx:
+                RB.resolve("widget", {})
+            self.assertIn("cost_usd", str(ctx.exception))
+
     def test_zero_turns_is_refused(self):
         with PackFixture(POLICY.replace("turns: 12", "turns: 0")):
             with self.assertRaises(SystemExit) as ctx:
@@ -115,9 +123,14 @@ class TestFallbackParser(unittest.TestCase):
 
     def test_reads_the_flat_block(self):
         self.assertEqual(RB.parse_budgets_fallback(POLICY), {
-            "turns": 12, "tokens": 90000, "wall_clock_minutes": 20,
-            "max_retries": 1, "on_breach": "escalate",
+            "turns": 12, "cost_usd": 2.50, "tokens": 90000,
+            "wall_clock_minutes": 20, "max_retries": 1, "on_breach": "escalate",
         })
+
+    def test_a_float_budget_survives_the_no_pyyaml_path(self):
+        # cost_usd is the only non-integer budget; the dispatcher reads it on
+        # a bare runner, so the fallback parser has to handle it.
+        self.assertIsInstance(RB.parse_budgets_fallback(POLICY)["cost_usd"], float)
 
     def test_stops_at_the_next_top_level_key(self):
         self.assertNotIn("forbidden", RB.parse_budgets_fallback(POLICY))
@@ -191,11 +204,47 @@ class TestSpendReport(unittest.TestCase):
                         {"turns": 30, "tokens": 400000, "wall_clock_minutes": 45})
         self.assertFalse(any(r["breached"] for r in rows))
 
-    def test_token_breach_is_detected(self):
-        p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000))
+    def test_tokens_over_the_line_are_a_tripwire_not_a_breach(self):
+        # The reason this exists: the first live dispatch cost $0.61 and
+        # "breached" a 400k token budget, because 1.35M of its 1.41M tokens
+        # were cache reads. Tokens report; cost decides.
+        p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000,
+                                 total_cost_usd=0.5))
         rows = SR.check(SR.summarise(SR.load_execution(p)[0]),
-                        {"turns": 30, "tokens": 1000, "wall_clock_minutes": 45})
-        self.assertEqual([r["label"] for r in rows if r["breached"]], ["tokens"])
+                        {"cost_usd": 5.0, "turns": 30, "tokens": 1000,
+                         "wall_clock_minutes": 45})
+        tokens = next(r for r in rows if r["label"] == "fresh tokens")
+        self.assertTrue(tokens["over"], "it should say the line was crossed")
+        self.assertFalse(tokens["breached"], "but it must not fail the session")
+        self.assertEqual([r["label"] for r in rows if r["breached"]], [])
+
+    def test_cache_reads_are_excluded_from_the_tripwire(self):
+        heavy = {"input_tokens": 60, "output_tokens": 14_893,
+                 "cache_read_input_tokens": 1_351_447,
+                 "cache_creation_input_tokens": 47_900}
+        spend = SR.summarise(SR.load_execution(
+            self.write(execution(num_turns=31, usage=heavy, duration_ms=216000,
+                                 total_cost_usd=0.6139)))[0])
+        self.assertEqual(spend["fresh_tokens"], 62_853)
+        self.assertEqual(spend["total_tokens"], 1_414_300)
+        rows = SR.check(spend, {"cost_usd": 5.0, "turns": 60, "tokens": 400_000,
+                                "wall_clock_minutes": 45})
+        self.assertEqual([r["label"] for r in rows if r["breached"]], [],
+                         "the real first session must not read as a breach")
+
+    def test_cost_over_the_ceiling_is_a_breach(self):
+        p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000,
+                                 total_cost_usd=12.5))
+        rows = SR.check(SR.summarise(SR.load_execution(p)[0]),
+                        {"cost_usd": 5.0, "turns": 30, "tokens": 400000,
+                         "wall_clock_minutes": 45})
+        self.assertEqual([r["label"] for r in rows if r["breached"]], ["cost"])
+
+    def test_a_session_with_no_reported_cost_does_not_breach_on_cost(self):
+        # Not every harness reports cost. Unknown is not "over".
+        p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000))
+        rows = SR.check(SR.summarise(SR.load_execution(p)[0]), {"cost_usd": 0.01})
+        self.assertEqual([r["label"] for r in rows if r["breached"]], [])
 
     def test_wall_clock_breach_is_detected(self):
         p = self.write(execution(num_turns=2, usage=USAGE, duration_ms=3_600_000))
@@ -203,12 +252,14 @@ class TestSpendReport(unittest.TestCase):
                         {"turns": 30, "tokens": 400000, "wall_clock_minutes": 45})
         self.assertEqual([r["label"] for r in rows if r["breached"]], ["wall clock"])
 
-    def test_several_lines_can_breach_at_once(self):
-        p = self.write(execution(num_turns=99, usage=USAGE, duration_ms=3_600_000))
+    def test_several_enforced_lines_can_breach_at_once(self):
+        p = self.write(execution(num_turns=99, usage=USAGE, duration_ms=3_600_000,
+                                 total_cost_usd=9.0))
         rows = SR.check(SR.summarise(SR.load_execution(p)[0]),
-                        {"turns": 30, "tokens": 100, "wall_clock_minutes": 45})
+                        {"cost_usd": 5.0, "turns": 30, "tokens": 100,
+                         "wall_clock_minutes": 45})
         self.assertEqual([r["label"] for r in rows if r["breached"]],
-                         ["turns", "tokens", "wall clock"])
+                         ["cost", "turns", "wall clock"])
 
     def test_jsonl_form_is_accepted(self):
         p = self.write('{"type":"system"}\n'
@@ -235,16 +286,40 @@ class TestSpendReport(unittest.TestCase):
         self.assertEqual(result, {})
         self.assertIn("unreadable", note)
 
-    def test_rendered_table_marks_the_breach_and_shows_cost(self):
+    def test_rendered_table_distinguishes_a_breach_from_a_tripwire(self):
         p = self.write(execution(num_turns=99, usage=USAGE, duration_ms=600000,
                                  total_cost_usd=1.2345))
         spend = SR.summarise(SR.load_execution(p)[0])
-        rows = SR.check(spend, {"turns": 30, "tokens": 400000,
+        rows = SR.check(spend, {"cost_usd": 5.0, "turns": 30, "tokens": 100,
                                 "wall_clock_minutes": 45})
         md = SR.render(rows, spend, "")
-        self.assertIn("| turns (turns) | 99 | 30 | over |", md)
+        self.assertIn("| turns (turns) | 99 | 30 | **over** |", md)
+        self.assertIn("tripwire — not a breach", md)
         self.assertIn("1.2345", md)
         self.assertIn("cache read", md)
+
+    def test_activity_summary_replaces_read_the_transcript(self):
+        # The escalation used to say "read the transcript". It was written to
+        # $RUNNER_TEMP and destroyed with the runner — impossible advice.
+        def tool(name, **kw):
+            return {"type": "tool_use", "name": name, "input": kw}
+        records = [
+            {"type": "system"},
+            {"type": "assistant", "message": {"content": [
+                tool("Read", file_path="scripts/sync-project.py")]}},
+            {"type": "assistant", "message": {"content": [
+                tool("Read", file_path="scripts/test_sync_project.py"),
+                tool("Grep", pattern="addProjectV2ItemById")]}},
+        ]
+        summary = SR.describe_activity(records)
+        self.assertIn("3 tool call(s)", summary)
+        self.assertIn("`Read` ×2", summary)
+        self.assertIn("scripts/sync-project.py", summary)
+        self.assertNotIn("transcript", summary.lower())
+
+    def test_activity_summary_says_so_when_nothing_was_recorded(self):
+        summary = SR.describe_activity([{"type": "system"}])
+        self.assertIn("no tool calls were recorded", summary)
 
     def test_unmeasured_session_says_so_on_the_page(self):
         md = SR.render(SR.check(SR.summarise({}), {"turns": 30}), SR.summarise({}),

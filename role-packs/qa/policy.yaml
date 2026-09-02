@@ -5,8 +5,11 @@ role: qa
 budgets:
   # Review is cheaper than implementation, and a QA session that needs 30
   # turns has stopped reviewing and started debugging.
-  turns: 20
-  tokens: 250000
+  turns: 40
+  # 40 turns: review is cheaper than implementation, but a verdict still
+  # needs the diff read and the criteria walked.
+  cost_usd: 3.00          # the ceiling: a breach here escalates
+  tokens: 250000            # tripwire only — reported, never a breach
   wall_clock_minutes: 30
   max_retries: 1
   on_breach: escalate

@@ -29,7 +29,8 @@ PACKS_DIR = REPO_ROOT / "role-packs"
 REQUIRED_FILES = ("pack.yaml", "charter.md", "tools.yaml", "policy.yaml")
 REQUIRED_PACK_KEYS = ("version", "role", "harness_compat", "identity")
 REQUIRED_POLICY_KEYS = ("budgets", "forbidden", "hitl_triggers", "escalation")
-REQUIRED_BUDGET_KEYS = ("turns", "tokens", "wall_clock_minutes", "max_retries")
+REQUIRED_BUDGET_KEYS = ("turns", "cost_usd", "tokens", "wall_clock_minutes",
+                        "max_retries")
 
 
 class PackError(Exception):
@@ -126,7 +127,8 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         "# Budget",
         "",
         f"- Turns: {budgets['turns']}",
-        f"- Tokens: {budgets['tokens']:,}",
+        f"- Cost ceiling: ${budgets['cost_usd']}",
+        f"- Tokens: {budgets['tokens']:,} (reported, not enforced)",
         f"- Wall clock: {budgets['wall_clock_minutes']} minutes",
         f"- Retries: {budgets['max_retries']}",
         f"- On breach: {budgets.get('on_breach', 'escalate')} — never a silent stop.",

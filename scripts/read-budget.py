@@ -27,12 +27,15 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Deliberately conservative. If these are ever what gets used, something
 # upstream is missing and the session should be short enough to notice.
 DEFAULTS = {
-    "turns": 30,
-    "tokens": 400_000,
+    "turns": 60,
+    "cost_usd": 5.0,          # the ceiling — what a breach is measured against
+    "tokens": 400_000,        # tripwire only; reported, never a breach
     "wall_clock_minutes": 45,
     "max_retries": 2,
     "on_breach": "escalate",
 }
+INT_KEYS = ("turns", "tokens", "wall_clock_minutes", "max_retries")
+FLOAT_KEYS = ("cost_usd",)
 
 KEY_LINE = re.compile(r"^(\s*)([a-z_]+):\s*(.*?)\s*(?:#.*)?$")
 
@@ -68,7 +71,12 @@ def parse_budgets_fallback(text: str) -> dict:
             break                      # dedented out of the block
         if not value:
             raise ValueError(f"budget key `{key}` is nested; budgets must be flat")
-        out[key] = int(value) if value.isdigit() else value
+        if value.isdigit():
+            out[key] = int(value)
+        elif value.replace(".", "", 1).isdigit():
+            out[key] = float(value)          # cost_usd
+        else:
+            out[key] = value
     if not out:
         raise ValueError("`budgets:` block is empty")
     return out
@@ -97,13 +105,17 @@ def resolve(role: str, overrides: dict) -> tuple[dict, str]:
     resolved.update({k: v for k, v in budgets.items() if k in DEFAULTS})
     resolved.update({k: v for k, v in overrides.items() if v})
 
-    for key in ("turns", "tokens", "wall_clock_minutes", "max_retries"):
+    for key in INT_KEYS + FLOAT_KEYS:
+        cast = float if key in FLOAT_KEYS else int
         try:
-            resolved[key] = int(resolved[key])
+            resolved[key] = cast(resolved[key])
         except (TypeError, ValueError):
             sys.exit(f"read-budget: `{key}` is not a number: {resolved[key]!r}")
         if resolved[key] < 0:
             sys.exit(f"read-budget: `{key}` must not be negative")
+    if resolved["cost_usd"] <= 0:
+        sys.exit("read-budget: `cost_usd` must be positive — it is the ceiling, "
+                 "and a zero ceiling would fail every session")
     if resolved["turns"] < 1:
         sys.exit("read-budget: `turns` must be at least 1 — a zero-turn "
                  "session cannot do anything but cost money")

@@ -45,14 +45,17 @@ Budgets live in `role-packs/<role>/policy.yaml`, not in the workflow, so changin
 
 ```yaml
 budgets:
-  turns: 30
-  tokens: 400000
+  turns: 60
+  cost_usd: 5.00          # the ceiling: a breach here escalates
+  tokens: 400000          # tripwire only — reported, never a breach
   wall_clock_minutes: 45
   max_retries: 2
   on_breach: escalate
 ```
 
-Turns and wall clock are hard stops enforced by the runner — a budget an agent can talk itself past is not a budget. Tokens are measured after the fact from the session's execution log and posted to the work item every run, breach or not; cost is a first-class, per-story, visible metric, not something you find out about at the end of the month. Going over does not kill a session, it escalates one, which costs the work item a retry.
+Turns and wall clock are hard stops enforced by the runner — a budget an agent can talk itself past is not a budget. **Cost is the ceiling**: measured after the fact from the session's execution log and posted to the work item every run, breach or not. Going over does not kill a session, it escalates one, which costs the work item a retry.
+
+Tokens are reported but never fail a session, because they measure the wrong thing. The first live dispatch cost 61 cents and blew a 400k token budget — 1.35M of its 1.41M tokens were cache reads, re-reads of context already paid for. Fresh tokens were 63k. A ceiling that fires on that teaches everyone to raise the ceiling.
 
 `max_retries` is the escalation ladder's last rung. The dispatcher counts how many sessions this work item has already burned — from its own session-end comments, so an agent cannot reset it — and refuses to start once the budget is spent, escalating with the three failures attached instead. `ignore_retry_ceiling: true` overrides it for one run.
 
