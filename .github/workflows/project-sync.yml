@@ -1,0 +1,68 @@
+# The board is a view of the labels, not a second place to type state.
+#
+# Writing to a user-level Project v2 needs a token with `project` scope, which
+# GITHUB_TOKEN does not have. Without PROJECT_TOKEN this still runs and still
+# reports what it would change — a scheduled job that fails silently is worse
+# than one that is visibly not armed.
+name: Project sync
+
+on:
+  issues:
+    types: [opened, closed, reopened, labeled, unlabeled, edited]
+  pull_request:
+    types: [opened, closed, reopened]
+  schedule:
+    # Hourly backstop. Events can be missed; a board nobody can trust is
+    # worse than no board.
+    - cron: "25 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Compute the plan and change nothing"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: project-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: project-sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Mapping tests
+        run: python3 scripts/test_sync_project.py
+
+      - name: Sync the board to the labels
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
+          HAS_TOKEN: ${{ secrets.PROJECT_TOKEN != '' }}
+          REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          args=(--project 2 --owner Shashank2577)
+          if [ "${HAS_TOKEN}" != "true" ]; then
+            args+=(--dry-run)
+            {
+              echo "> **Sync is not armed.** \`PROJECT_TOKEN\` is not set, so this"
+              echo "> run reports what it would change and changes nothing."
+              echo "> Writing to a user-level Project v2 needs a PAT with"
+              echo "> \`project\` scope; \`GITHUB_TOKEN\` does not have it."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${REQUESTED_DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 scripts/sync-project.py "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
