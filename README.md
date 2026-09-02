@@ -35,7 +35,7 @@ gh workflow run dispatch.yml -f issue=3 -f role=developer -f max_turns=30
 Two things have to be true first, and the workflow fails loudly rather than quietly if they aren't:
 
 - **The issue is labelled `status:ready`.** This is the prompt-injection guard, not paperwork. The issue body goes verbatim into a session holding write credentials, and on a public repo anyone can open an issue — but only someone with write access can apply a label. So the only untrusted text an agent ever reads is text a maintainer approved.
-- **A harness credential exists** — repository secret `ANTHROPIC_API_KEY`, or `CLAUDE_CODE_OAUTH_TOKEN` for Pro/Max (`claude setup-token`). If both are set, the API key wins.
+- **A harness credential exists.** No API key required: `claude setup-token` mints one from a Claude Code subscription, stored as `CLAUDE_CODE_OAUTH_TOKEN`. Set `ANTHROPIC_API_KEY` instead if you would rather bill an API key; when both are present the API key wins.
 
 The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure, cancellation or a budget breach it hands the item back as `status:ready` + `needs-human` with a structured note — goal, attempts, blocker, costed options A/B/C — so the human gets a decision, not a transcript.
 
@@ -75,7 +75,9 @@ Three is deliberately low. The bottleneck here is review, not agents: every extr
 
 When nothing is eligible the loop **says nothing** — no comment, no issue, no notification. A loop that reports "nothing to do" every hour gets muted, and then it is not there when it says something real. The run log still records every decision.
 
-Arming it needs a PAT: GitHub does not let a run authenticated with `GITHUB_TOKEN` start another workflow, which is what stops loops like this triggering themselves forever. Save a token with `actions:write` + `issues:read` as `ORCHESTRATOR_TOKEN`. Without it the loop still runs and still publishes its plan, in dry-run mode, and says why.
+Arming it needs a token that is not `GITHUB_TOKEN`: GitHub does not let a run authenticated with `GITHUB_TOKEN` start another workflow, which is what stops loops like this triggering themselves forever. One classic PAT with `repo`, `workflow` and `project` scopes, saved as `FOUNDRY_TOKEN`, arms the loop and the board sync together. Without it the loop still runs and still publishes its plan, in dry-run mode, and says why.
+
+Because that PAT belongs to a person, the run it triggers reports `actor = <you>, type = User` — which is what satisfies the dispatcher's human-actor check, so orchestrator-triggered sessions need no further configuration. Full setup steps are on the wiki under [Operating the System](https://github.com/Shashank2577/foundry-program/wiki/Operating-the-System).
 
 ```sh
 python3 scripts/assign.py --dry-run     # what would it do right now

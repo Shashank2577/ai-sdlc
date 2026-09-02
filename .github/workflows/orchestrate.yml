@@ -1,13 +1,21 @@
 # The assignment loop. Reads the board, dispatches what fits under the WIP
 # limit, and says nothing when there is nothing to do.
 #
-# Auth: dispatching another workflow needs a PAT. GitHub deliberately does
-# not let a run authenticated with GITHUB_TOKEN start another workflow —
-# without that rule, a loop like this one could trigger itself forever.
-# So: with ORCHESTRATOR_TOKEN set, the loop dispatches. Without it, the loop
-# still runs and still publishes its plan, but in dry-run mode, and says
-# why. A loop that silently fails every hour is worse than one that is
-# visibly not armed.
+# Auth: dispatching another workflow needs a token that is not GITHUB_TOKEN.
+# GitHub deliberately does not let a run authenticated with GITHUB_TOKEN start
+# another workflow — without that rule, a loop like this one could trigger
+# itself forever.
+#
+# Use FOUNDRY_TOKEN (one PAT for the whole system); ORCHESTRATOR_TOKEN still
+# works if you would rather scope this loop separately. Without either, the
+# loop still runs and still publishes its plan, in dry-run mode, and says why.
+# A loop that fails silently every hour is worse than one that is visibly not
+# armed.
+#
+# A PAT belonging to a person also makes the dispatched run report
+# `actor = <that person>, type = User`, which is what satisfies the
+# dispatcher's human-actor check. A GitHub App token would report a bot and
+# need `allowed_bots` on the action instead.
 name: Orchestrate
 
 on:
@@ -77,18 +85,17 @@ jobs:
       - name: Decide whether the loop is armed
         id: mode
         env:
-          ORCHESTRATOR_TOKEN: ${{ secrets.ORCHESTRATOR_TOKEN }}
+          ORCHESTRATOR_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           if [ -z "${ORCHESTRATOR_TOKEN}" ]; then
             echo "armed=false" >> "$GITHUB_OUTPUT"
             {
-              echo "> **Loop is not armed.** \`ORCHESTRATOR_TOKEN\` is not set, so"
-              echo "> this run computes the plan and dispatches nothing. GITHUB_TOKEN"
-              echo "> cannot start another workflow by design; arming the loop needs a"
-              echo "> PAT with \`actions:write\` and \`issues:read\` saved as"
-              echo "> \`ORCHESTRATOR_TOKEN\`."
+              echo "> **Loop is not armed.** Neither \`FOUNDRY_TOKEN\` nor"
+              echo "> \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
+              echo "> dispatches nothing. GITHUB_TOKEN cannot start another workflow by"
+              echo "> design. See the wiki: Operating the System -> Arming the system."
             } >> "$GITHUB_STEP_SUMMARY"
           elif [ "${REQUESTED_DRY_RUN}" = "true" ]; then
             echo "armed=false" >> "$GITHUB_OUTPUT"
@@ -101,7 +108,7 @@ jobs:
         env:
           # The PAT when there is one; otherwise the workflow token, which is
           # enough to read the board for a dry run.
-          GH_TOKEN: ${{ secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail

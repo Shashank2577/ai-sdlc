@@ -89,18 +89,83 @@ python3 scripts/sync-project.py --project 2 --owner Shashank2577 --dry-run
 
 Published automatically on every push to `main`, plus daily at 06:10 UTC.
 
-## What still needs a human
+## Arming the system
 
-These are setup actions no agent can perform, and the system says so rather
-than pretending otherwise:
+Two credentials. Both are one-time.
 
-- **Harness credential** — `claude setup-token`, then
-  `gh secret set CLAUDE_CODE_OAUTH_TOKEN`.
-- **`ORCHESTRATOR_TOKEN`** — a PAT with `actions:write`. GitHub does not let a
-  run authenticated with `GITHUB_TOKEN` start another workflow; that rule is
-  what stops loops triggering themselves forever.
-- **`PROJECT_TOKEN`** — a PAT with `project` scope, so the board sync can
-  write. `GITHUB_TOKEN` cannot.
-- **Bot identities** — `foundry-dev-bot`, `foundry-qa-bot`,
-  `foundry-orchestrator-bot` do not exist yet, so commits are attributed by the
-  `Agent-Role:` trailer rather than cryptographically.
+### 1. The harness credential
+
+You do **not** need an Anthropic API key. `claude setup-token` mints a token
+from a Claude Code subscription:
+
+```sh
+claude setup-token                    # prints a token
+gh secret set CLAUDE_CODE_OAUTH_TOKEN # paste it
+```
+
+If you would rather bill an API key, set `ANTHROPIC_API_KEY` instead; when both
+are present the API key wins.
+
+### 2. The GitHub credential
+
+One classic PAT covers everything the system does. Create it at
+**Settings → Developer settings → Personal access tokens → Tokens (classic)**
+with these scopes:
+
+| Scope | Needed for |
+|---|---|
+| `repo` | branches, commits, PRs, issue labels and comments |
+| `workflow` | the orchestrator starting the dispatcher |
+| `project` | the board sync writing to Projects v2 |
+
+```sh
+gh secret set FOUNDRY_TOKEN
+```
+
+`ORCHESTRATOR_TOKEN` and `PROJECT_TOKEN` still work if you prefer to scope them
+separately, but one token is enough.
+
+### Why a PAT and not a GitHub App
+
+Two independent reasons, both platform limits rather than preferences:
+
+- **Starting a workflow from a workflow.** GitHub does not let a run
+  authenticated with `GITHUB_TOKEN` trigger another workflow — the rule that
+  stops loops triggering themselves forever. The documented workarounds are a
+  GitHub App installation token or a PAT.
+- **User-owned Projects v2.** A GitHub App can be granted *organization*
+  Projects permissions; there is no equivalent for a project owned by a user
+  account, and fine-grained PATs have the same gap. `Foundry Delivery` is
+  user-owned, so a classic PAT with `project` scope is the only thing that can
+  write to it. Moving the project into an organisation is what would unlock the
+  GitHub App route.
+
+A PAT has a second, useful property here: a workflow it triggers reports
+`actor = <you>, type = User`. That is what satisfies the dispatcher's
+human-actor check, so orchestrator-triggered sessions run without any further
+configuration. A GitHub App token would report a bot and need `allowed_bots` on
+`anthropics/claude-code-action` instead.
+
+### 3. One click for the wiki
+
+GitHub creates a wiki's git repository only when its first page is made in the
+web UI, and exposes no API for it. Create any page once at
+`/wiki`, then re-run the **Wiki** workflow — everything after that is
+generated, and the placeholder is overwritten.
+
+### Check it worked
+
+```sh
+gh workflow run orchestrate.yml -f dry_run=true   # should say "armed"
+gh workflow run project-sync.yml -f dry_run=true  # should list planned changes
+gh workflow run dispatch.yml -f issue=<n> -f role=developer
+```
+
+## Known gaps
+
+- **Bot identities are not provisioned.** `foundry-dev-bot`, `foundry-qa-bot`
+  and `foundry-orchestrator-bot` do not exist, so commits are attributed by the
+  `Agent-Role:` trailer rather than cryptographically. Signed-commit
+  attribution (REQ-002) is not yet true.
+- **Estimates and confidence are hand-set.** Nothing derives them yet; ensemble
+  estimation is Phase 1.

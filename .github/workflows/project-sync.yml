@@ -1,9 +1,14 @@
 # The board is a view of the labels, not a second place to type state.
 #
-# Writing to a user-level Project v2 needs a token with `project` scope, which
-# GITHUB_TOKEN does not have. Without PROJECT_TOKEN this still runs and still
-# reports what it would change — a scheduled job that fails silently is worse
-# than one that is visibly not armed.
+# Writing to a *user-owned* Project v2 needs a classic PAT with `project`
+# scope. GITHUB_TOKEN does not have it, and neither GitHub Apps nor
+# fine-grained PATs expose a user-owned-Projects permission — only
+# organization-owned projects have one. That is a platform limitation, not a
+# design choice; moving the project to an org is the only way to use an App.
+#
+# Use FOUNDRY_TOKEN (one PAT for the whole system); PROJECT_TOKEN still works
+# if you would rather scope this separately. Without either it reports what it
+# would change and changes nothing.
 name: Project sync
 
 on:
@@ -48,8 +53,8 @@ jobs:
 
       - name: Sync the board to the labels
         env:
-          GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
-          HAS_TOKEN: ${{ secrets.PROJECT_TOKEN != '' }}
+          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
+          HAS_TOKEN: ${{ (secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN) != '' }}
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
@@ -57,10 +62,12 @@ jobs:
           if [ "${HAS_TOKEN}" != "true" ]; then
             args+=(--dry-run)
             {
-              echo "> **Sync is not armed.** \`PROJECT_TOKEN\` is not set, so this"
-              echo "> run reports what it would change and changes nothing."
-              echo "> Writing to a user-level Project v2 needs a PAT with"
-              echo "> \`project\` scope; \`GITHUB_TOKEN\` does not have it."
+              echo "> **Sync is not armed.** Neither \`FOUNDRY_TOKEN\` nor"
+              echo "> \`PROJECT_TOKEN\` is set, so this run reports what it would"
+              echo "> change and changes nothing. Writing to a user-owned Project v2"
+              echo "> needs a classic PAT with \`project\` scope — GITHUB_TOKEN does"
+              echo "> not have it, and no GitHub App or fine-grained PAT permission"
+              echo "> covers user-owned projects."
             } >> "$GITHUB_STEP_SUMMARY"
           elif [ "${REQUESTED_DRY_RUN}" = "true" ]; then
             args+=(--dry-run)
