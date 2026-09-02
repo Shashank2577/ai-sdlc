@@ -846,4 +846,24 @@ jobs:
             gh issue edit "$ISSUE" \
               --add-label "$new_status" \
               --add-label "needs-human"
+          elif [ "$has_pr" = "true" ]; then
+            # A successful session with a PR open is trusted to have moved
+            # itself to status:in-review — some sessions don't (#83). Check
+            # rather than assume, and only write the label if it is missing:
+            # a redundant `gh issue edit` on every success is noise in the
+            # event history the SLA and rejection counters read (#29).
+            labels_json=$(gh issue view "$ISSUE" --json labels 2>/dev/null || echo '{"labels":[]}')
+            already_in_review=$(jq -r '
+              [.labels[].name] | any(. == "status:in-review")
+            ' <<<"$labels_json" 2>/dev/null || echo false)
+            if [ "$already_in_review" != "true" ]; then
+              gh issue edit "$ISSUE" \
+                --remove-label "status:ready" \
+                --remove-label "status:in-progress" \
+                --remove-label "status:in-review" \
+                --remove-label "status:blocked" \
+                --remove-label "status:needs-refinement"
+              gh issue edit "$ISSUE" \
+                --add-label "status:in-review"
+            fi
           fi
