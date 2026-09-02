@@ -75,6 +75,38 @@ def load_records(path: Path) -> list[dict]:
         return []
 
 
+def denied_calls(records: list[dict]) -> list[str]:
+    """Which tool calls were refused, not just how many.
+
+    The execution log reports `permission_denials_count` and nothing else,
+    so diagnosing a denied session meant inferring which command it was.
+    That inference cost two sessions. Tool results carry `is_error` with a
+    permission message; pairing them back to the tool_use that asked is
+    the difference between reading the cause and guessing it.
+    """
+    asked: dict[str, str] = {}
+    denied: list[str] = []
+    for record in records:
+        kind = record.get("type")
+        content = (record.get("message") or {}).get("content") or []
+        if kind == "assistant":
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "tool_use":
+                    args = block.get("input") or {}
+                    detail = (args.get("command") or args.get("file_path")
+                              or args.get("path") or args.get("pattern") or "")
+                    asked[block.get("id", "")] = f"{block.get('name','?')} {str(detail)[:70]}".strip()
+        elif kind == "user":
+            for block in content:
+                if not isinstance(block, dict) or block.get("type") != "tool_result":
+                    continue
+                body = json.dumps(block.get("content") or "")
+                if block.get("is_error") and ("permission" in body.lower()
+                                              or "denied" in body.lower()):
+                    denied.append(asked.get(block.get("tool_use_id", ""), "unknown call"))
+    return denied
+
+
 def describe_activity(records: list[dict]) -> str:
     """What the session actually did, from its own tool calls.
 
@@ -198,9 +230,17 @@ def render(rows: list[dict], spend: dict, note: str, activity: str = "") -> str:
     if denials:
         lines += ["", f"> **{denials} tool call(s) were denied by the session's "
                       f"permission settings.** A session that spends its budget "
-                      f"discovering what it may not do will ship nothing. Check "
-                      f"the compiled permissions in the run summary against "
-                      f"`role-packs/<role>/tools.yaml`."]
+                      f"discovering what it may not do will ship nothing."]
+        named = spend.get("denied_calls") or []
+        if named:
+            uniq = sorted(set(named))
+            lines += ["", "Denied:"] + [f"- `{c}`" for c in uniq[:10]]
+            if len(uniq) > 10:
+                lines.append(f"- _+{len(uniq) - 10} more_")
+        else:
+            lines.append("> The execution log did not pair the denials to specific "
+                         "calls; compare the compiled permissions in the run summary "
+                         "against `role-packs/<role>/tools.yaml`.")
     if activity:
         lines += ["", activity]
     if note:
@@ -225,6 +265,7 @@ def main() -> int:
     result, note = load_execution(args.execution)
     records = load_records(args.execution)
     spend = summarise(result)
+    spend["denied_calls"] = denied_calls(records)
     rows = check(spend, budget)
     markdown = render(rows, spend, note, describe_activity(records))
 

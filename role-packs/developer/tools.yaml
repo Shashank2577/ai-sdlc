@@ -27,7 +27,7 @@ shell:
   # The security-relevant half is `deny` plus branch protection. This list
   # is about being able to work.
   allow:
-    - "git status"
+    - "git status*"
     - "git diff*"
     - "git log*"
     - "git add*"
@@ -46,6 +46,9 @@ shell:
     - "gh pr checks*"
     - "gh pr diff*"
     - "gh label list*"
+    # The charter tells the agent to put `claude --version` in the Harness
+    # trailer. Not allowing it was a self-inflicted denial.
+    - "claude --version*"
     - "git fetch*"
     - "git branch*"
     - "git rev-parse*"
@@ -81,8 +84,8 @@ shell:
     - "echo*"
     - "printf*"
     - "which*"
-    - "env"
-    - "pwd"
+    - "env*"
+    - "pwd*"
   deny:
     # These are the charter's boundaries expressed as commands. Branch
     # protection is the real enforcement; this is defence in depth so a
