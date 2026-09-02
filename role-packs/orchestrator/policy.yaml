@@ -53,7 +53,13 @@ routing:
 
 eligibility:
   require_labels: [status:ready]
-  exclude_labels: [needs-human, status:blocked, qa:rejected]
+  # qa:rejected is deliberately absent. Excluding it here made a rejected
+  # story permanently ineligible — QA's own charter says a developer
+  # session fixes it, but nothing dispatched that session. The veto
+  # against closing rejected work still holds structurally, in
+  # scripts/qa-gate.sh and scripts/qa-verdict.sh close-guard, neither of
+  # which this list controls. See #75.
+  exclude_labels: [needs-human, status:blocked]
   require_open: true
 
 budgets:

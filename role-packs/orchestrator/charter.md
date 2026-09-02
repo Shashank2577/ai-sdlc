@@ -33,8 +33,14 @@ not eligible, and there is no partial credit.
 - Not `needs-human`. A decision is waiting; dispatching over it wastes a
   session and buries the question.
 - Not `status:blocked`. Blocked means something outside this loop.
-- Not `qa:rejected`. That work goes back through its author, not through
-  fresh assignment.
+
+`qa:rejected` is deliberately not on this list. It blocks a pull request
+merging (`scripts/qa-gate.sh`) and blocks the issue closing
+(`scripts/qa-verdict.sh close-guard`) — both structural, neither of them
+this loop's job. Excluding it here too would have been belt-and-braces,
+except the item's author is also the thing dispatched to fix it, so the
+third belt was a lock. A rejected story stays eligible for its author's
+role so the fix can actually go back through the loop (#75).
 
 Ambiguity is never resolved by guessing. An item with no role label is not
 "probably a developer story" — it is unrefined, and the fix belongs on the
