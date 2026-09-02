@@ -115,6 +115,34 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(S.diff({}, {"Role": "QA"}), {"Role": "QA"})
 
 
+class TestPlanAdditions(unittest.TestCase):
+    def test_an_open_issue_missing_from_the_board_is_planned(self):
+        issues = {20: issue("type:story", number=20)}
+        self.assertEqual([i["number"] for i in S.plan_additions(issues, on_board=set())],
+                         [20])
+
+    def test_an_issue_already_on_the_board_is_not_replanned(self):
+        issues = {20: issue("type:story", number=20)}
+        self.assertEqual(S.plan_additions(issues, on_board={20}), [])
+
+    def test_every_open_issue_already_on_the_board_plans_nothing(self):
+        # This is the run that matters: the job runs hourly, and a run with
+        # nothing to do must stay silent, not just harmless.
+        issues = {1: issue(number=1), 2: issue(number=2)}
+        self.assertEqual(S.plan_additions(issues, on_board={1, 2}), [])
+
+    def test_a_closed_issue_missing_from_the_board_is_not_planned(self):
+        # Backfilling history is a different job than keeping the board
+        # current with what's open now.
+        issues = {5: issue(state="CLOSED", number=5)}
+        self.assertEqual(S.plan_additions(issues, on_board=set()), [])
+
+    def test_additions_are_ordered_by_issue_number(self):
+        issues = {9: issue(number=9), 3: issue(number=3)}
+        self.assertEqual([i["number"] for i in S.plan_additions(issues, on_board=set())],
+                         [3, 9])
+
+
 class TestAgainstThisRepo(unittest.TestCase):
     def test_every_status_label_in_conventions_has_a_column(self):
         conventions = (HERE.parent / ".github").parent
