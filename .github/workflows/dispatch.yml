@@ -448,7 +448,18 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           prompt: ${{ steps.prompt.outputs.text }}
-          claude_args: --max-turns ${{ steps.budget.outputs.turns }}
+          # The mode has to be a CLI flag. The compiled settings.json set
+          # defaultMode: bypassPermissions, the action confirmed it loaded
+          # the file, and every write was still denied — including Edit and
+          # Write, which no Bash allowlist could explain. claude_args goes
+          # straight to the CLI and takes precedence.
+          #
+          # `settings` still ships, because the deny list is loaded from it
+          # and evaluated independently of the mode. "Merging is a human
+          # gate" must not rest on the charter alone.
+          claude_args: |
+            --max-turns ${{ steps.budget.outputs.turns }}
+            --permission-mode bypassPermissions
           settings: ${{ steps.pack.outputs.settings }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY == '' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
