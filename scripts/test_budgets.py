@@ -339,6 +339,16 @@ class TestSpendReport(unittest.TestCase):
         ]
         self.assertEqual(SR.denied_calls(records), [])
 
+    def test_string_content_does_not_crash_the_reporter(self):
+        # A real log carried `content` as a bare string; assuming the list
+        # shape crashed session end and lost the label rollback with it.
+        records = [
+            {"type": "user", "message": {"content": "plain string, not blocks"}},
+            {"type": "assistant", "message": {"content": "also a string"}},
+        ]
+        self.assertEqual(SR.denied_calls(records), [])
+        self.assertIn("no tool calls were recorded", SR.describe_activity(records))
+
     def test_no_denials_adds_no_noise(self):
         p = self.write(execution(num_turns=9, usage=USAGE, duration_ms=600000,
                                  total_cost_usd=0.5))

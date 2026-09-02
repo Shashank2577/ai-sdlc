@@ -89,6 +89,13 @@ def denied_calls(records: list[dict]) -> list[str]:
     for record in records:
         kind = record.get("type")
         content = (record.get("message") or {}).get("content") or []
+        # Real logs carry `content` as a bare string on some records, not
+        # only as a list of blocks. Assuming the list shape crashed the
+        # session-end step — and session end is the safety net, so a crash
+        # there loses the spend report, the escalation and the label
+        # rollback all at once.
+        if isinstance(content, str):
+            content = []
         if kind == "assistant":
             for block in content:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
@@ -121,7 +128,10 @@ def describe_activity(records: list[dict]) -> str:
     for record in records:
         if record.get("type") != "assistant":
             continue
-        for block in (record.get("message") or {}).get("content") or []:
+        blocks = (record.get("message") or {}).get("content") or []
+        if isinstance(blocks, str):
+            continue
+        for block in blocks:
             if not isinstance(block, dict) or block.get("type") != "tool_use":
                 continue
             name = block.get("name", "?")
@@ -265,9 +275,22 @@ def main() -> int:
     result, note = load_execution(args.execution)
     records = load_records(args.execution)
     spend = summarise(result)
-    spend["denied_calls"] = denied_calls(records)
+    # Belt and braces: a defect in the diagnostics must never cost the
+    # report they exist to explain.
+    try:
+        spend["denied_calls"] = denied_calls(records)
+    except Exception as exc:                            # noqa: BLE001
+        print(f"spend-report: could not pair denials ({exc.__class__.__name__})",
+              file=sys.stderr)
+        spend["denied_calls"] = []
+    try:
+        activity = describe_activity(records)
+    except Exception as exc:                            # noqa: BLE001
+        print(f"spend-report: could not summarise activity ({exc.__class__.__name__})",
+              file=sys.stderr)
+        activity = ""
     rows = check(spend, budget)
-    markdown = render(rows, spend, note, describe_activity(records))
+    markdown = render(rows, spend, note, activity)
 
     print(markdown, end="")
     if args.out:
