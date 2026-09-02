@@ -191,6 +191,52 @@ class TestQuietLoop(unittest.TestCase):
         self.assertIn("1/3 in flight", report)
 
 
+class TestRoutingSymmetry(unittest.TestCase):
+    """The two lists that must agree, and twice have not.
+
+    `routing.supported` is delivery-lead scope; `dispatch.yml`'s role
+    choices are devops scope. A story adding a role can only edit one of
+    them, so they drift by construction — architect and techwriter shipped
+    routable-by-the-loop and unroutable-by-the-workflow (#62), and
+    delivery-lead did the same thing the same day (#76).
+    """
+
+    def _lists(self):
+        import yaml
+        root = HERE.parent
+        wf = yaml.safe_load((root / ".github/workflows/dispatch.yml").read_text())
+        # PyYAML 1.1 reads a bare `on:` key as the boolean True.
+        trigger = wf.get("on") or wf.get(True)
+        dispatch = set(trigger["workflow_dispatch"]["inputs"]["role"]["options"])
+        policy = yaml.safe_load(
+            (root / "role-packs/orchestrator/policy.yaml").read_text())
+        return dispatch, set(policy["routing"]["supported"])
+
+    def test_every_routable_role_can_be_dispatched(self):
+        dispatch, routing = self._lists()
+        self.assertEqual(routing - dispatch, set(),
+                         "in routing.supported but not in dispatch.yml — the loop "
+                         "will plan a dispatch the workflow rejects")
+
+    def test_every_dispatchable_role_is_routable(self):
+        dispatch, routing = self._lists()
+        self.assertEqual(dispatch - routing, set(),
+                         "in dispatch.yml but not in routing.supported — the role "
+                         "can only ever be dispatched by hand")
+
+    def test_every_pack_with_a_role_label_is_routable(self):
+        # A pack that compiles and has a label but no routing entry is a
+        # role nobody can be assigned work in.
+        import yaml
+        root = HERE.parent
+        _, routing = self._lists()
+        packs = {p.name for p in (root / "role-packs").iterdir()
+                 if (p / "pack.yaml").is_file()}
+        # The orchestrator is the dispatcher, not a dispatchee.
+        self.assertEqual(packs - routing - {"orchestrator"}, set(),
+                         "role packs with no routing entry")
+
+
 class TestPolicyLoading(unittest.TestCase):
     def test_the_committed_policy_loads_and_is_bounded(self):
         policy, source = A.load_policy()

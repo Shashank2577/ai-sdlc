@@ -25,6 +25,10 @@ on:
       - "scripts/assign.py"
       - "scripts/test_assign.py"
       - "role-packs/orchestrator/**"
+      - "role-packs/*/pack.yaml"
+      # The routing-symmetry check compares this file's role choices against
+      # routing.supported, so a change here has to run it (#76).
+      - ".github/workflows/dispatch.yml"
       - ".github/workflows/orchestrate.yml"
   schedule:
     # Hourly at :05. Frequent enough that a refined item does not wait long,
