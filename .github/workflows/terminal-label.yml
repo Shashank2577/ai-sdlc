@@ -9,14 +9,22 @@
 # status:blocked and needs-human survive a close on purpose (see
 # scripts/terminal-label.sh), as do qa:* verdicts.
 #
-# `issues` workflows only ever run from the default branch, so this cannot
-# be exercised by a run triggered from a pull request — the test suite
-# below is the evidence, not a live closed-issue event.
+# `issues` workflows only ever run from the default branch, so the
+# terminal-label job itself cannot be exercised by a run triggered from a
+# pull request. The test job below is triggered separately, on
+# pull_request, so it still runs as a normal PR check whenever this
+# workflow or its script changes — the test suite is the evidence for a
+# PR, not a live closed-issue event.
 name: Terminal label
 
 on:
   issues:
     types: [closed]
+  pull_request:
+    paths:
+      - scripts/terminal-label.sh
+      - scripts/test-terminal-label.sh
+      - .github/workflows/terminal-label.yml
 
 permissions:
   contents: read
@@ -25,6 +33,7 @@ permissions:
 jobs:
   terminal-label:
     name: terminal-label
+    if: github.event_name == 'issues'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,10 +46,12 @@ jobs:
         run: bash scripts/terminal-label.sh
 
   # A gate that fires on every close and can silently stop removing labels
-  # is theatre, not a control — it gets its own tests on every PR that
-  # touches it, not only when someone remembers to check.
+  # is theatre, not a control — it gets its own tests, and they run as a
+  # normal PR check whenever someone touches this workflow or its script,
+  # not only when someone remembers to run them by hand.
   terminal-label-tests:
     name: terminal-label-tests
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
