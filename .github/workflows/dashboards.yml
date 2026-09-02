@@ -44,6 +44,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      # status.py reads requirements/coverage.yaml. The other generators
+      # need nothing beyond the stdlib.
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
       - name: Generator tests
         run: |
           set -euo pipefail
