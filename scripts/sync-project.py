@@ -107,6 +107,18 @@ def diff(current: dict, desired: dict) -> dict:
     return {k: v for k, v in desired.items() if current.get(k) != v}
 
 
+def plan_additions(issues: dict, on_board: set) -> list:
+    """Open issues missing from the board — sorted so a run is deterministic.
+
+    Closed issues that were never added are somebody else's call, not this
+    job's: backfilling history is different from keeping the board current.
+    """
+    return sorted(
+        (issue for number, issue in issues.items()
+         if number not in on_board and issue.get("state", "").upper() == "OPEN"),
+        key=lambda issue: issue["number"])
+
+
 # --------------------------------------------------------------------------
 # The world
 # --------------------------------------------------------------------------
@@ -172,6 +184,32 @@ def write_field(project_id: str, item_id: str, field: dict, value: str) -> None:
         fieldId:"{field['id']}" value:{payload} }}) {{ projectV2Item {{ id }} }} }}''')
 
 
+def add_item(project_id: str, content_id: str) -> str:
+    """Add an issue to the board and return the new item's id."""
+    result = graphql(f'''mutation {{ addProjectV2ItemById(input:{{
+        projectId:"{project_id}" contentId:"{content_id}" }}) {{ item {{ id }} }} }}''')
+    return result["data"]["addProjectV2ItemById"]["item"]["id"]
+
+
+def apply_fields(project_id: str, item_id: str, number: int, fields: dict,
+                  delta: dict, dry_run: bool) -> int | None:
+    """Write every field in `delta`. Returns 1 on failure, None on success."""
+    for name, value in delta.items():
+        field = fields.get(name)
+        if not field:
+            print(f"  #{number}: no `{name}` field on this board — skipped")
+            continue
+        print(f"  #{number}: {name} -> {value}" + ("  (dry run)" if dry_run else ""))
+        if dry_run:
+            continue
+        try:
+            write_field(project_id, item_id, field, value)
+        except (KeyError, subprocess.CalledProcessError) as exc:
+            print(f"  #{number}: FAILED to set {name} — {exc}", file=sys.stderr)
+            return 1
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--project", type=int, required=True)
@@ -192,37 +230,47 @@ def main() -> int:
     fields = field_index(board)
     issues = {i["number"]: i for i in gh_json(
         ["issue", "list", "--state", "all", "--limit", "200",
-         "--json", "number,title,state,labels,body"])}
+         "--json", "number,title,state,labels,body,id"])}
 
     changes = 0
     unchanged = 0
+    on_board = set()
     for item in board["items"]["nodes"]:
         content = item.get("content") or {}
         number = content.get("number")
         if number is None or number not in issues:
             continue
-        wanted = desired_fields(issues[number])
-        delta = diff(current_values(item), wanted)
+        on_board.add(number)
+        delta = diff(current_values(item), desired_fields(issues[number]))
         if not delta:
             unchanged += 1
             continue
         changes += 1
-        for name, value in delta.items():
-            field = fields.get(name)
-            if not field:
-                print(f"  #{number}: no `{name}` field on this board — skipped")
-                continue
-            print(f"  #{number}: {name} -> {value}"
-                  + ("  (dry run)" if args.dry_run else ""))
-            if not args.dry_run:
-                try:
-                    write_field(board["id"], item["id"], field, value)
-                except (KeyError, subprocess.CalledProcessError) as exc:
-                    print(f"  #{number}: FAILED to set {name} — {exc}", file=sys.stderr)
-                    return 1
+        failed = apply_fields(board["id"], item["id"], number, fields, delta, args.dry_run)
+        if failed:
+            return failed
+
+    added = 0
+    for issue_data in plan_additions(issues, on_board):
+        number = issue_data["number"]
+        added += 1
+        changes += 1
+        print(f"  #{number}: add to board" + ("  (dry run)" if args.dry_run else ""))
+        if args.dry_run:
+            continue
+        try:
+            item_id = add_item(board["id"], issue_data["id"])
+        except subprocess.CalledProcessError as exc:
+            print(f"  #{number}: FAILED to add — {exc}", file=sys.stderr)
+            return 1
+        failed = apply_fields(board["id"], item_id, number, fields,
+                               desired_fields(issue_data), args.dry_run)
+        if failed:
+            return failed
 
     verb = "would change" if args.dry_run else "changed"
-    print(f"project sync: {verb} {changes} item(s), {unchanged} already correct.")
+    print(f"project sync: {verb} {changes} item(s) ({added} added), "
+          f"{unchanged} already correct.")
     return 0
 
 
