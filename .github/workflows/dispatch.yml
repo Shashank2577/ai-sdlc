@@ -732,6 +732,13 @@ jobs:
                 echo "expensive way to learn nothing."
               fi
               echo
+              echo "**To act on this**"
+              echo
+              echo "Reply with the option letter, then **remove the"
+              echo "\`needs-human\` label** — that label is what holds the item, and"
+              echo "nothing reads this comment. The reply is the record; removing the"
+              echo "label is what releases the work back to the loop."
+              echo
               echo "**State left behind:** work item returned to \`status:ready\` with"
               echo "\`needs-human\`. Any branch the session pushed is still there;"
               echo "nothing was deleted, force-pushed or merged."
