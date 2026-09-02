@@ -21,3 +21,14 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: bash scripts/dod-check.sh
+
+  # The linked_work_item rule (closing keyword or explicit opt-out) is a
+  # policy-enforcement control; it gets its own tests on every PR that
+  # touches it, same pattern as qa-gate.yml's qa-enforcement-tests.
+  dod-check-tests:
+    name: dod-check-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the Definition of Done check
+        run: bash scripts/test-dod-check.sh
