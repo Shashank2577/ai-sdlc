@@ -43,23 +43,38 @@ on:
         required: false
         default: false
         type: boolean
+  # scripts/test-dispatch-session-end.sh exercised a `run:` step embedded
+  # in this workflow, but no job ever ran it — invisible to CI (#69, #84).
+  # Path-scoped so a PR untouched by this workflow doesn't pay for it.
+  pull_request:
+    paths:
+      - .github/workflows/dispatch.yml
+      - scripts/test-dispatch-session-end.sh
 
 # Least privilege. The agent needs to push a branch, open a PR, and talk
-# to the work item. Nothing else.
+# to the work item. Nothing else. The test job below overrides this down
+# to contents: read — it never dispatches a session or touches the tracker.
 permissions:
   contents: write
   pull-requests: write
   issues: write
 
 # One live session per work item. Two agents on one issue would race on
-# the branch and on the status labels.
+# the branch and on the status labels. On a pull_request event there is no
+# work item — inputs.issue is empty — so falling back to the PR number
+# keys each PR's test run into its own group instead of one shared
+# "dispatch-issue-" group that would serialize every PR in the repo
+# against every other one (#84).
 concurrency:
-  group: dispatch-issue-${{ inputs.issue }}
+  group: dispatch-issue-${{ inputs.issue || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   session:
     name: "#${{ inputs.issue }} as ${{ inputs.role }}"
+    # The real job mutates the tracker with a live agent credential; it
+    # must never run from a pull_request event, only a manual dispatch.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # Backstop only. The real wall-clock budget is per-role and enforced on
     # the agent step; this stops a hung runner billing for six hours.
@@ -867,3 +882,27 @@ jobs:
                 --add-label "status:in-review"
             fi
           fi
+
+  # The session-end step above is theatre if nothing runs it — a bug can
+  # sit in the label rollback or the escalation ladder for weeks with
+  # every check green (#69). This runs its test suite as a normal PR
+  # check whenever this workflow or the test file changes, following the
+  # terminal-label.yml / standup.yml pattern (#84).
+  dispatch-session-end-tests:
+    name: dispatch-session-end-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test the session-end step
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          bash scripts/test-dispatch-session-end.sh
