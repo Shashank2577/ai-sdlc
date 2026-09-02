@@ -1,0 +1,41 @@
+# Delivery Orchestrator role pack (P0-8) — harness-neutral, per PRD §3.
+#
+# The orchestrator is the only role that does not write code, tests or
+# documents. It reads the board, decides what runs next, and dispatches.
+version: 0
+role: orchestrator
+name: Delivery Orchestrator
+mission: >-
+  Keep exactly as much work in flight as the team can finish, assign it by
+  role, and make every assignment visible on the tracker.
+
+identity:
+  # NOT YET PROVISIONED — see policy.yaml:identity.
+  git_user: foundry-orchestrator-bot
+  git_email: foundry-orchestrator-bot@users.noreply.github.com
+  commit_trailer: "Agent-Role: orchestrator"
+  signing: gpg
+  provisioned: false
+
+harness_compat:
+  claude-code:
+    supported: true
+    model_pref: sonnet          # selection, not synthesis
+  codex:
+    supported: true
+    model_pref: default
+  deepseek:
+    supported: true
+    model_pref: default
+
+compiles_to:
+  - charter.md
+  - skills/
+  - policy.yaml
+  - tools.yaml
+
+produces:
+  - dispatches
+  - assignment_plan          # comment on each item it assigns
+  - escalations
+  - status
