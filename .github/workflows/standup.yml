@@ -78,3 +78,11 @@ jobs:
           DIGEST: ${{ runner.temp }}/site/standup.json
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/standup-escalate.sh
+
+      - name: Escalate approval gates past their SLA
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/gate-sla.sh
