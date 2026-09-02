@@ -1,0 +1,33 @@
+# Every test_*.py / test-*.sh file must be executed by some workflow, or it
+# is invisible to CI: a shipped test can sit failing indefinitely while
+# every required check stays green (#69 — 13 of 20 cases failed in a test
+# file that nothing ran).
+#
+# Unconditional on every pull request, unlike the other self-checks in this
+# repo: a test file's wiring can go stale from either side — a new test
+# file with no workflow step, or a workflow edit that drops the step that
+# ran an existing one — and neither shows up in a path filter scoped to the
+# file that broke.
+name: Test wiring
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-wiring:
+    name: test-wiring
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The checker's own tests first: a broken checker that always exits 0
+      # would be worse than no checker, since it would report the gate as
+      # passing.
+      - name: Test the checker itself
+        run: bash scripts/test-check-test-wiring.sh
+
+      - name: Every test file is wired to a workflow, or allowlisted
+        run: bash scripts/check-test-wiring.sh
