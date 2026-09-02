@@ -1,0 +1,72 @@
+# Generated views over the program's own history, published to GitHub Pages.
+#
+# On main: rebuild and deploy. On a PR: build and run the tests, deploy
+# nothing. The matrix changes with every merge, not only when dashboards/
+# changes, so main is not path-filtered.
+#
+# One-time human setup: Settings → Pages → Source = "GitHub Actions".
+# Without it the deploy job fails, loudly and on purpose — a dashboard that
+# silently stops publishing is worse than one that visibly breaks.
+name: Dashboards
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "dashboards/**"
+      - "requirements/**"
+      - ".github/workflows/dashboards.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # the matrix reads the whole trailer history
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generator tests
+        run: python3 dashboards/test_build.py
+
+      - name: Build the traceability matrix
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 dashboards/build.py \
+            --out site --ref HEAD --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: deploy
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
