@@ -40,7 +40,7 @@ STATUS_BY_LABEL = [
 QA_BY_LABEL = [("qa:rejected", "Rejected"), ("qa:approved", "Approved")]
 
 ROLE_BY_LABEL = {
-    "role:orchestrator": "Orchestrator", "role:pm": "PM",
+    "role:orchestrator": "Orchestrator", "role:product-manager": "PM",
     "role:architect": "Architect", "role:developer": "Developer",
     "role:qa": "QA", "role:devops": "DevOps",
     "role:techwriter": "TechWriter", "role:deliverymanager": "DeliveryManager",

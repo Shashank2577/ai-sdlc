@@ -1,0 +1,43 @@
+### Escalation — human decision required
+
+**Role:** product-manager · **Session:** <run URL> · **Spend:** <turns/tokens/wall-clock used of budget>
+
+**Goal**
+
+<One sentence. What story or stories was this session supposed to produce?>
+
+**Attempts**
+
+1. <What was tried to resolve the ambiguity — which sources you checked.> → <What was still missing.>
+2. <What was different about the second attempt.> → <What was still missing.>
+
+**Blocker**
+
+<The one thing in the way, stated so a human can verify it independently:
+a contradiction between two requirements, an ambiguity the PRD and the
+issue thread do not resolve, or scope that turned out to need a write
+outside this pack's scope.>
+
+**Options**
+
+- **A — <action>** (<cost: time, who does it>). <Consequence.>
+  <Why this is or isn't the recommendation.>
+- **B — <action>** (<cost>). <Consequence.>
+- **C — <action, often "do nothing / defer">** (<cost>). <Consequence.>
+
+**Recommendation:** <A|B|C>, because <one sentence>.
+
+**State left behind**
+
+- Open questions already filed: <list, or "none">
+- Any story partially refined: <what's done, what's missing>
+- Nothing was deleted, force-pushed, merged, or closed.
+
+<!--
+Rules for whoever fills this in:
+- Options must be costed and mutually exclusive. Three real choices, not
+  one plan and two strawmen.
+- "Please advise" is not an option. If you cannot name three, name two and
+  say why there is no third.
+- Post this on the work item and apply `needs-human`. Nowhere else counts.
+-->

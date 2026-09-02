@@ -1,0 +1,89 @@
+# Product Manager tool allowlist. Harness-neutral names; the compiler maps
+# them onto whatever each harness calls them. Least privilege: most
+# refinement is a tracker edit, not a file change, so the shell surface is
+# smaller than the developer's.
+version: 0
+role: product-manager
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search           # grep/glob
+  write:
+    - write_file       # prds/, requirements/ only; see policy.yaml:write_scope
+    - edit_file
+  execute:
+    - shell            # constrained by shell.deny below
+  web:
+    - fetch_url        # PRD/requirements lookups; no credentials are ever sent
+
+shell:
+  # Commands the session legitimately needs. Anything not matched here
+  # prompts — and a prompt in a headless session is a denial. Most of a PM
+  # session's work is `gh issue` calls, not git; the git subset only exists
+  # for the rarer case of a prds/ or requirements/ change that needs a PR.
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git add*"
+    - "git commit*"
+    - "git checkout -b story/*"
+    - "git push origin story/*"
+    - "git fetch*"
+    - "git branch*"
+    - "git rev-parse*"
+    - "git show*"
+    - "git ls-remote*"
+    - "git config user*"
+    - "gh issue view*"
+    - "gh issue list*"
+    - "gh issue create*"      # decomposing an epic into stories
+    - "gh issue edit*"        # acceptance criteria, labels, REQ marker
+    - "gh issue comment*"     # open questions
+    - "gh pr create*"
+    - "gh pr view*"
+    - "gh pr comment*"
+    - "gh run view*"
+    - "gh pr checks*"
+    - "gh label list*"
+    # The charter tells the agent to put `claude --version` in the Harness
+    # trailer. Not allowing it was a self-inflicted denial in other packs.
+    - "claude --version*"
+    # Ordinary inspection.
+    - "ls*"
+    - "cat*"
+    - "head*"
+    - "tail*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "wc*"
+    - "diff*"
+    - "which*"
+    - "pwd*"
+  deny:
+    # These are the charter's boundaries expressed as commands. Branch
+    # protection is the real enforcement; this is defence in depth so a
+    # session fails early and loudly rather than at the push.
+    - "git push origin main*"
+    - "git push*--force*"
+    - "git push*-f*"
+    - "git reset --hard origin/main"
+    - "gh issue close*"          # refinement produces status:ready, not done
+    - "gh pr merge*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh secret*"
+    - "gh repo edit*"
+
+mcp:
+  # Tracker access goes through the GitHub CLI in v0 — no MCP server is
+  # required, which is exactly the graceful degradation PRD §11.2 calls for.
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"
+    - name: transcript
+      purpose: "Client call transcripts (Granola or similar), per PRD §6 — not wired up yet"
