@@ -25,6 +25,12 @@ outside this pack's scope.>
 - **B — <action>** (<cost>). <Consequence.>
 - **C — <action, often "do nothing / defer">** (<cost>). <Consequence.>
 
+**To act on this**
+
+Reply with the option letter, then remove the `needs-human` label — that
+label is what holds the item, and nothing reads this comment. The reply is
+the record; removing the label is what releases the work.
+
 **Recommendation:** <A|B|C>, because <one sentence>.
 
 **State left behind**
