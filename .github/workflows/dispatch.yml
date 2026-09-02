@@ -703,6 +703,19 @@ jobs:
                 echo
                 echo "**Recommendation:** A. Shipping nothing twice for the same reason"
                 echo "is a system defect, not an unlucky session."
+              elif [ "$has_pr" = "true" ]; then
+                echo "- **A — review the open pull request and finish it.** One"
+                echo "  session's spend at most. The work is already up, in the pull"
+                echo "  request above; finishing it is usually cheaper than redoing it."
+                echo "- **B — redispatch to continue from the open pull request.** One"
+                echo "  session's spend. Right if the PR is close but the session ran"
+                echo "  out of room before it was done."
+                echo "- **C — close the pull request and start over.** Right only if"
+                echo "  the approach taken is wrong, not merely incomplete."
+                echo
+                echo "**Recommendation:** A or B — the work already has a home. This is"
+                echo "a story in review that needs finishing, not a story to redispatch"
+                echo "as-is."
               elif [ "$breach" = "3" ]; then
                 echo "- **A — read the Spend table above before spending again.** Free."
                 echo "  \"What the session did\" lists its tool calls and last actions;"
@@ -741,9 +754,15 @@ jobs:
               echo "nothing reads this comment. The reply is the record; removing the"
               echo "label is what releases the work back to the loop."
               echo
-              echo "**State left behind:** work item returned to \`status:ready\` with"
-              echo "\`needs-human\`. Any branch the session pushed is still there;"
-              echo "nothing was deleted, force-pushed or merged."
+              if [ "$has_pr" = "true" ]; then
+                echo "**State left behind:** work item stays \`status:in-review\` with"
+                echo "\`needs-human\`. The pull request above is untouched; nothing was"
+                echo "merged, closed or force-pushed."
+              else
+                echo "**State left behind:** work item returned to \`status:ready\` with"
+                echo "\`needs-human\`. Any branch the session pushed is still there;"
+                echo "nothing was deleted, force-pushed or merged."
+              fi
               if [ "$remaining" -le 0 ]; then
                 echo
                 echo "> The retry budget is now spent. The next dispatch will refuse to"
@@ -756,9 +775,24 @@ jobs:
           cat "$comment" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$result" = "failure" ]; then
-            # Hand the work item back in a dispatchable state, flagged.
+            # Every status:* label the session could have set (in-progress at
+            # start, in-review once a PR went up) is removed before the new
+            # one lands — otherwise the old one survives alongside it and the
+            # board shows a state nobody set. A shipped PR stays in-review,
+            # flagged for a human, rather than going back to ready: `assign.py`
+            # would otherwise redispatch work that is already sitting in
+            # review.
+            new_status="status:ready"
+            if [ "$has_pr" = "true" ]; then
+              new_status="status:in-review"
+            fi
             gh issue edit "$ISSUE" \
+              --remove-label "status:ready" \
               --remove-label "status:in-progress" \
-              --add-label "status:ready" \
+              --remove-label "status:in-review" \
+              --remove-label "status:blocked" \
+              --remove-label "status:needs-refinement"
+            gh issue edit "$ISSUE" \
+              --add-label "$new_status" \
               --add-label "needs-human"
           fi
