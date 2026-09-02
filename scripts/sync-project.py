@@ -44,6 +44,7 @@ ROLE_BY_LABEL = {
     "role:architect": "Architect", "role:developer": "Developer",
     "role:qa": "QA", "role:devops": "DevOps",
     "role:techwriter": "TechWriter", "role:deliverymanager": "DeliveryManager",
+    "role:delivery-lead": "DeliveryManager",
 }
 
 

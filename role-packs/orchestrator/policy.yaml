@@ -19,6 +19,9 @@ wip:
     # One at a time. A pipeline change reviewed in parallel with another
     # pipeline change is how two gates weaken at once.
     devops: 1
+    # Same reasoning as devops: a governance change reviewed in parallel
+    # with another governance change is how two policies drift at once.
+    delivery-lead: 1
 
 refill:
   # When the ready queue drops to or below this, the backlog needs refilling
@@ -44,7 +47,7 @@ routing:
   # "Role" field would need a project-scoped token; see the story's PR.
   field: label
   prefix: "role:"
-  supported: [developer, qa, product-manager, devops, architect, techwriter]
+  supported: [developer, qa, product-manager, devops, architect, techwriter, delivery-lead]
   # An item without one of these is unrefined, not "probably a dev story".
   default: null
 
