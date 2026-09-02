@@ -13,13 +13,17 @@ wip:
     # Optional caps under the global limit. Absent means "no extra cap".
     developer: 3
     qa: 2
+    product-manager: 1
+    # One at a time. A pipeline change reviewed in parallel with another
+    # pipeline change is how two gates weaken at once.
+    devops: 1
 
 routing:
   # v0 routes on labels, which works with any tracker. The GitHub Projects
   # "Role" field would need a project-scoped token; see the story's PR.
   field: label
   prefix: "role:"
-  supported: [developer, qa]
+  supported: [developer, qa, product-manager, devops]
   # An item without one of these is unrefined, not "probably a dev story".
   default: null
 

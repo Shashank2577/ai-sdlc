@@ -61,6 +61,11 @@ def read_pack(role: str) -> dict:
     for key in REQUIRED_PACK_KEYS:
         if key not in pack:
             raise PackError(f"role-packs/{role}/pack.yaml: missing `{key}`")
+    if not (pack.get("identity") or {}).get("token_secret"):
+        raise PackError(
+            f"role-packs/{role}/pack.yaml: identity.token_secret is missing — "
+            "a role nobody can authenticate is not dispatchable"
+        )
     if pack.get("role") != role:
         raise PackError(
             f"role-packs/{role}/pack.yaml: role is `{pack.get('role')}`, "
@@ -91,6 +96,7 @@ def read_pack(role: str) -> dict:
         "pack": pack,
         "policy": policy,
         "tools": tools,
+        "token_secret": pack["identity"]["token_secret"],
         "charter": (root / "charter.md").read_text(),
         "skills": [(p.stem, p.read_text()) for p in skills],
     }
@@ -171,6 +177,9 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
     out = {
         "system-prompt.md": "\n".join(parts).rstrip() + "\n",
         "settings.json": json.dumps(settings, indent=2) + "\n",
+        # The dispatcher reads this to pick the role's credential rather
+        # than carrying a role->secret table of its own.
+        "token-secret": pack["token_secret"] + "\n",
     }
     if unmappable:
         out["UNMAPPABLE.md"] = (

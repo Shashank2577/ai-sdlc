@@ -14,6 +14,12 @@ identity:
   git_user: foundry-orchestrator-bot
   git_email: foundry-orchestrator-bot@users.noreply.github.com
   commit_trailer: "Agent-Role: orchestrator"
+  # The credential this role is dispatched with. Roles at the same
+  # privilege level share one; a role needing more does not drag the
+  # others up with it (PRD §13, least privilege per role).
+  # repo + workflow + project. `workflow` is required to start
+  # another workflow run, which is the whole job.
+  token_secret: FOUNDRY_TOKEN
   signing: gpg
   provisioned: false
 

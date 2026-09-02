@@ -30,6 +30,7 @@ harness_compat:
     supported: true
 identity:
   git_user: widget-bot
+  token_secret: WIDGET_TOKEN
   provisioned: false
 """,
     "charter.md": "# Widget — charter\n\nDo widget things.\n",
@@ -109,6 +110,37 @@ class TestValidation(unittest.TestCase):
             with self.assertRaises(cp.PackError) as ctx:
                 cp.read_pack("widget")
             self.assertIn("tools.yaml", str(ctx.exception))
+
+    def test_a_pack_without_a_credential_is_rejected(self):
+        # Widening one shared token to unblock a role raises every role's
+        # reach. Each pack has to name what it needs.
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] = files["pack.yaml"].replace(
+            "  token_secret: WIDGET_TOKEN\n", "")
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("token_secret", str(ctx.exception))
+            self.assertIn("not dispatchable", str(ctx.exception))
+
+    def test_the_credential_is_compiled_for_the_dispatcher(self):
+        with PackFixture(MINIMAL_PACK):
+            out = cp.compile_claude_code(cp.read_pack("widget"))
+        self.assertEqual(out["token-secret"].strip(), "WIDGET_TOKEN")
+
+    def test_no_code_writing_role_may_edit_the_pipeline(self):
+        # PRD §3 gives .github/workflows/ to DevOps. A role that writes code
+        # must not be able to edit the check that reviews it.
+        import yaml
+        for role in ("developer", "qa", "product-manager"):
+            path = HERE.parent / "role-packs" / role / "policy.yaml"
+            if not path.is_file():
+                continue
+            with self.subTest(role=role):
+                scope = (yaml.safe_load(path.read_text()) or {}).get("write_scope", {})
+                allow = scope.get("allow") or []
+                self.assertFalse([a for a in allow if a.startswith(".github")],
+                                 f"{role} must not have .github/** in write_scope")
 
     def test_role_must_match_directory(self):
         files = dict(MINIMAL_PACK)

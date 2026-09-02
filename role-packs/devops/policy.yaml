@@ -1,0 +1,62 @@
+# DevOps policy — the pipeline owner. PRD §3, §13.
+version: 0
+role: devops
+
+budgets:
+  turns: 60
+  cost_usd: 5.00
+  tokens: 400000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 45
+  max_retries: 2
+  on_breach: escalate
+
+forbidden:
+  - push_to_default_branch
+  - force_push
+  - merging_any_pull_request
+  - approving_any_pull_request     # a pipeline change reviewed by nobody
+  - editing_policies_directory     # implements the DoD; does not author it
+  - editing_other_role_packs
+  - granting_permissions_to_other_roles
+  - editing_repository_settings
+  - editing_secrets
+  - writing_application_code
+  - writing_tests
+
+write_scope:
+  allow:
+    - ".github/workflows/**"
+    - ".github/actions/**"
+    - "infra/**"
+    - "scripts/*deploy*"
+    - "scripts/*release*"
+    - "role-packs/devops/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - "policies/**"
+    - ".github/CODEOWNERS"
+    - "compiler/**"
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/!(devops)/**"
+
+hitl_triggers:
+  - change_would_weaken_a_gate
+  - requires_a_credential_or_setting_this_role_cannot_create
+  - change_unreviewable_by_anyone_else
+  - budget_breach
+
+escalation:
+  template: role-packs/devops/templates/escalation-comment.md
+  label: needs-human
+  ladder:
+    - retry
+    - alternate_approach
+    - alternate_harness
+    - human
+
+identity:
+  bot_account: foundry-devops-bot
+  provisioned: false
+  blocked_on: human

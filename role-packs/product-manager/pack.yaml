@@ -17,6 +17,12 @@ identity:
   git_user: foundry-pm-bot
   git_email: foundry-pm-bot@users.noreply.github.com
   commit_trailer: "Agent-Role: pm"
+  # The credential this role is dispatched with. Roles at the same
+  # privilege level share one; a role needing more does not drag the
+  # others up with it (PRD §13, least privilege per role).
+  # repo scope only — deliberately NOT `workflow`. A role that
+  # writes code must not be able to edit the pipeline that governs it.
+  token_secret: FOUNDRY_DEV_TOKEN
   signing: gpg          # required_signatures on main is currently off
   provisioned: false
 

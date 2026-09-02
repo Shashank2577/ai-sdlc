@@ -30,6 +30,7 @@ forbidden:
   - editing_secrets
   - editing_policies_directory        # policies/** is delivery-lead owned
   - editing_other_role_packs
+  - editing_ci_pipelines            # DevOps owns .github/workflows/
   - rewriting_published_history
 
 write_scope:
@@ -40,9 +41,14 @@ write_scope:
     - "docs/**"
     - "scripts/**"
     - "compiler/**"
-    - ".github/workflows/**"          # DevOps-adjacent; cross-reviewed
     - "role-packs/developer/**"
   deny:
+    # PRD §3 assigns .github/workflows/ to DevOps. A role that writes code
+    # must not be able to edit the pipeline that reviews, budgets and
+    # dispatches it. This was allowed here once, with the comment
+    # "DevOps-adjacent; cross-reviewed" — which was a rationalisation.
+    - ".github/**"
+    - "infra/**"
     - "policies/**"
     - ".github/CODEOWNERS"
     - "prds/**"

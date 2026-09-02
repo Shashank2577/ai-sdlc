@@ -1,0 +1,83 @@
+# DevOps tool allowlist. Broad on inspection, narrow on the two things that
+# matter: it cannot merge, and it cannot change repository settings.
+version: 0
+role: devops
+
+tools:
+  read: [read_file, list_files, search]
+  write: [write_file, edit_file]
+  execute: [shell]
+  web: [fetch_url]
+
+shell:
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git show*"
+    - "git add*"
+    - "git commit*"
+    - "git fetch*"
+    - "git branch*"
+    - "git rev-parse*"
+    - "git ls-remote*"
+    - "git config user*"
+    - "git checkout -b story/*"
+    - "git checkout -b bug/*"
+    - "git push origin story/*"
+    - "git push origin bug/*"
+    - "claude --version*"
+    - "gh issue view*"
+    - "gh issue comment*"
+    - "gh issue edit*"
+    - "gh pr create*"
+    - "gh pr view*"
+    - "gh pr comment*"
+    - "gh pr checks*"
+    - "gh run view*"
+    - "gh run list*"
+    - "gh workflow list*"
+    - "gh workflow view*"
+    # The tools that make a pipeline change reviewable before it ships.
+    - "actionlint*"
+    - "shellcheck*"
+    - "yamllint*"
+    - "python3*"
+    - "bash scripts/*"
+    - "ls*"
+    - "cat*"
+    - "head*"
+    - "tail*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "sed*"
+    - "awk*"
+    - "jq*"
+    - "wc*"
+    - "diff*"
+    - "mkdir*"
+    - "chmod*"
+    - "printf*"
+    - "echo*"
+    - "which*"
+    - "pwd*"
+  deny:
+    - "git push origin main*"
+    - "git reset --hard origin/main"
+    - "gh pr merge*"
+    - "gh pr review*"
+    # Settings are human actions. This role implements gates; it does not
+    # get to remove the ones that constrain it.
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh api*branches/main/protection*"
+    - "gh api*actions/permissions*"
+    - "gh workflow disable*"
+    - "gh api*--method DELETE*"
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"

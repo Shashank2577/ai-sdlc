@@ -1,0 +1,46 @@
+# DevOps / SRE role pack — harness-neutral, per PRD §3.
+#
+# The only role whose credential carries `workflow` scope. That is the
+# whole reason this pack exists separately: pipelines govern every other
+# role, so no role that writes code may edit them.
+version: 0
+role: devops
+name: DevOps / SRE
+mission: >-
+  Own the pipeline, the environments and the release path — the machinery
+  every other role is judged by.
+
+identity:
+  git_user: foundry-devops-bot
+  git_email: foundry-devops-bot@users.noreply.github.com
+  commit_trailer: "Agent-Role: devops"
+  # repo + workflow. The only pack that gets `workflow`, because it is the
+  # only role permitted to write .github/workflows/**.
+  token_secret: FOUNDRY_DEVOPS_TOKEN
+  signing: gpg
+  provisioned: false
+
+harness_compat:
+  claude-code:
+    supported: true
+    model_pref: opus          # pipeline mistakes are expensive and quiet
+  codex:
+    supported: true
+    model_pref: default
+  deepseek:
+    supported: true
+    model_pref: default
+
+compiles_to:
+  - charter.md
+  - skills/
+  - policy.yaml
+  - tools.yaml
+
+produces:
+  - workflows
+  - branch
+  - commits
+  - pull_request
+  - comments
+  - status
