@@ -1,0 +1,60 @@
+# The dispatch-approval gate. `policies/gates.yaml` says which stories are
+# critical; this enforces it by identity.
+#
+# Approval is not a label an agent can forge — it is the fact that a person
+# applied `status:ready`. The event payload carries the sender, which is the
+# same insight as the dispatcher's status:ready guard, one level further in.
+#
+# `issues:` workflows only run from the default branch, so the tests are the
+# only verification available on a pull request.
+name: Approval gate
+
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    paths:
+      - "scripts/gate-check.py"
+      - "scripts/test_gate_check.py"
+      - "policies/gates.yaml"
+      - ".github/workflows/approval-gate.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  tests:
+    name: approval-gate-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - run: python3 scripts/test_gate_check.py
+
+  gate:
+    name: approval-gate
+    # Only when status:ready is what changed. Every other label edit is
+    # somebody else's business, and a job that comments on unrelated
+    # changes is a job people mute.
+    if: github.event_name == 'issues' && github.event.label.name == 'status:ready'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Hold critical work for a person
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 scripts/gate-check.py --enforce \
+            --issue "${{ github.event.issue.number }}" \
+            --actor "${{ github.event.sender.login }}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"

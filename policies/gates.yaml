@@ -1,0 +1,105 @@
+# Human decision gates — policy as code. PRD §7, §14.
+#
+# The rule the human set: approval on critical things. Routine work does
+# not wait, because a gate on everything is a gate nobody reads — and a
+# gate nobody reads is worse than no gate, since it launders whatever
+# passes through it.
+#
+# Enforcement is by identity, not by a second label. The `issues: labeled`
+# event payload carries who applied the label, so approval is not a marker
+# an agent can forge — it is the fact that a person moved the story to
+# status:ready. Same insight as the dispatcher's status:ready guard, one
+# level further in.
+#
+# No role pack may write this file. All five deny `policies/**`, which is
+# deliberate: the gates constrain the roles, so no role gets to move them.
+version: 0
+
+gates:
+  dispatch_approval:
+    question: "Is this story approved to run unsupervised?"
+    owner: human                    # no agent role may satisfy this gate
+    # What "approved" means, mechanically.
+    granted_by: a person applying `status:ready`
+    # PRD §7: every gate has a default, so a silent gate cannot stall work
+    # forever without anyone deciding anything.
+    default_if_unanswered: remains status:needs-refinement
+    sla_hours: 24
+    escalates_after_sla: true
+
+    # Routine work is dispatched on an agent's own say-so. Anything matching
+    # a rule below is not.
+    critical_when:
+      - rule: pipeline_role
+        match: {label: "role:devops"}
+        because: >-
+          DevOps is the only role that can edit the checks, budgets and
+          dispatcher that constrain every other role. A pipeline change
+          approved by the thing it governs is not a gate.
+
+      - rule: touches_governance
+        match: {text_any: ["policies/", ".github/workflows/", "branch protection",
+                           "CODEOWNERS", "required check", "required status"]}
+        because: >-
+          These are the controls. A story proposing to change one needs a
+          person to agree it should be changed, before a session spends a
+          budget on it.
+
+      - rule: touches_credentials
+        match: {text_any: ["gh secret", "PAT", "token_secret", "FOUNDRY_",
+                           "ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"]}
+        because: >-
+          Credential scope is the one privilege a required check cannot
+          claw back, because the check is what a wider credential can edit.
+
+      - rule: changes_requirements
+        # Deliberately NOT "REQ-0": every story in this repo cites a REQ,
+        # so it would classify the entire backlog as critical. Proposing a
+        # *new* requirement or editing the index is the actual signal.
+        match: {text_any: ["prds/", "requirements/index.md",
+                           "requirements/coverage.yaml", "new requirement"]}
+        because: >-
+          A REQ is a commitment. An agent proposing one is useful; an agent
+          committing to one on the org's behalf is not its call.
+
+      - rule: production_or_release
+        match: {text_any: ["deploy", "production", "release tag",
+                           "rollback", "environment gate"]}
+        because: >-
+          PRD §9: production sits behind a human gate and nothing an agent
+          does unsupervised is irreversible.
+
+      - rule: large_estimate
+        match: {text_any: ["Estimate: L", "Estimate: XL"]}
+        because: >-
+          Not a risk rule, a cost one. Large stories are where budgets go
+          and where scope quietly widens; a person should see them first.
+
+    # Stated so nobody has to infer it.
+    limits: >-
+      Matching is on word boundaries, not substrings. The first version of
+      this policy used substrings and classified every story critical,
+      because `PAT` matches inside "dispatch" — the failure this paragraph
+      predicted, committed anyway. Classification reads issue text and
+      labels, so it is best-effort by construction: prose can describe a
+      governance change without naming one. The reliable gate is the pull request, where the diff is visible
+      and CODEOWNERS can route review. This gate exists to stop a session
+      being spent on work a person would not have approved, not to be
+      airtight.
+
+  merge:
+    question: "Should this pull request land?"
+    owner: human
+    granted_by: a person pressing merge
+    default_if_unanswered: stays open
+    # Enforced structurally, not by prose: protected branch, admin
+    # enforcement, required checks, and `gh pr merge` on every role's deny
+    # list.
+    enforced_by: [branch_protection, required_checks, tools_yaml_deny]
+
+  qa_verdict:
+    question: "Does this meet its acceptance criteria?"
+    owner: qa                       # an agent role may satisfy this one
+    granted_by: the `qa:approved` label
+    default_if_unanswered: story cannot close
+    enforced_by: [qa_gate_check, close_guard]
