@@ -133,6 +133,9 @@ def summarise(result: dict) -> dict:
         "total_tokens": inp + out + cache_read + cache_write,
         "cost_usd": result.get("total_cost_usd"),
         "wall_clock_minutes": round(duration_ms / 60000, 1) if duration_ms else None,
+        # A session that burns its budget on denied tool calls looks
+        # identical to one that got lost, unless you say so.
+        "permission_denials": int(result.get("permission_denials_count") or 0),
         "is_error": bool(result.get("is_error")),
     }
 
@@ -191,6 +194,13 @@ def render(rows: list[dict], spend: dict, note: str, activity: str = "") -> str:
             f"{spend['cache_read_tokens']:,} cache read _(cache reads are excluded "
             f"from the tripwire — they are re-reads of context already paid for)_."
         )
+    denials = spend.get("permission_denials") or 0
+    if denials:
+        lines += ["", f"> **{denials} tool call(s) were denied by the session's "
+                      f"permission settings.** A session that spends its budget "
+                      f"discovering what it may not do will ship nothing. Check "
+                      f"the compiled permissions in the run summary against "
+                      f"`role-packs/<role>/tools.yaml`."]
     if activity:
         lines += ["", activity]
     if note:

@@ -19,7 +19,13 @@ tools:
 
 shell:
   # Commands the session legitimately needs. Anything not matched here
-  # should prompt rather than run silently.
+  # prompts — and a prompt in a headless session is a denial, so this list
+  # has to cover the real job, not an idealised one. The first autonomous
+  # dispatch recorded 27 permission denials and shipped nothing because it
+  # did not.
+  #
+  # The security-relevant half is `deny` plus branch protection. This list
+  # is about being able to work.
   allow:
     - "git status"
     - "git diff*"
@@ -37,6 +43,46 @@ shell:
     - "gh pr view*"
     - "gh pr comment*"
     - "gh run view*"
+    - "gh pr checks*"
+    - "gh pr diff*"
+    - "gh label list*"
+    - "git fetch*"
+    - "git branch*"
+    - "git rev-parse*"
+    - "git show*"
+    - "git ls-remote*"
+    - "git config user*"
+    # Running the tests before opening a PR is not optional.
+    - "python3*"
+    - "python*"
+    - "pip install*"
+    - "bash scripts/*"
+    - "shellcheck*"
+    - "actionlint*"
+    - "npm test*"
+    - "make*"
+    # Ordinary inspection.
+    - "ls*"
+    - "cat*"
+    - "head*"
+    - "tail*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "sed*"
+    - "awk*"
+    - "jq*"
+    - "wc*"
+    - "diff*"
+    - "mkdir*"
+    - "chmod*"
+    - "cp*"
+    - "mv*"
+    - "echo*"
+    - "printf*"
+    - "which*"
+    - "env"
+    - "pwd"
   deny:
     # These are the charter's boundaries expressed as commands. Branch
     # protection is the real enforcement; this is defence in depth so a

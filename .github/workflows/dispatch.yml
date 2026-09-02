@@ -165,8 +165,7 @@ jobs:
           # restarts and cannot be reset by an agent.
           if ! pages=$(gh api --paginate \
             "repos/${GITHUB_REPOSITORY}/issues/${ISSUE}/comments" \
-            --jq '[.[] | select(.body | test("Dispatch — session end")) |
-                   select(.body | test("session (failed|was cancelled)"))] | length' \
+            --jq '[.[] | select(.body | test("foundry:dispatch result=failure"))] | length' \
             2>"${RUNNER_TEMP}/comments.err"); then
             echo "::error::Could not read prior sessions on #${ISSUE}: \
           $(tr '\n' ' ' < "${RUNNER_TEMP}/comments.err"). Refusing to dispatch without \
@@ -419,6 +418,28 @@ jobs:
       # Auth: prefer ANTHROPIC_API_KEY; fall back to CLAUDE_CODE_OAUTH_TOKEN.
       # The preference is expressed here rather than left to the action's
       # internal precedence, so it stays true if that precedence changes.
+      # The role pack has rendered a settings.json since P0-3 and nothing
+      # ever consumed it. The first autonomous dispatch recorded 27
+      # permission denials and shipped nothing as a result.
+      - name: Compile the role pack for this harness
+        id: pack
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          python3 compiler/compile-pack.py --role "${ROLE}" \
+            --harness claude-code --out "${RUNNER_TEMP}/pack"
+          settings="${RUNNER_TEMP}/pack/${ROLE}/claude-code/settings.json"
+          echo "settings=${settings}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Compiled permissions"
+            echo
+            echo '```json'
+            cat "$settings"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          ROLE: ${{ inputs.role }}
+
       - name: Run agent session
         id: agent
         # Wall-clock budget, enforced by the runner rather than requested in
@@ -428,6 +449,7 @@ jobs:
         with:
           prompt: ${{ steps.prompt.outputs.text }}
           claude_args: --max-turns ${{ steps.budget.outputs.turns }}
+          settings: ${{ steps.pack.outputs.settings }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY == '' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -544,7 +566,21 @@ jobs:
             outcome_note=""
           fi
 
+          # The single verdict everything downstream reads: the labels, the
+          # escalation, and the next dispatch's retry ceiling.
+          result=success
+          if [ "$outcome" != "success" ] || [ "$breach" = "3" ]; then
+            result=failure
+          fi
+
           {
+            # Machine-readable first, and one definitive verdict rather than
+            # something the counter has to re-derive. The old counter grepped
+            # the prose below for "session failed", which the code never
+            # wrote, so three dispatches of one item reported "0 prior
+            # failures". A budget breach exits `success` and still costs a
+            # retry, so `result` is computed once, here, and read verbatim.
+            echo "<!-- foundry:dispatch result=${result} outcome=${outcome} breach=${breach} -->"
             echo "### Dispatch — session end"
             echo
             echo "The \`${ROLE}\` session ${verdict}${outcome_note}."
@@ -562,7 +598,7 @@ jobs:
             cat "$spend"
           } > "$comment"
 
-          if [ "$outcome" != "success" ] || [ "$breach" = "3" ]; then
+          if [ "$result" = "failure" ]; then
             attempt=$(( PRIOR_FAILURES + 1 ))
             remaining=$(( MAX_RETRIES - PRIOR_FAILURES ))
             [ "$remaining" -lt 0 ] && remaining=0
@@ -656,7 +692,7 @@ jobs:
           gh issue comment "$ISSUE" --body-file "$comment"
           cat "$comment" >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$outcome" != "success" ] || [ "$breach" = "3" ]; then
+          if [ "$result" = "failure" ]; then
             # Hand the work item back in a dispatchable state, flagged.
             gh issue edit "$ISSUE" \
               --remove-label "status:in-progress" \
