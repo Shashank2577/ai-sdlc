@@ -3,7 +3,12 @@ version: 0
 role: devops
 
 budgets:
-  turns: 60
+  # 90, from four sessions rather than a guess: #40 finished at 42, #51 at
+  # 57 (three turns from the edge), #52 and #58 both died at 61. A devops
+  # story that verifies properly — actionlint with shellcheck, the test
+  # suites, git archaeology for prior art — lands in the 55-65 range, so 60
+  # was sitting exactly on the boundary.
+  turns: 90
   cost_usd: 5.00
   tokens: 400000            # tripwire only — reported, never a breach
   wall_clock_minutes: 45
