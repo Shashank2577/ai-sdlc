@@ -1,0 +1,85 @@
+# Product Manager policy — budgets, forbidden actions, human-in-the-loop
+# triggers. PRD §13. Budgets here are the source of truth; the dispatcher
+# reads them (wired in P0-7). Until then the dispatcher's max_turns input is
+# the only enforced limit.
+version: 0
+role: product-manager
+
+budgets:
+  # Per work item, per session. No PM session history exists yet (this is
+  # the first pack), so these sit between QA's (review, cheap) and the
+  # developer's (implementation, expensive): refinement writes text, not
+  # code, but decomposing an epic into several stories can run longer than
+  # reviewing one PR.
+  turns: 45
+  cost_usd: 4.00          # the ceiling: a breach here escalates
+  tokens: 300000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 35
+  max_retries: 2
+  # What happens at the ceiling: never a silent stop.
+  on_breach: escalate      # pause work, apply needs-human, post spend summary
+
+forbidden:
+  # Structural — branch protection enforces these regardless of intent.
+  - push_to_default_branch
+  - force_push
+  - branch_deletion
+  - merging_own_pull_request
+  # Scope — enforced by review and by CODEOWNERS routing.
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_policies_directory        # policies/** is delivery-lead owned
+  - editing_other_role_packs
+  - editing_src_or_tests              # implementation is a developer's job
+  - rewriting_published_history
+  - closing_a_work_item               # refinement produces status:ready, not done
+  # Behavioral — the failure modes this role exists to prevent (PRD §16).
+  - writing_acceptance_criteria_not_in_gherkin
+  - writing_a_story_without_a_req_id
+  - fabricating_the_estimation_ensemble
+
+write_scope:
+  # Everything outside this list needs a human or another role.
+  allow:
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/product-manager/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - "policies/**"
+    - "scripts/**"
+    - "compiler/**"
+    - ".github/**"
+    - "role-packs/!(product-manager)/**"
+
+hitl_triggers:
+  # Conditions that end the session in an escalation rather than a story.
+  - requirement_contradicts_the_prd
+  - requirement_ambiguous_after_investigation
+  - change_requires_out_of_scope_write
+  - work_item_is_multiple_epics_in_one_issue
+  - missing_credential_or_permission
+  - budget_breach
+  - three_failed_attempts_at_same_approach
+
+escalation:
+  template: role-packs/product-manager/templates/escalation-comment.md
+  label: needs-human
+  # Ladder per PRD §13. v0 implements retry and human; alternate-harness
+  # arrives with the second harness in Phase 3.
+  ladder:
+    - retry
+    - alternate_approach        # must state what will be done differently
+    - alternate_harness         # not available in single-harness mode
+    - human
+
+identity:
+  # Blocking on a human action, stated so it cannot be forgotten:
+  # provision the foundry-pm-bot machine account, add its signing key,
+  # scope its PAT to contents+issues+pull-requests, then flip pack.yaml
+  # identity.provisioned to true and turn on required_signatures for main.
+  bot_account: foundry-pm-bot
+  provisioned: false
+  blocked_on: human
