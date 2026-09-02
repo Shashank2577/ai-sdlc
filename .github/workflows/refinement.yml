@@ -1,0 +1,121 @@
+# The refinement trigger. Dispatches the PM when the ready queue empties,
+# so the backlog refills without a human writing every story.
+#
+# Rules live in `role-packs/orchestrator/policy.yaml:refill` — a floor, not
+# a calendar, so refinement fires on an emptying board rather than writing
+# stories nobody asked for. This workflow reads that policy at run time and
+# hardcodes none of it; changing the floor is a pack edit, not a workflow
+# edit (see the story's fourth acceptance criterion).
+#
+# The PM proposes only. `policies/gates.yaml` already decides which
+# proposals need a person and enforces it by who applied `status:ready` —
+# this workflow adds no approval logic of its own. The one exception is the
+# bootstrap case: when no product-manager work item exists at all, this
+# opens one labelled `status:ready` itself. That is not a gate bypass —
+# `role:product-manager` is not in `policies/gates.yaml`'s `critical_when`
+# list, so a routine PM ask is "dispatched on an agent's own say-so" by the
+# policy already in force. Every other case (an existing PM item still
+# awaiting a person) is left alone; see `scripts/refine.py`'s `wait` action.
+#
+# Auth: same reasoning as orchestrate.yml — GITHUB_TOKEN cannot start
+# another workflow by design, so triggering dispatch.yml needs FOUNDRY_TOKEN
+# or ORCHESTRATOR_TOKEN. Without one, this still runs and still publishes
+# its plan, in dry-run mode, and says why.
+name: Refinement trigger
+
+on:
+  pull_request:
+    paths:
+      - "scripts/refine.py"
+      - "scripts/test_refine.py"
+      - "role-packs/orchestrator/policy.yaml"
+      - ".github/workflows/refinement.yml"
+  schedule:
+    # Hourly at :35 — offset from orchestrate.yml's :05 so the two loops
+    # are unlikely to observe the board mid-write of one another.
+    - cron: "35 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Compute the plan and dispatch nothing"
+        required: false
+        default: false
+        type: boolean
+
+# Reads the board, may open one bootstrap work item, and starts a workflow.
+# It writes no source and no policy — only the tracker.
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+concurrency:
+  group: refinement
+  cancel-in-progress: false
+
+jobs:
+  # Runs everywhere, including pull requests, so a change to the decision
+  # logic is checked before it next fires for real.
+  tests:
+    name: refinement-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Refinement-trigger tests
+        run: python3 scripts/test_refine.py
+
+  refine:
+    name: refinement-trigger
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
+      - name: Decide whether the loop is armed
+        id: mode
+        env:
+          FOUNDRY_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
+          REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [ -z "${FOUNDRY_TOKEN}" ]; then
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "> **Loop is not armed.** Neither \`FOUNDRY_TOKEN\` nor"
+              echo "> \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
+              echo "> dispatches nothing. GITHUB_TOKEN cannot start another workflow by"
+              echo "> design. See the wiki: Operating the System -> Arming the system."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${REQUESTED_DRY_RUN}" = "true" ]; then
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            echo "Dry run requested; nothing will be dispatched or created." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "armed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the trigger
+        env:
+          # The PAT when there is one; otherwise the workflow token, which is
+          # enough to read the board and, in dry-run mode, nothing else.
+          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.mode.outputs.armed }}" = "true" ]; then
+            python3 scripts/refine.py
+          else
+            python3 scripts/refine.py --dry-run
+          fi
