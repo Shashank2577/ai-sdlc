@@ -23,9 +23,10 @@ that every committed pack still compiles.
 | Orchestrator | `orchestrator/` | P0-8 (#9) |
 | Product Manager | `product-manager/` | P1-1 (#39) |
 | DevOps / SRE | `devops/` | P0-17 (#42) |
+| Tech Writer | `techwriter/` | P1-5 (#50) |
 
-The remaining roles from PRD §3 (architect, tech writer, delivery manager)
-arrive in Phase 1.
+The remaining roles from PRD §3 (architect, delivery manager) arrive in
+Phase 1.
 
 **Each pack declares the credential it is dispatched with**
 (`identity.token_secret`). Roles at the same privilege level share one;
