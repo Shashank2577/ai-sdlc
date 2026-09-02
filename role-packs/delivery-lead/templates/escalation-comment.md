@@ -1,0 +1,54 @@
+### Escalation — human decision required
+
+**Role:** delivery-lead · **Session:** <run URL> · **Spend:** <turns/tokens/wall-clock used of budget>
+
+**Goal**
+
+<One sentence, in the work item's terms. What governance change was this
+session supposed to produce?>
+
+**Attempts**
+
+1. <What was tried.> → <How it failed. Paste the actual error.>
+2. <What was tried, and what was different about it.> → <How it failed.>
+
+**Blocker**
+
+<The one thing in the way, stated so a human can verify it independently.
+Include the command and its output that demonstrates it. If the blocker is
+that the change would widen another role's permissions, say which pattern
+in which pack, and why the three questions in
+`role-packs/delivery-lead/skills/widening-a-permission.md` did not settle
+it on their own.>
+
+**Options**
+
+- **A — <action>** (<cost: time, who does it>). <Consequence.>
+  <Why this is or isn't the recommendation.>
+- **B — <action>** (<cost>). <Consequence.>
+- **C — <action, often "do nothing / defer">** (<cost>). <Consequence.>
+
+**To act on this**
+
+Reply with the option letter, then remove the `needs-human` label — that
+label is what holds the item, and nothing reads this comment. The reply is
+the record; removing the label is what releases the work.
+
+**Recommendation:** <A|B|C>, because <one sentence>.
+
+**State left behind**
+
+- Branch: <name, or "none pushed">
+- Commits: <count, or "none">
+- Nothing was deleted, force-pushed, merged, or granted more scope than it
+  had before this session started.
+
+<!--
+Rules for whoever fills this in:
+- Options must be costed and mutually exclusive. Three real choices, not
+  one plan and two strawmen.
+- "Please advise" is not an option. If you cannot name three, name two and
+  say why there is no third.
+- Errors go in verbatim. A paraphrased error makes the human reproduce it.
+- Post this on the work item and apply `needs-human`. Nowhere else counts.
+-->

@@ -1,0 +1,99 @@
+# Delivery Lead tool allowlist. Harness-neutral names; the compiler maps
+# them onto whatever each harness calls them. Read widely — every pack,
+# every policy, the PRD — write narrowly: policies/ and role-packs/,
+# nothing that builds or ships.
+version: 0
+role: delivery-lead
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search           # grep/glob
+  write:
+    - write_file       # policies/** and role-packs/** only; see policy.yaml:write_scope
+    - edit_file
+  execute:
+    - shell            # constrained by shell.deny below
+  web:
+    - fetch_url        # docs lookups; no credentials are ever sent
+
+shell:
+  # Commands the session legitimately needs. Anything not matched here
+  # prompts — and a prompt in a headless session is a denial. This pack
+  # never builds or tests application code, so npm/make are deliberately
+  # absent; it does need the compiler's own check, since a pack that does
+  # not compile is worse than no pack.
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git add*"
+    - "git commit*"
+    - "git checkout -b story/*"
+    - "git checkout -b bug/*"
+    - "git push origin story/*"
+    - "git push origin bug/*"
+    - "git fetch*"
+    - "git branch*"
+    - "git rev-parse*"
+    - "git show*"
+    - "git ls-remote*"
+    - "git config user*"
+    # The charter tells the agent to put `claude --version` in the Harness
+    # trailer. Not allowing it was a self-inflicted denial in other packs.
+    - "claude --version*"
+    - "gh issue view*"
+    - "gh issue comment*"
+    - "gh issue edit*"
+    - "gh pr create*"
+    - "gh pr view*"
+    - "gh pr diff*"
+    - "gh pr comment*"
+    - "gh pr list*"
+    - "gh run view*"
+    - "gh pr checks*"
+    - "gh label list*"
+    # The pack it just wrote has to compile before the PR opens.
+    - "python3*"
+    - "python*"
+    - "pip install*"
+    - "bash scripts/*"
+    - "yamllint*"
+    # Ordinary inspection.
+    - "ls*"
+    - "cat*"
+    - "head*"
+    - "tail*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "sed*"
+    - "awk*"
+    - "jq*"
+    - "wc*"
+    - "diff*"
+    - "which*"
+    - "pwd*"
+  deny:
+    # These are the charter's boundaries expressed as commands. Branch
+    # protection is the real enforcement; this is defence in depth so a
+    # session fails early and loudly rather than at the push.
+    - "git push origin main*"
+    - "git push*--force*"
+    - "git push*-f*"
+    - "git reset --hard origin/main"
+    - "gh pr merge*"
+    - "gh pr review*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh secret*"
+    - "gh repo edit*"
+
+mcp:
+  # Tracker access goes through the GitHub CLI in v0 — no MCP server is
+  # required, which is exactly the graceful degradation PRD §11.2 calls for.
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"
