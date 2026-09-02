@@ -18,6 +18,25 @@ wip:
     # pipeline change is how two gates weaken at once.
     devops: 1
 
+refill:
+  # When the ready queue drops to or below this, the backlog needs refilling
+  # and the PM role is dispatched to do it. The board ran dry once already:
+  # every Phase 0 story closed, the loop correctly found nothing eligible,
+  # and delivery became rate-limited on a human writing stories.
+  #
+  # A floor rather than a calendar. Refinement triggered on a schedule
+  # writes stories nobody asked for; triggered on an emptying board it
+  # writes the ones that are actually needed.
+  ready_floor: 1
+  # What the PM may refine toward. requirements/coverage.yaml's unsatisfied
+  # criteria are the fence — it bounds scope to work the programme has
+  # already committed to, rather than whatever the model finds interesting.
+  scope_source: requirements/coverage.yaml
+  # The PM proposes; it does not self-approve. policies/gates.yaml decides
+  # which proposals need a person, and enforces it by who applied the label.
+  proposes_only: true
+  role: product-manager
+
 routing:
   # v0 routes on labels, which works with any tracker. The GitHub Projects
   # "Role" field would need a project-scoped token; see the story's PR.
@@ -63,6 +82,10 @@ forbidden:
 write_scope:
   allow:
     - "role-packs/orchestrator/**"
+    # PRD §3 gives ceremonies to this role. No pack owned the directory,
+    # which is why it does not exist yet — the first ceremony to need a
+    # declaration file will create it.
+    - "ceremonies/**"
   deny:
     - "src/**"
     - "tests/**"
