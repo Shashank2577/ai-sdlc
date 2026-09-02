@@ -1,0 +1,84 @@
+# Architect tool allowlist. Harness-neutral names; the compiler maps them
+# onto whatever each harness calls them. Least privilege: an ADR is a
+# document, so there is no build/test tooling here — only what it takes to
+# read the code a decision is about, and to write and PR the decision.
+version: 0
+role: architect
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search           # grep/glob
+  write:
+    - write_file
+    - edit_file
+  execute:
+    - shell            # constrained by shell.deny below
+  web:
+    - fetch_url        # docs / vendor pricing lookups; no credentials sent
+
+shell:
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git show*"
+    - "git add*"
+    - "git commit*"
+    - "git fetch*"
+    - "git branch*"
+    - "git rev-parse*"
+    - "git ls-remote*"
+    - "git config user*"
+    - "git checkout -b story/*"
+    - "git checkout -b bug/*"
+    - "git push origin story/*"
+    - "git push origin bug/*"
+    - "claude --version*"
+    - "gh issue view*"
+    - "gh issue comment*"
+    - "gh issue edit*"
+    - "gh pr create*"
+    - "gh pr view*"
+    - "gh pr comment*"
+    - "gh pr diff*"
+    - "gh pr checks*"
+    - "gh run view*"
+    - "gh label list*"
+    # Ordinary inspection — reading the code a decision is about.
+    - "ls*"
+    - "cat*"
+    - "head*"
+    - "tail*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "sed*"
+    - "awk*"
+    - "jq*"
+    - "wc*"
+    - "diff*"
+    - "mkdir*"
+    - "echo*"
+    - "printf*"
+    - "which*"
+    - "pwd*"
+  deny:
+    - "git push origin main*"
+    - "git push*--force*"
+    - "git push*-f*"
+    - "git reset --hard origin/main"
+    - "gh pr merge*"
+    - "gh pr review*"
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh workflow*"
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"
