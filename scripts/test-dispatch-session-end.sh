@@ -47,6 +47,9 @@ echo "gh $*" >> "${CALLS_LOG:?}"
 if [ "$1" = "pr" ] && [ "$2" = "list" ]; then
   cat "${PR_LIST_JSON:?}"
 fi
+if [ "$1" = "issue" ] && [ "$2" = "view" ]; then
+  cat "${ISSUE_LABELS_JSON:?}"
+fi
 if [ "$1" = "issue" ] && [ "$2" = "comment" ]; then
   for ((i=1; i<=$#; i++)); do
     if [ "${!i}" = "--body-file" ]; then
@@ -89,11 +92,21 @@ print(json.dumps([{'number': 99, 'url': 'https://example/pr/99',
                     'headRefName': sys.argv[1], 'state': 'OPEN'}]))" "$1"
 }
 
-# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|->
+labels_json() {  # labels_json <comma-separated names> — issue's current labels
+  python3 -c "
+import json, sys
+names = [n for n in sys.argv[1].split(',') if n]
+print(json.dumps({'labels': [{'name': n} for n in names]}))" "$1"
+}
+
+# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels]
 # Executes the extracted step and leaves gh's calls in $WORK/calls.log and
-# the posted comment body in $WORK/comment.md.
+# the posted comment body in $WORK/comment.md. current_labels defaults to
+# status:in-progress — the label session-start leaves on a session it did
+# not itself dispatch from status:in-review.
 run_session_end() {
   local issue=$1 outcome=$2 cost=$3 budget_cost=$4 pr_ref=$5
+  local current_labels=${6:-status:in-progress}
 
   CALLS_LOG="$WORK/calls.log"; : > "$CALLS_LOG"
   COMMENT_OUT="$WORK/comment.md"; : > "$COMMENT_OUT"
@@ -105,6 +118,9 @@ run_session_end() {
     pr_json "$pr_ref" > "$WORK/prs.json"
   fi
   export PR_LIST_JSON="$WORK/prs.json"
+
+  labels_json "$current_labels" > "$WORK/issue-labels.json"
+  export ISSUE_LABELS_JSON="$WORK/issue-labels.json"
 
   : > "$WORK/ls-remote.txt"
   export LS_REMOTE_OUT="$WORK/ls-remote.txt"
@@ -174,10 +190,21 @@ assert "adds status:ready back" grep '--add-label status:ready --add-label needs
 assert "escalation still offers the breach ladder" grep 'read the Spend table above before spending again' "$WORK/comment.md"
 
 # ---------------------------------------------------------------------------
-echo "session-end: clean success with a pull request (no label rollback at all)"
+echo "session-end: clean success with a pull request, label not moved by the session (#83)"
 # ---------------------------------------------------------------------------
-run_session_end 505 success 0.10 5.0 "story/FDY-505-slug"
-assert "no issue edit is made" "!grep" 'gh issue edit' "$WORK/calls.log"
+run_session_end 505 success 0.10 5.0 "story/FDY-505-slug" "status:in-progress"
+assert "removes every status:* label" grep \
+  '--remove-label status:ready --remove-label status:in-progress --remove-label status:in-review --remove-label status:blocked --remove-label status:needs-refinement' \
+  "$WORK/calls.log"
+assert "adds status:in-review, no needs-human" grep '--add-label status:in-review' "$WORK/calls.log"
+assert "does not escalate to a human" "!grep" 'needs-human' "$WORK/calls.log"
+assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: clean success with a pull request, already status:in-review (no redundant call)"
+# ---------------------------------------------------------------------------
+run_session_end 506 success 0.10 5.0 "story/FDY-506-slug" "status:in-review"
+assert "no issue edit is made at all" "!grep" 'gh issue edit' "$WORK/calls.log"
 assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
 
 echo
