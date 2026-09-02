@@ -1,0 +1,60 @@
+# Developer tool allowlist. Harness-neutral names; the compiler maps them
+# onto whatever each harness calls them. Least privilege: if a tool is not
+# needed to turn a work item into a PR, it is not here.
+version: 0
+role: developer
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search           # grep/glob
+  write:
+    - write_file
+    - edit_file
+  execute:
+    - shell            # constrained by shell.deny below
+  web:
+    - fetch_url        # docs lookups; no credentials are ever sent
+
+shell:
+  # Commands the session legitimately needs. Anything not matched here
+  # should prompt rather than run silently.
+  allow:
+    - "git status"
+    - "git diff*"
+    - "git log*"
+    - "git add*"
+    - "git commit*"
+    - "git checkout -b story/*"
+    - "git checkout -b bug/*"
+    - "git push origin story/*"
+    - "git push origin bug/*"
+    - "gh issue view*"
+    - "gh issue comment*"
+    - "gh issue edit*"
+    - "gh pr create*"
+    - "gh pr view*"
+    - "gh pr comment*"
+    - "gh run view*"
+  deny:
+    # These are the charter's boundaries expressed as commands. Branch
+    # protection is the real enforcement; this is defence in depth so a
+    # session fails early and loudly rather than at the push.
+    - "git push origin main*"
+    - "git push*--force*"
+    - "git push*-f*"
+    - "git reset --hard origin/main"
+    - "gh pr merge*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh secret*"
+    - "gh repo edit*"
+
+mcp:
+  # Tracker access goes through the GitHub CLI in v0 — no MCP server is
+  # required, which is exactly the graceful degradation PRD §11.2 calls for.
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"
