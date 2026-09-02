@@ -24,6 +24,21 @@ Full design, including swappable trackers (GitHub Projects / Jira) and swappable
 - `requirements/index.md` maps every REQ to a PRD section. Once P0-5 lands, a generated traceability matrix computes REQ → merged PR → release from those trailers. Generated, never hand-written.
 - The Definition of Done is a file (`policies/dod.yaml`) enforced by a required status check. Nothing merges on a promise.
 
+## Running the dispatcher
+
+`.github/workflows/dispatch.yml` turns a work item into a headless agent session. Actions → **Dispatch** → Run workflow, then give it an issue number, a role (`developer` or `qa`) and a turn budget. Or from a terminal:
+
+```sh
+gh workflow run dispatch.yml -f issue=3 -f role=developer -f max_turns=30
+```
+
+Two things have to be true first, and the workflow fails loudly rather than quietly if they aren't:
+
+- **The issue is labelled `status:ready`.** This is the prompt-injection guard, not paperwork. The issue body goes verbatim into a session holding write credentials, and on a public repo anyone can open an issue — but only someone with write access can apply a label. So the only untrusted text an agent ever reads is text a maintainer approved.
+- **A harness credential exists** — repository secret `ANTHROPIC_API_KEY`, or `CLAUDE_CODE_OAUTH_TOKEN` for Pro/Max (`claude setup-token`). If both are set, the API key wins.
+
+The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure or cancellation it hands the item back as `status:ready` + `needs-human` with a structured note — goal, what ran, where it stopped, options A/B/C — so the human gets a decision, not a transcript.
+
 ## Status
 
 Phase 0: proving the spine. Eight stories on the board. Self-hosting starts the moment P0-1 (the DoD check) merges — from that PR onward, every change to this system is machine-gated by the system. The one honest asterisk: the P0-1 PR itself is the last ungoverned change, because the gate has to exist before it can gate anything. It does gate its own PR, though. Check the workflow run on PR #1.
