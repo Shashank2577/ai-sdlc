@@ -6,6 +6,10 @@
 #                                      work item closes, so a verdict that
 #                                      lands after the last push doesn't sit
 #                                      behind a stale green check (#68)
+#   labeled qa:rejected            -> status:in-review reverts to status:ready,
+#                                      so the author's role is dispatchable
+#                                      again (#82); qa:rejected itself is
+#                                      untouched and keeps blocking the merge
 #
 # `issues` workflows only ever run from the default branch, so no job here
 # does anything until this file is on main.
@@ -113,4 +117,18 @@ jobs:
           # role-packs/qa/policy.yaml so the policy file stays the source
           # of truth and cannot drift from the workflow.
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash scripts/qa-verdict.sh
+
+  return-to-ready:
+    name: return-to-ready
+    if: github.event.action == 'labeled' && github.event.label.name == 'qa:rejected'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hand a rejected in-review story back to status:ready
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: return-to-ready
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS_JSON: ${{ toJSON(github.event.issue.labels) }}
         run: bash scripts/qa-verdict.sh

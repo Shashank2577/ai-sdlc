@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
-# QA verdict enforcement — issue side. Two modes, driven by the event that
+# QA verdict enforcement — issue side. Three modes, driven by the event that
 # fired the workflow.
 #
-#   close-guard  a rejected work item that gets closed is reopened
-#   ladder       the third qa:rejected on one item escalates to a human
+#   close-guard      a rejected work item that gets closed is reopened
+#   ladder           the third qa:rejected on one item escalates to a human
+#   return-to-ready  qa:rejected on an in-review story hands it back to
+#                     status:ready, so the author's role is dispatchable
+#                     again (#82) — qa:rejected itself is never removed,
+#                     it stays as the merge veto (#52's qa-gate failure)
 #
 # Rejection counts come from the tracker's own `labeled` timeline events,
 # never from anything an agent reports. Event-derived, per REQ-006.
+#
+# return-to-ready reads labels from the event payload (LABELS_JSON), the
+# scripts/terminal-label.sh model, so a story already at status:ready makes
+# zero `gh` calls — this fires on every label change, not only rejections.
 set -euo pipefail
 
 : "${MODE:?}" "${ISSUE:?}" "${GITHUB_REPOSITORY:?}"
@@ -127,8 +135,19 @@ case "$MODE" in
     echo "Issue #${ISSUE} escalated: needs-human applied after ${rejections} rejections."
     ;;
 
+  return-to-ready)
+    LABELS_JSON="${LABELS_JSON:-[]}"
+    if ! jq -e '[.[].name] | index("status:in-review")' <<<"$LABELS_JSON" >/dev/null; then
+      echo "Issue #${ISSUE}: not at status:in-review. Nothing to do."
+      exit 0
+    fi
+
+    gh issue edit "$ISSUE" --remove-label "status:in-review" --add-label "status:ready"
+    echo "Issue #${ISSUE}: qa:rejected returned it to status:ready — the author's role is dispatchable again."
+    ;;
+
   *)
-    echo "qa-verdict: unknown MODE '${MODE}' (expected close-guard or ladder)" >&2
+    echo "qa-verdict: unknown MODE '${MODE}' (expected close-guard, ladder, or return-to-ready)" >&2
     exit 2
     ;;
 esac
