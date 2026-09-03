@@ -38,6 +38,13 @@ REQUIRED_BUDGET_KEYS = ("turns", "cost_usd", "tokens", "wall_clock_minutes",
 # explicitly in their own pack.yaml.
 DEFAULT_DISPATCHABLE_FROM = ["status:ready"]
 
+# A pack that does not declare its output shape inherits today's global
+# behaviour: a clean session is expected to open a pull request. Roles
+# whose legitimate output is tracker-only (PM refinement, a QA verdict
+# left as a comment) say so explicitly by omitting pull_request from
+# their own pack.yaml:produces (#99).
+DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
+
 
 class PackError(Exception):
     """A pack is malformed. Always fatal — a half-valid pack is worse."""
@@ -86,6 +93,14 @@ def read_pack(role: str) -> dict:
             "non-empty list of label strings"
         )
 
+    produces = pack.get("produces", DEFAULT_PRODUCES)
+    if (not isinstance(produces, list) or not produces
+            or not all(isinstance(s, str) and s.strip() for s in produces)):
+        raise PackError(
+            f"role-packs/{role}/pack.yaml: produces must be a "
+            "non-empty list of output-kind strings"
+        )
+
     for key in REQUIRED_POLICY_KEYS:
         if key not in policy:
             raise PackError(f"role-packs/{role}/policy.yaml: missing `{key}`")
@@ -112,6 +127,7 @@ def read_pack(role: str) -> dict:
         "tools": tools,
         "token_secret": pack["identity"]["token_secret"],
         "dispatchable_from": dispatchable_from,
+        "produces": produces,
         "charter": (root / "charter.md").read_text(),
         "skills": [(p.stem, p.read_text()) for p in skills],
     }
@@ -200,6 +216,11 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         # carrying a role->state table of its own (same pattern as
         # token-secret above).
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
+        # This role's declared output shape (PRD §11.2's expected_outputs,
+        # per-pack rather than assumed). The dispatcher reads this to know
+        # whether a clean session without a pull request shipped nothing
+        # or did exactly the tracker-only job it was dispatched for (#99).
+        "produces": "\n".join(pack["produces"]) + "\n",
     }
     if unmappable:
         out["UNMAPPABLE.md"] = (
