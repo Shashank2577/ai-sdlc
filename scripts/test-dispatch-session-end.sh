@@ -99,14 +99,17 @@ names = [n for n in sys.argv[1].split(',') if n]
 print(json.dumps({'labels': [{'name': n} for n in names]}))" "$1"
 }
 
-# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels]
+# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels] [requires_pr]
 # Executes the extracted step and leaves gh's calls in $WORK/calls.log and
 # the posted comment body in $WORK/comment.md. current_labels defaults to
 # status:in-progress — the label session-start leaves on a session it did
-# not itself dispatch from status:in-review.
+# not itself dispatch from status:in-review. requires_pr defaults to
+# "true" — the pack.yaml:produces default (#99) — so existing callers
+# below exercise the same behaviour as a role that declares pull_request.
 run_session_end() {
   local issue=$1 outcome=$2 cost=$3 budget_cost=$4 pr_ref=$5
   local current_labels=${6:-status:in-progress}
+  local requires_pr=${7:-true}
 
   CALLS_LOG="$WORK/calls.log"; : > "$CALLS_LOG"
   COMMENT_OUT="$WORK/comment.md"; : > "$COMMENT_OUT"
@@ -142,6 +145,7 @@ print(json.dumps({'type': 'result', 'num_turns': 5, 'total_cost_usd': float(sys.
   RUN_URL="https://example/run/1" \
   STARTED=success AGENT_OUTCOME="$outcome" \
   EXECUTION_FILE="$WORK/execution.json" \
+  REQUIRES_PR="$requires_pr" \
   RUNNER_TEMP="$WORK" GITHUB_STEP_SUMMARY="$WORK/summary.md" \
   bash "$STEP_SCRIPT" > "$WORK/stdout.log" 2>&1
 }
@@ -206,6 +210,26 @@ echo "session-end: clean success with a pull request, already status:in-review (
 run_session_end 506 success 0.10 5.0 "story/FDY-506-slug" "status:in-review"
 assert "no issue edit is made at all" "!grep" 'gh issue edit' "$WORK/calls.log"
 assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
+
+
+# ---------------------------------------------------------------------------
+echo "session-end: clean success, no pull request, pack requires one (#99 regression)"
+# ---------------------------------------------------------------------------
+run_session_end 507 success 0.10 5.0 - status:in-progress true
+assert "reclassified as no-output" grep 'outcome=no-output' "$WORK/comment.md"
+assert "treated as a failure" grep 'result=failure' "$WORK/comment.md"
+assert "escalates with needs-human" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+assert "escalation blocker names the missing pull request" grep 'produced no branch and no pull request' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: clean success, no pull request, pack does not require one (PM tracker-only, #99)"
+# ---------------------------------------------------------------------------
+run_session_end 508 success 0.10 5.0 - status:in-progress false
+assert "stays a success" grep 'result=success' "$WORK/comment.md"
+assert "not reclassified as no-output" "!grep" 'outcome=no-output' "$WORK/comment.md"
+assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
+assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
+assert "no label mutation — the session owns its own labels" "!grep" 'gh issue edit' "$WORK/calls.log"
 
 echo
 echo "$PASS passed, $FAIL failed"
