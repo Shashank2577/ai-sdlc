@@ -4,9 +4,11 @@ Role packs are harness-neutral (PRD §3). This turns one into config a
 specific harness can actually run.
 
 ```sh
-python3 compiler/compile-pack.py --check                       # validate every pack
-python3 compiler/compile-pack.py --role developer --out build/ # render one
-python3 compiler/test_compile_pack.py                          # 13 tests
+python3 compiler/compile-pack.py --check                                     # validate every pack, claude-code
+python3 compiler/compile-pack.py --check --harness codex                     # same, codex
+python3 compiler/compile-pack.py --role developer --out build/               # render one, claude-code
+python3 compiler/compile-pack.py --role developer --harness codex --out build/  # render one, codex
+python3 compiler/test_compile_pack.py                                        # tests
 ```
 
 `--check` runs in CI on every PR touching `role-packs/` or `compiler/`
@@ -22,6 +24,29 @@ For `claude-code`, into `<out>/<role>/claude-code/`:
 | `system-prompt.md` | charter, budget, forbidden actions, HITL triggers, then every skill in `skills/` |
 | `settings.json` | `permissions.allow` / `permissions.deny` derived from `tools.yaml` |
 | `UNMAPPABLE.md` | written only when some tool rule has no equivalent in this harness |
+
+For `codex`, into `<out>/<role>/codex/`:
+
+| File | Contents |
+|---|---|
+| `AGENTS.md` | same content as `system-prompt.md` above — charter, budget, forbidden actions, HITL triggers, skills |
+| `sandbox-policy.toml` | a `[profiles.<role>]` fragment setting `sandbox_mode` / `approval_policy` |
+| `UNMAPPABLE.md` | every `tools.yaml` shell rule, always — see below |
+
+Both targets also emit `token-secret` and `dispatchable-from`, unchanged —
+neither is harness-specific.
+
+Codex's sandbox is a coarse filesystem-access mode (`read-only` /
+`workspace-write` / `danger-full-access`) plus an `approval_policy`
+(`untrusted` / `on-failure` / `on-request` / `never`) — config.toml keys,
+not a per-command rule list. It has no equivalent of Claude Code's
+`Bash(cmd:*)` prefix match, so `to_bash_rule`'s allow/deny shape cannot be
+forced onto it: unlike the claude-code target, *every* `tools.yaml` shell
+rule ends up in `UNMAPPABLE.md`, not only the ones with an interior
+wildcard. `sandbox-policy.toml` sets `approval_policy = "never"` — the
+same reasoning `compile_claude_code` gives for `bypassPermissions`, a
+headless session cannot answer a prompt — scoped to `workspace-write`
+rather than full access.
 
 ## What it validates
 
@@ -52,8 +77,8 @@ control instead. Force-push, for instance, is genuinely prevented by
 
 Write `compile_<harness>(pack) -> dict[filename, content]` and register it
 in `HARNESSES`. `read_pack()` and its validation are shared, so a new
-harness inherits every check above. Codex would render `AGENTS.md` plus a
-sandbox policy; DeepSeek, its own config surface.
+harness inherits every check above. `codex` (`AGENTS.md` + a sandbox
+policy) is implemented this way; DeepSeek, its own config surface, is not.
 
 Packs declare what they support in `pack.yaml:harness_compat`; compiling a
 pack for a harness it does not claim to support is an error, not a warning.

@@ -265,6 +265,41 @@ class TestClaudeCodeOutput(unittest.TestCase):
         self.assertIn("Distinctive skill body.", prompt)    # skills
 
 
+class TestCodexOutput(unittest.TestCase):
+    def test_artifacts_and_permission_mapping(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            out = cp.compile_codex(cp.read_pack("widget"))
+
+        self.assertIn("AGENTS.md", out)
+        self.assertIn("sandbox-policy.toml", out)
+        self.assertIn("token-secret", out)
+        self.assertIn("dispatchable-from", out)
+
+        # Codex's sandbox has no per-command allow/deny control at all, so
+        # every tools.yaml shell rule is reported as unmappable — not just
+        # the interior-wildcard one that trips up Claude Code too.
+        self.assertIn("UNMAPPABLE.md", out)
+        self.assertIn("git push*--force*", out["UNMAPPABLE.md"])
+        self.assertIn("git status", out["UNMAPPABLE.md"])
+        self.assertIn("git log*", out["UNMAPPABLE.md"])
+
+        self.assertIn("sandbox_mode", out["sandbox-policy.toml"])
+        self.assertIn("approval_policy", out["sandbox-policy.toml"])
+
+    def test_prompt_contains_charter_budget_and_skills(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nDistinctive skill body.\n")
+            agents_md = cp.compile_codex(cp.read_pack("widget"))["AGENTS.md"]
+
+        self.assertIn("Do widget things.", agents_md)         # charter
+        self.assertIn("Turns: 10", agents_md)                 # budget
+        self.assertIn("Cost ceiling: $1.5", agents_md)        # the enforced line
+        self.assertIn("push_to_default_branch", agents_md)    # forbidden
+        self.assertIn("budget_breach", agents_md)              # hitl trigger
+        self.assertIn("Distinctive skill body.", agents_md)   # skills
+
+
 class TestRealPacksInThisRepo(unittest.TestCase):
     """The packs actually committed here must compile. This is the check
     that fails a PR when someone edits a pack into an invalid state."""
@@ -279,6 +314,12 @@ class TestRealPacksInThisRepo(unittest.TestCase):
                 out = cp.compile_claude_code(pack)
                 self.assertTrue(out["system-prompt.md"].strip())
                 self.assertTrue(pack["skills"], f"{role} has no skills/")
+
+                # A pack that compiles for one harness and not the other is
+                # exactly the gap REQ-003 flags: this is the check that
+                # would catch it.
+                codex_out = cp.compile_codex(pack)
+                self.assertTrue(codex_out["AGENTS.md"].strip())
 
 
 if __name__ == "__main__":
