@@ -1,0 +1,64 @@
+# Every Python unit test outside dashboards/, discovered rather than named.
+#
+# #128: developer-role sessions cannot wire their own tests, because
+# FOUNDRY_DEV_TOKEN deliberately lacks `workflow` scope. Nine PRs hit that
+# handoff. #141 dissolved it for dashboards/ by globbing; this does the
+# same for scripts/ and adapters/, so a new Python test file runs with no
+# workflow edit and `scripts/test-wiring-allowlist.txt` stops being the
+# place sessions have to fall back to.
+#
+# Deliberately not path-filtered. These suites are fast and self-contained,
+# and a filter is one more thing that can fail to cover what it should —
+# see #100, where a filter did not list the files its own tests asserted
+# about, and #150's sibling problems. Running them always costs seconds.
+#
+# Shell suites (scripts/test-*.sh) stay wired to their own area workflows:
+# several stub `gh` on PATH or need a git identity, so they are not
+# uniformly safe to run in one loop. Worth revisiting once they are.
+name: Unit tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+
+      # scripts/test_*.py — one process each, so a crash names its file
+      # rather than collapsing the whole run into one traceback.
+      - name: Script tests
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for f in scripts/test_*.py; do
+            found=1
+            echo "::group::$f"
+            python3 "$f"
+            echo "::endgroup::"
+          done
+          echo "ran ${found:+at least one} script test file"
+
+      # adapters/**/test_*.py — nested a package deep, so discover rather
+      # than glob one level.
+      - name: Adapter tests
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in $(find adapters -name 'test_*.py' -type f 2>/dev/null | sort); do
+            echo "::group::$f"
+            python3 "$f"
+            echo "::endgroup::"
+          done
