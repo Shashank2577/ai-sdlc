@@ -162,6 +162,41 @@ class TestValidation(unittest.TestCase):
                 cp.read_pack("widget")
             self.assertIn("dispatchable_from", str(ctx.exception))
 
+    def test_produces_defaults_to_pull_request_required(self):
+        # #99: a pack silent on this inherits today's global behaviour —
+        # a clean session is expected to open a pull request — rather than
+        # silently exempting an undeclared role from the check.
+        with PackFixture(MINIMAL_PACK):
+            pack = cp.read_pack("widget")
+            out = cp.compile_claude_code(pack)
+        self.assertEqual(pack["produces"], cp.DEFAULT_PRODUCES)
+        self.assertIn("pull_request", out["produces"].splitlines())
+
+    def test_produces_is_declared_by_the_pack(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "produces:\n  - comments\n  - status\n"
+        with PackFixture(files):
+            pack = cp.read_pack("widget")
+            out = cp.compile_claude_code(pack)
+        self.assertEqual(pack["produces"], ["comments", "status"])
+        self.assertNotIn("pull_request", out["produces"].splitlines())
+
+    def test_produces_must_be_a_non_empty_list(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "produces: []\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("produces", str(ctx.exception))
+
+    def test_produces_rejects_non_string_entries(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "produces:\n  - 1\n"
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("produces", str(ctx.exception))
+
     def test_no_code_writing_role_may_edit_the_pipeline(self):
         # PRD §3 gives .github/workflows/ to DevOps. A role that writes code
         # must not be able to edit the check that reviews it.
