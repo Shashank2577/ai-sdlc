@@ -148,9 +148,13 @@ def to_bash_rule(pattern: str) -> str | None:
     return f"Bash({body}:*)" if pattern.endswith("*") else f"Bash({body})"
 
 
-def compile_claude_code(pack: dict) -> dict[str, str]:
-    """Render a pack as a Claude Code system prompt plus settings.json."""
-    policy, tools = pack["policy"], pack["tools"]
+def render_role_doc(pack: dict) -> str:
+    """Render the harness-neutral core every target shares: charter, budget,
+    forbidden actions, HITL triggers, then every skill. Claude Code calls
+    this system-prompt.md; Codex calls it AGENTS.md. Same content either
+    way — only the filename and the tool-permission layer around it differ.
+    """
+    policy = pack["policy"]
     budgets = policy["budgets"]
     role = pack["role"]
 
@@ -180,6 +184,13 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
     for name, body in pack["skills"]:
         parts += ["", "---", "", f"# Skill: {name}", "", body.strip()]
 
+    return "\n".join(parts).rstrip() + "\n"
+
+
+def compile_claude_code(pack: dict) -> dict[str, str]:
+    """Render a pack as a Claude Code system prompt plus settings.json."""
+    tools = pack["tools"]
+
     allow, deny, unmappable = [], [], []
     for pattern in (tools.get("shell", {}) or {}).get("allow", []):
         rule = to_bash_rule(pattern)
@@ -206,7 +217,7 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
     }
 
     out = {
-        "system-prompt.md": "\n".join(parts).rstrip() + "\n",
+        "system-prompt.md": render_role_doc(pack),
         "settings.json": json.dumps(settings, indent=2) + "\n",
         # The dispatcher reads this to pick the role's credential rather
         # than carrying a role->secret table of its own.
@@ -234,7 +245,65 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
     return out
 
 
-HARNESSES = {"claude-code": compile_claude_code}
+def compile_codex(pack: dict) -> dict[str, str]:
+    """Render a pack as a Codex AGENTS.md plus a sandbox-policy fragment.
+
+    Codex's sandbox is a coarse filesystem-access mode (read-only /
+    workspace-write / danger-full-access) plus an approval_policy
+    (untrusted / on-failure / on-request / never) — config.toml keys, not
+    a per-command rule list. There is no Codex equivalent of Claude Code's
+    Bash(cmd:*) prefix match, so to_bash_rule's allow/deny shape cannot be
+    forced onto it: every tools.yaml shell rule is reported to
+    UNMAPPABLE.md, not just the ones with an interior wildcard. The
+    filesystem scope and approval mode below are what actually holds.
+    """
+    tools = pack["tools"]
+    role = pack["role"]
+
+    unmappable = [f"allow:{p}" for p in (tools.get("shell", {}) or {}).get("allow", [])]
+    unmappable += [f"deny:{p}" for p in (tools.get("shell", {}) or {}).get("deny", [])]
+
+    # never/workspace-write, not read-only/on-request: the same reasoning
+    # compile_claude_code gives for bypassPermissions applies here too — a
+    # headless session cannot answer an approval prompt, so "never" is the
+    # only mode that does not stall. workspace-write, not
+    # danger-full-access, keeps the blast radius at the checkout rather
+    # than the whole machine.
+    sandbox_policy = (
+        f"# Codex sandbox policy for role `{role}`.\n"
+        "# Compiled from tools.yaml + policy.yaml. Codex has no per-command\n"
+        "# allow/deny control (see UNMAPPABLE.md); this filesystem scope and\n"
+        "# approval mode are the enforcement points that actually exist.\n"
+        "\n"
+        f"[profiles.{role}]\n"
+        'approval_policy = "never"\n'
+        'sandbox_mode = "workspace-write"\n'
+    )
+
+    out = {
+        "AGENTS.md": render_role_doc(pack),
+        "sandbox-policy.toml": sandbox_policy,
+        # Harness-agnostic; identical to the claude-code target.
+        "token-secret": pack["token_secret"] + "\n",
+        "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
+    }
+    if unmappable:
+        out["UNMAPPABLE.md"] = (
+            "# Rules this harness cannot express\n\n"
+            "Codex's sandbox is scoped by filesystem-access mode and an\n"
+            "approval policy, not by command pattern, so it has no\n"
+            "equivalent of Claude Code's Bash(cmd:*) prefix rule at all.\n"
+            "None of tools.yaml's shell rules have a structural target\n"
+            "here — mappable-looking ones included — so all of them are\n"
+            "listed rather than dropped. sandbox-policy.toml's\n"
+            "workspace-write scope and branch protection are what\n"
+            "actually hold.\n\n"
+            + "".join(f"- `{u}`\n" for u in unmappable)
+        )
+    return out
+
+
+HARNESSES = {"claude-code": compile_claude_code, "codex": compile_codex}
 
 
 def main() -> int:

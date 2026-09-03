@@ -133,7 +133,7 @@ requirements:
       - {exists: dashboards/standup.py}
       - {exists: dashboards/status.py}
       - {glob: "dashboards/*burndown*.py"}
-    notes: Traceability, standup and programme status. No burndown or velocity.
+    notes: Traceability, standup, programme status, and burndown/velocity.
 
   REQ-012:
     summary: Least privilege, per-item budgets, escalation ladder
