@@ -7,4 +7,4 @@
 #
 # Format: one entry per line, "<path from repo root><TAB><reason>".
 # Blank lines and lines starting with # are ignored.
-dashboards/test_adr.py	#105: adr.py is out-of-scope-for-devs to wire into .github/workflows/dashboards.yml (devops-owned per PRD §3); the wiring patch is on the work item for devops to apply, at which point this entry should be removed.
+
