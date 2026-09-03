@@ -418,6 +418,12 @@ def main() -> int:
     if (args.out / "status.html").is_file():
         pages.append(("status.html", "Programme status",
                       "Traced vs actually satisfied, per requirement and phase"))
+    if (args.out / "burndown.html").is_file():
+        pages.append(("burndown.html", "Burndown & velocity",
+                      "Open story count and weekly closures, from issue timestamps"))
+    if (args.out / "qa.html").is_file():
+        pages.append(("qa.html", "QA verdicts",
+                      "Pass/fail matrix by requirement, from qa:approved/qa:rejected"))
     if (args.out / "decisions.html").is_file():
         pages.append(("decisions.html", "Decisions",
                       "What's waiting on a human, and what was decided"))
