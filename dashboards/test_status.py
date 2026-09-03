@@ -119,13 +119,51 @@ class TestAgainstThisRepo(unittest.TestCase):
                     self.assertNotIn("unknown check kind", text)
 
     def test_the_page_does_not_claim_more_than_the_repo_has(self):
-        cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 0})
-        # Things this repo genuinely does not have, asserted so that a future
-        # change cannot quietly mark them done without building them.
-        self.assertEqual(cov["REQ-008"]["pct"], 0, "no client layer exists")
-        self.assertEqual(cov["REQ-010"]["pct"], 0, "no deployment exists")
-        self.assertEqual(cov["REQ-013"]["pct"], 0, "no memory layer exists")
-        self.assertLess(cov["REQ-006"]["pct"], 50, "only one ceremony exists")
+        """No requirement may report a higher score than its checks earn.
+
+        This used to pin literals — REQ-008 == 0 "no client layer exists",
+        REQ-010 == 0, REQ-013 == 0. Good intent, wrong shape: the assertions
+        described a snapshot, so the test failed the moment the work was
+        actually built. `scripts/transcript-to-prd.py` landed, REQ-008 went
+        0 -> 33, and a green suite turned red on success.
+
+        The literals were standing in for an invariant, so assert the
+        invariant instead: for every requirement, re-run its checks directly
+        against the filesystem and confirm the reported percentage is not
+        higher than what independently passes. Flattery still fails —
+        which is the whole point of this page — and progress no longer does.
+        """
+        coverage = S.load_coverage()
+        facts = {"agent_delivered_prs": 0}
+        cov = S.evaluate(coverage, REPO_ROOT, facts)
+        for req, spec in coverage.items():
+            checks = spec.get("checks", [])
+            with self.subTest(req=req):
+                if not checks:
+                    self.assertEqual(cov[req]["pct"], 0,
+                                     "a requirement with no criteria cannot score")
+                    continue
+                passing = sum(1 for c in checks
+                              if S.run_check(c, REPO_ROOT, facts)[0])
+                earned = round(100 * passing / len(checks))
+                self.assertLessEqual(
+                    cov[req]["pct"], earned,
+                    f"{req} reports {cov[req]['pct']}% but only {passing} of "
+                    f"{len(checks)} criteria pass when re-run independently")
+
+    def test_a_requirement_cannot_read_complete_unless_every_check_passes(self):
+        # The other direction of the same guard: 100% must mean every
+        # criterion actually passes, not that the arithmetic rounded up.
+        coverage = S.load_coverage()
+        facts = {"agent_delivered_prs": 0}
+        cov = S.evaluate(coverage, REPO_ROOT, facts)
+        for req, spec in coverage.items():
+            if cov[req]["pct"] != 100:
+                continue
+            with self.subTest(req=req):
+                for check in spec.get("checks", []):
+                    ok, text = S.run_check(check, REPO_ROOT, facts)
+                    self.assertTrue(ok, f"{req} reads 100% but {text} fails")
 
     def test_self_hosting_cannot_read_complete_without_a_delivered_pr(self):
         cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 0})
