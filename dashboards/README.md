@@ -5,11 +5,13 @@ hand — if a page is wrong, the generator is wrong, and that is a bug issue.
 
 ```sh
 python3 dashboards/standup.py --out site               # digest first…
+python3 dashboards/qa.py      --out site               # …QA verdicts, any time…
 python3 dashboards/build.py   --out site               # …then the matrix + index
 python3 dashboards/build.py   --out site --no-github   # git only, offline
 
 python3 dashboards/test_build.py                       # 17 tests
 python3 dashboards/test_standup.py                     # 19 tests
+python3 dashboards/test_qa.py                          # 20 tests
 ```
 
 Order matters by one link: `build.py` writes the index and lists whichever
@@ -71,6 +73,25 @@ publishing. This one holds `issues: write` and never publishes; the dashboards
 workflow holds Pages permissions and never writes to the tracker. It recomputes
 the digest rather than consuming an artifact, so neither workflow depends on
 the other's run and the two cannot disagree.
+
+## QA verdicts
+
+`qa.html` — a pass/fail matrix, grouped by requirement. For every issue
+carrying a `→ **REQ-00N**` marker, its verdict is read straight off the
+`qa:approved` / `qa:rejected` labels — the same labels QA's own veto
+(`scripts/qa-gate.sh`, `scripts/qa-verdict.sh`) already enforces. Neither
+label present renders as `pending`, never as silently absent. A rejected
+issue is always shown, never dropped for failing — that would defeat the
+point of publishing the verdict at all.
+
+Independent of every other generator here: it reads only `gh issue list`, so
+it needs no fixed position relative to the traceability build or the status
+page.
+
+Out of scope (see the generator's own docstring): coverage trend, defect
+density and a flake list all need escaped-defect tracking and CI flake
+history that don't exist as computable inputs yet. A per-sprint cut is
+likewise out of scope until sprint planning populates an iteration field.
 
 ## `traceability.json`
 

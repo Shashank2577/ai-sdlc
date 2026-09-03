@@ -56,6 +56,7 @@ jobs:
           python3 dashboards/test_standup.py
           python3 dashboards/test_status.py
           python3 dashboards/test_burndown.py
+          python3 dashboards/test_qa.py
 
       # Standup first: build.py links whichever pages exist, so the index
       # only advertises the digest once the digest is actually on disk.
@@ -94,6 +95,14 @@ jobs:
         run: |
           set -euo pipefail
           python3 dashboards/burndown.py --out site --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the QA verdict page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 dashboards/qa.py --out site --repo "${GITHUB_REPOSITORY}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
       # Last, so the index links every page built above. Adding a generator

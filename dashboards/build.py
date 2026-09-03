@@ -421,6 +421,9 @@ def main() -> int:
     if (args.out / "burndown.html").is_file():
         pages.append(("burndown.html", "Burndown & velocity",
                       "Open story count and weekly closures, from issue timestamps"))
+    if (args.out / "qa.html").is_file():
+        pages.append(("qa.html", "QA verdicts",
+                      "Pass/fail matrix by requirement, from qa:approved/qa:rejected"))
     (args.out / "index.html").write_text(render_index(pages, meta))
 
     counts = {s: sum(1 for r in rows if r.status == s) for s in (GREEN, AMBER, RED)}
