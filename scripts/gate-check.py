@@ -78,6 +78,69 @@ def _pattern(needle: str) -> re.Pattern:
     return re.compile(rf"\b{re.escape(needle)}\b", re.IGNORECASE)
 
 
+def _root(pattern: str) -> str:
+    """The fixed prefix of a glob — everything before the first wildcard.
+
+    `policies/**` -> `policies/`, `scripts/*deploy*` -> `scripts/`,
+    `.github/CODEOWNERS` -> itself, `**` -> `""` (matches everything).
+    """
+    for i, ch in enumerate(pattern):
+        if ch in "*?[!":
+            return pattern[:i]
+    return pattern
+
+
+def _covers(pattern: str, guarded: str) -> bool:
+    """Does a write_scope pattern reach into a guarded path, or vice versa?
+
+    Compared as declared patterns, not against real files, because the
+    question is what a role is *permitted* to touch — including paths that
+    do not exist yet. Either direction counts: `role-packs/**` covers
+    `role-packs/delivery-lead/**`, and `policies/gates.yaml` is inside
+    `policies/**`.
+    """
+    a, b = _root(pattern), _root(guarded)
+    if a == "" or b == "":
+        return True
+    return a.startswith(b) or b.startswith(a)
+
+
+def role_can_write(role: str | None, guarded: list[str],
+                   packs_dir: Path | None = None) -> bool:
+    """Could `role` write any of `guarded`, per its own pack policy?
+
+    Deny wins over allow, matching how the compiled prompt reads. Unknown
+    role, missing pack or unreadable policy all return True: a rule that
+    cannot establish incapability must still fire, or a bad pack read
+    becomes a way past the gate.
+    """
+    if not role:
+        return True
+    packs = packs_dir or (REPO_ROOT / "role-packs")
+    policy = packs / role / "policy.yaml"
+    if not policy.is_file():
+        return True
+    try:
+        import yaml
+        scope = (yaml.safe_load(policy.read_text()) or {}).get("write_scope") or {}
+    except Exception:
+        return True
+    allow, deny = scope.get("allow") or [], scope.get("deny") or []
+    if not allow:
+        return True
+    for g in guarded:
+        if any(_covers(d, g) for d in deny):
+            continue
+        if any(_covers(a, g) for a in allow):
+            return True
+    return False
+
+
+def role_of_labels(labels: list[str], prefix: str = "role:") -> str | None:
+    roles = [l[len(prefix):] for l in labels if l.startswith(prefix)]
+    return roles[0] if len(roles) == 1 else None
+
+
 def matched_rules(title: str, body: str, labels: list[str], gate: dict) -> list[dict]:
     """Every critical rule this story trips. Empty means routine.
 
@@ -85,9 +148,17 @@ def matched_rules(title: str, body: str, labels: list[str], gate: dict) -> list[
     tell a human every reason it was held, not just one.
     """
     haystack = f"{title}\n{body}"
+    role = role_of_labels(labels, "role:")
     out = []
     for rule in gate.get("critical_when", []):
         match = rule.get("match") or {}
+        # A rule that guards specific paths is skipped for a role that
+        # cannot write them — see `scoping: write_capability` in the
+        # policy. Naming a path is not proposing to change it, and holding
+        # a role for a change its own pack denies is a gate on nothing.
+        guarded = rule.get("guards_paths")
+        if guarded and not role_can_write(role, guarded):
+            continue
         hit = None
         if "label" in match and match["label"] in labels:
             hit = f"label `{match['label']}`"

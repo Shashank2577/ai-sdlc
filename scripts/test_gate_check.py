@@ -100,6 +100,108 @@ class TestCatchesGovernance(unittest.TestCase):
                         "every rule states why, or the comment cannot explain itself")
 
 
+class TestScopedToWriteCapability(unittest.TestCase):
+    """`guards_paths` rules fire only for a role that could make the change.
+
+    Word boundaries fixed matching precision but not scope: the gate had
+    drifted back to holding 41 of 53 issues, because in a
+    workflow-and-policy repo half the stories name a governance path
+    without proposing to touch it.
+    """
+
+    def test_a_developer_naming_a_workflow_is_not_held(self):
+        # The developer pack denies `.github/**` and its token lacks
+        # `workflow` scope — proved live when a push was rejected. Holding
+        # it is a gate on something that cannot happen.
+        body = "Wire the new suite into `.github/workflows/dod-check.yml`."
+        self.assertNotIn("touches_governance", rules(body=body,
+                                                     labels=["role:developer"]))
+
+    def test_a_devops_story_naming_a_workflow_is_held(self):
+        body = "Wire the new suite into `.github/workflows/dod-check.yml`."
+        self.assertIn("touches_governance", rules(body=body, labels=["role:devops"]))
+
+    def test_the_governance_owner_naming_policies_is_held(self):
+        self.assertIn("touches_governance",
+                      rules(body="Update `policies/dod.yaml`.",
+                            labels=["role:delivery-lead"]))
+
+    def test_a_developer_citing_coverage_yaml_is_not_held(self):
+        # Every story that adds a capability updates coverage.yaml — that
+        # is how satisfaction is computed. As a critical signal it is
+        # universal, and universal is the same as absent.
+        body = "Add the check to `requirements/coverage.yaml` once it passes."
+        self.assertEqual(rules(body=body, labels=["role:developer"]), [])
+
+    def test_a_product_manager_citing_coverage_yaml_is_held(self):
+        # PM owns `requirements/**`, so for that role it is a real proposal.
+        self.assertIn("changes_requirements",
+                      rules(body="Add a check to `requirements/coverage.yaml`.",
+                            labels=["role:product-manager"]))
+
+    def test_an_unlabelled_story_is_still_held(self):
+        # No role label means the story is unrefined — the moment least is
+        # known about it. Scoping must not become a way past the gate.
+        self.assertIn("touches_governance", rules(body="Update `policies/dod.yaml`."))
+
+    def test_an_unrecognised_role_is_still_held(self):
+        self.assertIn("touches_governance",
+                      rules(body="Update `policies/dod.yaml`.",
+                            labels=["role:nonexistent"]))
+
+    def test_two_role_labels_are_still_held(self):
+        # Ambiguous ownership resolves toward the gate, not past it.
+        self.assertIn("touches_governance",
+                      rules(body="Update `policies/dod.yaml`.",
+                            labels=["role:developer", "role:devops"]))
+
+    def test_unscoped_rules_are_unaffected_by_role(self):
+        # credentials, production and estimate carry no guards_paths: a
+        # story can describe any of them regardless of what it may write.
+        self.assertIn("touches_credentials",
+                      rules(body="mint a PAT", labels=["role:developer"]))
+        self.assertIn("production_or_release",
+                      rules(body="deploy to staging", labels=["role:qa"]))
+        self.assertIn("large_estimate",
+                      rules(body="Estimate: L", labels=["role:techwriter"]))
+
+    def test_deny_beats_allow(self):
+        self.assertFalse(G.role_can_write("developer", [".github/workflows/**"]))
+        self.assertTrue(G.role_can_write("devops", [".github/workflows/**"]))
+
+    def test_capability_is_true_when_it_cannot_be_established(self):
+        for role in (None, "", "not-a-role"):
+            with self.subTest(role=role):
+                self.assertTrue(G.role_can_write(role, ["policies/**"]))
+
+    def test_a_pattern_and_a_guarded_path_overlap_in_both_directions(self):
+        self.assertTrue(G._covers("role-packs/**", "role-packs/delivery-lead/**"))
+        self.assertTrue(G._covers("policies/**", "policies/gates.yaml"))
+        self.assertTrue(G._covers("**", "anything/at/all"))
+        self.assertFalse(G._covers("src/**", "policies/**"))
+        self.assertFalse(G._covers("role-packs/devops/**", "role-packs/qa/**"))
+
+    def test_every_guarded_path_names_a_real_scope_pattern(self):
+        # A typo in guards_paths silently disables the rule for every role,
+        # which is the quietest way this could fail.
+        import yaml
+        declared = set()
+        for pack in (REPO_ROOT / "role-packs").iterdir():
+            f = pack / "policy.yaml"
+            if not f.is_file():
+                continue
+            scope = (yaml.safe_load(f.read_text()) or {}).get("write_scope", {})
+            declared |= set(scope.get("allow") or []) | set(scope.get("deny") or [])
+        guarded = [g for r in GATE["critical_when"] for g in (r.get("guards_paths") or [])]
+        self.assertTrue(guarded, "scoping is declared; some rule must use it")
+        for g in guarded:
+            with self.subTest(path=g):
+                self.assertTrue(any(G._covers(d, g) for d in declared),
+                                f"no pack's write_scope mentions anything under "
+                                f"`{g}` — likely a typo, which would disable the "
+                                f"rule for every role")
+
+
 class TestWhoApproves(unittest.TestCase):
     def test_a_bot_cannot_approve(self):
         for actor in ("github-actions[bot]", "github-actions", "foundry-dev-bot[bot]",
@@ -135,17 +237,77 @@ class TestPolicyShape(unittest.TestCase):
     def test_the_policy_admits_its_own_limits(self):
         self.assertIn("best-effort", GATE["limits"])
 
-    def test_no_role_pack_may_write_the_gate_policy(self):
+    # The governance owner. Exactly one role may write `policies/**`,
+    # because gates with no agent owner cannot be changed through the loop
+    # at all. That exception is only safe under the two conditions below,
+    # so they are asserted rather than described in a charter.
+    GOVERNANCE_OWNER = "delivery-lead"
+
+    def _packs(self):
         import yaml
         packs = sorted(p for p in (REPO_ROOT / "role-packs").iterdir()
                        if (p / "policy.yaml").is_file())
         self.assertTrue(packs)
-        for pack in packs:
+        return [(p, yaml.safe_load((p / "policy.yaml").read_text()) or {})
+                for p in packs]
+
+    def test_only_the_governance_owner_may_write_the_gate_policy(self):
+        for pack, policy in self._packs():
+            scope = policy.get("write_scope", {})
             with self.subTest(role=pack.name):
-                scope = (yaml.safe_load((pack / "policy.yaml").read_text())
-                         or {}).get("write_scope", {})
-                self.assertIn("policies/**", scope.get("deny") or [],
-                              f"{pack.name} must not be able to move its own gates")
+                if pack.name == self.GOVERNANCE_OWNER:
+                    self.assertIn("policies/**", scope.get("allow") or [],
+                                  "the governance owner must own the gates, or "
+                                  "no role can change them through the loop")
+                else:
+                    self.assertIn("policies/**", scope.get("deny") or [],
+                                  f"{pack.name} must not be able to move its "
+                                  "own gates")
+
+    def test_the_governance_owner_is_gated_critical_by_its_label_alone(self):
+        # Condition one. Owning `policies/**` is only safe while every one
+        # of its stories is approved by a person first — and that must not
+        # depend on the prose rules, which a story can simply not trip.
+        self.assertIn("governance_role",
+                      rules(body="tidy a comment",
+                            labels=[f"role:{self.GOVERNANCE_OWNER}"]))
+
+    def test_the_governance_owner_cannot_merge(self):
+        # Condition two. A governance change reviewed by nobody is the
+        # worst use of the role. `shell.allow` is an allowlist, so absence
+        # is the enforcement.
+        import yaml
+        tools = yaml.safe_load(
+            (REPO_ROOT / "role-packs" / self.GOVERNANCE_OWNER / "tools.yaml").read_text())
+        allowed = " ".join((tools.get("shell") or {}).get("allow") or [])
+        self.assertNotIn("gh pr merge", allowed)
+        self.assertNotIn("gh pr review", allowed)
+
+    def test_no_pack_may_write_another_packs_directory(self):
+        # `role-packs/**` on the governance owner made two of its own
+        # `forbidden` entries prose instead of scope: it could rewrite any
+        # role's budget, tool denials and write_scope, including its own.
+        for pack, policy in self._packs():
+            scope = policy.get("write_scope", {})
+            with self.subTest(role=pack.name):
+                for pattern in scope.get("allow") or []:
+                    if not pattern.startswith("role-packs/"):
+                        continue
+                    self.assertTrue(
+                        pattern.startswith(f"role-packs/{pack.name}/"),
+                        f"{pack.name} allows `{pattern}`, which reaches into "
+                        "another role's pack — propose that as a pull request "
+                        "instead")
+
+    def test_a_pack_cannot_reach_its_own_gate_through_write_capability(self):
+        # The same question asked through the code the gate uses, not the
+        # YAML — these must agree, or the gate and the policy disagree
+        # about who is dangerous.
+        for role in ("developer", "qa", "architect", "techwriter",
+                     "product-manager", "devops", "orchestrator"):
+            with self.subTest(role=role):
+                self.assertFalse(G.role_can_write(role, ["policies/**"]))
+        self.assertTrue(G.role_can_write(self.GOVERNANCE_OWNER, ["policies/**"]))
 
 
 class TestHeldComment(unittest.TestCase):

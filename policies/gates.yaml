@@ -11,8 +11,20 @@
 # status:ready. Same insight as the dispatcher's status:ready guard, one
 # level further in.
 #
-# No role pack may write this file. All five deny `policies/**`, which is
-# deliberate: the gates constrain the roles, so no role gets to move them.
+# One role pack may write this file: `delivery-lead`. Every other pack
+# denies `policies/**`, because the gates constrain the roles and no role
+# should move the thing that constrains it — but that left governance with
+# no agent owner and no way to change a gate through the loop at all. The
+# exception is safe only while two conditions hold, both asserted in
+# `scripts/test_gate_check.py` rather than described here: every
+# delivery-lead story is critical by its label alone (`governance_role`
+# below), and the pack cannot merge or approve a pull request.
+#
+# It previously also allowed `role-packs/**`, meaning it could rewrite any
+# role's budget, tool denials and write_scope — including its own. That
+# made two of its own `forbidden` entries prose rather than scope, and it
+# landed green because the test which catches it was path-filtered away
+# from `role-packs/**` (see #100).
 version: 0
 
 gates:
@@ -37,9 +49,22 @@ gates:
           dispatcher that constrain every other role. A pipeline change
           approved by the thing it governs is not a gate.
 
+      - rule: governance_role
+        match: {label: "role:delivery-lead"}
+        because: >-
+          Delivery Lead is the one role whose write scope includes
+          `policies/**` — the gates themselves. It exists because
+          governance needs an agent owner, and it is safe to have one only
+          while every one of its stories is approved by a person first.
+          This rule is that condition, stated where it can be checked
+          rather than left to the prose rules below.
+
       - rule: touches_governance
         match: {text_any: ["policies/", ".github/workflows/", "branch protection",
                            "CODEOWNERS", "required check", "required status"]}
+        # Only fires for a role that could actually make the change. See
+        # `scoping` below.
+        guards_paths: ["policies/**", ".github/workflows/**", ".github/CODEOWNERS"]
         because: >-
           These are the controls. A story proposing to change one needs a
           person to agree it should be changed, before a session spends a
@@ -58,6 +83,7 @@ gates:
         # *new* requirement or editing the index is the actual signal.
         match: {text_any: ["prds/", "requirements/index.md",
                            "requirements/coverage.yaml", "new requirement"]}
+        guards_paths: ["prds/**", "requirements/**"]
         because: >-
           A REQ is a commitment. An agent proposing one is useful; an agent
           committing to one on the org's behalf is not its call.
@@ -74,6 +100,30 @@ gates:
         because: >-
           Not a risk rule, a cost one. Large stories are where budgets go
           and where scope quietly widens; a person should see them first.
+
+    # A rule carrying `guards_paths` fires only when the story's role could
+    # actually write one of those paths, per that role's own
+    # `write_scope` in `role-packs/<role>/policy.yaml`.
+    #
+    # Why: word boundaries fixed matching precision but not scope, and the
+    # gate drifted back to holding almost everything — 41 of 53 issues
+    # (77%) at the point this was measured. `touches_governance` alone
+    # fired on 50%, because this repo *is* a workflow-and-policy repo, so
+    # half its stories name one. A developer story that mentions
+    # `.github/workflows/` was held for approval to prevent a change the
+    # developer pack denies and whose token lacks `workflow` scope — a gate
+    # on something that cannot happen, and 19 points of the 77%.
+    #
+    # Scoping to write capability puts the gate on the same boundary as the
+    # credential model rather than beside it: 31 of 53 (58%), and what
+    # remains is dominated by `role:devops`, which holds the only
+    # workflow-scoped token, and `role:delivery-lead`, which owns
+    # `policies/**`. Both are meant to be held every time.
+    #
+    # Conservative on unknowns: no role label, an unrecognised role, or an
+    # unreadable pack all count as capable, so a rule fires. An unrefined
+    # story is exactly when least is known about it.
+    scoping: write_capability
 
     # Stated so nobody has to infer it.
     limits: >-
