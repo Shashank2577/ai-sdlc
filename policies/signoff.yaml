@@ -1,0 +1,137 @@
+# Client sign-off — policy-as-code. PRD §6, §7. REQ-008, policy half only:
+# the portal, the transcript→PRD pipeline and the CR form are the other
+# two-thirds and are not built by this file.
+#
+# Vocabulary matches policies/gates.yaml on purpose: `owner`, `granted_by`,
+# `default_if_unanswered`, `sla_hours`, `enforced_by`. A sign-off is a gate
+# whose owner is the client instead of the delivery team, not a different
+# kind of thing that needs its own words — two vocabularies for one concept
+# is how a policy repo stops being readable.
+#
+# Enforcement is by identity, exactly like `dispatch_approval`: the
+# `issues: labeled` event payload carries who applied the label, so
+# `signoff:approved` is not a marker an agent can forge for itself — it is
+# the fact that a human applied it. The enforcement script, `enforced_by`
+# below, is not part of this file: `scripts/**` is `developer`'s write
+# scope (role-packs/developer/policy.yaml), not this pack's — the same way
+# `scripts/dod-check.sh` implements `policies/dod.yaml` without living
+# under `policies/`. This story delivers the policy; the script is a
+# separate, developer-owned change, specified but not written here (see
+# the work item for the exact script this policy calls for).
+#
+# `owner: client` is stronger than `owner: human` (used elsewhere in
+# `gates.yaml`): every human in this repo is capable of applying the label,
+# but only the client's decision is the thing being recorded. That
+# distinction is not mechanically enforced here — see `limits` below — the
+# same way `dispatch_approval` does not verify that the person who applied
+# `status:ready` was the right person, only that a person did.
+version: 0
+
+signoffs:
+  story:
+    question: "Does the client accept this story as delivered?"
+    owner: client                    # no agent role may satisfy this gate
+    granted_by: a person applying `signoff:approved` to a story that already carries `qa:approved`
+    evidence_required:
+      - qa:approved label present (the QA verdict, PRD §8)
+      - the DoD required check is green on the merged PR (policies/dod.yaml)
+      - the linked work item is closed
+    default_if_unanswered: remains unsigned — delivered, not yet accepted
+    sla_hours: 72
+    escalates_after_sla: true
+    enforced_by: [signoff_check]
+    enforced: false     # scripts/signoff-check.py — developer-owned, not yet written
+
+  sprint:
+    question: "Does the client accept this sprint's increment as demoed?"
+    owner: client
+    granted_by: a person applying `signoff:approved` to the sprint review issue
+    evidence_required:
+      - sprint review / demo package published (PRD §5.4)
+      - burndown for the sprint closed out
+      - every story in the sprint individually signed off, or explicitly excluded by name
+    default_if_unanswered: remains unsigned — does not block the next sprint from starting
+    sla_hours: 120
+    escalates_after_sla: true
+    enforced_by: [signoff_check]
+    enforced: false     # scripts/signoff-check.py — developer-owned, not yet written
+
+  release:
+    question: "Does the client accept this release for production?"
+    owner: client
+    granted_by: >-
+      a person applying `signoff:approved` to the release issue, recorded as
+      a signed annotated tag (PRD §9) once granted
+    evidence_required:
+      - QA report for the release — pass/fail matrix by requirement (PRD §8)
+      - release notes compiled from commit trailers
+      - staging deploy verified
+    default_if_unanswered: stays unreleased — the production deploy gate (PRD §7, a human-in-the-loop gate in its own right) does not open on a missing sign-off
+    sla_hours: 48
+    escalates_after_sla: true
+    enforced_by: [signoff_check]
+    enforced: false     # scripts/signoff-check.py — developer-owned, not yet written
+
+# What re-opens a scope that already carries `signoff:approved`.
+change_request:
+  question: "What happens when signed-off work needs to change?"
+  definition: >-
+    A requirement, story, sprint or release that carries `signoff:approved`
+    and is then changed. PRD §6.1: "Requirement changes after sign-off are
+    Change Requests, full stop." — there is no quiet edit path once the
+    client has signed; the alternative to a CR is not touching it.
+  filed_by: >-
+    the client, via the portal CR form (not yet built) or, until then, an
+    issue labeled `type:change-request` referencing the signed scope
+  owner: client + human account lead    # both human; neither is an agent role
+  granted_by: both the human account lead and the client approving the impact analysis
+  requires:
+    - an impact analysis (affected requirements, stories, re-estimate, timeline delta) — the PM agent produces it, it does not approve it
+    - approval from both the human account lead and the client
+  effect: >-
+    Reopens the signed scope. `signoff:approved` is removed (the removal is
+    itself an event in the issue's history, not a deletion of the record)
+    and replaced with `signoff:change-requested` until the CR resolves and
+    the scope is re-signed.
+  default_if_unanswered: the signed record stands — a filed CR with no approval from both parties changes nothing
+  sla_hours: 120
+  escalates_after_sla: true
+  enforced_by: [signoff_check]
+  enforced: false       # scripts/signoff-check.py — developer-owned, not yet written
+
+# Stated explicitly, per the story's own acceptance criteria: a gate that
+# does not say what it leaves alone reads as covering everything it
+# touches, and this one touches a lot of vocabulary (`story`, `sprint`,
+# `release`) that already means something else elsewhere in the pipeline.
+not_gated:
+  - engineering work continuing on a story pending sign-off — this gate
+    governs client acceptance, not delivery; QA and merge already cover
+    whether the code is correct
+  - a pull request merging — that is `gates.yaml`'s `merge` gate, unrelated
+    to whether the client has accepted the result yet
+  - internal ceremonies (standup, retro, refinement) — sign-off is an
+    external-facing record, not an internal process gate
+  - draft or in-progress work of any kind — only a completed story, sprint
+    or release is signable; there is nothing yet to accept about work still
+    underway
+  - the `dispatch_approval` and `qa_verdict` gates in `gates.yaml` — this
+    file adds a client-owned gate on top of them, it does not replace or
+    loosen either
+
+# Stated so nobody has to infer it, same as gates.yaml's own `limits`.
+limits: >-
+  Classification reads labels, so it is best-effort by construction: a
+  label applied by the wrong person is indistinguishable from one applied
+  by the right one. `owner: client` names who the sign-off represents, not
+  a verified client identity — there is no client account system yet, so
+  the enforced half of this policy will be narrower than the declared half
+  once `scripts/signoff-check.py` exists: any human, not specifically the
+  client, will be able to satisfy `granted_by` — only "no agent role can"
+  is checkable from an actor name. That script is not part of this change
+  (`enforced: false` on every scope above says so): `scripts/**` is
+  `developer`'s write scope, not this pack's, the same division
+  `dod-check.sh` already has from `dod.yaml`. This file declares what a
+  sign-off is, what evidence it needs, and what a change request does to
+  one; it does not implement the enforcement script, the portal, the
+  transcript-to-PRD pipeline, or the CR form that PRD §6 describes — those
+  are REQ-008's other pieces, tracked separately.

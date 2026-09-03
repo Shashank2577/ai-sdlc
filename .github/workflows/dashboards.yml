@@ -16,6 +16,9 @@ on:
     paths:
       - "dashboards/**"
       - "requirements/**"
+      # ADRs are markdown outside dashboards/, so a new record with no
+      # code change must still rebuild the page that renders it.
+      - "adrs/**"
       - ".github/workflows/dashboards.yml"
   schedule:
     # 06:10 UTC daily — the standup digest ages even when nothing is pushed,
@@ -49,15 +52,17 @@ jobs:
       - name: Install PyYAML
         run: python -m pip install --quiet pyyaml
 
+      # Discovered, not enumerated (#128): a new dashboards/test_*.py file
+      # is picked up with no edit to this workflow. Every one of them is
+      # self-contained (stdlib unittest, no CLI args), so running them in
+      # whatever order the shell globs them in is safe.
       - name: Generator tests
         run: |
           set -euo pipefail
-          python3 dashboards/test_build.py
-          python3 dashboards/test_standup.py
-          python3 dashboards/test_status.py
-          python3 dashboards/test_burndown.py
-          python3 dashboards/test_qa.py
-          python3 dashboards/test_decisions.py
+          shopt -s nullglob
+          for f in dashboards/test_*.py; do
+            python3 "$f"
+          done
 
       # Standup first: build.py links whichever pages exist, so the index
       # only advertises the digest once the digest is actually on disk.
@@ -81,41 +86,32 @@ jobs:
             --out site --ref HEAD --repo "${GITHUB_REPOSITORY}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: Build the programme status page
+      # Discovered, not enumerated (#128): every dashboards/*.py file is a
+      # page generator invoked the same way (--out/--repo) and none of them
+      # reads another's output, so the order among them doesn't matter. A
+      # new one needs no workflow edit — three of the four PRs #128 names
+      # were exactly this file gaining one more hardcoded step.
+      # build.py and standup.py are excluded because they already ran above
+      # (and below) with extra flags and a fixed position in the sequence.
+      - name: Build the generated pages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          python3 dashboards/status.py --out site --repo "${GITHUB_REPOSITORY}" \
-            | tee -a "$GITHUB_STEP_SUMMARY"
+          shopt -s nullglob
+          for gen in dashboards/*.py; do
+            base="$(basename "$gen")"
+            case "$base" in
+              test_*.py|build.py|standup.py) continue ;;
+            esac
+            echo "::group::$gen"
+            python3 "$gen" --out site --repo "${GITHUB_REPOSITORY}" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "::endgroup::"
+          done
 
-      # Re-run so the index links the status page now that it exists.
-      - name: Build the burndown and velocity page
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          python3 dashboards/burndown.py --out site --repo "${GITHUB_REPOSITORY}" \
-            | tee -a "$GITHUB_STEP_SUMMARY"
-
-      - name: Build the QA verdict page
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          python3 dashboards/qa.py --out site --repo "${GITHUB_REPOSITORY}" \
-            | tee -a "$GITHUB_STEP_SUMMARY"
-
-      - name: Build the decisions page
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          python3 dashboards/decisions.py --out site --repo "${GITHUB_REPOSITORY}" \
-            | tee -a "$GITHUB_STEP_SUMMARY"
-
-      # Last, so the index links every page built above. Adding a generator
-      # means adding its build step *before* this one.
+      # Last, so the index links every page built above — including any
+      # page picked up by the discovery loop, with no edit needed here.
       - name: Rebuild the index
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
