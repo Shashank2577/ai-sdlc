@@ -3,3 +3,6 @@ __pycache__/
 build/
 dashboards/site/
 site/
+
+# Local OMC tooling state — session-scoped, never shared.
+.omc/

@@ -130,11 +130,17 @@ jobs:
           # list has no pull_request — PM refining a story, QA leaving its
           # verdict as a comment — is dispatched to do tracker-only work
           # on purpose.
-          if grep -qxF "pull_request" "${RUNNER_TEMP}/pack/${ROLE}/claude-code/produces"; then
-            requires_pr=true
-          else
-            requires_pr=false
+          # Fail safe: a missing produces file means the compile step is
+          # broken, not that the role has no output shape. Defaulting
+          # requires_pr=false here silently disabled the shipped-nothing
+          # gate for every role (#113) — error instead.
+          produces_file="${RUNNER_TEMP}/pack/${ROLE}/claude-code/produces"
+          if [ ! -f "$produces_file" ]; then
+            echo "::error::compiled pack has no produces file at ${produces_file} — refusing to relax the shipped-nothing gate"
+            exit 1
           fi
+          requires_pr=true
+          grep -qxF "pull_request" "$produces_file" || requires_pr=false
           echo "requires_pr=${requires_pr}" >> "$GITHUB_OUTPUT"
           echo "Requires a pull request to count as shipped (declared by the pack): ${requires_pr}" >> "$GITHUB_STEP_SUMMARY"
           {
@@ -390,6 +396,7 @@ jobs:
           WALL_CLOCK: ${{ steps.budget.outputs.wall_clock_minutes }}
           BUDGET_SOURCE: ${{ steps.budget.outputs.source }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REQUIRES_PR: ${{ steps.pack.outputs.requires_pr }}
         run: |
           set -euo pipefail
           P="${RUNNER_TEMP}/session-prompt.md"
@@ -441,6 +448,39 @@ jobs:
             echo "the ceiling leaves a half-finished branch and no explanation, which is"
             echo "the worst of both outcomes."
             echo
+
+            if [ "${REQUIRES_PR}" = "true" ]; then
+              echo "---"
+              echo
+              echo "## Asserting \"no change needed\""
+              echo
+              echo "This role is expected to open a pull request. A session that finishes"
+              echo "cleanly without one is normally treated as having shipped nothing —"
+              echo "reclassified \`no-output\`, marked a failure, and escalated. That is"
+              echo "deliberate: silence must never be cheaper than admitting failure."
+              echo
+              echo "But a session that does the work the item asked for and correctly"
+              echo "finds nothing in this repository needs to change is not a failure —"
+              echo "it is a real result. If that is where you land, do not invent a"
+              echo "change to justify the dispatch. Instead, before you finish, write your"
+              echo "reasoning to \`\$RUNNER_TEMP/no-change.md\`, for example:"
+              echo
+              echo "    cat > \"\$RUNNER_TEMP/no-change.md\" <<'EOF'"
+              echo "    ### Findings"
+              echo "    <what you examined, and what you found instead of a defect>"
+              echo
+              echo "    ### Evidence"
+              echo "    <commands you ran and their output — enough for a human to check"
+              echo "    your conclusion without repeating the investigation>"
+              echo "    EOF"
+              echo
+              echo "That file becomes the comment posted to the work item, verbatim —"
+              echo "write it for a human reader, not a log line. A missing file, or one"
+              echo "with no real content, is not an assertion; it is silence, and is"
+              echo "still treated as shipping nothing."
+              echo
+            fi
+
             echo "---"
             echo
             echo "## CONVENTIONS.md (repository law, reproduced in full)"
@@ -680,8 +720,21 @@ jobs:
               | awk '{printf "%s`%s`", (NR > 1 ? "<br>" : ""), $0}')
           fi
 
+          # "No change needed" is something a session can assert, not
+          # something that falls out of silence (#129). It has to cost a
+          # written, evidence-bearing reason, or every failed session has a
+          # reason to invent a change just to avoid this exact gate — the
+          # single worst incentive this system could create. A missing or
+          # whitespace-only file is not an assertion.
+          no_change_file="${RUNNER_TEMP}/no-change.md"
+          no_change_asserted=false
+          if [ -s "$no_change_file" ] && [ -n "$(tr -d '[:space:]' < "$no_change_file")" ]; then
+            no_change_asserted=true
+          fi
+
           # A clean exit that shipped no pull request is not a success —
-          # unless this role's pack never expected one. PM refinement, a
+          # unless this role's pack never expected one, or the session
+          # asserted (with a reason) that none was needed. PM refinement, a
           # QA verdict left as a comment, and similar tracker-only work
           # are the job, not a shortfall (#99). REQUIRES_PR is declared by
           # the pack (pack.yaml:produces), read in the compile step above;
@@ -689,14 +742,21 @@ jobs:
           # REQUIRES_PR that failed to propagate — does not silently stop
           # enforcing the gate.
           shipped_nothing=0
+          no_change=0
           if [ "$outcome" = "success" ] && [ "$has_pr" != "true" ] \
               && [ "${REQUIRES_PR:-true}" != "false" ]; then
-            shipped_nothing=1
-            outcome="no-output"
-            if [ -n "$branches" ]; then
-              verdict="pushed a branch but opened no pull request"
+            if [ "$no_change_asserted" = "true" ]; then
+              no_change=1
+              outcome="no-change"
+              verdict="found nothing that needed to change"
             else
-              verdict="produced no branch and no pull request"
+              shipped_nothing=1
+              outcome="no-output"
+              if [ -n "$branches" ]; then
+                verdict="pushed a branch but opened no pull request"
+              else
+                verdict="produced no branch and no pull request"
+              fi
             fi
           fi
 
@@ -708,9 +768,12 @@ jobs:
           fi
 
           # The single verdict everything downstream reads: the labels, the
-          # escalation, and the next dispatch's retry ceiling.
+          # escalation, and the next dispatch's retry ceiling. An asserted
+          # no-change is a real result, not a failure — unless the session
+          # also breached its budget getting there, which is still a
+          # problem regardless of the conclusion.
           result=success
-          if [ "$outcome" != "success" ] || [ "$breach" = "3" ]; then
+          if { [ "$outcome" != "success" ] && [ "$no_change" != "1" ]; } || [ "$breach" = "3" ]; then
             result=failure
           fi
 
@@ -752,6 +815,18 @@ jobs:
             echo "#### Spend"
             echo
             cat "$spend"
+
+            # The durable artefact for an asserted no-change: the session's
+            # own reasoning, verbatim, on the work item — not only in the
+            # run log, which nobody reads once a session ends quietly (#129).
+            if [ "$no_change" = "1" ]; then
+              echo
+              echo "---"
+              echo
+              echo "#### No change asserted"
+              echo
+              cat "$no_change_file"
+            fi
           } > "$comment"
 
           if [ "$result" = "failure" ]; then
@@ -886,6 +961,23 @@ jobs:
             gh issue edit "$ISSUE" \
               --add-label "$new_status" \
               --add-label "needs-human"
+          elif [ "$no_change" = "1" ]; then
+            # Not a failure and not a redispatch candidate either — a human
+            # needs to read the reasoning above and confirm-and-close, or
+            # disagree and send it back. status:blocked is the existing
+            # label for exactly that: it is excluded from assign.py's
+            # eligibility on its own, no needs-human required, and the
+            # standup escalation already turns a status:blocked item that
+            # nobody has looked at within 24h into needs-human — so this
+            # does not silently rot if it is wrong.
+            gh issue edit "$ISSUE" \
+              --remove-label "status:ready" \
+              --remove-label "status:in-progress" \
+              --remove-label "status:in-review" \
+              --remove-label "status:blocked" \
+              --remove-label "status:needs-refinement"
+            gh issue edit "$ISSUE" \
+              --add-label "status:blocked"
           elif [ "$has_pr" = "true" ]; then
             # A successful session with a PR open is trusted to have moved
             # itself to status:in-review — some sessions don't (#83). Check

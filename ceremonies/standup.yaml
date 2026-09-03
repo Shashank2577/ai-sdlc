@@ -1,0 +1,55 @@
+# Daily standup — REQ-006, REQ-011. PRD §5.3.
+#
+# Declares what .github/workflows/standup.yml actually does today, verified
+# by reading that workflow, scripts/standup-escalate.sh and scripts/gate-sla.sh
+# directly (see the PR for the exact commands run). Where the declaration
+# would otherwise have guessed, it says so instead of guessing.
+
+ceremony: standup
+
+cadence: "15 6 * * *"
+# Daily, 06:15 UTC — five minutes after dashboards.yml publishes the digest
+# these numbers are drawn from, per standup.yml's own top comment. Also
+# workflow_dispatch, with `window` (hours) and `dry_run` inputs.
+
+role: devops
+# No pack is actually dispatched to run this ceremony — standup.yml never
+# calls `gh workflow run dispatch.yml`. It runs dashboards/standup.py and
+# scripts/standup-escalate.sh / scripts/gate-sla.sh directly on the Actions
+# runner, under GITHUB_TOKEN. `role: devops` names the pack that owns and
+# maintains that workflow and those scripts (git history: both scripts'
+# authoring commits carry `Agent-Role: devops`), not a pack an LLM session
+# runs as. This is the honest answer for a ceremony that is pure automation
+# rather than an agent's judgment call.
+
+consumes:
+  - "commit pushes, PR opens/merges, check-run results, status:blocked label
+     history, and budget-spend comments — read as events by
+     dashboards/standup.py, never self-reported by an agent"
+  - "policies/gates.yaml's dispatch_approval gate (question, sla_hours,
+     escalates_after_sla) — read by scripts/gate-sla.sh"
+
+produces:
+  - "the standup digest (dashboards/standup.py's standup.json/standup.html),
+     published as a dashboard page by the separate dashboards.yml workflow
+     from the same event sources, so the two can never disagree"
+  - "a `needs-human` label plus an escalation comment (options A/B/C) on
+     every status:blocked item that has carried the label past the window
+     threshold — scripts/standup-escalate.sh, idempotent on its own marker"
+  - "an SLA escalation comment on every item past policies/gates.yaml's
+     dispatch_approval sla_hours — scripts/gate-sla.sh, idempotent on its
+     own marker comment"
+
+artifact_is: dashboard page
+# The digest is the ceremony's defining artifact. The label/comment outputs
+# above are real and durable too, but the schema takes one kind per
+# ceremony; see the two bullets under `produces` for the rest.
+
+escalates_when:
+  - "a status:blocked item has carried that label past the window threshold
+     (default 24h; workflow_dispatch input `window` can override it)"
+  - "an item sits past policies/gates.yaml's dispatch_approval sla_hours
+     (24h) without being resolved — scripts/gate-sla.sh flags it regardless
+     of which ceremony or gate put it in that state"
+
+owner: devops
