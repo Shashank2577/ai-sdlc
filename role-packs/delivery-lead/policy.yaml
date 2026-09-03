@@ -36,7 +36,16 @@ forbidden:
 write_scope:
   allow:
     - "policies/**"
-    - "role-packs/**"
+    # Own pack only. This was `role-packs/**`, which made two of the
+    # `forbidden` entries above — granting_itself_more_scope and
+    # change_widens_another_roles_permissions — prose rather than scope:
+    # the pack could rewrite every other role's budget, tool denials and
+    # write_scope, including its own. Narrowed to match how devops is
+    # scoped (`role-packs/devops/**`). Governance changes to *another*
+    # pack are still this role's to propose — as a pull request a person
+    # merges, which is where a permission widening should be visible
+    # anyway.
+    - "role-packs/delivery-lead/**"
   deny:
     - "src/**"
     - "tests/**"
@@ -47,6 +56,8 @@ write_scope:
     - "compiler/**"
     - "prds/**"
     - "requirements/**"
+    # Belt to the narrowed allow above, in the idiom the other packs use.
+    - "role-packs/!(delivery-lead)/**"
 
 hitl_triggers:
   # Conditions that end the session in an escalation rather than a PR.

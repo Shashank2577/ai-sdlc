@@ -18,6 +18,11 @@ on:
       - "scripts/test_gate_check.py"
       - "policies/gates.yaml"
       - ".github/workflows/approval-gate.yml"
+      # These tests assert about every pack's write_scope and tools — who
+      # may write `policies/**`, and who may merge. Without this line the
+      # job ran on every change *except* the kind it guards against, and a
+      # pack granting itself the gates merged green. See #100.
+      - "role-packs/**"
 
 permissions:
   contents: read
