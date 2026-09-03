@@ -7,3 +7,12 @@
 #
 # Format: one entry per line, "<path from repo root><TAB><reason>".
 # Blank lines and lines starting with # are ignored.
+
+# #123 (P3-4): adapters/tracker/ is a new, standalone seam with nothing
+# wired to it yet — see the PR. It needs a new workflow file to run its
+# tests in CI, but this session's push credential lacks the `workflow`
+# OAuth scope (GitHub rejects any push that touches .github/workflows/**
+# without it), so the workflow could not be added here. A draft is in the
+# PR body; a maintainer should add it and remove these two lines.
+adapters/tracker/tests/test_github.py	blocked on `workflow` scope — see PR #123
+adapters/tracker/tests/test_jira.py	blocked on `workflow` scope — see PR #123
