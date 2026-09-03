@@ -283,9 +283,13 @@ def compile_codex(pack: dict) -> dict[str, str]:
     out = {
         "AGENTS.md": render_role_doc(pack),
         "sandbox-policy.toml": sandbox_policy,
-        # Harness-agnostic; identical to the claude-code target.
+        # Harness-agnostic; identical to the claude-code target. produces
+        # in particular is what the dispatcher's shipped-nothing gate reads
+        # (#99, #113) — a target that omits it silently disables the gate
+        # for every role, so it is not optional here.
         "token-secret": pack["token_secret"] + "\n",
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
+        "produces": "\n".join(pack["produces"]) + "\n",
     }
     if unmappable:
         out["UNMAPPABLE.md"] = (

@@ -1,0 +1,59 @@
+# Sprint planning — REQ-006. PRD §5.2. Intended contract; no workflow
+# implements this yet. The devops story that builds one implements against
+# this file rather than re-deciding the shape.
+
+ceremony: planning
+
+cadence: "0 8 * * 1"
+# Placeholder only. PRD §5.2 fires this at the sprint boundary, but there is
+# no populated sprint/iteration field to compute a boundary from yet —
+# dashboards/burndown.py and dashboards/qa.py both note the same gap in
+# their own docstrings. Monday 08:00 UTC is chosen only so it does not
+# collide with an existing cadence (retro: Monday 07:00, standup: daily
+# 06:15, refinement: hourly :35) — replace it with the real sprint-boundary
+# event once iterations exist; that is a tracker-schema change, not this
+# story's.
+
+role: orchestrator
+# PRD's ownership table names the Delivery Orchestrator for "sprint plans"
+# and the architecture diagram calls it the "ceremony engine + scheduler".
+# Capacity-from-velocity plus a cut-line is a judgment call an orchestrator
+# session would make, not a script — unlike standup and retro, this
+# ceremony is intended to actually dispatch role:orchestrator via
+# dispatch.yml, the same mechanism refinement already uses for
+# role:product-manager.
+
+consumes:
+  - "trailing actual velocity, per role (dashboards/burndown.py's velocity
+     computation; today that is a count of closed type:story issues per
+     week — git-notes actuals per PRD §5.2 do not exist yet)"
+  - "the status:ready queue and requirements/coverage.yaml's unsatisfied
+     criteria, as candidate scope for the sprint"
+  - "open status:blocked / needs-human items, as capacity already at risk
+     before the sprint starts"
+
+produces:
+  - "a Sprint Plan issue: scope table, dependency notes, projected
+     burndown, risk notes, and an explicit cut-line ('if we're wrong, these
+     stories drop first') — PRD §5.2. The Mermaid dependency graph PRD §5.2
+     also names is deferred to whoever implements this: nothing in the repo
+     renders one today, and a plan that promises a diagram it cannot
+     produce is the same flattery requirements/coverage.yaml already warns
+     against."
+
+artifact_is: new issues
+
+escalates_when:
+  - "no human applies the sprint-plan approval label or comment within an
+     SLA — this needs its own gate entry in policies/gates.yaml (a
+     dispatch_approval-shaped gate does not cover it: this is approval of
+     the *plan's contents*, not of dispatching the session that wrote it).
+     That entry does not exist yet; it is this ceremony's prerequisite, not
+     something this file can assume into being."
+  - "trailing velocity data is insufficient to project a burndown (fewer
+     than one full window of closed stories) — plan with a stated
+     assumption instead of a fabricated number, or escalate and wait"
+
+owner: human
+# PRD §5.2's human gate: "No approval, no sprint start." The orchestrator
+# proposes; a person's approval is what makes the plan take effect.
