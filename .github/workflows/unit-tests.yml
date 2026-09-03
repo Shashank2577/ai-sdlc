@@ -51,14 +51,24 @@ jobs:
           done
           echo "ran ${found:+at least one} script test file"
 
-      # adapters/**/test_*.py — nested a package deep, so discover rather
-      # than glob one level.
+      # adapters/tracker/tests/test_*.py and any future adapter suite.
+      #
+      # Run with `python3 -m` on a dotted module path, not as a file path:
+      # these import `adapters.tracker.base`, so executing the file
+      # directly fails with ModuleNotFoundError. `-m` puts the repo root on
+      # sys.path, which is what makes the package import resolve.
+      #
+      # `find` rather than a single glob because adapter tests sit two
+      # packages deep and there will be more than one adapter — the
+      # tracker one today, a memory one when #120 lands. The literal
+      # directory glob above is what `scripts/check-test-wiring.sh` matches
+      # on, so it counts these as wired.
       - name: Adapter tests
         run: |
           set -euo pipefail
-          shopt -s nullglob
-          for f in $(find adapters -name 'test_*.py' -type f 2>/dev/null | sort); do
+          while IFS= read -r f; do
+            mod="${f%.py}"; mod="${mod//\//.}"
             echo "::group::$f"
-            python3 "$f"
+            python3 -m "$mod"
             echo "::endgroup::"
-          done
+          done < <(find adapters -name 'test_*.py' -type f | sort)
