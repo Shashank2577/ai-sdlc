@@ -124,7 +124,9 @@ class TestAgainstThisRepo(unittest.TestCase):
         # change cannot quietly mark them done without building them.
         self.assertEqual(cov["REQ-008"]["pct"], 0, "no client layer exists")
         self.assertEqual(cov["REQ-010"]["pct"], 0, "no deployment exists")
-        self.assertEqual(cov["REQ-013"]["pct"], 0, "no memory layer exists")
+        # #119 built the store (scripts/memory.py); the MCP-served adapter
+        # half of REQ-013 (PRD §12) still does not exist.
+        self.assertEqual(cov["REQ-013"]["pct"], 50, "only the git-notes store exists, not the MCP adapter")
         self.assertLess(cov["REQ-006"]["pct"], 50, "only one ceremony exists")
 
     def test_self_hosting_cannot_read_complete_without_a_delivered_pr(self):

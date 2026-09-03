@@ -1,0 +1,39 @@
+# Engineering memory — the git notes store.
+#
+# Notes under refs/notes/foundry are what a session knows that the code
+# does not: what was tried, what was rejected, and the gotcha worth
+# knowing next time. The store lands here; the dispatcher writes and reads
+# it in #120.
+#
+# The tests exercise a real bare-repo push/fetch round trip of a custom
+# notes ref rather than mocking git, because a custom ref is exactly the
+# part that behaves differently from refs/notes/commits and the part most
+# likely to be wrong.
+name: Memory
+
+on:
+  pull_request:
+    paths:
+      - "scripts/memory.py"
+      - "scripts/test_memory.py"
+      - ".github/workflows/memory.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: memory-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # The round-trip test commits, so it needs an identity. Deliberately
+      # not the bot identity — this is a throwaway repo inside a temp dir.
+      - name: Configure git for the round-trip test
+        run: |
+          git config --global user.name "memory-test"
+          git config --global user.email "memory-test@example.invalid"
+      - run: python3 scripts/test_memory.py
