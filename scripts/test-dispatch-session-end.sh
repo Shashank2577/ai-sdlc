@@ -99,17 +99,22 @@ names = [n for n in sys.argv[1].split(',') if n]
 print(json.dumps({'labels': [{'name': n} for n in names]}))" "$1"
 }
 
-# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels] [requires_pr]
+# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels] [requires_pr] [no_change_content]
 # Executes the extracted step and leaves gh's calls in $WORK/calls.log and
 # the posted comment body in $WORK/comment.md. current_labels defaults to
 # status:in-progress — the label session-start leaves on a session it did
 # not itself dispatch from status:in-review. requires_pr defaults to
 # "true" — the pack.yaml:produces default (#99) — so existing callers
 # below exercise the same behaviour as a role that declares pull_request.
+# no_change_content, when passed (including as an empty string), is
+# written verbatim to $RUNNER_TEMP/no-change.md before the step runs, the
+# same file a session writes to assert "no change needed" (#129). Omitted
+# entirely means no such file — the pre-#129 behaviour.
 run_session_end() {
   local issue=$1 outcome=$2 cost=$3 budget_cost=$4 pr_ref=$5
   local current_labels=${6:-status:in-progress}
   local requires_pr=${7:-true}
+  local no_change_content=${8-__NONE__}
 
   CALLS_LOG="$WORK/calls.log"; : > "$CALLS_LOG"
   COMMENT_OUT="$WORK/comment.md"; : > "$COMMENT_OUT"
@@ -127,6 +132,14 @@ run_session_end() {
 
   : > "$WORK/ls-remote.txt"
   export LS_REMOTE_OUT="$WORK/ls-remote.txt"
+
+  # RUNNER_TEMP is $WORK below, so this is exactly the path the real step
+  # reads. Always reset it so no-change.md never leaks between test cases.
+  if [ "$no_change_content" = "__NONE__" ]; then
+    rm -f "$WORK/no-change.md"
+  else
+    printf '%s' "$no_change_content" > "$WORK/no-change.md"
+  fi
 
   # A synthetic Claude Code execution log: one `result` record, enough for
   # spend-report.py to compute a real (not "unknown") verdict.
@@ -230,6 +243,70 @@ assert "not reclassified as no-output" "!grep" 'outcome=no-output' "$WORK/commen
 assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
 assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
 assert "no label mutation — the session owns its own labels" "!grep" 'gh issue edit' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: asserted no-change, evidence-bearing reason (#129, would have caught #100)"
+# ---------------------------------------------------------------------------
+run_session_end 509 success 0.55 5.0 - status:in-progress true "### Findings
+Verified the reported defect was already fixed on \`main\`, then swept
+every path-filtered workflow in .github/workflows/ for the same class of
+bug and found no further instances.
+
+### Evidence
+\`grep -rn \"paths:\" .github/workflows/*.yml\` — table of what each
+workflow's job reads versus what its \`paths:\` filter declares, all
+21 rows consistent."
+assert "reclassified as no-change, not no-output" grep 'outcome=no-change' "$WORK/comment.md"
+assert "not treated as no-output" "!grep" 'outcome=no-output' "$WORK/comment.md"
+assert "stays a success" grep 'result=success' "$WORK/comment.md"
+assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
+assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
+assert "durable artefact: the session's reasoning lands in the comment" grep \
+  'Verified the reported defect was already fixed on `main`' "$WORK/comment.md"
+assert "durable artefact: the evidence lands in the comment too" grep \
+  '21 rows consistent' "$WORK/comment.md"
+assert "moves to status:blocked for a human to confirm and close" grep \
+  '--add-label status:blocked' "$WORK/calls.log"
+assert "does not fall back to status:ready — no automatic redispatch" "!grep" \
+  '--add-label status:ready' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: no-change.md present but empty — must not count as an assertion (#129)"
+# ---------------------------------------------------------------------------
+run_session_end 510 success 0.10 5.0 - status:in-progress true ""
+assert "still reclassified as no-output" grep 'outcome=no-output' "$WORK/comment.md"
+assert "still treated as a failure" grep 'result=failure' "$WORK/comment.md"
+assert "still escalates" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+assert "no no-change section — nothing to show" "!grep" 'No change asserted' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: no-change.md present but whitespace-only — must not count either (#129)"
+# ---------------------------------------------------------------------------
+run_session_end 511 success 0.10 5.0 - status:in-progress true "
+   "
+assert "still reclassified as no-output" grep 'outcome=no-output' "$WORK/comment.md"
+assert "still treated as a failure" grep 'result=failure' "$WORK/comment.md"
+assert "still escalates" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: no assertion at all, no pull request — the guard is not weakened (#129)"
+# ---------------------------------------------------------------------------
+run_session_end 512 success 0.10 5.0 -
+assert "reclassified as no-output" grep 'outcome=no-output' "$WORK/comment.md"
+assert "treated as a failure" grep 'result=failure' "$WORK/comment.md"
+assert "escalates with needs-human" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: budget breach wins over an asserted no-change (#129)"
+# ---------------------------------------------------------------------------
+run_session_end 513 success 9.99 5.0 - status:in-progress true "### Findings
+Nothing needed to change.
+
+### Evidence
+Ran the full test suite; everything passes as-is."
+assert "still a failure — spend is a real problem regardless of the conclusion" grep \
+  'result=failure' "$WORK/comment.md"
+assert "still escalates" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
 
 echo
 echo "$PASS passed, $FAIL failed"
