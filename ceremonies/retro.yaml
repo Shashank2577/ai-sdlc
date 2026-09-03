@@ -1,0 +1,48 @@
+# Retrospective — REQ-006, REQ-013. PRD §5.5.
+#
+# This ceremony already runs (.github/workflows/retro.yml, scripts/retro.py)
+# even though the work item that requested this file believed it did not.
+# Declared against the actual code, same standard applied to standup and
+# refinement, because a declaration that disagrees with the running
+# workflow is worse than none — that risk isn't limited to the two
+# ceremonies the story named by name.
+
+ceremony: retro
+
+cadence: "0 7 * * 1"
+# Monday 07:00 UTC — after the weekend, ahead of the week's first standup,
+# covering the trailing 7 days by default. Also workflow_dispatch with
+# `window_days` and `dry_run` inputs.
+
+role: devops
+# As with standup: no pack is dispatched to run this ceremony.
+# scripts/retro.py runs directly on the Actions runner; nothing here calls
+# `gh workflow run dispatch.yml`. `role: devops` names the pack that
+# authored and maintains .github/workflows/retro.yml and scripts/retro.py
+# (both commits carry `Agent-Role: devops`), not a dispatched session.
+
+consumes:
+  - "closed issues in the trailing window, their dispatcher session-end
+     comments (`foundry:dispatch result=... outcome=... breach=...`),
+     escalation comments, and check-run failures in the window
+     (scripts/retro.py) — the same 'events, not self-reports' rule
+     dashboards/standup.py follows"
+  - "prior retro issues (labelled `process`), excluded from the window's
+     own item list so a retro never retro's itself"
+
+produces:
+  - "one 'Retro: <window start> to <window end>' issue per window, labelled
+     `process`, citing each closed item's sessions (role, result, outcome,
+     cost), escalations, and the window's check failures"
+
+artifact_is: new issues
+
+escalates_when:
+  - "nothing today. scripts/retro.py only observes and opens the retro
+     issue; PRD §5.5's 'accepted changes become PRs to role packs or
+     policies, reviewed by a human' is not automated, so no condition here
+     currently produces a needs-human escalation. Stated as a gap, not
+     papered over: whoever reads a retro issue's proposed changes and
+     decides to act on them is doing that step by hand."
+
+owner: devops
