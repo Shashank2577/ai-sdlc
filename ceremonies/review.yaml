@@ -1,0 +1,60 @@
+# Sprint review / client demo — REQ-006. PRD §5.4. Intended contract; no
+# workflow implements this yet. The devops story that builds one implements
+# against this file rather than re-deciding the shape.
+#
+# PRD §5.4 also names a DevOps deploy to a staging/demo environment, a
+# Delivery Manager publishing to a client portal, and client sign-off
+# recorded there. None of that exists: REQ-010 (environment ladder) and
+# REQ-008 (client layer) are both unbuilt, and "Delivery Manager" is a role
+# PRD §3 names that has no pack in role-packs/ (see the
+# delivery-lead charter's "Do not conflate this with the Delivery Manager"
+# section — it is explicitly a different, not-yet-existing role). This
+# declaration scopes the ceremony to what is buildable against packs and
+# infrastructure that exist today, and says so rather than promising a
+# portal publish step nobody could implement yet.
+
+ceremony: review
+
+cadence: "0 9 * * 5"
+# Placeholder only, same gap as planning: no sprint boundary is computable
+# yet. Friday 09:00 UTC, chosen only to avoid colliding with the other four
+# ceremonies' cadences.
+
+role: techwriter
+# PRD §5.4 splits this across DevOps (deploy), Tech Writer (demo package)
+# and Delivery Manager (portal publish). With no staging environment and no
+# Delivery Manager pack, the one step buildable today against an existing
+# pack is the Tech Writer's: compiling what shipped into a reviewable
+# record. techwriter's write_scope (docs/**) and its role in producing the
+# annotated walkthrough PRD §5.4 describes make it the fit; the deploy and
+# publish steps are out of scope until REQ-010 and REQ-008 exist.
+
+consumes:
+  - "stories closed in the window and their qa:approved / qa:rejected
+     verdicts (dashboards/qa.py's per-requirement pass/fail matrix, #110)"
+  - "each closed story's acceptance criteria (the Gherkin scenarios written
+     at refinement, PRD §5.1) — the walkthrough is mapped to these, not
+     written freehand"
+
+produces:
+  - "a Sprint Review issue: one section per completed story mapping its
+     acceptance criteria to its QA verdict, plus a 'what changed / what's
+     next' summary. No live demo link and no portal publish — those need
+     REQ-010 and REQ-008 first and are explicitly out of this ceremony's
+     scope until then, not silently dropped."
+
+artifact_is: new issues
+
+escalates_when:
+  - "a story closed in the window has no qa:approved verdict at all — this
+     should be impossible under REQ-009's veto (a story cannot close
+     qa:rejected, and closure without a verdict is blocked), so seeing one
+     here means that veto did not hold and is worth a person's attention
+     independent of this ceremony"
+  - "a sprint boundary arrives with no stories closed in the window at all
+     — nothing to review is itself a signal, not a quiet no-op"
+
+owner: human
+# PRD §5.4: acceptance is client approval per story, recorded as a
+# queryable artifact. Until the portal exists, a person stands in for the
+# client sign-off this ceremony would otherwise route there.
