@@ -418,6 +418,9 @@ def main() -> int:
     if (args.out / "status.html").is_file():
         pages.append(("status.html", "Programme status",
                       "Traced vs actually satisfied, per requirement and phase"))
+    if (args.out / "qa.html").is_file():
+        pages.append(("qa.html", "QA verdicts",
+                      "Pass/fail matrix by requirement, from qa:approved/qa:rejected"))
     (args.out / "index.html").write_text(render_index(pages, meta))
 
     counts = {s: sum(1 for r in rows if r.status == s) for s in (GREEN, AMBER, RED)}
