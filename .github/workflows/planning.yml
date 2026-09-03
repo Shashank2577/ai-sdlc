@@ -1,0 +1,108 @@
+# The sprint planning ceremony (P2-3, part of #115). PRD §5.2 names this
+# as one of five ceremonies; `ceremonies/planning.yaml` is its declaration.
+#
+# That declaration's own comment says the ceremony should dispatch
+# `role:orchestrator` through dispatch.yml. It cannot: `dispatch.yml`'s
+# role choices deliberately exclude `orchestrator` —
+# `scripts/test_assign.py` asserts "the orchestrator is the dispatcher,
+# not a dispatchee". Dispatching it as a session would mean reopening that
+# tested invariant, which is a bigger change than a planning ceremony.
+# Instead `scripts/plan.py` runs the orchestrator's own reasoning (capacity
+# from trailing velocity, a cut line at that capacity) directly on the
+# runner — the same relationship `orchestrate.yml` already has with
+# `scripts/assign.py`. `role: orchestrator` in the declaration names the
+# pack whose logic this implements, not a pack an LLM session runs as
+# (`ceremonies/standup.yaml` reads `role: devops` the same way).
+#
+# `scripts/plan.py` reads `ceremonies/planning.yaml`'s `role` field itself
+# at run time — this workflow does not hardcode it. The cron below is a
+# GitHub Actions constraint: `on.schedule` must be a literal, so it cannot
+# be read from the declaration file either, but its value is copied
+# verbatim from `ceremonies/planning.yaml:cadence` and drifting the two
+# apart is a reviewable diff, not a silent hardcode.
+#
+# This ceremony proposes only — `ceremonies/planning.yaml:owner` is
+# `human`, and no approval gate for a sprint plan exists yet in
+# `policies/gates.yaml` (the declaration names that as its own
+# prerequisite, not something this workflow can assume into being). It
+# creates one issue and stops.
+name: Planning
+
+on:
+  pull_request:
+    paths:
+      - "scripts/plan.py"
+      - "scripts/test_plan.py"
+      - "dashboards/burndown.py"
+      - "dashboards/build.py"
+      - "ceremonies/planning.yaml"
+      - ".github/workflows/planning.yml"
+  schedule:
+    # Monday 08:00 UTC — ceremonies/planning.yaml:cadence, verbatim.
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      window_days:
+        description: "Trailing days of velocity history to project capacity from"
+        required: false
+        default: 28
+        type: number
+      dry_run:
+        description: "Compute the plan and print it; create no issue"
+        required: false
+        default: false
+        type: boolean
+
+# Reads the board and trailing velocity, and creates at most one issue. No
+# source, no policy, nothing merged or approved.
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: planning
+  cancel-in-progress: false
+
+jobs:
+  # Runs everywhere, including pull requests, so a change to the capacity
+  # or scope-selection logic is checked before it next fires for real.
+  tests:
+    name: planning-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Planning generator tests
+        run: python3 scripts/test_plan.py
+
+  plan:
+    name: planning-ceremony
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install --quiet pyyaml
+
+      - name: Run the planning ceremony
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WINDOW_DAYS: ${{ inputs.window_days || 28 }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          args=(--repo "${GITHUB_REPOSITORY}" --window-days "${WINDOW_DAYS}" --run-url "${RUN_URL}")
+          if [ "${DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 scripts/plan.py "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
