@@ -1,0 +1,29 @@
+# Requirement intake — turning what a client said into candidate REQs.
+#
+# The front door of the programme. `scripts/transcript-to-prd.py` extracts
+# and structures; it deliberately makes no model call, so it is testable
+# and its output is reviewable. The judgement — accepting a candidate into
+# prds/ or requirements/ — stays with a dispatched product-manager session,
+# which is why the script refuses to write into either directory.
+name: Requirements intake
+
+on:
+  pull_request:
+    paths:
+      - "scripts/transcript-to-prd.py"
+      - "scripts/test_transcript_to_prd.py"
+      - ".github/workflows/requirements-intake.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: requirements-intake-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 scripts/test_transcript_to_prd.py
