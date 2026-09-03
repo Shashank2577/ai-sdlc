@@ -107,6 +107,42 @@ YAML
 check "a file referenced by basename alone still counts as wired" 0 $? "$WORK/out" "wired"
 
 # ---------------------------------------------------------------------------
+root=$(fixture directory-glob-discovery)
+mkdir -p "$root/dashboards"
+echo "def f(): pass" > "$root/dashboards/test_burndown.py"
+cat > "$root/.github/workflows/dashboards.yml" <<'YAML'
+on: pull_request
+jobs:
+  build:
+    steps:
+      - run: |
+          for f in dashboards/test_*.py; do
+            python3 "$f"
+          done
+YAML
+"$CHECK" "$root" > "$WORK/out" 2>&1
+check "a file covered by a directory-glob discovery loop counts as wired" 0 $? "$WORK/out" "wired"
+
+# ---------------------------------------------------------------------------
+root=$(fixture directory-glob-does-not-leak)
+mkdir -p "$root/dashboards" "$root/scripts"
+echo "def f(): pass" > "$root/dashboards/test_burndown.py"
+echo "def f(): pass" > "$root/scripts/test_orphan.py"
+cat > "$root/.github/workflows/dashboards.yml" <<'YAML'
+on: pull_request
+jobs:
+  build:
+    steps:
+      - run: |
+          for f in dashboards/test_*.py; do
+            python3 "$f"
+          done
+YAML
+"$CHECK" "$root" > "$WORK/out" 2>&1
+check "a glob wiring one directory does not wire a test file in another" 1 $? \
+  "$WORK/out" "scripts/test_orphan.py"
+
+# ---------------------------------------------------------------------------
 echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
