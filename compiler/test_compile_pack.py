@@ -335,6 +335,42 @@ class TestCodexOutput(unittest.TestCase):
         self.assertIn("Distinctive skill body.", agents_md)   # skills
 
 
+class TestEveryHarnessEmitsDispatcherArtifacts(unittest.TestCase):
+    """#113: the dispatcher's shipped-nothing gate greps a compiled pack's
+    `produces` file, and a missing file used to fail open (requires_pr
+    silently became false). token-secret, dispatchable-from and produces
+    are declared harness-agnostic — both compile_* docstrings say so for
+    the first two — so every entry in HARNESSES must emit all three.
+    Parameterised over HARNESSES so a new target cannot be added without
+    satisfying it, the way compile_codex originally was (#109 omitted
+    produces)."""
+
+    DISPATCHER_ARTIFACTS = ("token-secret", "dispatchable-from", "produces")
+
+    def test_every_harness_emits_the_artifacts_the_dispatcher_reads(self):
+        with PackFixture(MINIMAL_PACK):
+            pack = cp.read_pack("widget")
+            for harness, compile_fn in cp.HARNESSES.items():
+                with self.subTest(harness=harness):
+                    out = compile_fn(pack)
+                    for artifact in self.DISPATCHER_ARTIFACTS:
+                        self.assertIn(
+                            artifact, out,
+                            f"{harness} does not emit `{artifact}`, which the "
+                            "dispatcher's compile step reads directly"
+                        )
+
+    def test_every_harness_produces_file_reflects_pack_produces(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] += "produces:\n  - comments\n  - status\n"
+        with PackFixture(files):
+            pack = cp.read_pack("widget")
+            for harness, compile_fn in cp.HARNESSES.items():
+                with self.subTest(harness=harness):
+                    out = compile_fn(pack)
+                    self.assertNotIn("pull_request", out["produces"].splitlines())
+
+
 class TestRealPacksInThisRepo(unittest.TestCase):
     """The packs actually committed here must compile. This is the check
     that fails a PR when someone edits a pack into an invalid state."""
