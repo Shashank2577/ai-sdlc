@@ -101,8 +101,21 @@ join.
 
 ## Adding a view
 
-Write `render_<name>(data, meta) -> str`, write it into `--out`, and add it to
-the `render_index` list. Share `CSS` so the pages stay one system. Keep every
-page self-contained: no CDN, no external fonts, no network at view time. A
-dashboard that needs the internet to render is a dashboard that breaks in
-front of a client.
+Write `render_<name>(data, meta) -> str`, write it into `--out`, and — right
+after writing `<name>.html` — call `B.write_page(args.out, "<name>.html",
+title, description)`. That's the whole index registration: `build.py` never
+needs an edit, because it discovers pages by globbing the `*.page.json`
+sidecars `write_page()` writes next to each `<name>.html`, rather than
+enumerating them itself. This is deliberate: every dashboard generator lands
+in the same window as every other, so a shared enumeration in `build.py` is a
+guaranteed merge conflict (dashboards#127) — `write_page()` moves the entry
+into the file that already owns the page.
+
+Order in the published index is sorted by href, not by build order, so it
+does not depend on which generator ran first. A page written to disk without
+a matching `write_page()` call is reported by name when the index rebuilds,
+never silently missing from it.
+
+Share `CSS` so the pages stay one system. Keep every page self-contained: no
+CDN, no external fonts, no network at view time. A dashboard that needs the
+internet to render is a dashboard that breaks in front of a client.

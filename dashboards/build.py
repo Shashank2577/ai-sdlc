@@ -351,6 +351,49 @@ is written by hand; if a page is wrong, the generator is wrong.</p>
 """
 
 
+PAGE_SUFFIX = ".page.json"
+
+
+def write_page(out: Path, href: str, title: str, description: str) -> None:
+    """Declare an index entry for a generated page, next to its HTML.
+
+    Every generator (this one included) calls this right after writing its
+    own `<name>.html`. `build.py` discovers pages by globbing these sidecars
+    rather than enumerating them, so a new generator never requires an edit
+    to this file — and a page cannot land on disk while staying invisible
+    to the index, the failure mode this replaces.
+    """
+    stem = Path(href).stem
+    (out / f"{stem}{PAGE_SUFFIX}").write_text(
+        json.dumps({"href": href, "title": title, "description": description}, indent=2)
+    )
+
+
+def discover_pages(out: Path) -> tuple[list[tuple[str, str, str]], list[str]]:
+    """Glob declared page entries out of `out`, and report the rest.
+
+    Returns `(pages, orphans)`. `pages` is `(href, title, description)`
+    sorted by href, so the index order is deterministic regardless of the
+    order the filesystem hands back matches. `orphans` is the sorted list
+    of `*.html` files on disk with no matching sidecar — a generator that
+    forgot to call `write_page()` shows up here instead of silently
+    missing from the index.
+    """
+    pages: list[tuple[str, str, str]] = []
+    declared_hrefs: set[str] = set()
+    for sidecar in out.glob(f"*{PAGE_SUFFIX}"):
+        data = json.loads(sidecar.read_text())
+        pages.append((data["href"], data["title"], data["description"]))
+        declared_hrefs.add(data["href"])
+    pages.sort(key=lambda p: p[0])
+
+    orphans = sorted(
+        p.name for p in out.glob("*.html")
+        if p.name != "index.html" and p.name not in declared_hrefs
+    )
+    return pages, orphans
+
+
 def render_index(pages: list[tuple[str, str, str]], meta: dict) -> str:
     cards = "\n".join(
         f'<div class="tile"><div class="n" style="font-size:1.05rem">'
@@ -408,25 +451,17 @@ def main() -> int:
     (args.out / "traceability.json").write_text(
         json.dumps({"meta": meta, "rows": [asdict(r) for r in rows]}, indent=2)
     )
-    # The index lists whichever pages are actually present, so running this
-    # generator alone never publishes a link to a page that isn't there.
-    pages = [("traceability.html", "Traceability matrix",
-              "REQ → commits → merged PRs, computed from trailers")]
-    if (args.out / "standup.html").is_file():
-        pages.append(("standup.html", "Standup digest",
-                      "Per-role activity for the last 24h, derived from events"))
-    if (args.out / "status.html").is_file():
-        pages.append(("status.html", "Programme status",
-                      "Traced vs actually satisfied, per requirement and phase"))
-    if (args.out / "burndown.html").is_file():
-        pages.append(("burndown.html", "Burndown & velocity",
-                      "Open story count and weekly closures, from issue timestamps"))
-    if (args.out / "qa.html").is_file():
-        pages.append(("qa.html", "QA verdicts",
-                      "Pass/fail matrix by requirement, from qa:approved/qa:rejected"))
-    if (args.out / "decisions.html").is_file():
-        pages.append(("decisions.html", "Decisions",
-                      "What's waiting on a human, and what was decided"))
+    write_page(args.out, "traceability.html", "Traceability matrix",
+               "REQ → commits → merged PRs, computed from trailers")
+
+    # The index lists whichever pages have declared themselves, so running
+    # this generator alone never publishes a link to a page that isn't
+    # there. A page on disk that never declared itself is reported, not
+    # silently dropped from the index.
+    pages, orphans = discover_pages(args.out)
+    for orphan in orphans:
+        print(f"build: {orphan} is on disk but has no {PAGE_SUFFIX} entry — "
+              f"its generator never called write_page(); omitted from the index")
     (args.out / "index.html").write_text(render_index(pages, meta))
 
     counts = {s: sum(1 for r in rows if r.status == s) for s in (GREEN, AMBER, RED)}

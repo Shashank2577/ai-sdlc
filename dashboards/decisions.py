@@ -431,6 +431,8 @@ def main() -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "decisions.html").write_text(render(report, meta))
     (args.out / "decisions.json").write_text(json.dumps({"meta": meta, **report}, indent=2))
+    B.write_page(args.out, "decisions.html", "Decisions",
+                 "What's waiting on a human, and what was decided")
 
     past_sla = sum(1 for r in report["waiting"] if r["past_sla"])
     print(f"decisions: {len(report['waiting'])} waiting on a human "
