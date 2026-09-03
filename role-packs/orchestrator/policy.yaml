@@ -5,17 +5,24 @@ role: orchestrator
 wip:
   # The number that stops this system producing more branches than anyone
   # can review. Reviewers are the bottleneck, not agents.
-  limit: 3
+  #
+  # Raised 3 -> 6 on human instruction (2026-09-03: "build the whole thing
+  # quickly"). The reasoning above still holds and this is the trade being
+  # made knowingly: six concurrent sessions produce PRs faster than one
+  # reviewer clears them, so the queue moves to review instead of to
+  # dispatch. Lower it back to 3 when the backlog is no longer the
+  # constraint.
+  limit: 6
   # What counts as in flight. Deliberately the label the dispatcher sets
   # when a session actually starts, not the orchestrator's intent.
   counts: [status:in-progress]
   per_role:
     # Optional caps under the global limit. Absent means "no extra cap".
-    developer: 3
+    developer: 4
     qa: 2
     product-manager: 1
-    architect: 1
-    techwriter: 1
+    architect: 2
+    techwriter: 2
     # One at a time. A pipeline change reviewed in parallel with another
     # pipeline change is how two gates weaken at once.
     devops: 1

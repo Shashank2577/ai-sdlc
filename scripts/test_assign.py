@@ -294,9 +294,27 @@ class TestPolicyLoading(unittest.TestCase):
                          "a broken policy read must not become an unbounded loop")
 
     def test_the_committed_policy_drives_the_planner(self):
+        # All eight items are developer stories, so the binding constraint
+        # is developer's per-role cap, not the global limit — they were the
+        # same number until the global limit was raised to 6 and this test
+        # started asserting the global one while the planner correctly
+        # applied the tighter of the two.
         policy, _ = A.load_policy()
+        wip = policy["wip"]
+        effective = min(wip["limit"], wip.get("per_role", {}).get("developer", wip["limit"]))
         p = A.plan([ready(n) for n in range(1, 9)], policy)
-        self.assertEqual(len(p["dispatch"]), policy["wip"]["limit"])
+        self.assertEqual(len(p["dispatch"]), effective)
+
+    def test_a_per_role_cap_below_the_global_limit_is_what_binds(self):
+        # The regression the test above was one edit away from hiding: a
+        # per-role cap that is never enforced would let six pipeline
+        # changes run at once, which is precisely what devops: 1 exists to
+        # prevent.
+        policy, _ = A.load_policy()
+        policy["wip"]["limit"] = 6
+        policy["wip"]["per_role"]["developer"] = 2
+        p = A.plan([ready(n) for n in range(1, 9)], policy)
+        self.assertEqual(len(p["dispatch"]), 2)
 
 
 if __name__ == "__main__":
