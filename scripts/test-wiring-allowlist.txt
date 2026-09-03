@@ -7,3 +7,5 @@
 #
 # Format: one entry per line, "<path from repo root><TAB><reason>".
 # Blank lines and lines starting with # are ignored.
+
+scripts/test_check_adr.py	.github/workflows/** is denied to the developer write scope (role-packs/developer/policy.yaml, editing_ci_pipelines); the workflow patch to wire scripts/check-adr.py + this test file into CI is posted on #126 for DevOps to apply.
