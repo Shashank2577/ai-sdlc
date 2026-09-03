@@ -1,0 +1,67 @@
+# Backlog refinement trigger — REQ-006, REQ-007. PRD §5.1.
+#
+# Declares what .github/workflows/refinement.yml and scripts/refine.py
+# actually do today, verified by reading both directly (see the PR for the
+# exact commands run). This is the trigger only: it decides whether the
+# floor is hit and starts a product-manager session. What that session
+# then does (decompose epics, write Gherkin acceptance criteria, flag
+# stories for an ADR — PRD §5.1 steps 1-2) is the product-manager pack's
+# own behaviour, governed by role-packs/product-manager/policy.yaml, not
+# this trigger's.
+
+ceremony: refinement
+
+cadence: "35 * * * *"
+# Hourly, offset from orchestrate.yml's :05 so the two loops don't observe
+# the board mid-write of one another. Not every hourly run acts: it is a
+# floor, not a calendar (role-packs/orchestrator/policy.yaml:refill) — it
+# fires only once the open status:ready count is at or below
+# refill.ready_floor. Also workflow_dispatch with a `dry_run` input.
+
+role: product-manager
+# The one ceremony among the three that already run where a pack is
+# genuinely dispatched: scripts/refine.py calls
+# `gh workflow run dispatch.yml -f role=product-manager` when the floor is
+# hit and there is work to start.
+
+consumes:
+  - "count of open status:ready issues, against
+     role-packs/orchestrator/policy.yaml:refill.ready_floor"
+  - "open role:product-manager issues and whether any already carries
+     status:ready (scripts/refine.py:list_role_issues) — so a PM item still
+     awaiting a person is left alone, not duplicated"
+  - "requirements/coverage.yaml's unsatisfied criteria, as the scope fence
+     stated in the refill issue body: 'refine toward those, not toward
+     whatever seems interesting'"
+
+produces:
+  - "a 'Backlog refill' issue, labelled role:product-manager +
+     status:ready, when the floor is hit and no PM item exists at all
+     (scripts/refine.py:create_refill_issue) — the one case that opens a
+     new work item on the trigger's own say-so, because role:product-manager
+     is not in policies/gates.yaml's critical_when list"
+  - "a workflow_dispatch of dispatch.yml with role=product-manager, against
+     that new issue or an existing one already carrying status:ready"
+
+artifact_is: new issues
+# The defining case. Two other outcomes exist and are not artifacts: `wait`
+# (a PM item is open but not yet status:ready — left alone on purpose, so
+# the dispatch-approval gate is never bypassed) and `quiet` (above the
+# floor — nothing to do). Neither is a gap; both are documented behaviour.
+
+escalates_when:
+  - "the `gh workflow run dispatch.yml` call itself fails — reported today
+     only in the run's own step summary; this workflow does not write that
+     failure to the tracker, so it is not yet a needs-human escalation
+     visible on the item (a real gap, not a design choice)"
+  - "an existing PM item stuck at status:needs-refinement past
+     policies/gates.yaml's dispatch_approval SLA is escalated by the
+     standup ceremony's gate-sla.sh (see ceremonies/standup.yaml), not by
+     this one — refine.py's `wait` action deliberately does not duplicate
+     that logic"
+  - "once a product-manager session is actually running, its own
+     escalations are governed by role-packs/product-manager/policy.yaml's
+     hitl_triggers — this trigger only starts that session and does not
+     evaluate what happens inside it"
+
+owner: product-manager
