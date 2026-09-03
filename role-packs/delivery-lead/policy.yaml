@@ -36,6 +36,12 @@ forbidden:
 write_scope:
   allow:
     - "policies/**"
+    # Ceremony declarations — what each ceremony consumes, produces and
+    # who owns its output. Process governance, same family as policies/,
+    # and until now owned by nobody, which is why four of the five
+    # ceremonies have no declaration at all. The *workflows* that run them
+    # stay devops'.
+    - "ceremonies/**"
     # Own pack only. This was `role-packs/**`, which made two of the
     # `forbidden` entries above — granting_itself_more_scope and
     # change_widens_another_roles_permissions — prose rather than scope:

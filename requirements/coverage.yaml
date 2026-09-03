@@ -26,14 +26,29 @@ requirements:
       - {exists: .github/workflows/project-sync.yml}
 
   REQ-002:
-    summary: Harness-neutral role packs with distinct signed bot identities
+    summary: >-
+      Harness-neutral role packs, with attribution by per-role credential
+      tier and the Agent-Role trailer
     checks:
       - {exists: compiler/compile-pack.py}
       - {count: {glob: "role-packs/*/pack.yaml", at_least: 8}}   # PRD §3 names 8 roles
-      - {grep: {glob: "role-packs/*/pack.yaml", pattern: "provisioned: true"}}
+      # Was `provisioned: true` — a target the programme has now decided
+      # against, so it scored 33% forever against work nobody intended to
+      # do. The human decision (2026-09-03) was to keep attribution by
+      # credential tier plus the Agent-Role trailer, and to reject both
+      # per-role machine accounts and commit signing until an external
+      # auditor actually needs them. Recorded as an ADR; this check now
+      # tests the thing that was decided.
+      #
+      # The tier boundary is the one that matters and the one the human
+      # specified: a code-writing role cannot reach the pipeline
+      # credential. Six roles share FOUNDRY_DEV_TOKEN, devops alone holds
+      # FOUNDRY_DEVOPS_TOKEN, orchestrator holds FOUNDRY_TOKEN.
+      - {grep: {glob: "role-packs/devops/pack.yaml", pattern: "FOUNDRY_DEVOPS_TOKEN"}}
     notes: >-
-      3 of 8 packs exist. No bot account is provisioned, so attribution is the
-      Agent-Role trailer, not a signature.
+      All 8 packs exist. Attribution is by credential tier and the Agent-Role
+      trailer, not by signature — a decision, not a gap. Distinct per-role bot
+      identities were considered and rejected for v0; see adrs/.
 
   REQ-003:
     summary: Harness adapter — Claude Code, Codex, DeepSeek behind one contract
