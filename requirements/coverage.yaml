@@ -148,7 +148,10 @@ requirements:
     checks:
       - {glob: "scripts/*memory*"}
       - {glob: "adapters/memory/**"}
-    notes: Nothing built. Sessions are fully amnesiac between dispatches.
+    notes: >-
+      Store built (#119): write/read/search on refs/notes/foundry. Nobody
+      writes to it yet — dispatcher session-end and prompt assembly is
+      #120. No MCP server (PRD §12's later phase).
 
   REQ-014:
     summary: Self-hosting — the system builds itself through itself
