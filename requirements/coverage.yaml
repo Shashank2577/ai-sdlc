@@ -76,13 +76,29 @@ requirements:
 
   REQ-006:
     summary: All five ceremonies run autonomously and end in artifacts
+    # The checks used to be four `ceremonies/*.yaml` declarations plus one
+    # workflow. #132 wrote all five declarations, so REQ-006 jumped to
+    # 5/5 — 100% — while `planning` and `review` had no workflow at all
+    # and could not run. A declaration is a contract, not a ceremony.
+    #
+    # That is the third proxy on this page to flatter the programme, after
+    # a gate policy merely existing and `environment:` in the Pages deploy
+    # both counted for REQ-010. The pattern is always the same: the check
+    # tests an artefact that accompanies the work instead of the work.
+    # The requirement says *run* autonomously, so the checks test the
+    # thing that runs.
     checks:
       - {glob: ".github/workflows/standup.yml"}
-      - {glob: "ceremonies/refinement.yaml"}
-      - {glob: "ceremonies/planning.yaml"}
-      - {glob: "ceremonies/review.yaml"}
-      - {glob: "ceremonies/retro.yaml"}
-    notes: Standup only. The other four ceremonies do not exist.
+      - {glob: ".github/workflows/refinement.yml"}
+      - {glob: ".github/workflows/retro.yml"}
+      - {glob: ".github/workflows/planning.yml"}
+      - {glob: ".github/workflows/review.yml"}
+      # The declarations still count for one, because the contract they
+      # state is real progress — but for one, not for five.
+      - {count: {glob: "ceremonies/*.yaml", at_least: 5}}
+    notes: >-
+      Standup, refinement and retro run. Planning and review are declared
+      in ceremonies/ but have no workflow yet — #115.
 
   REQ-007:
     summary: Human-in-the-loop as decision gates, never free-text supervision
