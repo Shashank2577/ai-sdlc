@@ -7,3 +7,5 @@
 #
 # Format: one entry per line, "<path from repo root><TAB><reason>".
 # Blank lines and lines starting with # are ignored.
+
+scripts/test_transcript_to_prd.py	the developer role's push token lacks the `workflow` OAuth scope (GitHub rejects any push that creates or edits a file under .github/workflows/ without it — see #118), so this PR cannot add or edit a workflow itself; wiring `python3 scripts/test_transcript_to_prd.py` into CI (new or existing workflow) needs a devops-scoped follow-up.
