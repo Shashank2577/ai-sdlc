@@ -276,7 +276,7 @@ def render_html(rows: list[Row], meta: dict) -> str:
             f'{esc(p["title"][:50])}</li>' for p in row.pulls
         ) or '<span class="muted">—</span>'
 
-        body.append(f"""      <tr>
+        body.append(f"""      <tr id="{esc(row.req)}">
         <td class="req">{esc(row.req)}</td>
         <td><span class="pill {row.status}">{esc(STATUS_LABEL[row.status])}</span></td>
         <td>{esc(row.text[:150])}<br><span class="muted mono">{esc(row.prd)}</span></td>
@@ -427,6 +427,9 @@ def main() -> int:
     if (args.out / "decisions.html").is_file():
         pages.append(("decisions.html", "Decisions",
                       "What's waiting on a human, and what was decided"))
+    if (args.out / "adr.html").is_file():
+        pages.append(("adr.html", "Architecture decisions",
+                      "adrs/*.md rendered: index, full records, supersession, REQ links"))
     (args.out / "index.html").write_text(render_index(pages, meta))
 
     counts = {s: sum(1 for r in rows if r.status == s) for s in (GREEN, AMBER, RED)}
