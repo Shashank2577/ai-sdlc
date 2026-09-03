@@ -311,6 +311,8 @@ def main() -> int:
     (args.out / "status.html").write_text(render(cov, trace, facts, meta))
     (args.out / "status.json").write_text(
         json.dumps({"meta": meta, "facts": facts, "coverage": cov}, indent=2))
+    B.write_page(args.out, "status.html", "Programme status",
+                 "Traced vs actually satisfied, per requirement and phase")
 
     overall = round(sum(c["pct"] for c in cov.values()) / len(cov)) if cov else 0
     print(f"status: {overall}% of requirements satisfied, "

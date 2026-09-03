@@ -407,6 +407,12 @@ def main() -> int:
     (args.out / "adr.html").write_text(render_html(records, meta))
     (args.out / "adr.json").write_text(
         json.dumps({"meta": meta, "records": [asdict(r) for r in records]}, indent=2))
+    # Declare this page so build.py's index picks it up. Added when the
+    # index moved from a hardcoded list in build.py to generators
+    # declaring themselves (#127) — this generator landed in between, so it
+    # was the one orphan: on disk, absent from the index.
+    B.write_page(args.out, "adr.html", "Architecture decisions",
+                 "Decisions taken, why, and what they superseded")
 
     errors = sum(1 for r in records if r.error)
     print(f"adr: {len(records)} record(s) — {errors} parse error(s)")

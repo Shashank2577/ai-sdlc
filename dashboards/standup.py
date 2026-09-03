@@ -336,6 +336,8 @@ def main() -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "standup.html").write_text(render_digest_html(digest, meta))
     (args.out / "standup.json").write_text(json.dumps(digest, indent=2))
+    B.write_page(args.out, "standup.html", "Standup digest",
+                 "Per-role activity for the last 24h, derived from events")
 
     print(f"standup: {digest['commits_total']} commit(s) across "
           f"{len(digest['roles'])} role(s), {len(digest['pulls']['merged'])} merged, "

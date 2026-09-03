@@ -227,6 +227,8 @@ def main() -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "burndown.html").write_text(render(report, meta))
     (args.out / "burndown.json").write_text(json.dumps(report, indent=2))
+    B.write_page(args.out, "burndown.html", "Burndown & velocity",
+                 "Open story count and weekly closures, from issue timestamps")
 
     open_now = report["burndown"][-1]["open"] if report["burndown"] else 0
     last_week = report["velocity"][-1]["closed"] if report["velocity"] else 0

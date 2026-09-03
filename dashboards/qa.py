@@ -231,6 +231,8 @@ def main() -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "qa.html").write_text(render_html(matrix, meta))
     (args.out / "qa.json").write_text(json.dumps({"meta": meta, "matrix": matrix}, indent=2))
+    B.write_page(args.out, "qa.html", "QA verdicts",
+                 "Pass/fail matrix by requirement, from qa:approved/qa:rejected")
 
     counts = Counter(entry["verdict"] for entries in matrix.values() for entry in entries)
     print(f"qa: {len(matrix)} requirement(s) with a verdict — "
