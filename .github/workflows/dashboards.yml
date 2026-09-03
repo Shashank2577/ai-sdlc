@@ -16,6 +16,7 @@ on:
     paths:
       - "dashboards/**"
       - "requirements/**"
+      - "adrs/**"
       - ".github/workflows/dashboards.yml"
   schedule:
     # 06:10 UTC daily — the standup digest ages even when nothing is pushed,
@@ -58,6 +59,7 @@ jobs:
           python3 dashboards/test_burndown.py
           python3 dashboards/test_qa.py
           python3 dashboards/test_decisions.py
+          python3 dashboards/test_adr.py
 
       # Standup first: build.py links whichever pages exist, so the index
       # only advertises the digest once the digest is actually on disk.
@@ -112,6 +114,14 @@ jobs:
         run: |
           set -euo pipefail
           python3 dashboards/decisions.py --out site --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the ADR page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 dashboards/adr.py --out site --repo "${GITHUB_REPOSITORY}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
       # Last, so the index links every page built above. Adding a generator
