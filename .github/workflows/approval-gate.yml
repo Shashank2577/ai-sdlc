@@ -16,6 +16,8 @@ on:
     paths:
       - "scripts/gate-check.py"
       - "scripts/test_gate_check.py"
+      - "scripts/check-story-scope.py"
+      - "scripts/test_check_story_scope.py"
       - "policies/gates.yaml"
       - ".github/workflows/approval-gate.yml"
       # These tests assert about every pack's write_scope and tools — who
@@ -39,6 +41,31 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --quiet pyyaml
       - run: python3 scripts/test_gate_check.py
+
+  story-scope:
+    name: story-scope-check
+    # Same trigger as the approval gate below: `status:ready` applied is
+    # the moment a story is refined and handed to the ready queue, so this
+    # checks it then rather than after a session has spent its budget
+    # discovering the problem (#168). Beside the approval gate, not a new
+    # ceremony — no new cron, no new ceremonies/ declaration.
+    if: github.event_name == 'issues' && github.event.label.name == 'status:ready'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Check the story's criteria against its role's write scope
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 scripts/check-story-scope.py \
+            --issue "${{ github.event.issue.number }}" --comment \
+            | tee -a "$GITHUB_STEP_SUMMARY"
 
   gate:
     name: approval-gate
