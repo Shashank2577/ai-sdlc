@@ -1,0 +1,99 @@
+# The deploy workflow — REQ-010's pipeline half. Split from #53; the
+# policy half (`policies/environments.yaml`, #121) is done: the four
+# GitHub Environments exist and `prod` has a required-reviewer rule
+# naming @Shashank2577.
+#
+# There is no application in this repository. This workflow does not
+# pretend otherwise: `plan` computes and prints what a real deploy would
+# promote and from where (reading policies/environments.yaml and
+# infra/promotion-manifest.yaml at run time — nothing about the ladder is
+# hardcoded here), and `deploy` repeats that, states plainly that nothing
+# is deployed, and emits a rollback-plan artifact. The only real thing
+# that happens is the environment gate: `deploy` declares
+# `environment: <the dispatched target>`, so the platform — not this
+# YAML — pauses the job for `prod`'s required reviewer.
+#
+# The environment name is free text, not a hardcoded dropdown, precisely
+# so this file never encodes the ladder itself; `plan` validates it
+# against the policy before `deploy`'s `environment:` key is ever
+# evaluated, so a typo fails loudly here instead of silently creating an
+# unprotected ad hoc GitHub Environment with that name.
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: >-
+          Environment to deploy to. Must be one of the environments
+          declared in policies/environments.yaml (currently: preview,
+          dev, staging, prod). Validated at run time, not offered as a
+          fixed dropdown, so this file never hardcodes the ladder.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
+      - name: Compute and print the promotion plan
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy-plan.py --target "$TARGET" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # Gated on `plan` succeeding, i.e. on the dispatched environment being
+  # one policies/environments.yaml actually declares. `environment:`
+  # below is what makes the platform pause this job for prod's required
+  # reviewer — this workflow enforces nothing itself.
+  deploy:
+    name: deploy
+    needs: plan
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml
+
+      - name: "Deploy (no-op) — print what would be promoted, and that nothing is"
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy-plan.py --target "$TARGET" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Write the rollback-plan artifact
+        env:
+          TARGET: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy-plan.py --target "$TARGET" \
+            --rollback-out "$RUNNER_TEMP/rollback-plan.md"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rollback-plan-${{ inputs.environment }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/rollback-plan.md
+          if-no-files-found: error
