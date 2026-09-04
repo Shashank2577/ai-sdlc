@@ -27,6 +27,53 @@ checks:
   checklist_complete:
     enforced: true
     rule: "no unchecked '- [ ]' items remain in the PR body"
+    # #173: the dispatch prompt tells every session to leave a criterion
+    # unticked and say why, rather than tick it falsely, when it genuinely
+    # cannot be met — then this rule failed the build for doing exactly
+    # that. `linked_work_item` already has an opt_out for the same shape
+    # of problem; this gives the checklist rule its own, so a session can
+    # record "this is blocked, here is where it lives" without lying and
+    # without stalling the build.
+    deferral:
+      marker: "- [~]"
+      rule: >
+        A checklist item may be marked `- [~]` instead of `- [ ]` when the
+        criterion cannot be met by this PR and is not something the
+        session can resolve on its own — e.g. it needs a human approval
+        this session cannot self-grant. It counts as resolved, not
+        outstanding, only when the bullet also states, on the same item:
+
+          1. a `#<issue>` reference to a real, currently-open issue, and
+          2. a reason, following the word `deferred` — e.g.
+             `- [~] <criterion> — deferred to #172: <reason>`.
+
+        Both are required. A `- [~]` with no issue reference, an issue
+        number that does not exist, one that is already closed, or no
+        reason text is invalid and fails the check exactly as a plain
+        unticked `- [ ]` does — deferral is not a third state that always
+        passes, it is a claim that must resolve to a live issue and a
+        stated reason before it counts.
+      requires_matching_requirement: true
+      requires_matching_requirement_rule: >
+        The issue a deferral points to must itself carry at least one of
+        this PR's own `Requirement:` REQ-0XX identifiers (every story in
+        this repo already states its REQ(s), so this is checkable against
+        the issue body). Without this, a deferral could point at any open
+        issue at all — one about something unrelated — and the checklist
+        item would read as permanently resolved even after the requirement
+        behind it silently stopped being met. Tying the deferral to the
+        same REQ keeps it inside the traceability spine (REQ-005) instead
+        of routing a gap around it.
+    limits: >-
+      This entry defines the form; it does not itself verify that a
+      referenced issue exists, is open, or carries a matching REQ — that
+      verification is scripts/dod-check.sh's job (tracked in #180), and
+      this definition has no effect on a build until the script implements
+      it. It also does not stop a session from opening a low-quality issue
+      purely to have something to point at: the reason text and the
+      issue's own content are read by whoever reviews the merge, the same
+      backstop every other DoD claim in this file relies on. A `- [~]` is
+      a claim a human can check, not proof that checks itself.
   tests_updated:
     enforced: false     # wired in with P0-4 (QA pack)
   coverage_non_negative:
