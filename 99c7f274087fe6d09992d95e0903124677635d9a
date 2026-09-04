@@ -1,0 +1,3 @@
+Work-Item: Shashank2577/foundry-program#184
+Tried: this was attempt 1 on this work item (0 prior failed session(s), 2 retry budget remaining). Guard passed; session started; prompt assembled from `CONVENTIONS.md` plus the `product-manager` charter; agent ran with `45` turns / `35` min / $4.0 ceiling.
+Gotcha: the session ran past its budget. The breached lines are marked `over` in the Spend table above; the budget itself is `role-packs/product-manager/policy.yaml`.
