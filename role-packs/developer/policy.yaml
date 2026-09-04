@@ -47,6 +47,11 @@ write_scope:
     - "docs/**"
     - "scripts/**"
     - "compiler/**"
+    # Written by developer sessions since #104/#112 (9 of the last 10
+    # commits touching it, `Agent-Role: developer`) but never declared —
+    # a gap `scripts/check-story-scope.py` (#168) surfaced by flagging
+    # every dashboard story as unscoped for every role, itself included.
+    - "dashboards/**"
     - "role-packs/developer/**"
   deny:
     # PRD §3 assigns .github/workflows/ to DevOps. A role that writes code
