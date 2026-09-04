@@ -1,0 +1,1611 @@
+{
+  "meta": {
+    "repo": "Shashank2577/foundry-program",
+    "repo_url": "https://github.com/Shashank2577/foundry-program",
+    "ref": "HEAD",
+    "head": "3715a99f76b6c66910590bcecbbad4a5752819e3",
+    "commits_scanned": 155,
+    "generated_at": "2026-09-04 17:20 UTC",
+    "note": ""
+  },
+  "rows": [
+    {
+      "req": "REQ-001",
+      "text": "All agent coordination happens through the tracker; every agent action produces a durable, visible artifact. No hidden context, no side channels.",
+      "prd": "\u00a71 P1\u2013P2",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "c1b6351",
+          "full_sha": "c1b6351ef960e5ee886beab2c023b1f24c192275",
+          "subject": "fix(qa-verdict): return a rejected in-review story to status:ready",
+          "date": "2026-09-02T16:24:03Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        },
+        {
+          "sha": "b8b3c10",
+          "full_sha": "b8b3c1075f38e8cff6dc69fb92f7057811f6331b",
+          "subject": "fix(labels): trigger terminal-label tests on pull_request",
+          "date": "2026-09-02T07:44:29Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "ec45357",
+          "full_sha": "ec45357309386a4f66c66f268c8feb01bc917d1d",
+          "subject": "feat(labels): strip stale status:* labels when an issue closes",
+          "date": "2026-09-02T07:42:56Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "c0ae022",
+          "full_sha": "c0ae0225525eff4e08b581bf076cede7485ec8a2",
+          "subject": "feat(sync): add missing open issues to the project board",
+          "date": "2026-09-02T06:10:48Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "1eec1ea",
+          "full_sha": "1eec1ea4ffd8373e96babcdee044debc962bd7a3",
+          "subject": "fix(dispatch): a diagnostic crash must not take down session end",
+          "date": "2026-09-02T09:42:05+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "df33c4c",
+          "full_sha": "df33c4ce429682de017d0c9c2334ec10ccb78c5a",
+          "subject": "fix(dispatch): judge a session on what it shipped, not its exit code",
+          "date": "2026-09-02T08:37:40+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "3791713",
+          "full_sha": "37917135e0c76ab04e4ad461fc9115cb31931a7b",
+          "subject": "feat(tracker): generated project board sync + wiki publish",
+          "date": "2026-09-02T06:49:14+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-02T16:25:37Z",
+          "number": 86,
+          "title": "fix(qa-verdict): return a rejected in-review story to status:ready",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/86"
+        },
+        {
+          "merged_at": "2026-09-02T07:47:28Z",
+          "number": 44,
+          "title": "P0-16: strip stale status:* labels when an issue closes",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/44"
+        },
+        {
+          "merged_at": "2026-09-02T06:14:05Z",
+          "number": 37,
+          "title": "P0-11: add missing open issues to the project board",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/37"
+        },
+        {
+          "merged_at": "2026-09-02T04:12:41Z",
+          "number": 34,
+          "title": "BUG: a crash in the spend diagnostics took down session end",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/34"
+        },
+        {
+          "merged_at": "2026-09-02T03:08:07Z",
+          "number": 26,
+          "title": "P0-13: A session is judged on what it shipped, not its exit code",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/26"
+        },
+        {
+          "merged_at": "2026-09-02T01:20:34Z",
+          "number": 19,
+          "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/19"
+        }
+      ],
+      "roles": [
+        "devops",
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "text": "Roles are harness-neutral packs (skills, tools, policy, templates) with distinct signed bot identities; attribution is cryptographic.",
+      "prd": "\u00a73",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "a6c5a99",
+          "full_sha": "a6c5a999d1039ac519998c4692d488730fafc4f4",
+          "subject": "chore(throughput): raise WIP to 6, own ceremonies/, settle REQ-002 (#125)",
+          "date": "2026-09-03T21:52:17+05:30",
+          "role": "delivery-lead",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "98a528b",
+          "full_sha": "98a528b978dc05ce933b5ed6660e1de50c596bed",
+          "subject": "fix(devops): require a GitHub closing keyword in dod-check's linked_work_item rule",
+          "date": "2026-09-02T18:37:37Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "42604d5",
+          "full_sha": "42604d50b8ca03df995f586d0acaca49fca1ccbd",
+          "subject": "fix(assign): eligibility reads each role's own dispatchable_from",
+          "date": "2026-09-02T16:05:37Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "313171f",
+          "full_sha": "313171fa2c45e730c1d4f02fa53d19ced96f47d5",
+          "subject": "fix(routing): make delivery-lead dispatchable, and check the symmetry",
+          "date": "2026-09-02T19:55:36+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "d9f1d4f",
+          "full_sha": "d9f1d4f5ce11ec43d1e121d55552171d43cbff28",
+          "subject": "fix(dispatch): make dispatchable_from a per-role pack declaration",
+          "date": "2026-09-02T14:14:49Z",
+          "role": "devops",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "a8c41ed",
+          "full_sha": "a8c41ede64e2ada54d1c8a4fd402648599c84e37",
+          "subject": "fix(sync): map role:delivery-lead to the board's Role field",
+          "date": "2026-09-02T19:31:42+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "d04c52f",
+          "full_sha": "d04c52fecc150f4d62ac1bb0dfd07b5b512c3494",
+          "subject": "feat(delivery-lead): add role pack \u2014 governance gets an owner",
+          "date": "2026-09-02T13:56:41Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "5dab35a",
+          "full_sha": "5dab35ac37d651508daffc2f1747b52f2f8e0599",
+          "subject": "fix(routing): register architect and techwriter; raise the devops budget",
+          "date": "2026-09-02T18:51:39+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "d4b1623",
+          "full_sha": "d4b16230977d326416c4bcb921e75700590132e0",
+          "subject": "feat(role-packs): add Tech Writer role pack v0",
+          "date": "2026-09-02T09:40:25Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "3fddd3e",
+          "full_sha": "3fddd3e935fde305099b605b6ba4fb2ad4ba7ab1",
+          "subject": "feat(architect): add role pack v0",
+          "date": "2026-09-02T09:39:50Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "d4dfbba",
+          "full_sha": "d4dfbba056a07aeac04f3e8aeeffd99b8bf9ecce",
+          "subject": "feat(roles): per-role credentials, and DevOps owns the pipeline",
+          "date": "2026-09-02T12:45:00+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "761a930",
+          "full_sha": "761a9306ca3b4ccf136e24ceea58aedda19de789",
+          "subject": "feat(role-packs): add Product Manager role pack v0",
+          "date": "2026-09-02T06:53:51Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "4e29278",
+          "full_sha": "4e292782e8565a5f7601c845db1c5e41e5ebb36a",
+          "subject": "fix(dispatch): permission mode belongs on the command line",
+          "date": "2026-09-02T09:53:39+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "edecd76",
+          "full_sha": "edecd7658bab0ed490e8ee272527469f75c05f6e",
+          "subject": "fix(permissions): stop enumerating a shell; name what gets denied",
+          "date": "2026-09-02T09:25:20+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "48d22f1",
+          "full_sha": "48d22f102303449d38c422677804fca545c2d3ad",
+          "subject": "fix(dispatch): grant compiled permissions, count retries that exist",
+          "date": "2026-09-02T09:10:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "8b5b15c",
+          "full_sha": "8b5b15c2482a97bd014d077c88caaaa90a92dcc8",
+          "subject": "ci(orchestrator): run the assignment tests on pull requests",
+          "date": "2026-09-02T00:08:30+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "6fa2d07",
+          "full_sha": "6fa2d07ae7fc4b1f197ed30ea6094c8fb4cc7c3e",
+          "subject": "feat(orchestrator): role pack v0 + assignment loop",
+          "date": "2026-09-02T00:06:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f796f30",
+          "full_sha": "f796f3045b9462bd145f9c77bc98dc654d440c30",
+          "subject": "feat(role-packs): developer pack v0 + harness compiler",
+          "date": "2026-09-01T23:33:29+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "9651194",
+          "full_sha": "965119412ebcbc62f98076f158c0ac552b28ee54",
+          "subject": "feat(dispatch): work item -> headless agent session (v0)",
+          "date": "2026-09-01T23:25:49+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-03T16:22:18Z",
+          "number": 125,
+          "title": "chore(throughput): raise WIP to 6, own ceremonies/, settle REQ-002",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/125"
+        },
+        {
+          "merged_at": "2026-09-02T18:41:50Z",
+          "number": 94,
+          "title": "fix(devops): dod-check requires a closing keyword, not a bare issue mention",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/94"
+        },
+        {
+          "merged_at": "2026-09-02T16:08:00Z",
+          "number": 81,
+          "title": "fix(assign): eligibility reads each role's own dispatchable_from",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/81"
+        },
+        {
+          "merged_at": "2026-09-02T14:26:11Z",
+          "number": 77,
+          "title": "BUG: delivery-lead is routable by the loop but not by the dispatcher",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/77"
+        },
+        {
+          "merged_at": "2026-09-02T14:23:28Z",
+          "number": 74,
+          "title": "fix(dispatch): make dispatchable_from a per-role pack declaration",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/74"
+        },
+        {
+          "merged_at": "2026-09-02T14:02:51Z",
+          "number": 72,
+          "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/72"
+        },
+        {
+          "merged_at": "2026-09-02T13:23:02Z",
+          "number": 63,
+          "title": "BUG: two role packs shipped unroutable, and the devops turn budget sits on the boundary",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/63"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:57Z",
+          "number": 56,
+          "title": "P1-5: Tech Writer role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/56"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:01Z",
+          "number": 55,
+          "title": "P1-4: Architect role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/55"
+        },
+        {
+          "merged_at": "2026-09-02T07:16:27Z",
+          "number": 43,
+          "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/43"
+        },
+        {
+          "merged_at": "2026-09-02T06:56:00Z",
+          "number": 41,
+          "title": "P1-1: Product Manager role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/41"
+        },
+        {
+          "merged_at": "2026-09-02T04:24:21Z",
+          "number": 36,
+          "title": "BUG: settings defaultMode is ignored; permission mode must be a CLI flag",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/36"
+        },
+        {
+          "merged_at": "2026-09-02T03:56:29Z",
+          "number": 32,
+          "title": "BUG: the compiled allowlist cannot express a shell, and denials are uncountable",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/32"
+        },
+        {
+          "merged_at": "2026-09-02T03:41:43Z",
+          "number": 30,
+          "title": "P0-15: Dispatcher grants the permissions it compiled, and counts retries it can see",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/30"
+        },
+        {
+          "merged_at": "2026-09-02T00:57:25Z",
+          "number": 17,
+          "title": "P0-8: Orchestrator pack v0 \u2014 assignment loop",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/17"
+        },
+        {
+          "merged_at": "2026-09-02T00:58:30Z",
+          "number": 12,
+          "title": "P0-3: Developer role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/12"
+        },
+        {
+          "merged_at": "2026-09-02T00:55:31Z",
+          "number": 11,
+          "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/11"
+        }
+      ],
+      "roles": [
+        "delivery-lead",
+        "developer",
+        "devops"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "text": "Harness adapter: Claude Code, Codex, DeepSeek (et al.) interchangeable behind one dispatch contract; single-harness mode fully functional.",
+      "prd": "\u00a711.2",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "9651194",
+          "full_sha": "965119412ebcbc62f98076f158c0ac552b28ee54",
+          "subject": "feat(dispatch): work item -> headless agent session (v0)",
+          "date": "2026-09-01T23:25:49+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-02T00:55:31Z",
+          "number": 11,
+          "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/11"
+        }
+      ],
+      "roles": [
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "text": "Tracker adapter: GitHub Projects \u2194 Jira swappable via canonical work-item schema; git remains code-side source of truth either way.",
+      "prd": "\u00a711.1",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "3791713",
+          "full_sha": "37917135e0c76ab04e4ad461fc9115cb31931a7b",
+          "subject": "feat(tracker): generated project board sync + wiki publish",
+          "date": "2026-09-02T06:49:14+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-02T01:20:34Z",
+          "number": 19,
+          "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/19"
+        }
+      ],
+      "roles": [
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "text": "Git-native traceability spine: signed commits, commit trailers (Work-Item, Requirement, Agent-Role, Harness), git notes for metadata, CODEOWNERS routing, protected branches, signed tags as sign-offs.",
+      "prd": "\u00a74",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "6f6fd18",
+          "full_sha": "6f6fd186a73cb5794bf72945673e0b0d7a128c1a",
+          "subject": "fix(dod-check): ignore checkbox-shaped text inside code fences (#177)",
+          "date": "2026-09-04T18:48:56+05:30",
+          "role": "devops",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "0f447a3",
+          "full_sha": "0f447a3f0f2d37ca6a862362a65ab9af5b92184d",
+          "subject": "ci(unit-tests): discover every python test, do not enumerate directories (#175)",
+          "date": "2026-09-04T18:29:55+05:30",
+          "role": "devops",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "ea4a9a8",
+          "full_sha": "ea4a9a851577c316df9363858e0861b46de0f06d",
+          "subject": "ci(dod): wire the DoD check's own tests, applying the session's patch",
+          "date": "2026-09-03T00:10:13+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "deca802",
+          "full_sha": "deca80287e8515ff213bd46f1005ff3c6c480f80",
+          "subject": "fix(policy): require a GitHub closing keyword in linked_work_item",
+          "date": "2026-09-02T18:32:51Z",
+          "role": "architect",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "2d71fa5",
+          "full_sha": "2d71fa5f80563ce76ebef0003c59fbc7c3249083",
+          "subject": "fix(dispatch): wire test-dispatch-session-end.sh into CI as a PR check",
+          "date": "2026-09-02T18:24:34Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "b6fdb2f",
+          "full_sha": "b6fdb2fa6a902a210742ae4fa065e6fbe6b4570b",
+          "subject": "feat(devops): fail CI when a test file runs nowhere",
+          "date": "2026-09-02T16:17:16Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "d4b1623",
+          "full_sha": "d4b16230977d326416c4bcb921e75700590132e0",
+          "subject": "feat(role-packs): add Tech Writer role pack v0",
+          "date": "2026-09-02T09:40:25Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "fdb1c2c",
+          "full_sha": "fdb1c2c6f31f3cd817549575e397fcc6669dab54",
+          "subject": "feat(dashboards): traceability matrix generator + Pages pipeline",
+          "date": "2026-09-01T23:44:58+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "7cf486d",
+          "full_sha": "7cf486da7b4638409269dc3d33aaaf6b256d5efc",
+          "subject": "Add DoD check: trailers, linked work item, checklist",
+          "date": "2026-09-01T23:12:01+05:30",
+          "role": "developer",
+          "harness": "claude-chat/manual-dispatch"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-04T13:18:57Z",
+          "number": 177,
+          "title": "fix(dod-check): ignore checkbox-shaped text inside code fences",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/177"
+        },
+        {
+          "merged_at": "2026-09-04T12:59:55Z",
+          "number": 175,
+          "title": "ci(unit-tests): discover every python test, do not enumerate directories",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/175"
+        },
+        {
+          "merged_at": "2026-09-02T18:41:50Z",
+          "number": 94,
+          "title": "fix(devops): dod-check requires a closing keyword, not a bare issue mention",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/94"
+        },
+        {
+          "merged_at": "2026-09-02T18:33:59Z",
+          "number": 93,
+          "title": "fix(policy): DoD linked_work_item requires a closing keyword, not a mention",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/93"
+        },
+        {
+          "merged_at": "2026-09-02T18:25:34Z",
+          "number": 89,
+          "title": "fix(dispatch): wire test-dispatch-session-end.sh into CI",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/89"
+        },
+        {
+          "merged_at": "2026-09-02T16:19:22Z",
+          "number": 85,
+          "title": "BUG: fail CI when a test file runs nowhere",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/85"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:57Z",
+          "number": 56,
+          "title": "P1-5: Tech Writer role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/56"
+        },
+        {
+          "merged_at": "2026-09-02T00:59:43Z",
+          "number": 14,
+          "title": "P0-5: Traceability matrix generator v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/14"
+        },
+        {
+          "merged_at": "2026-09-02T00:54:37Z",
+          "number": 10,
+          "title": "P0-1: DoD check \u2014 policy-as-code required status check",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/10"
+        }
+      ],
+      "roles": [
+        "devops",
+        "architect",
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "text": "All five ceremonies (refinement, planning, standup, review/demo, retro) run autonomously on schedule and each terminates in artifacts. Standups are event-derived, never self-reported.",
+      "prd": "\u00a75",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "08c99ea",
+          "full_sha": "08c99eac216e4928f9034bd6666a29e9e35837d1",
+          "subject": "fix(requirements): REQ-006 must test ceremonies that run, not declarations (#147)",
+          "date": "2026-09-03T22:47:47+05:30",
+          "role": "product-manager",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "a6c5a99",
+          "full_sha": "a6c5a999d1039ac519998c4692d488730fafc4f4",
+          "subject": "chore(throughput): raise WIP to 6, own ceremonies/, settle REQ-002 (#125)",
+          "date": "2026-09-03T21:52:17+05:30",
+          "role": "delivery-lead",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "83e4fe6",
+          "full_sha": "83e4fe6a2ee5abbb0f3d9f62f96f896ea44651a2",
+          "subject": "feat(retro): event-derived retro ceremony, one issue per window",
+          "date": "2026-09-02T09:45:08Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        },
+        {
+          "sha": "65ccf28",
+          "full_sha": "65ccf28fd3d84e80923859519c64383e62e2244b",
+          "subject": "feat(refinement): dispatch the PM when the ready queue empties",
+          "date": "2026-09-02T08:53:10Z",
+          "role": "devops",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "4bf175b",
+          "full_sha": "4bf175b5a3f0a17444f7e9301da3f47c51d7aab9",
+          "subject": "chore(orchestrator): declare the refill floor and claim ceremonies/",
+          "date": "2026-09-02T14:10:12+05:30",
+          "role": "orchestrator",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "761a930",
+          "full_sha": "761a9306ca3b4ccf136e24ceea58aedda19de789",
+          "subject": "feat(role-packs): add Product Manager role pack v0",
+          "date": "2026-09-02T06:53:51Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "8b5b15c",
+          "full_sha": "8b5b15c2482a97bd014d077c88caaaa90a92dcc8",
+          "subject": "ci(orchestrator): run the assignment tests on pull requests",
+          "date": "2026-09-02T00:08:30+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "6fa2d07",
+          "full_sha": "6fa2d07ae7fc4b1f197ed30ea6094c8fb4cc7c3e",
+          "subject": "feat(orchestrator): role pack v0 + assignment loop",
+          "date": "2026-09-02T00:06:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f6b07bb",
+          "full_sha": "f6b07bb6f1753fd4838ed60ffaf7993a49113380",
+          "subject": "feat(dashboards): standup digest v0, event-derived",
+          "date": "2026-09-01T23:50:36+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-03T17:17:47Z",
+          "number": 147,
+          "title": "fix(requirements): REQ-006 must test ceremonies that run, not declarations",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/147"
+        },
+        {
+          "merged_at": "2026-09-03T16:22:18Z",
+          "number": 125,
+          "title": "chore(throughput): raise WIP to 6, own ceremonies/, settle REQ-002",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/125"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:26Z",
+          "number": 57,
+          "title": "feat(retro): event-derived retro ceremony, one issue per window",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/57"
+        },
+        {
+          "merged_at": "2026-09-02T09:33:05Z",
+          "number": 48,
+          "title": "P1-2: Refinement trigger \u2014 dispatch the PM when the ready queue empties",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/48"
+        },
+        {
+          "merged_at": "2026-09-02T08:41:06Z",
+          "number": 47,
+          "title": "P1-2 (prep): declare the refill floor and claim ceremonies/",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/47"
+        },
+        {
+          "merged_at": "2026-09-02T06:56:00Z",
+          "number": 41,
+          "title": "P1-1: Product Manager role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/41"
+        },
+        {
+          "merged_at": "2026-09-02T00:57:25Z",
+          "number": 17,
+          "title": "P0-8: Orchestrator pack v0 \u2014 assignment loop",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/17"
+        },
+        {
+          "merged_at": "2026-09-02T01:00:41Z",
+          "number": 15,
+          "title": "P0-6: Standup digest v0 \u2014 event-derived, never self-reported",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/15"
+        }
+      ],
+      "roles": [
+        "product-manager",
+        "delivery-lead",
+        "devops",
+        "orchestrator",
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "text": "Human-in-the-loop = decision gates (approve / choose between costed options), never free-text supervision. Few gates, all visual, each with an SLA and default.",
+      "prd": "\u00a77",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "f435b14",
+          "full_sha": "f435b14139ae1a151178d3251b19c71f61a649d2",
+          "subject": "fix(governance): narrow delivery-lead scope; gate on write capability (#102)",
+          "date": "2026-09-03T13:04:48+05:30",
+          "role": "delivery-lead",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "8009aa9",
+          "full_sha": "8009aa95a6029172fc612550fe554ab9c9dc17f3",
+          "subject": "fix(devops): replace GNU date -d in gate-sla.sh with portable Python parse",
+          "date": "2026-09-02T18:27:46Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "9bc5dd5",
+          "full_sha": "9bc5dd50c253a5b737bf28090246a966ac9ab74b",
+          "subject": "fix(gate-sla): make the SLA tests self-contained, restore PR CI wiring",
+          "date": "2026-09-02T16:37:27Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        },
+        {
+          "sha": "d04c52f",
+          "full_sha": "d04c52fecc150f4d62ac1bb0dfd07b5b512c3494",
+          "subject": "feat(delivery-lead): add role pack \u2014 governance gets an owner",
+          "date": "2026-09-02T13:56:41Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "2b87d85",
+          "full_sha": "2b87d85b2cb602574665ec00e7209af5480efa4a",
+          "subject": "docs(gates): document the three approval gates and their SLA",
+          "date": "2026-09-02T13:26:39Z",
+          "role": "techwriter",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "e72a690",
+          "full_sha": "e72a6901c2ebbb7d7dc1ee9761ffa349e8cede87",
+          "subject": "feat(devops): enforce the approval-gate SLA",
+          "date": "2026-09-02T13:24:35Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "fc5ab2b",
+          "full_sha": "fc5ab2bf6e0ef5653802c885e47362eecb4bbd19",
+          "subject": "fix(escalation): say how to act on a decision, not just what to decide",
+          "date": "2026-09-02T17:09:42+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "65ccf28",
+          "full_sha": "65ccf28fd3d84e80923859519c64383e62e2244b",
+          "subject": "feat(refinement): dispatch the PM when the ready queue empties",
+          "date": "2026-09-02T08:53:10Z",
+          "role": "devops",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "4bf175b",
+          "full_sha": "4bf175b5a3f0a17444f7e9301da3f47c51d7aab9",
+          "subject": "chore(orchestrator): declare the refill floor and claim ceremonies/",
+          "date": "2026-09-02T14:10:12+05:30",
+          "role": "orchestrator",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f65e1c4",
+          "full_sha": "f65e1c4439ad9cf7278614d7db03294bb5682093",
+          "subject": "fix(coverage): two bad proxies moved REQ-010 off zero",
+          "date": "2026-09-02T14:03:47+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "350b1c0",
+          "full_sha": "350b1c0dad5b0d1afcd5c27b3c16db41044c0a81",
+          "subject": "feat(gates): approval on critical work, enforced by who applied the label",
+          "date": "2026-09-02T14:02:22+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "90f23ab",
+          "full_sha": "90f23ab85861936af4a97ac2b9835aa751e494b5",
+          "subject": "fix(budgets): cost is the ceiling, tokens are a tripwire",
+          "date": "2026-09-02T08:20:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "9e147ac",
+          "full_sha": "9e147ac53311c6a588950fc138540690f2081c47",
+          "subject": "fix(setup): one GitHub credential, and correct the autonomy claim",
+          "date": "2026-09-02T07:38:53+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-03T07:34:49Z",
+          "number": 102,
+          "title": "fix(governance): narrow delivery-lead scope; gate on write capability",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/102"
+        },
+        {
+          "merged_at": "2026-09-02T18:29:02Z",
+          "number": 90,
+          "title": "fix(devops): replace GNU date -d in gate-sla.sh with portable Python parse",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/90"
+        },
+        {
+          "merged_at": "2026-09-02T16:45:29Z",
+          "number": 65,
+          "title": "P1-7: Enforce the approval-gate SLA",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/65"
+        },
+        {
+          "merged_at": "2026-09-02T14:02:51Z",
+          "number": 72,
+          "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/72"
+        },
+        {
+          "merged_at": "2026-09-02T13:34:04Z",
+          "number": 66,
+          "title": "P1-8: Document the approval gates and their SLA",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/66"
+        },
+        {
+          "merged_at": "2026-09-02T11:40:18Z",
+          "number": 61,
+          "title": "BUG: escalations ask for a decision without saying how to enact one",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/61"
+        },
+        {
+          "merged_at": "2026-09-02T09:33:05Z",
+          "number": 48,
+          "title": "P1-2: Refinement trigger \u2014 dispatch the PM when the ready queue empties",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/48"
+        },
+        {
+          "merged_at": "2026-09-02T08:41:06Z",
+          "number": 47,
+          "title": "P1-2 (prep): declare the refill floor and claim ceremonies/",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/47"
+        },
+        {
+          "merged_at": "2026-09-02T08:34:41Z",
+          "number": 46,
+          "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/46"
+        },
+        {
+          "merged_at": "2026-09-02T02:51:47Z",
+          "number": 24,
+          "title": "P0-12: Budgets measure cost; sessions report what they did",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/24"
+        },
+        {
+          "merged_at": "2026-09-02T02:09:56Z",
+          "number": 21,
+          "title": "P0-10: One GitHub credential + correct setup steps",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/21"
+        }
+      ],
+      "roles": [
+        "delivery-lead",
+        "devops",
+        "developer",
+        "techwriter",
+        "orchestrator"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "text": "Client layer: transcript\u2192PRD with provenance-linked REQs, versioned client sign-offs, change requests with impact analysis, Monte Carlo estimation with confidence bands, demo packages, portal.",
+      "prd": "\u00a76",
+      "status": "red",
+      "commits": [],
+      "pulls": [],
+      "roles": []
+    },
+    {
+      "req": "REQ-009",
+      "text": "QA holds a veto (`qa:rejected` blocks closure); Definition of Done is policy-as-code enforced as a required check; QA reports are published HTML artifacts mapped to requirements.",
+      "prd": "\u00a78",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "ea4a9a8",
+          "full_sha": "ea4a9a851577c316df9363858e0861b46de0f06d",
+          "subject": "ci(dod): wire the DoD check's own tests, applying the session's patch",
+          "date": "2026-09-03T00:10:13+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "c1b6351",
+          "full_sha": "c1b6351ef960e5ee886beab2c023b1f24c192275",
+          "subject": "fix(qa-verdict): return a rejected in-review story to status:ready",
+          "date": "2026-09-02T16:24:03Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        },
+        {
+          "sha": "42604d5",
+          "full_sha": "42604d50b8ca03df995f586d0acaca49fca1ccbd",
+          "subject": "fix(assign): eligibility reads each role's own dispatchable_from",
+          "date": "2026-09-02T16:05:37Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "2bc6432",
+          "full_sha": "2bc6432a8253d0c2dbd96730e730fb96683307ca",
+          "subject": "fix(qa-verdict): re-check qa-gate on PRs when a verdict changes after the last push",
+          "date": "2026-09-02T16:02:22Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "d9f1d4f",
+          "full_sha": "d9f1d4f5ce11ec43d1e121d55552171d43cbff28",
+          "subject": "fix(dispatch): make dispatchable_from a per-role pack declaration",
+          "date": "2026-09-02T14:14:49Z",
+          "role": "devops",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "428f32c",
+          "full_sha": "428f32c9d00032718b8482d2343c71f651b37448",
+          "subject": "feat(qa): QA role pack v0 + binding verdict enforcement",
+          "date": "2026-09-01T23:40:37+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "7cf486d",
+          "full_sha": "7cf486da7b4638409269dc3d33aaaf6b256d5efc",
+          "subject": "Add DoD check: trailers, linked work item, checklist",
+          "date": "2026-09-01T23:12:01+05:30",
+          "role": "developer",
+          "harness": "claude-chat/manual-dispatch"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-02T18:41:50Z",
+          "number": 94,
+          "title": "fix(devops): dod-check requires a closing keyword, not a bare issue mention",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/94"
+        },
+        {
+          "merged_at": "2026-09-02T16:25:37Z",
+          "number": 86,
+          "title": "fix(qa-verdict): return a rejected in-review story to status:ready",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/86"
+        },
+        {
+          "merged_at": "2026-09-02T16:08:00Z",
+          "number": 81,
+          "title": "fix(assign): eligibility reads each role's own dispatchable_from",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/81"
+        },
+        {
+          "merged_at": "2026-09-02T16:07:29Z",
+          "number": 80,
+          "title": "fix(qa-verdict): re-check qa-gate when a verdict changes after the last push",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/80"
+        },
+        {
+          "merged_at": "2026-09-02T14:23:28Z",
+          "number": 74,
+          "title": "fix(dispatch): make dispatchable_from a per-role pack declaration",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/74"
+        },
+        {
+          "merged_at": "2026-09-02T00:59:08Z",
+          "number": 13,
+          "title": "P0-4: QA role pack v0 + verdict enforcement",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/13"
+        },
+        {
+          "merged_at": "2026-09-02T00:54:37Z",
+          "number": 10,
+          "title": "P0-1: DoD check \u2014 policy-as-code required status check",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/10"
+        }
+      ],
+      "roles": [
+        "devops",
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-010",
+      "text": "Environment ladder preview\u2192dev\u2192staging\u2192prod; production deploys sit behind a human gate (GitHub environment required reviewer); every release ships a rollback plan.",
+      "prd": "\u00a79",
+      "status": "amber",
+      "commits": [
+        {
+          "sha": "3715a99",
+          "full_sha": "3715a99f76b6c66910590bcecbbad4a5752819e3",
+          "subject": "feat(dashboards): promote the published site through the environment ladder",
+          "date": "2026-09-04T17:17:53Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        }
+      ],
+      "pulls": [],
+      "roles": [
+        "devops"
+      ]
+    },
+    {
+      "req": "REQ-011",
+      "text": "Visibility layer: boards, generated dashboards (burndown, velocity, cost-per-story), computed traceability matrix (REQ\u2192release, red/green). The program is operable without reading agent transcripts.",
+      "prd": "\u00a710",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "3715a99",
+          "full_sha": "3715a99f76b6c66910590bcecbbad4a5752819e3",
+          "subject": "feat(dashboards): promote the published site through the environment ladder",
+          "date": "2026-09-04T17:17:53Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "08c99ea",
+          "full_sha": "08c99eac216e4928f9034bd6666a29e9e35837d1",
+          "subject": "fix(requirements): REQ-006 must test ceremonies that run, not declarations (#147)",
+          "date": "2026-09-03T22:47:47+05:30",
+          "role": "product-manager",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "cd6f3dc",
+          "full_sha": "cd6f3dc6a576e94d75725518453ed2ee24e1beee",
+          "subject": "fix(dashboards): assert the invariant, not a snapshot of today's zeros (#143)",
+          "date": "2026-09-03T22:36:58+05:30",
+          "role": "developer",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "2b87d85",
+          "full_sha": "2b87d85b2cb602574665ec00e7209af5480efa4a",
+          "subject": "docs(gates): document the three approval gates and their SLA",
+          "date": "2026-09-02T13:26:39Z",
+          "role": "techwriter",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "b8b3c10",
+          "full_sha": "b8b3c1075f38e8cff6dc69fb92f7057811f6331b",
+          "subject": "fix(labels): trigger terminal-label tests on pull_request",
+          "date": "2026-09-02T07:44:29Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "ec45357",
+          "full_sha": "ec45357309386a4f66c66f268c8feb01bc917d1d",
+          "subject": "feat(labels): strip stale status:* labels when an issue closes",
+          "date": "2026-09-02T07:42:56Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "c0ae022",
+          "full_sha": "c0ae0225525eff4e08b581bf076cede7485ec8a2",
+          "subject": "feat(sync): add missing open issues to the project board",
+          "date": "2026-09-02T06:10:48Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "0195f68",
+          "full_sha": "0195f686ddacc2bd9f7d438d796b04603e1029c6",
+          "subject": "ci(dashboards): install PyYAML for the status generator",
+          "date": "2026-09-02T08:44:03+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "029c78e",
+          "full_sha": "029c78e41b336954a4eea3b7e791108b44bbd7ec",
+          "subject": "feat(dashboards): programme status \u2014 traced vs actually satisfied",
+          "date": "2026-09-02T08:42:30+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "3791713",
+          "full_sha": "37917135e0c76ab04e4ad461fc9115cb31931a7b",
+          "subject": "feat(tracker): generated project board sync + wiki publish",
+          "date": "2026-09-02T06:49:14+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f6b07bb",
+          "full_sha": "f6b07bb6f1753fd4838ed60ffaf7993a49113380",
+          "subject": "feat(dashboards): standup digest v0, event-derived",
+          "date": "2026-09-01T23:50:36+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "fdb1c2c",
+          "full_sha": "fdb1c2c6f31f3cd817549575e397fcc6669dab54",
+          "subject": "feat(dashboards): traceability matrix generator + Pages pipeline",
+          "date": "2026-09-01T23:44:58+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-03T17:17:47Z",
+          "number": 147,
+          "title": "fix(requirements): REQ-006 must test ceremonies that run, not declarations",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/147"
+        },
+        {
+          "merged_at": "2026-09-03T17:06:58Z",
+          "number": 143,
+          "title": "fix(dashboards): assert the invariant, not a snapshot of today's zeros",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/143"
+        },
+        {
+          "merged_at": "2026-09-02T13:34:04Z",
+          "number": 66,
+          "title": "P1-8: Document the approval gates and their SLA",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/66"
+        },
+        {
+          "merged_at": "2026-09-02T07:47:28Z",
+          "number": 44,
+          "title": "P0-16: strip stale status:* labels when an issue closes",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/44"
+        },
+        {
+          "merged_at": "2026-09-02T06:14:05Z",
+          "number": 37,
+          "title": "P0-11: add missing open issues to the project board",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/37"
+        },
+        {
+          "merged_at": "2026-09-02T03:15:05Z",
+          "number": 28,
+          "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/28"
+        },
+        {
+          "merged_at": "2026-09-02T01:20:34Z",
+          "number": 19,
+          "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/19"
+        },
+        {
+          "merged_at": "2026-09-02T01:00:41Z",
+          "number": 15,
+          "title": "P0-6: Standup digest v0 \u2014 event-derived, never self-reported",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/15"
+        },
+        {
+          "merged_at": "2026-09-02T00:59:43Z",
+          "number": 14,
+          "title": "P0-5: Traceability matrix generator v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/14"
+        }
+      ],
+      "roles": [
+        "devops",
+        "product-manager",
+        "developer",
+        "techwriter"
+      ]
+    },
+    {
+      "req": "REQ-012",
+      "text": "Guardrails: least-privilege per role, per-work-item budgets (tokens/time/retries), escalation ladder (retry \u2192 alt approach \u2192 alt harness \u2192 human), nothing irreversible without a human.",
+      "prd": "\u00a713",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "0f447a3",
+          "full_sha": "0f447a3f0f2d37ca6a862362a65ab9af5b92184d",
+          "subject": "ci(unit-tests): discover every python test, do not enumerate directories (#175)",
+          "date": "2026-09-04T18:29:55+05:30",
+          "role": "devops",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "5ff7db7",
+          "full_sha": "5ff7db7518c6b4c4d6ab885a636ee96e505c4ffb",
+          "subject": "ci(dashboards): discover generator tests and pages instead of enumerating them (#141)",
+          "date": "2026-09-03T22:58:22+05:30",
+          "role": "devops",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "f435b14",
+          "full_sha": "f435b14139ae1a151178d3251b19c71f61a649d2",
+          "subject": "fix(governance): narrow delivery-lead scope; gate on write capability (#102)",
+          "date": "2026-09-03T13:04:48+05:30",
+          "role": "delivery-lead",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "62ae215",
+          "full_sha": "62ae21505fa70707e28034cb21e1559fa9b4adb8",
+          "subject": "fix(dispatch): session end moves a successful item to status:in-review itself",
+          "date": "2026-09-02T18:19:26Z",
+          "role": "devops",
+          "harness": "claude-code/2.0"
+        },
+        {
+          "sha": "cfbb862",
+          "full_sha": "cfbb86275cffd1d92886910e42d7035cd5adfffd",
+          "subject": "fix(dispatch): compute new_status before the escalation quotes it",
+          "date": "2026-09-02T19:52:43+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "d2a34bb",
+          "full_sha": "d2a34bb81b6d692c3e30fd997c7ff5d592c89577",
+          "subject": "Merge main into the QA-guard branch, combining both rollback fixes",
+          "date": "2026-09-02T19:50:09+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "28b9529",
+          "full_sha": "28b952996f2e12419d8884382c6583a701e2f69c",
+          "subject": "fix(dispatch): session-end rollback strips every status:* label, keeps a shipped PR in review",
+          "date": "2026-09-02T13:59:04Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        },
+        {
+          "sha": "d04c52f",
+          "full_sha": "d04c52fecc150f4d62ac1bb0dfd07b5b512c3494",
+          "subject": "feat(delivery-lead): add role pack \u2014 governance gets an owner",
+          "date": "2026-09-02T13:56:41Z",
+          "role": "developer",
+          "harness": "claude-code/2.1.258"
+        },
+        {
+          "sha": "b36efab",
+          "full_sha": "b36efabd3ecb485714c7cff195a66d9588c5852e",
+          "subject": "fix(budgets): raise the developer turn budget on five measurements",
+          "date": "2026-09-02T19:08:16+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "5dab35a",
+          "full_sha": "5dab35ac37d651508daffc2f1747b52f2f8e0599",
+          "subject": "fix(routing): register architect and techwriter; raise the devops budget",
+          "date": "2026-09-02T18:51:39+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f65e1c4",
+          "full_sha": "f65e1c4439ad9cf7278614d7db03294bb5682093",
+          "subject": "fix(coverage): two bad proxies moved REQ-010 off zero",
+          "date": "2026-09-02T14:03:47+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "350b1c0",
+          "full_sha": "350b1c0dad5b0d1afcd5c27b3c16db41044c0a81",
+          "subject": "feat(gates): approval on critical work, enforced by who applied the label",
+          "date": "2026-09-02T14:02:22+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "d4dfbba",
+          "full_sha": "d4dfbba056a07aeac04f3e8aeeffd99b8bf9ecce",
+          "subject": "feat(roles): per-role credentials, and DevOps owns the pipeline",
+          "date": "2026-09-02T12:45:00+05:30",
+          "role": "devops",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "4e29278",
+          "full_sha": "4e292782e8565a5f7601c845db1c5e41e5ebb36a",
+          "subject": "fix(dispatch): permission mode belongs on the command line",
+          "date": "2026-09-02T09:53:39+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "1eec1ea",
+          "full_sha": "1eec1ea4ffd8373e96babcdee044debc962bd7a3",
+          "subject": "fix(dispatch): a diagnostic crash must not take down session end",
+          "date": "2026-09-02T09:42:05+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "edecd76",
+          "full_sha": "edecd7658bab0ed490e8ee272527469f75c05f6e",
+          "subject": "fix(permissions): stop enumerating a shell; name what gets denied",
+          "date": "2026-09-02T09:25:20+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "48d22f1",
+          "full_sha": "48d22f102303449d38c422677804fca545c2d3ad",
+          "subject": "fix(dispatch): grant compiled permissions, count retries that exist",
+          "date": "2026-09-02T09:10:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "df33c4c",
+          "full_sha": "df33c4ce429682de017d0c9c2334ec10ccb78c5a",
+          "subject": "fix(dispatch): judge a session on what it shipped, not its exit code",
+          "date": "2026-09-02T08:37:40+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "90f23ab",
+          "full_sha": "90f23ab85861936af4a97ac2b9835aa751e494b5",
+          "subject": "fix(budgets): cost is the ceiling, tokens are a tripwire",
+          "date": "2026-09-02T08:20:15+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "9e147ac",
+          "full_sha": "9e147ac53311c6a588950fc138540690f2081c47",
+          "subject": "fix(setup): one GitHub credential, and correct the autonomy claim",
+          "date": "2026-09-02T07:38:53+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "58a43a0",
+          "full_sha": "58a43a041a21531112039a7189af9c52faad168d",
+          "subject": "feat(dispatch): budgets from the role pack + escalation ladder",
+          "date": "2026-09-01T23:59:08+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "f796f30",
+          "full_sha": "f796f3045b9462bd145f9c77bc98dc654d440c30",
+          "subject": "feat(role-packs): developer pack v0 + harness compiler",
+          "date": "2026-09-01T23:33:29+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-04T12:59:55Z",
+          "number": 175,
+          "title": "ci(unit-tests): discover every python test, do not enumerate directories",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/175"
+        },
+        {
+          "merged_at": "2026-09-03T17:28:22Z",
+          "number": 141,
+          "title": "ci(dashboards): discover generator tests and pages instead of enumerating them",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/141"
+        },
+        {
+          "merged_at": "2026-09-03T07:34:49Z",
+          "number": 102,
+          "title": "fix(governance): narrow delivery-lead scope; gate on write capability",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/102"
+        },
+        {
+          "merged_at": "2026-09-02T18:21:22Z",
+          "number": 88,
+          "title": "fix(dispatch): session end moves a successful item to status:in-review itself",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/88"
+        },
+        {
+          "merged_at": "2026-09-02T14:23:28Z",
+          "number": 74,
+          "title": "fix(dispatch): make dispatchable_from a per-role pack declaration",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/74"
+        },
+        {
+          "merged_at": "2026-09-02T14:17:51Z",
+          "number": 73,
+          "title": "fix(dispatch): session-end rollback strips every status:* label, keeps a shipped PR in review",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/73"
+        },
+        {
+          "merged_at": "2026-09-02T14:02:51Z",
+          "number": 72,
+          "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/72"
+        },
+        {
+          "merged_at": "2026-09-02T13:39:12Z",
+          "number": 71,
+          "title": "BUG: the developer turn budget kills half of all role-pack stories",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/71"
+        },
+        {
+          "merged_at": "2026-09-02T13:23:02Z",
+          "number": 63,
+          "title": "BUG: two role packs shipped unroutable, and the devops turn budget sits on the boundary",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/63"
+        },
+        {
+          "merged_at": "2026-09-02T08:34:41Z",
+          "number": 46,
+          "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/46"
+        },
+        {
+          "merged_at": "2026-09-02T07:16:27Z",
+          "number": 43,
+          "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/43"
+        },
+        {
+          "merged_at": "2026-09-02T04:24:21Z",
+          "number": 36,
+          "title": "BUG: settings defaultMode is ignored; permission mode must be a CLI flag",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/36"
+        },
+        {
+          "merged_at": "2026-09-02T04:12:41Z",
+          "number": 34,
+          "title": "BUG: a crash in the spend diagnostics took down session end",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/34"
+        },
+        {
+          "merged_at": "2026-09-02T03:56:29Z",
+          "number": 32,
+          "title": "BUG: the compiled allowlist cannot express a shell, and denials are uncountable",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/32"
+        },
+        {
+          "merged_at": "2026-09-02T03:41:43Z",
+          "number": 30,
+          "title": "P0-15: Dispatcher grants the permissions it compiled, and counts retries it can see",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/30"
+        },
+        {
+          "merged_at": "2026-09-02T03:08:07Z",
+          "number": 26,
+          "title": "P0-13: A session is judged on what it shipped, not its exit code",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/26"
+        },
+        {
+          "merged_at": "2026-09-02T02:51:47Z",
+          "number": 24,
+          "title": "P0-12: Budgets measure cost; sessions report what they did",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/24"
+        },
+        {
+          "merged_at": "2026-09-02T02:09:56Z",
+          "number": 21,
+          "title": "P0-10: One GitHub credential + correct setup steps",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/21"
+        },
+        {
+          "merged_at": "2026-09-02T00:56:51Z",
+          "number": 16,
+          "title": "P0-7: Budgets + escalation ladder v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/16"
+        },
+        {
+          "merged_at": "2026-09-02T00:58:30Z",
+          "number": 12,
+          "title": "P0-3: Developer role pack v0",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/12"
+        }
+      ],
+      "roles": [
+        "devops",
+        "delivery-lead",
+        "developer"
+      ]
+    },
+    {
+      "req": "REQ-013",
+      "text": "Persistent engineering memory across ephemeral sessions (git notes + MCP \u2014 Seal); retro learnings promote into role packs via reviewed PRs.",
+      "prd": "\u00a712",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "c98915e",
+          "full_sha": "c98915e0f234cdf1a1afe9995e2c23d428fe3f49",
+          "subject": "feat(memory): git notes store, recovered from an unpushable session (#136)",
+          "date": "2026-09-03T22:41:12+05:30",
+          "role": "developer",
+          "harness": "claude-code"
+        },
+        {
+          "sha": "83e4fe6",
+          "full_sha": "83e4fe6a2ee5abbb0f3d9f62f96f896ea44651a2",
+          "subject": "feat(retro): event-derived retro ceremony, one issue per window",
+          "date": "2026-09-02T09:45:08Z",
+          "role": "devops",
+          "harness": "claude-code/2.1"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-03T17:11:13Z",
+          "number": 136,
+          "title": "feat(memory): git notes store, recovered from an unpushable session",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/136"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:26Z",
+          "number": 57,
+          "title": "feat(retro): event-derived retro ceremony, one issue per window",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/57"
+        }
+      ],
+      "roles": [
+        "developer",
+        "devops"
+      ]
+    },
+    {
+      "req": "REQ-014",
+      "text": "Self-hosting: the system builds itself through itself. POC exit = one full sprint where every story improves the system, flows through the system, and humans touch only gates.",
+      "prd": "Self-hosting plan",
+      "status": "green",
+      "commits": [
+        {
+          "sha": "0195f68",
+          "full_sha": "0195f686ddacc2bd9f7d438d796b04603e1029c6",
+          "subject": "ci(dashboards): install PyYAML for the status generator",
+          "date": "2026-09-02T08:44:03+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "029c78e",
+          "full_sha": "029c78e41b336954a4eea3b7e791108b44bbd7ec",
+          "subject": "feat(dashboards): programme status \u2014 traced vs actually satisfied",
+          "date": "2026-09-02T08:42:30+05:30",
+          "role": "developer",
+          "harness": "claude-code/2.1.220"
+        },
+        {
+          "sha": "690af7e",
+          "full_sha": "690af7e71b28ba78580b81dd6b80b734f3b2025b",
+          "subject": "Stage 0: seed the control plane",
+          "date": "2026-09-01T23:11:59+05:30",
+          "role": "human",
+          "harness": "manual"
+        }
+      ],
+      "pulls": [
+        {
+          "merged_at": "2026-09-02T03:15:05Z",
+          "number": 28,
+          "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
+          "url": "https://github.com/Shashank2577/foundry-program/pull/28"
+        }
+      ],
+      "roles": [
+        "developer",
+        "human"
+      ]
+    }
+  ]
+}

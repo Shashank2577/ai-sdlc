@@ -1,0 +1,5 @@
+{
+  "href": "traceability.html",
+  "title": "Traceability matrix",
+  "description": "REQ \u2192 commits \u2192 merged PRs, computed from trailers"
+}

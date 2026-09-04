@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Programme status — Shashank2577/foundry-program</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+
+.pill.green{color:var(--green);background:var(--green-bg)}
+.banner{border:1px solid var(--line);border-left:3px solid var(--red);
+  background:var(--card);padding:.9rem 1.1rem;border-radius:8px;margin:0 0 2rem}
+</style></head><body><main>
+<h1>Programme status</h1>
+<p class="sub">
+  Computed from the repository. <strong>Traced</strong> means a commit carrying
+  the requirement's trailer reached <code>main</code> through a merged PR.
+  <strong>Satisfied</strong> is the fraction of that requirement's criteria in
+  <code>requirements/coverage.yaml</code> that actually pass. They disagree
+  often, and the gap is the point — a requirement can be fully traced and
+  barely built.
+</p>
+
+<div class="banner" style="border-left-color:var(--green)">
+  <strong>Self-hosting is proven, as machinery and as practice.</strong> 58 merged pull request(s) have been produced by a dispatched agent session, out of 87 merged overall — past the practice threshold of 10 set in <code>requirements/coverage.yaml</code>.
+  Dispatch runs so far: 12 failure, 1 in_progress, 85 success.
+</div>
+
+<div class="banner" style="border-left-color:var(--red)">
+  <strong>2 requirement note(s) contradict their own checks.</strong>
+  A note denying work the checks say exists is stale prose beside a computed
+  number — see requirements/coverage.yaml.
+  <ul class="bare"><li><span class="mono">REQ-010</span> — matched "no deploy workflow or infra exists"</li><li><span class="mono">REQ-014</span> — matched "unproven"</li></ul>
+</div>
+<div class="tiles">
+  <div class="tile"><div class="n">100%</div><div class="l">requirements satisfied</div></div>
+  <div class="tile"><div class="n">8/8</div><div class="l">role packs</div></div>
+  <div class="tile"><div class="n">5/5</div><div class="l">ceremonies</div></div>
+  <div class="tile"><div class="n">11/11</div><div class="l">PRD §14 areas</div></div>
+  <div class="tile"><div class="n" style="color:var(--green)">58</div><div class="l">agent-delivered PRs</div></div>
+</div>
+
+<h2 style="font-size:1.05rem;margin:0 0 .6rem">Rollout (PRD §15)</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Phase</th><th>Scope</th><th>Satisfied</th><th>Requirements</th></tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">Phase 0</td>
+        <td>Prove the spine</td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">100%</span></td>
+        <td class="mono muted">REQ-001, REQ-002, REQ-003, REQ-005, REQ-009, REQ-012, REQ-014</td>
+      </tr>
+      <tr>
+        <td class="req">Phase 1</td>
+        <td>The team — all roles, ceremonies, estimation</td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">100%</span></td>
+        <td class="mono muted">REQ-006, REQ-007, REQ-011</td>
+      </tr>
+      <tr>
+        <td class="req">Phase 2</td>
+        <td>The client — PRDs, sign-offs, demos, portal</td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">100%</span></td>
+        <td class="mono muted">REQ-008</td>
+      </tr>
+      <tr>
+        <td class="req">Phase 3</td>
+        <td>Pluggability and learning — Jira, 2nd harness, memory</td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">100%</span></td>
+        <td class="mono muted">REQ-004, REQ-013</td>
+      </tr>
+  </tbody>
+</table></div>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Requirements — traced vs satisfied</h2>
+<div class="scroll"><table>
+  <thead><tr><th>REQ</th><th>Traced</th><th>Satisfied</th><th>Requirement</th></tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">REQ-001</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Coordination through the tracker; every action leaves an artifact</td>
+      </tr>
+      <tr>
+        <td class="req">REQ-002</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Harness-neutral role packs, with attribution by per-role credential tier and the Agent-Role trailer<br><span class="muted">All 8 packs exist. Attribution is by credential tier and the Agent-Role trailer, not by signature — a decision, not a gap. Distinct per-role bot identities were considered and rejected for v0; see adrs/.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-003</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Harness adapter — Claude Code, Codex, DeepSeek behind one contract<br><span class="muted">Two of three named harnesses are implemented — compile_claude_code and compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The pack format is neutral; the compiler now covers most of it.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-004</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Tracker adapter — GitHub Projects and Jira swappable<br><span class="muted">adapters/tracker/github and adapters/tracker/jira both exist and pass the same contract suite (#135). scripts/sync-project.py does not use either yet and still talks to GitHub directly; the Jira adapter has never been run against a live Jira instance.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-005</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">4/4 · 100%</span></td>
+        <td>Git-native traceability spine</td>
+      </tr>
+      <tr>
+        <td class="req">REQ-006</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">6/6 · 100%</span></td>
+        <td>All five ceremonies run autonomously and end in artifacts<br><span class="muted">All five ceremonies run — standup, refinement and retro, plus planning and review, which landed in #152.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-007</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">4/4 · 100%</span></td>
+        <td>Human-in-the-loop as decision gates, never free-text supervision</td>
+      </tr>
+      <tr>
+        <td class="req">REQ-008</td>
+        <td><span class="pill red">untraced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Client layer — transcript to PRD, sign-offs, CRs, demos, portal<br><span class="muted">scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133,</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-009</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">4/4 · 100%</span></td>
+        <td>QA veto, DoD as policy-as-code, published QA reports<br><span class="muted">The veto is enforced. QA reports are published as dashboards/qa.html via GitHub Pages (#110), not only comments.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-010</td>
+        <td><span class="pill amber">on main, no PR</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Environment ladder preview to prod, human gate, rollback plans<br><span class="muted">The ladder is declared (policies/environments.yaml) and four GitHub Environments are configured, with a required-reviewer rule on prod — but no deploy workflow or infra exists yet to walk it. Still the largest untouched area.</span><br><span class="pill red">note contradicts its checks</span> <span class="muted">matched "no deploy workflow or infra exists" while scoring 100%</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-011</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">4/4 · 100%</span></td>
+        <td>Visibility — boards, generated dashboards, computed matrix<br><span class="muted">Traceability, standup, programme status, and burndown/velocity.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-012</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">4/4 · 100%</span></td>
+        <td>Least privilege, per-item budgets, escalation ladder</td>
+      </tr>
+      <tr>
+        <td class="req">REQ-013</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">2/2 · 100%</span></td>
+        <td>Persistent engineering memory across ephemeral sessions<br><span class="muted">Store built (#119): write/read/search on refs/notes/foundry. Dispatcher reads and writes it (#120). Seam built (#158): adapters/memory/base.py + adapters/memory/git_notes/, mirroring the tracker seam (#135); scripts/memory.py itself still calls git notes directly, unrewired, by the same design as the tracker seam. No MCP/Seal-backed second implementation (PRD §12's later phase) — that describes the code, not an event. #165 forced the first real exercise of the write path: it had shipped in #153 but every session since had succeeded, so it had never actually fired. Dispatching #169 against a devops session with an unmeetable ask made it escalate, and session end wrote and pushed a note to refs/notes/foundry on commit 773451c (run 33855463986). A second dispatch on the same issue then received that note in its assembled prompt — visible verbatim in its own run log (run 33855617391) and quoted back in its first comment — before escalating again. Read, search and write are now proven in production, not just wired and unit-tested.</span></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-014</td>
+        <td><span class="pill green">traced</span></td>
+        <td style="min-width:110px"><div style="background:var(--line);border-radius:99px;height:7px;min-width:70px"><div style="width:100%;background:var(--green);height:7px;border-radius:99px"></div></div>
+            <span class="mono muted">3/3 · 100%</span></td>
+        <td>Self-hosting — the system builds itself through itself<br><span class="muted">Demonstrated, not unproven: 46 merged pull requests have been produced by a dispatched agent session, out of 73 merged overall (measured by `collect_facts` in dashboards/status.py). The central claim holds.</span><br><span class="pill red">note contradicts its checks</span> <span class="muted">matched "unproven" while scoring 100%</span></td>
+      </tr>
+  </tbody>
+</table></div>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Roles (PRD §3)</h2>
+<ul class="bare"><li>✓ <span class="mono">orchestrator</span></li><li>✓ <span class="mono">product-manager</span></li><li>✓ <span class="mono">architect</span></li><li>✓ <span class="mono">developer</span></li><li>✓ <span class="mono">qa</span></li><li>✓ <span class="mono">devops</span></li><li>✓ <span class="mono">techwriter</span></li><li>✓ <span class="mono">delivery-lead</span></li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Ceremonies (PRD §5)</h2>
+<ul class="bare"><li>✓ <span class="mono">refinement</span></li><li>✓ <span class="mono">planning</span></li><li>✓ <span class="mono">standup</span></li><li>✓ <span class="mono">review</span></li><li>✓ <span class="mono">retro</span></li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Programme areas (PRD §14)</h2>
+<ul class="bare"><li>✓ <span class="mono">prds</span></li><li>✓ <span class="mono">requirements</span></li><li>✓ <span class="mono">adrs</span></li><li>✓ <span class="mono">role-packs</span></li><li>✓ <span class="mono">ceremonies</span></li><li>✓ <span class="mono">policies</span></li><li>✓ <span class="mono">adapters</span></li><li>✓ <span class="mono">dashboards</span></li><li>✓ <span class="mono">portal</span></li><li>✓ <span class="mono">compiler</span></li><li>✓ <span class="mono">.github/workflows</span></li></ul>
+
+<footer>
+  Generated 2026-09-04 17:19 UTC ·
+  criteria in <span class="mono">requirements/coverage.yaml</span>, reviewed like code ·
+  <a href="traceability.html">traceability</a> · <a href="standup.html">standup</a>
+</footer>
+</main></body></html>

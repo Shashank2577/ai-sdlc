@@ -1,0 +1,464 @@
+{
+  "meta": {
+    "repo": "Shashank2577/foundry-program",
+    "generated_at": "2026-09-04 17:19 UTC"
+  },
+  "facts": {
+    "roles_expected": [
+      "orchestrator",
+      "product-manager",
+      "architect",
+      "developer",
+      "qa",
+      "devops",
+      "techwriter",
+      "delivery-lead"
+    ],
+    "roles_built": [
+      "orchestrator",
+      "product-manager",
+      "architect",
+      "developer",
+      "qa",
+      "devops",
+      "techwriter",
+      "delivery-lead"
+    ],
+    "roles_unexpected": [],
+    "ceremonies_built": [
+      "refinement",
+      "planning",
+      "standup",
+      "review",
+      "retro"
+    ],
+    "dirs_present": [
+      "prds",
+      "requirements",
+      "adrs",
+      "role-packs",
+      "ceremonies",
+      "policies",
+      "adapters",
+      "dashboards",
+      "portal",
+      "compiler",
+      ".github/workflows"
+    ],
+    "agent_delivered_prs": 58,
+    "dispatch_runs": {
+      "success": 85,
+      "in_progress": 1,
+      "failure": 12
+    },
+    "merged_prs": 87,
+    "dispatched_issues": [
+      22,
+      38,
+      39,
+      40,
+      49,
+      50,
+      51,
+      52,
+      58,
+      59,
+      64,
+      67,
+      68,
+      69,
+      75,
+      79,
+      82,
+      83,
+      84,
+      87,
+      91,
+      92,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      103,
+      104,
+      105,
+      106,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      126,
+      127,
+      128,
+      129,
+      134,
+      140,
+      148,
+      150,
+      155,
+      157,
+      158,
+      159,
+      164,
+      165,
+      168,
+      169,
+      173,
+      174,
+      179,
+      180,
+      184,
+      185,
+      190,
+      191,
+      192
+    ]
+  },
+  "coverage": {
+    "REQ-001": {
+      "summary": "Coordination through the tracker; every action leaves an artifact",
+      "notes": "",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`gh issue comment` found in `.github/workflows/dispatch.yml`"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/project-sync.yml` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-002": {
+      "summary": "Harness-neutral role packs, with attribution by per-role credential tier and the Agent-Role trailer",
+      "notes": "All 8 packs exist. Attribution is by credential tier and the Agent-Role trailer, not by signature \u2014 a decision, not a gap. Distinct per-role bot identities were considered and rejected for v0; see adrs/.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`compiler/compile-pack.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`role-packs/*/pack.yaml` >= 8 (found 8)"
+        },
+        {
+          "ok": true,
+          "text": "`FOUNDRY_DEVOPS_TOKEN` found in `role-packs/devops/pack.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-003": {
+      "summary": "Harness adapter \u2014 Claude Code, Codex, DeepSeek behind one contract",
+      "notes": "Two of three named harnesses are implemented \u2014 compile_claude_code and compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The pack format is neutral; the compiler now covers most of it.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_claude_code` found in `compiler/compile-pack.py`"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_codex` found in `compiler/compile-pack.py`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-004": {
+      "summary": "Tracker adapter \u2014 GitHub Projects and Jira swappable",
+      "notes": "adapters/tracker/github and adapters/tracker/jira both exist and pass the same contract suite (#135). scripts/sync-project.py does not use either yet and still talks to GitHub directly; the Jira adapter has never been run against a live Jira instance.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/sync-project.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/tracker/github` exists"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/tracker/jira` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-005": {
+      "summary": "Git-native traceability spine",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/dod-check.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/build.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`.github/CODEOWNERS` exists"
+        },
+        {
+          "ok": true,
+          "text": "`commit_trailers` found in `policies/dod.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-006": {
+      "summary": "All five ceremonies run autonomously and end in artifacts",
+      "notes": "All five ceremonies run \u2014 standup, refinement and retro, plus planning and review, which landed in #152.",
+      "passed": 6,
+      "total": 6,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/standup.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/refinement.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/retro.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/planning.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/review.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`ceremonies/*.yaml` >= 5 (found 5)"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-007": {
+      "summary": "Human-in-the-loop as decision gates, never free-text supervision",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`Options` found in `role-packs/*/templates/escalation-comment.md`"
+        },
+        {
+          "ok": true,
+          "text": "`needs-human` found in `.github/workflows/dispatch.yml`"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/spend-report.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`policies/gates.yaml` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-008": {
+      "summary": "Client layer \u2014 transcript to PRD, sign-offs, CRs, demos, portal",
+      "notes": "scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133,",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`portal` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/*transcript*` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`policies/signoff*.yaml` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-009": {
+      "summary": "QA veto, DoD as policy-as-code, published QA reports",
+      "notes": "The veto is enforced. QA reports are published as dashboards/qa.html via GitHub Pages (#110), not only comments.",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/qa-gate.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/qa-verdict.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`policies/dod.yaml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/qa*.py` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-010": {
+      "summary": "Environment ladder preview to prod, human gate, rollback plans",
+      "notes": "The ladder is declared (policies/environments.yaml) and four GitHub Environments are configured, with a required-reviewer rule on prod \u2014 but no deploy workflow or infra exists yet to walk it. Still the largest untouched area.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/deploy*.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`infra/**` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`policies/environments.yaml` exists"
+        }
+      ],
+      "contradiction": "no deploy workflow or infra exists"
+    },
+    "REQ-011": {
+      "summary": "Visibility \u2014 boards, generated dashboards, computed matrix",
+      "notes": "Traceability, standup, programme status, and burndown/velocity.",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`dashboards/build.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/standup.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/status.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/*burndown*.py` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-012": {
+      "summary": "Least privilege, per-item budgets, escalation ladder",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/read-budget.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/spend-report.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`cost_usd` found in `role-packs/*/policy.yaml`"
+        },
+        {
+          "ok": true,
+          "text": "`deny:` found in `role-packs/*/tools.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-013": {
+      "summary": "Persistent engineering memory across ephemeral sessions",
+      "notes": "Store built (#119): write/read/search on refs/notes/foundry. Dispatcher reads and writes it (#120). Seam built (#158): adapters/memory/base.py + adapters/memory/git_notes/, mirroring the tracker seam (#135); scripts/memory.py itself still calls git notes directly, unrewired, by the same design as the tracker seam. No MCP/Seal-backed second implementation (PRD \u00a712's later phase) \u2014 that describes the code, not an event. #165 forced the first real exercise of the write path: it had shipped in #153 but every session since had succeeded, so it had never actually fired. Dispatching #169 against a devops session with an unmeetable ask made it escalate, and session end wrote and pushed a note to refs/notes/foundry on commit 773451c (run 33855463986). A second dispatch on the same issue then received that note in its assembled prompt \u2014 visible verbatim in its own run log (run 33855617391) and quoted back in its first comment \u2014 before escalating again. Read, search and write are now proven in production, not just wired and unit-tested.",
+      "passed": 2,
+      "total": 2,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/*memory*` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/memory/**` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-014": {
+      "summary": "Self-hosting \u2014 the system builds itself through itself",
+      "notes": "Demonstrated, not unproven: 46 merged pull requests have been produced by a dispatched agent session, out of 73 merged overall (measured by `collect_facts` in dashboards/status.py). The central claim holds.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/orchestrate.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "1 PR(s) delivered by a dispatched session (found 58)"
+        }
+      ],
+      "contradiction": "unproven"
+    }
+  }
+}

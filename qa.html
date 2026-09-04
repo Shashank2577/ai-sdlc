@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA verdicts — Shashank2577/foundry-program</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+</style>
+</head><body><main>
+<h1>QA verdicts</h1>
+<p class="sub">
+  Pass/fail, grouped by requirement. Computed from the <code>qa:approved</code> /
+  <code>qa:rejected</code> labels on issues carrying a
+  <code>→ **REQ-00N**</code> marker — the same labels QA's own veto
+  (<code>scripts/qa-gate.sh</code>, <code>scripts/qa-verdict.sh</code>) already
+  enforces. Nobody is asked for a verdict; the label is the verdict.
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">14</div><div class="l">requirements</div></div>
+  <div class="tile"><div class="n" style="color:var(--green)">3</div><div class="l">approved</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">rejected</div></div>
+  <div class="tile"><div class="n" style="color:var(--amber)">124</div><div class="l">pending</div></div>
+</div>
+
+<div class="scroll"><table>
+  <thead><tr><th>REQ</th><th>Status</th><th>Issues</th></tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">REQ-001</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/2">#2</a> P0-1: DoD check — policy-as-code required status check</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/18">#18</a> P0-9: Generated tracker surfaces — project board sync + wiki publish</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/22">#22</a> P0-11: Project sync adds missing work items to the board</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/25">#25</a> P0-13: A session is judged on what it shipped, not its exit code</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/38">#38</a> P0-16: A closed work item carries a terminal status label</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/129">#129</a> BUG: a session that correctly finds nothing to change is marked a fail</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-002</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/3">#3</a> P0-2: Dispatcher v0 — work item → headless agent session</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/4">#4</a> P0-3: Developer role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/9">#9</a> P0-8: Orchestrator pack v0 — assignment loop</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/29">#29</a> P0-15: Dispatcher grants the permissions it compiled, and counts retri</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/39">#39</a> P1-1: Product Manager role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/42">#42</a> P0-17: Per-role dispatch credentials — least privilege, not one omnibu</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/49">#49</a> P1-4: Architect role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/50">#50</a> P1-5: Tech Writer role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/64">#64</a> P1-9: Delivery Lead role pack — governance gets an owner</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/124">#124</a> Throughput and scope: raise WIP, give ceremonies an owner, settle REQ-</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/185">#185</a> P1-19: status.py hardcodes a role list that has never matched the pack</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-003</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/3">#3</a> P0-2: Dispatcher v0 — work item → headless agent session</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/97">#97</a> P0-18: Codex compiler target — compile_codex</li><li><span class="pill green">approved</span> <a href="https://github.com/Shashank2577/foundry-program/issues/113">#113</a> BUG: shipped-nothing gate fails open when a compiled pack has no produ</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-004</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/18">#18</a> P0-9: Generated tracker surfaces — project board sync + wiki publish</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/123">#123</a> P3-4: Tracker adapter — GitHub and Jira behind one contract</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/192">#192</a> P3-7: Rewire sync-project.py through the tracker seam — it still calls</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-005</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/2">#2</a> P0-1: DoD check — policy-as-code required status check</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/6">#6</a> P0-5: Traceability matrix generator v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/50">#50</a> P1-5: Tech Writer role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/100">#100</a> BUG: approval-gate tests are path-filtered away from the files they as</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/150">#150</a> BUG: DoD reports trailers missing when they are present but outside th</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/168">#168</a> P1-17: Check at refinement that a story's criteria fit the assigned ro</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/173">#173</a> Define a DoD deferral form so honesty does not fail the build (policy </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/174">#174</a> check-test-wiring greps for strings, so discovered tests need a commen</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/176">#176</a> BUG: DoD counts checkbox-shaped sample input in code fences as unticke</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/180">#180</a> P1-18: Implement the DoD deferral form in dod-check and the dispatch p</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-006</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/7">#7</a> P0-6: Standup digest v0 — event-derived, never self-reported</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/9">#9</a> P0-8: Orchestrator pack v0 — assignment loop</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/39">#39</a> P1-1: Product Manager role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/40">#40</a> P1-2: Refinement trigger — dispatch the PM when the ready queue emptie</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/51">#51</a> P1-6: Retro ceremony v0 — event-derived, one issue per window</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/114">#114</a> P2-2: Declare all five ceremonies as policy</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/115">#115</a> P2-3: Planning, review and retro ceremony workflows</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/124">#124</a> Throughput and scope: raise WIP, give ceremonies an owner, settle REQ-</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/140">#140</a> P2-9: Ceremony declaration validator</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/146">#146</a> REQ-006 read 100% while two of five ceremonies could not run</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/179">#179</a> 46 of 47 closed stories had no QA verdict — the veto is fine, the rule</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-007</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/20">#20</a> P0-10: One GitHub credential + correct setup steps</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/23">#23</a> P0-12: Budgets measure cost; sessions report what they did</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/40">#40</a> P1-2: Refinement trigger — dispatch the PM when the ready queue emptie</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/45">#45</a> P1-3: Approval gates as policy — critical work waits for a person</li><li><span class="pill green">approved</span> <a href="https://github.com/Shashank2577/foundry-program/issues/52">#52</a> P1-7: Enforce the approval-gate SLA</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/59">#59</a> P1-8: Document the approval gates and their SLA</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/64">#64</a> P1-9: Delivery Lead role pack — governance gets an owner</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/101">#101</a> Governance: narrow the delivery-lead write scope, and scope the approv</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/104">#104</a> P1-12: Decisions dashboard — what is waiting on a human, and what was </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/129">#129</a> BUG: a session that correctly finds nothing to change is marked a fail</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/134">#134</a> BUG: a by-design workflow-scope refusal is indistinguishable from a br</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/173">#173</a> Define a DoD deferral form so honesty does not fail the build (policy </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/180">#180</a> P1-18: Implement the DoD deferral form in dod-check and the dispatch p</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/193">#193</a> P3-8: Wire the sign-off gate into the loop — the client layer has neve</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-008</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/116">#116</a> P2-4: Client sign-off as policy-as-code</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/117">#117</a> P2-5: Client portal — what was delivered and what needs signing</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/118">#118</a> P2-6: Transcript to draft PRD and candidate requirements</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/148">#148</a> P2-10: Validators for the environment ladder and sign-off policies</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/193">#193</a> P3-8: Wire the sign-off gate into the loop — the client layer has neve</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-009</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/2">#2</a> P0-1: DoD check — policy-as-code required status check</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/5">#5</a> P0-4: QA role pack v0 + verdict enforcement</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/98">#98</a> P0-19: QA verdict dashboard — pass/fail matrix by requirement</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/179">#179</a> 46 of 47 closed stories had no QA verdict — the veto is fine, the rule</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-010</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/53">#53</a> P2-1: Environment ladder declared, production gate real</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/121">#121</a> P2-7: Environment ladder declared as policy</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/122">#122</a> P2-8: Deploy workflow with a real production gate</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/148">#148</a> P2-10: Validators for the environment ladder and sign-off policies</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/183">#183</a> Exercise the production gate once deploy.yml is on main</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/191">#191</a> P3-6: Promote the published site through the ladder — the only real de</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-011</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/6">#6</a> P0-5: Traceability matrix generator v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/7">#7</a> P0-6: Standup digest v0 — event-derived, never self-reported</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/18">#18</a> P0-9: Generated tracker surfaces — project board sync + wiki publish</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/22">#22</a> P0-11: Project sync adds missing work items to the board</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/27">#27</a> P0-14: Programme status page — traced vs actually satisfied</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/38">#38</a> P0-16: A closed work item carries a terminal status label</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/59">#59</a> P1-8: Document the approval gates and their SLA</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/96">#96</a> P1-10: Burndown &amp; velocity dashboard</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/103">#103</a> P1-11: Architecture decision records — establish the format and backfi</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/104">#104</a> P1-12: Decisions dashboard — what is waiting on a human, and what was </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/105">#105</a> P1-13: ADR dashboard — render the decision records as a page</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/106">#106</a> P1-14: Publish the decisions and ADR pages — dashboards workflow wirin</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/117">#117</a> P2-5: Client portal — what was delivered and what needs signing</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/126">#126</a> P1-15: ADR validator</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/127">#127</a> Three merges in a row conflicted on build.py's page registry</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/142">#142</a> BUG: main is red because a requirement was satisfied — status test pin</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/146">#146</a> REQ-006 read 100% while two of five ceremonies could not run</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/159">#159</a> Self-hosting verdict is hardcoded 'unproven' while the page prints 46 </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/164">#164</a> P1-16: Compute the self-hosting verdict, and catch notes that contradi</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/185">#185</a> P1-19: status.py hardcodes a role list that has never matched the pack</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/191">#191</a> P3-6: Promote the published site through the ladder — the only real de</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-012</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/4">#4</a> P0-3: Developer role pack v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/8">#8</a> P0-7: Budgets + escalation ladder v0</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/20">#20</a> P0-10: One GitHub credential + correct setup steps</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/23">#23</a> P0-12: Budgets measure cost; sessions report what they did</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/25">#25</a> P0-13: A session is judged on what it shipped, not its exit code</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/29">#29</a> P0-15: Dispatcher grants the permissions it compiled, and counts retri</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/42">#42</a> P0-17: Per-role dispatch credentials — least privilege, not one omnibu</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/45">#45</a> P1-3: Approval gates as policy — critical work waits for a person</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/64">#64</a> P1-9: Delivery Lead role pack — governance gets an owner</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/100">#100</a> BUG: approval-gate tests are path-filtered away from the files they as</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/101">#101</a> Governance: narrow the delivery-lead write scope, and scope the approv</li><li><span class="pill green">approved</span> <a href="https://github.com/Shashank2577/foundry-program/issues/113">#113</a> BUG: shipped-nothing gate fails open when a compiled pack has no produ</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/128">#128</a> The test-wiring handoff has blocked four PRs — remove it or queue it</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/134">#134</a> BUG: a by-design workflow-scope refusal is indistinguishable from a br</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/168">#168</a> P1-17: Check at refinement that a story's criteria fit the assigned ro</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/174">#174</a> check-test-wiring greps for strings, so discovered tests need a commen</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/190">#190</a> portal/ and adapters/ are in no role's write scope, so the new story-s</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-013</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/51">#51</a> P1-6: Retro ceremony v0 — event-derived, one issue per window</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/54">#54</a> P3-1: Engineering memory in git notes</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/103">#103</a> P1-11: Architecture decision records — establish the format and backfi</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/105">#105</a> P1-13: ADR dashboard — render the decision records as a page</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/119">#119</a> P3-2: Engineering memory — the git notes store</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/120">#120</a> P3-3: Engineering memory — dispatcher writes and reads notes</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/126">#126</a> P1-15: ADR validator</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/158">#158</a> P3-5: Memory seam — MemoryStore contract behind the git-notes backend</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/165">#165</a> Engineering memory has never written a note in production — refs/notes</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-014</td>
+        <td><span class="pill amber">pending</span></td>
+        <td><ul class="bare"><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/27">#27</a> P0-14: Programme status page — traced vs actually satisfied</li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/159">#159</a> Self-hosting verdict is hardcoded 'unproven' while the page prints 46 </li><li><span class="pill amber">pending</span> <a href="https://github.com/Shashank2577/foundry-program/issues/164">#164</a> P1-16: Compute the self-hosting verdict, and catch notes that contradi</li></ul></td>
+      </tr>
+  </tbody>
+</table></div>
+
+<p class="sub" style="margin-top:2rem">
+  Out of scope here (PRD §8): coverage trend, defect density and a flake
+  list all need escaped-defect tracking and CI flake history that do not
+  exist as computable inputs yet. A per-sprint cut is likewise out of scope —
+  there is no populated sprint field to group by.
+</p>
+
+<footer>
+  Generated 2026-09-04 17:19 UTC from
+  <a href="https://github.com/Shashank2577/foundry-program">Shashank2577/foundry-program</a>.
+</footer>
+</main></body></html>

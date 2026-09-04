@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "repo": "Shashank2577/foundry-program",
+    "repo_url": "https://github.com/Shashank2577/foundry-program",
+    "generated_at": "2026-09-04 17:18 UTC"
+  },
+  "records": [
+    {
+      "id": "0001",
+      "filename": "0001-per-role-credentials-devops-only-holds-workflow-scope.md",
+      "title": "Per-role credentials; only DevOps holds `workflow` scope",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#42",
+      "requirements": [
+        "REQ-002",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "human (issue #42), implemented in PR #43",
+      "date": "2026-09-02 (reconstructed from PR #43's merge commit timestamp; not stated explicitly in the artefacts)",
+      "sections": [
+        [
+          "Context",
+          "Issue #38 needed a push to `.github/workflows/**` and failed: the default\n`GITHUB_TOKEN` cannot write that path. The obvious fix \u2014 hand every\ndispatched session the one credential that can (`FOUNDRY_TOKEN`, carrying\n`repo` + `workflow` + `project`) \u2014 was rejected in #42 for two reasons: it\nwidens every role's reach to unblock one, and it contradicts PRD \u00a73, which\nnames `.github/workflows/` and `infra/` as DevOps's write scope, not\nDeveloper's. At the time, `role-packs/developer/policy.yaml` allowed\n`.github/workflows/**` under the comment \"DevOps-adjacent; cross-reviewed\" \u2014\na rationalisation, not a boundary."
+        ],
+        [
+          "Options considered",
+          "### Option A: One shared credential, scoped to the union of all roles' needs\n\n- **Cost:** Zero new secrets to provision. But every dispatched session,\n  regardless of role, carries `workflow` scope \u2014 a developer or QA session\n  compromised or misdirected can rewrite the CI checks and dispatcher that\n  govern it.\n- **Consequence:** Least-privilege (REQ-012) is unenforceable; scope lives\n  in prose comments, not in what the token can actually do.\n\n### Option B: Per-role credentials, declared in each pack\n\n- **Cost:** Four secrets to provision instead of one\n  (`FOUNDRY_DEV_TOKEN`, `FOUNDRY_DEVOPS_TOKEN`, `FOUNDRY_TOKEN`,\n  `GITHUB_TOKEN` fallback); the dispatcher resolves `identity.token_secret`\n  per pack instead of hardcoding one. Roles at the same privilege level\n  share a secret, so this is not one secret per role.\n- **Consequence:** A role's write scope is enforced by what its credential\n  can push, not only by policy prose. `.github/workflows/**` and `infra/**`\n  move to `role-packs/devops/`, the only pack whose token carries\n  `workflow` scope and which cannot merge or approve a PR."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: the credential boundary is the only one a required check\ncannot be edited around, because the check is exactly what a wider\ncredential could edit."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** human (issue #42), implemented in PR #43\n**Date:** 2026-09-02 (reconstructed from PR #43's merge commit timestamp;\nnot stated explicitly in the artefacts)\n\n`.github/workflows/**` and `infra/**` denied to the developer pack;\n`FOUNDRY_DEVOPS_TOKEN` (`repo` + `workflow`) given only to `role-packs/devops/`.\nThe PR that implemented this also relabelled 21 prior commits' provenance:\nunder the corrected model, every past commit touching\n`.github/workflows/` should have carried `Agent-Role: devops`, not\n`developer`."
+        ],
+        [
+          "Consequences",
+          "Adding a role never means widening an existing role's token \u2014 a new\n`pack.yaml` just declares `identity.token_secret`, and the dispatcher reads\nit with no role\u2192secret table to edit. A pack whose declared secret is not\nconfigured falls back to `GITHUB_TOKEN` with a loud warning rather than a\nsilent grant. Any future pack that needs `.github/workflows/` or `infra/`\nwrite access is a decision on the scale of this one, not a policy-file\nedit."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0002",
+      "filename": "0002-cost-is-the-enforced-ceiling-tokens-are-a-tripwire.md",
+      "title": "Cost is the enforced budget ceiling; tokens are a reported, non-breaching tripwire",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#23",
+      "requirements": [
+        "REQ-007",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "human (issue #23), implemented in PR #24",
+      "date": "2026-09-02 (reconstructed from PR #24's merge commit timestamp)",
+      "sections": [
+        [
+          "Context",
+          "The repo's first live agent dispatch (run 33583977341, issue #22) cost\n$0.61 and was reported as a 1,414,300-token, 3.5x budget breach against a\n400k-token ceiling. Of those tokens, 1,351,447 (96%) were cache reads \u2014\nre-reads of context already paid for once. Fresh tokens were ~63k, well\ninside budget. The escalation ladder fired on an accounting artifact, not\non overspend, and its own advice (\"read the transcript before spending\nagain\") was unfollowable: the transcript is written to `$RUNNER_TEMP` and\ndestroyed with the runner, so the run had zero artifacts to read."
+        ],
+        [
+          "Options considered",
+          "### Option A: Keep tokens (including cache reads) as a hard breach line\n\n- **Cost:** Every cache-heavy session \u2014 which is most of them, since\n  rehydrating a role pack and its charter on each turn is exactly what the\n  harness caches \u2014 reads as a breach regardless of actual spend. The\n  escalation ladder burns a retry on sessions that did nothing wrong.\n- **Consequence:** The budget model measures context-window mechanics, not\n  the thing the org actually pays for.\n\n### Option B: Cost becomes the enforced ceiling; tokens are reported and flagged, never breach; cache reads excluded from the token count\n\n- **Cost:** Requires the dispatcher to plumb actual per-session cost\n  (already available from the harness) into the spend report, and to\n  separate cache reads from fresh tokens (input + output + cache writes) in\n  the count that's reported.\n- **Consequence:** A session is judged on what it actually cost the org.\n  Tokens remain visible for diagnosing runaway context growth, but stop\n  being a false-positive breach source."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: cost is the number that is actually scarce here (a fixed\ndollar ceiling per work item); a token count that's 96% cache reads tells a\nreviewer nothing about spend."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** human (issue #23), implemented in PR #24\n**Date:** 2026-09-02 (reconstructed from PR #24's merge commit timestamp)\n\nReplaying the same session's real numbers under the new rules: $0.61 of\n$5.00, 31 of 60 turns, 63k of 400k fresh tokens \u2014 no breach, correctly. The\ndeveloper turn budget was also raised 30 -> 60 in the same change, on the\nevidence that 31 turns with no branch pushed was a session still reading\ncode, not one looping."
+        ],
+        [
+          "Consequences",
+          "Every role pack's `policy.yaml` budget model (see\n`role-packs/architect/policy.yaml`) now states `cost_usd` as the breaching\nceiling and `tokens` explicitly as a tripwire only (\"reported, never a\nbreach\"). Any future budget dimension added to a pack should name, up\nfront, whether it is enforced or advisory \u2014 this decision is the reason\nthat distinction exists in the budget schema at all."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0003",
+      "filename": "0003-governance-owner-keeps-policies-not-other-role-packs.md",
+      "title": "The governance owner keeps `policies/**` but not other roles' packs",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#101",
+      "requirements": [
+        "REQ-007",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "human operator, 2026-09-03 (per PR #102, \"Two governance decisions, both settled by the human operator on 2026-09-03\")",
+      "date": "2026-09-03",
+      "sections": [
+        [
+          "Context",
+          "`role-packs/delivery-lead/policy.yaml` allowed `write_scope` on both\n`policies/**` and `role-packs/**`. The second grant meant the governance\npack could rewrite any other role's (including its own) budget, tool\ndenials and write scope \u2014 which made two of its own `forbidden` entries,\n`granting_itself_more_scope` and `change_widens_another_roles_permissions`,\nprose rather than enforced scope. This shipped unnoticed (`d04c52f`)\nbecause the CI job that tests it, `approval-gate.yml`, was path-filtered to\nexclude `role-packs/**` \u2014 the exact directory the bug is about (tracked\nseparately as #100)."
+        ],
+        [
+          "Options considered",
+          "### Option A: Keep `role-packs/**` as delivery-lead's write scope\n\n- **Cost:** None to build \u2014 this was already the state. The ongoing cost is\n  that governance's own `forbidden` list cannot be trusted: a rule saying a\n  pack \"must not grant itself more scope\" is unenforced if that same pack\n  can edit the file the rule lives in.\n- **Consequence:** No agent-writable boundary actually constrains the\n  governance role. Every other role's scope is only as safe as this one\n  pack's judgment, every session.\n\n### Option B: Narrow to `role-packs/delivery-lead/**`; other packs change only via a human-merged PR\n\n- **Cost:** Governance changes to another role's pack become two-step \u2014\n  the delivery-lead session proposes, a human merges \u2014 instead of one\n  agent-authored commit. Matches the scoping already used for `devops`.\n- **Consequence:** A permission-widening change becomes visible as a PR a\n  person reviews, which is where PRD \u00a713's \"nothing an agent does\n  unsupervised is irreversible\" says it should surface anyway.\n\n### Option C: Remove `policies/**` from delivery-lead entirely\n\n- **Cost:** The gates (`policies/gates.yaml`, `policies/dod.yaml`) would\n  have no agent owner and no way to be changed through the loop at all \u2014\n  every gate edit becomes a manual, off-loop human commit.\n- **Consequence:** Safer in isolation, but reverses the reason a governance\n  role pack exists (PRD \u00a713: guardrails need an owner, not just a human\n  editing YAML by hand forever)."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: it keeps governance's reason to exist (an agent owner for the\ngates) while removing the one grant that made its own self-scoping rules\nunenforceable. C is the safer static state but undoes the pack's purpose;\nA is the status quo the bug report exists to fix."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** human operator, 2026-09-03 (per PR #102, \"Two governance\ndecisions, both settled by the human operator on 2026-09-03\")\n**Date:** 2026-09-03\n\n`role-packs/delivery-lead/policy.yaml` write scope narrowed to\n`policies/**` and `role-packs/delivery-lead/**`, nothing wider \u2014 matching\nhow `devops` is scoped to its own pack. The `policies/**` exception is kept\ndeliberately, and is asserted safe under two conditions that are now tests\nrather than prose: every `role:delivery-lead` story is critical by its\nlabel alone (new `governance_role` gate rule, see ADR-0004), and the pack's\n`shell.allow` omits both merge and approve commands so it structurally\ncannot self-approve."
+        ],
+        [
+          "Consequences",
+          "Any future widening of `role-packs/delivery-lead/**` toward another pack's\ndirectory is, by this ADR, the kind of change that needs its own ADR and\nexplicit human sign-off \u2014 not a policy tweak folded into an unrelated\nstory. `scripts/test_gate_check.py` now asserts\n`test_no_pack_may_write_another_packs_directory` as the general form, so\nthis specific failure mode cannot recur in a different pack without a test\nfailing first. `approval-gate.yml`'s `pull_request.paths` filter was\nwidened to include `role-packs/**` in the same change, so this class of bug\nrunning green and unnoticed cannot repeat undetected."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0004",
+      "filename": "0004-approval-gate-scopes-to-write-capability.md",
+      "title": "The approval gate scopes to write capability, not to path mentions",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#101",
+      "requirements": [
+        "REQ-007",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "human operator, 2026-09-03 (PR #102, decision 2)",
+      "date": "2026-09-03",
+      "sections": [
+        [
+          "Context",
+          "`policies/gates.yaml`'s critical-work rules (`touches_governance`,\n`changes_requirements`, etc.) matched on whether a story's text named a\nprotected path, e.g. `.github/workflows/`. Measured across all 53 issues in\nthe repo at the time, this held 41 (77%) for human approval.\n`touches_governance` alone fired on 50%, because this repo's stories\nroutinely *name* `.github/workflows/` or `policies/` without proposing to\nchange them \u2014 it is a workflow-and-policy repo, so those strings are\neverywhere. A `role:developer` story mentioning `.github/workflows/` was\nheld even though the developer pack denies that path and its token lacks\n`workflow` scope (ADR-0001) \u2014 a gate on a change that cannot happen. The\npolicy's own header had predicted this: \"a gate on everything is a gate\nnobody reads \u2014 and a gate nobody reads is worse than no gate, since it\nlaunders whatever passes through it.\""
+        ],
+        [
+          "Options considered",
+          "### Option A: Keep text/substring matching on protected path names\n\n- **Cost:** Ships as-is; no further work. Ongoing cost is the 77% hold\n  rate \u2014 real approvals get lost in volume, and a human reviewing gate\n  activity habituates to rubber-stamping because most of what they see is\n  a story that could never have made the change in the first place.\n- **Consequence:** The gate's signal-to-noise ratio stays bad indefinitely;\n  PRD \u00a77's \"few gates, all visual, each with an SLA\" is undermined by\n  \"few\" not holding in practice.\n\n### Option B: Scope each `guards_paths` rule to fire only when the story's role could actually write one of those paths, per that role's own `write_scope`\n\n- **Cost:** The gate check must resolve each role's `write_scope` at\n  evaluation time and stay conservative on unknowns \u2014 no role label, an\n  unrecognised role, two role labels, or an unreadable pack must all still\n  count as capable, or the gate becomes bypassable by omitting a label.\n  This shipped twice before it was right: the first attempt classified the\n  entire backlog as critical (see PR #46's \"my first version...\").\n- **Consequence:** The gate holds only work that could actually touch a\n  guarded path. Measured result: 41/53 (77%) -> 34/53 (64%), leaving\n  `pipeline_role` and `governance_role` (both meant to hold every time) as\n  the largest categories."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: it keeps the gate meaningful without loosening what it\nactually protects \u2014 the residual holds are exactly the two roles (devops,\ndelivery-lead) that PRD \u00a713 says should always be held."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** human operator, 2026-09-03 (PR #102, decision 2)\n**Date:** 2026-09-03\n\nRules carrying `guards_paths` now fire only when the story's role's own\n`write_scope` reaches one of those paths \u2014 the same boundary the credential\nmodel (ADR-0001) already uses, checked through the same code rather than a\nsecond, independently-drifting copy of it. Conservative-on-unknowns is\nexplicit policy, not an incidental default: an unrefined or ambiguously\nlabelled story is exactly when least is known, and scoping must not become\na way past the gate for exactly that case."
+        ],
+        [
+          "Consequences",
+          "Any new `critical_when` rule added to `policies/gates.yaml` in future is\nexpected to carry `guards_paths` and go through this same capability check,\nnot a bare text match \u2014 a rule that skips it reintroduces the 77% noise\nproblem this ADR exists to fix. `scripts/test_gate_check.py`'s\n`test_every_guarded_path_names_a_real_scope_pattern` and\n`test_a_pack_cannot_reach_its_own_gate_through_write_capability` are the\nenforcement; a change to `gates.yaml` that fails either is reverting this\ndecision, not extending it."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0005",
+      "filename": "0005-qa-rejected-returns-story-to-ready-not-excluded.md",
+      "title": "`qa:rejected` returns a story to dispatch eligibility rather than excluding it",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#75, #79",
+      "requirements": [
+        "REQ-002",
+        "REQ-009"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "architect/developer session, implemented in PR #81, closing",
+      "date": "2026-09-02 (reconstructed from PR #81's merge commit timestamp)",
+      "sections": [
+        [
+          "Context",
+          "`role-packs/orchestrator/policy.yaml` listed `qa:rejected` in\n`eligibility.exclude_labels`, so the loop would never dispatch a story\ncarrying that label \u2014 a deadlock, since QA's own charter says \"do not fix\nthe code, reject with specifics; a developer session fixes it,\" but nothing\ncould dispatch that developer session while the rejecting label was still\nattached. Issue #75 names its own origin honestly: \"I wrote the exclusion\nand the comment justifying it... and never built the 'back through its\nauthor' half.\" Issue #52 was stuck in exactly this state: rejected, PR\nunmergeable, no path back through the loop. A second defect (#79) compounded\nit: even with `qa:rejected` removed from `exclude_labels`, QA dispatch\nitself used a fixed `eligibility.require_labels: [status:ready]` for every\nrole, so QA \u2014 dispatchable from `status:in-review` per the dispatcher's own\nguard \u2014 could still never be *planned* by the loop, only run by hand."
+        ],
+        [
+          "Options considered",
+          "### Option A: Keep `qa:rejected` in `exclude_labels`; build a separate re-dispatch path for rejected work\n\n- **Cost:** A second dispatch mechanism to design, build and keep in sync\n  with the primary one \u2014 eligibility rules would exist in two places for\n  what is otherwise one state machine.\n- **Consequence:** `qa:rejected` continues to double as both \"blocks\n  closure\" (its real job, already enforced structurally by\n  `scripts/qa-gate.sh` and `qa-verdict.sh close-guard`) and \"blocks\n  dispatch\" (redundant with the first, and the thing actually causing the\n  deadlock).\n\n### Option B: Drop `qa:rejected` from `exclude_labels`; fix eligibility to read each role's own `dispatchable_from`\n\n- **Cost:** `scripts/assign.py` eligibility moves from one fixed\n  `require_labels` to reading `role-packs/<role>/pack.yaml`'s\n  `dispatchable_from` per role \u2014 more moving parts, but the same\n  declaration the dispatcher's own guard already reads via the compiler, so\n  no new source of truth is introduced.\n- **Consequence:** A rejected story can be replanned once a human moves it\n  back to `status:ready` (the state gate that actually governs\n  redispatch \u2014 a rejected item cannot reach `status:ready` on its own).\n  `qa:rejected` stops doing double duty; it blocks closure only, which is\n  where it was already enforced structurally."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: the state gate (`status:ready`, human-applied per ADR-0004's\napproval model) already governs when a rejected story can be replanned;\nhaving the label do the same job too was redundant and, on top of it, the\nthing actually deadlocking #52."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** architect/developer session, implemented in PR #81, closing\n#79\n**Date:** 2026-09-02 (reconstructed from PR #81's merge commit timestamp)\n\nPR #81 states this plainly as a judgment call beyond the issue's own\nGherkin scenarios \u2014 none of which names `qa:rejected` directly: \"This is an\ninterpretive call... but it's what made `scripts/test_assign.py:\ntest_qa_rejected_blocks` need inverting per the issue's own note, and it's\nconsistent with the issue's `#52 -> missing status:ready` diagnostic\n(confirmed live, see Evidence).\""
+        ],
+        [
+          "Consequences",
+          "`qa:rejected` now means exactly one thing \u2014 the PR cannot merge and the\nissue cannot close \u2014 enforced in two places\n(`scripts/qa-gate.sh`, `scripts/qa-verdict.sh`), not three. Eligibility for\ndispatch is read per-role from `dispatchable_from` rather than one\nrepo-wide `require_labels` default, which is the mechanism any future role\nwith a non-standard dispatch state (like QA's `status:in-review`) is\nexpected to use instead of adding another special case to\n`scripts/assign.py`."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0006",
+      "filename": "0006-harness-neutral-packs-compiled-with-unmappable-tool-rules.md",
+      "title": "Role packs are harness-neutral; the compiler writes rules it cannot express to `UNMAPPABLE.md` instead of dropping them",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#4",
+      "requirements": [
+        "REQ-002"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "architect/developer session, implemented in PR #12, closing",
+      "date": "2026-09-02 (reconstructed from PR #12's merge commit timestamp)",
+      "sections": [
+        [
+          "Context",
+          "PRD \u00a73 requires role packs to be harness-neutral \u2014 one definition of a\nrole's charter, skills, budget and tool scope, usable across whichever\nharness (claude-code, codex, deepseek, ...) actually runs a session. The\nfirst real pack (`role-packs/developer/`) needed something to turn that\nneutral definition into a harness's native config, and needed a stated\nanswer for the case where a harness's config format cannot express a rule\nthe neutral pack declares \u2014 most concretely, a tool-deny rule with an\ninterior wildcard, which not every harness's allow/deny syntax supports."
+        ],
+        [
+          "Options considered",
+          "### Option A: Write each role pack directly in every supported harness's native format\n\n- **Cost:** N packs x M harnesses, hand-maintained in parallel. Every\n  policy change (a new deny rule, a budget adjustment) is M edits instead\n  of one, and nothing catches the day they drift apart.\n- **Consequence:** \"Harness-neutral\" is a claim in the PRD, not a property\n  of the repo \u2014 two harnesses running the \"same\" role pack can silently\n  enforce different things.\n\n### Option B: One neutral pack per role; a compiler renders it per harness, and a rule the target cannot express is written to `UNMAPPABLE.md`\n\n- **Cost:** Build and maintain `compiler/compile-pack.py` \u2014 validation for\n  missing files, role/directory mismatches, incomplete budgets and dangling\n  escalation templates, all failing loudly with the file named, plus the\n  render logic itself per harness target.\n- **Consequence:** One source of truth per role. A tool rule the compiler\n  cannot map to the target harness's syntax is not silently dropped \u2014 it is\n  written to `UNMAPPABLE.md` next to the compiled config, so an operator\n  can see, per harness, exactly which controls did not make it through."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: a deny rule that silently fails to compile is worse than no\nrule at all, because the operator believes a control exists when it does\nnot. `UNMAPPABLE.md` turns a silent gap into a visible one, at the cost of\nbuilding and maintaining the compiler once, centrally, instead of drifting\nper-harness packs forever."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** architect/developer session, implemented in PR #12, closing\n#4\n**Date:** 2026-09-02 (reconstructed from PR #12's merge commit timestamp)\n\n`compiler/compile-pack.py` renders a neutral pack for a target harness,\nrejecting a malformed one (missing required file, role/directory mismatch,\nunbudgeted role, dangling escalation template) rather than compiling it\npartially. A tool rule with, for example, an interior wildcard that the\ntarget harness's allow/deny syntax cannot express is written to\n`UNMAPPABLE.md` in the compiled output directory instead of being dropped."
+        ],
+        [
+          "Consequences",
+          "Every future harness target (codex's `compile_codex`, added later, is the\nfirst proof of this) is expected to plug into the same compiler and the\nsame `UNMAPPABLE.md` convention rather than inventing its own silent-drop\nbehaviour. Any pack change is validated once, centrally, by\n`compiler/test_compile_pack.py`'s `test_every_committed_pack_compiles`, so\na pack that stops compiling for one harness fails CI before it reaches a\ndispatched session."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0007",
+      "filename": "0007-approval-proven-by-labeler-identity-not-label-presence.md",
+      "title": "Approval is proven by the identity of who applied the label, never by the label's presence",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/foundry-program#45",
+      "requirements": [
+        "REQ-007",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "architect/developer session, implemented in PR #46, closing",
+      "date": "2026-09-02 (reconstructed from PR #46's merge commit timestamp, `4ed0c48`, in git log \u2014 not stated in the PR body itself)",
+      "sections": [
+        [
+          "Context",
+          "`policies/gates.yaml`'s `dispatch_approval` gate needed a mechanical\ndefinition of \"approved to run unsupervised\" for critical work. A label\nalone (`status:ready`) is not proof of anything: any session with write\naccess to issues can apply a label, including an agent session \u2014 so a gate\nthat only checks for the label's presence is a gate an agent can satisfy\nfor itself, which is not a gate."
+        ],
+        [
+          "Options considered",
+          "### Option A: Treat `status:ready` as approval whenever present, regardless of who applied it\n\n- **Cost:** None to build \u2014 labels are already read everywhere else in the\n  loop this way.\n- **Consequence:** Forgeable. Any agent session that can label an issue\n  (which dispatch itself requires, for routine work) can self-apply the\n  approval label on critical work too, defeating the gate it is supposed to\n  pass through.\n\n### Option B: Enforce via the `issues: labeled` event payload's sender \u2014 dispatch proceeds only when a human account applied the label; an agent-applied label on a critical rule reverts the story and posts `needs-human`\n\n- **Cost:** Requires a maintained `is_human()` classification \u2014 a\n  deny-list of non-human actor patterns (`[bot]` suffixes,\n  `github-actions`, `dependabot`, `copilot`), erring toward \"not a person\"\n  on anything unrecognised, since erring the other way defeats the gate on\n  exactly the case it exists for.\n- **Consequence:** Approval is a fact about who took an action GitHub\n  itself recorded (the event sender), not a marker a session can assert\n  about itself. Same mechanism the dispatcher's `status:ready`\n  prompt-injection guard already relies on, applied one level further in."
+        ],
+        [
+          "Recommendation",
+          "Recommend B: it is the only option where \"approved\" is a fact the gate\nobserves rather than a claim the gated thing can make about itself."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option B\n**Decided by:** architect/developer session, implemented in PR #46, closing\n#45\n**Date:** 2026-09-02 (reconstructed from PR #46's merge commit timestamp,\n`4ed0c48`, in git log \u2014 not stated in the PR body itself)\n\n```\nbot   + critical  -> HELD \u2014 reverted to status:needs-refinement, needs-human, comment names every rule\nbot   + routine   -> no action, no comment\nhuman + critical  -> approved (a person applied it)\n```\n\n`is_human()` is a deny-list, not an allow-list, and an empty actor is\ntreated as non-human \u2014 both deliberate, since erring toward \"approved\" on\nan unrecognised actor would defeat the gate."
+        ],
+        [
+          "Consequences",
+          "Any future approval-shaped gate in this repo (this ADR's mechanism is\nreused, not just precedent, by ADR-0003's `governance_role` rule and\nADR-0004's capability scoping) is expected to check actor identity from the\nevent payload, not label presence, or it inherits this exact forgeability\ngap. `scripts/test_gate_check.py` is where that expectation is checked in\ncode."
+        ]
+      ],
+      "error": null
+    }
+  ]
+}

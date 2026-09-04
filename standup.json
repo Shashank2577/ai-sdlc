@@ -1,0 +1,417 @@
+{
+  "window_hours": 24,
+  "generated_at": "2026-09-04T17:18:12.073855+00:00",
+  "roles": [
+    {
+      "role": "unknown",
+      "commits": 24,
+      "requirements": [],
+      "harnesses": [
+        "unknown"
+      ],
+      "subjects": [
+        {
+          "sha": "6566296",
+          "subject": "fix(gates): qa_verdict's default_if_unanswered described a hook that never existed (#187)"
+        },
+        {
+          "sha": "a7fc86d",
+          "subject": "fix(status): derive PRD_ROLES from requirements/coverage.yaml, not a literal (#186)"
+        },
+        {
+          "sha": "ce2659d",
+          "subject": "feat(deploy): dispatchable deploy workflow with a real prod gate (#161)"
+        },
+        {
+          "sha": "aa2ec97",
+          "subject": "fix(check-test-wiring): simulate real discovery instead of grepping YAML (#182)"
+        },
+        {
+          "sha": "79aed69",
+          "subject": "Define a DoD checklist deferral form (policy half) (#181)"
+        }
+      ]
+    },
+    {
+      "role": "devops",
+      "commits": 4,
+      "requirements": [
+        "REQ-005",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012"
+      ],
+      "harnesses": [
+        "claude-code",
+        "claude-code/2.0"
+      ],
+      "subjects": [
+        {
+          "sha": "3715a99",
+          "subject": "feat(dashboards): promote the published site through the environment ladder"
+        },
+        {
+          "sha": "6f6fd18",
+          "subject": "fix(dod-check): ignore checkbox-shaped text inside code fences (#177)"
+        },
+        {
+          "sha": "0f447a3",
+          "subject": "ci(unit-tests): discover every python test, do not enumerate directories (#175)"
+        },
+        {
+          "sha": "5ff7db7",
+          "subject": "ci(dashboards): discover generator tests and pages instead of enumerating them (#141)"
+        }
+      ]
+    }
+  ],
+  "commits_total": 28,
+  "pulls": {
+    "opened": [
+      {
+        "number": 196,
+        "title": "P3-7: Rewire sync-project.py through the tracker seam",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/196",
+        "branch": "story/FDY-192-rewire-sync-project-tracker-seam"
+      },
+      {
+        "number": 195,
+        "title": "fix(scope): claim portal/** and adapters/** in developer's write scope",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/195",
+        "branch": "story/FDY-190-claim-portal-adapters-scope"
+      },
+      {
+        "number": 189,
+        "title": "P1-18: Implement the DoD deferral form in dod-check and the dispatch prompt",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/189",
+        "branch": "story/FDY-180-dod-deferral-form"
+      },
+      {
+        "number": 188,
+        "title": "fix(prd): Delivery Lead and Delivery Manager are two roles, not one",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/188",
+        "branch": "story/FDY-184-delivery-lead-naming"
+      },
+      {
+        "number": 187,
+        "title": "fix(gates): define what a closure without a QA verdict actually means",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/187",
+        "branch": "bug/FDY-179-qa-verdict-closure-classification"
+      },
+      {
+        "number": 186,
+        "title": "P1-19: status.py hardcodes a role list that has never matched the packs",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/186",
+        "branch": "story/FDY-185-status-role-list"
+      },
+      {
+        "number": 182,
+        "title": "fix(check-test-wiring): simulate real discovery instead of grepping YAML",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/182",
+        "branch": "story/FDY-174-list-python-tests"
+      },
+      {
+        "number": 181,
+        "title": "Define a DoD checklist deferral form (policy half)",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/181",
+        "branch": "story/FDY-173-dod-deferral-form"
+      },
+      {
+        "number": 177,
+        "title": "fix(dod-check): ignore checkbox-shaped text inside code fences",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/177",
+        "branch": "bug/FDY-176-dod-ignores-fenced-boxes"
+      },
+      {
+        "number": 175,
+        "title": "ci(unit-tests): discover every python test, do not enumerate directories",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/175",
+        "branch": "bug/FDY-171-discover-all-python-tests"
+      },
+      {
+        "number": 172,
+        "title": "P1-17: check a story's criteria against its assigned role's write scope",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/172",
+        "branch": "story/FDY-168-check-story-scope-at-refinement"
+      },
+      {
+        "number": 170,
+        "title": "docs(requirements): prove the REQ-013 memory round trip in production",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/170",
+        "branch": "story/FDY-165-memory-roundtrip-evidence"
+      },
+      {
+        "number": 167,
+        "title": "P1-16: compute the self-hosting verdict, catch notes that contradict their checks",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/167",
+        "branch": "story/FDY-164-self-hosting-verdict"
+      },
+      {
+        "number": 166,
+        "title": "P3-5: Memory seam \u2014 MemoryStore contract behind the git-notes backend",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/166",
+        "branch": "story/FDY-158-memory-seam"
+      },
+      {
+        "number": 163,
+        "title": "fix(requirements): correct stale notes: prose against computed checks",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/163",
+        "branch": "story/FDY-159-notes-drift-audit"
+      },
+      {
+        "number": 162,
+        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/162",
+        "branch": "story/FDY-117-client-portal"
+      },
+      {
+        "number": 161,
+        "title": "P2-8: Deploy workflow with a real production gate",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/161",
+        "branch": "story/FDY-122-deploy-workflow-prod-gate"
+      },
+      {
+        "number": 160,
+        "title": "docs(developer): state the trailer-contiguity rule explicitly",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/160",
+        "branch": "bug/FDY-155-trailer-contiguity-rule"
+      },
+      {
+        "number": 156,
+        "title": "fix(dod-check): name split trailer blocks instead of calling them missing",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/156",
+        "branch": "bug/FDY-150-dod-trailer-diagnosis"
+      },
+      {
+        "number": 154,
+        "title": "fix(dispatch): turn a workflow-scope push refusal into evidence, not a theory",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/154",
+        "branch": "bug/FDY-134-workflow-refusal-diagnosis"
+      },
+      {
+        "number": 153,
+        "title": "P3-3: Engineering memory \u2014 dispatcher writes and reads notes",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/153",
+        "branch": "story/FDY-120-dispatcher-memory-notes"
+      },
+      {
+        "number": 152,
+        "title": "P2-3: planning and review ceremony workflows (retro already ran)",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/152",
+        "branch": "story/FDY-115-planning-review-ceremonies"
+      },
+      {
+        "number": 151,
+        "title": "P2-10: Validators for the environment ladder and sign-off policies",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/151",
+        "branch": "story/FDY-148-environment-and-signoff-validators"
+      },
+      {
+        "number": 149,
+        "title": "P2-9: Ceremony declaration validator",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/149",
+        "branch": "story/FDY-140-ceremony-declaration-validator"
+      }
+    ],
+    "merged": [
+      {
+        "number": 187,
+        "title": "fix(gates): define what a closure without a QA verdict actually means",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/187",
+        "branch": "bug/FDY-179-qa-verdict-closure-classification"
+      },
+      {
+        "number": 186,
+        "title": "P1-19: status.py hardcodes a role list that has never matched the packs",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/186",
+        "branch": "story/FDY-185-status-role-list"
+      },
+      {
+        "number": 182,
+        "title": "fix(check-test-wiring): simulate real discovery instead of grepping YAML",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/182",
+        "branch": "story/FDY-174-list-python-tests"
+      },
+      {
+        "number": 181,
+        "title": "Define a DoD checklist deferral form (policy half)",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/181",
+        "branch": "story/FDY-173-dod-deferral-form"
+      },
+      {
+        "number": 177,
+        "title": "fix(dod-check): ignore checkbox-shaped text inside code fences",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/177",
+        "branch": "bug/FDY-176-dod-ignores-fenced-boxes"
+      },
+      {
+        "number": 175,
+        "title": "ci(unit-tests): discover every python test, do not enumerate directories",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/175",
+        "branch": "bug/FDY-171-discover-all-python-tests"
+      },
+      {
+        "number": 172,
+        "title": "P1-17: check a story's criteria against its assigned role's write scope",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/172",
+        "branch": "story/FDY-168-check-story-scope-at-refinement"
+      },
+      {
+        "number": 170,
+        "title": "docs(requirements): prove the REQ-013 memory round trip in production",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/170",
+        "branch": "story/FDY-165-memory-roundtrip-evidence"
+      },
+      {
+        "number": 167,
+        "title": "P1-16: compute the self-hosting verdict, catch notes that contradict their checks",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/167",
+        "branch": "story/FDY-164-self-hosting-verdict"
+      },
+      {
+        "number": 166,
+        "title": "P3-5: Memory seam \u2014 MemoryStore contract behind the git-notes backend",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/166",
+        "branch": "story/FDY-158-memory-seam"
+      },
+      {
+        "number": 163,
+        "title": "fix(requirements): correct stale notes: prose against computed checks",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/163",
+        "branch": "story/FDY-159-notes-drift-audit"
+      },
+      {
+        "number": 162,
+        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/162",
+        "branch": "story/FDY-117-client-portal"
+      },
+      {
+        "number": 161,
+        "title": "P2-8: Deploy workflow with a real production gate",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/161",
+        "branch": "story/FDY-122-deploy-workflow-prod-gate"
+      },
+      {
+        "number": 160,
+        "title": "docs(developer): state the trailer-contiguity rule explicitly",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/160",
+        "branch": "bug/FDY-155-trailer-contiguity-rule"
+      },
+      {
+        "number": 156,
+        "title": "fix(dod-check): name split trailer blocks instead of calling them missing",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/156",
+        "branch": "bug/FDY-150-dod-trailer-diagnosis"
+      },
+      {
+        "number": 154,
+        "title": "fix(dispatch): turn a workflow-scope push refusal into evidence, not a theory",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/154",
+        "branch": "bug/FDY-134-workflow-refusal-diagnosis"
+      },
+      {
+        "number": 153,
+        "title": "P3-3: Engineering memory \u2014 dispatcher writes and reads notes",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/153",
+        "branch": "story/FDY-120-dispatcher-memory-notes"
+      },
+      {
+        "number": 152,
+        "title": "P2-3: planning and review ceremony workflows (retro already ran)",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/152",
+        "branch": "story/FDY-115-planning-review-ceremonies"
+      },
+      {
+        "number": 151,
+        "title": "P2-10: Validators for the environment ladder and sign-off policies",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/151",
+        "branch": "story/FDY-148-environment-and-signoff-validators"
+      },
+      {
+        "number": 149,
+        "title": "P2-9: Ceremony declaration validator",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/149",
+        "branch": "story/FDY-140-ceremony-declaration-validator"
+      },
+      {
+        "number": 145,
+        "title": "fix(dispatch): a session can assert \"no change needed\" without failing",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/145",
+        "branch": "bug/FDY-129-no-change-assertion"
+      },
+      {
+        "number": 144,
+        "title": "P2-7: environment ladder declared as policy (REQ-010)",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/144",
+        "branch": "story/FDY-121-environment-ladder-policy"
+      },
+      {
+        "number": 141,
+        "title": "ci(dashboards): discover generator tests and pages instead of enumerating them",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/141",
+        "branch": "story/FDY-128-test-wiring-discovery"
+      },
+      {
+        "number": 139,
+        "title": "P2-4: client sign-off as policy-as-code",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/139",
+        "branch": "story/FDY-116-signoff-policy"
+      },
+      {
+        "number": 138,
+        "title": "Each dashboard generator declares its own index entry",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/138",
+        "branch": "story/FDY-127-dashboard-page-registry"
+      },
+      {
+        "number": 137,
+        "title": "P1-15: ADR validator",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/137",
+        "branch": "story/FDY-126-adr-validator"
+      },
+      {
+        "number": 135,
+        "title": "P3-4: Tracker adapter \u2014 GitHub and Jira behind one contract",
+        "url": "https://github.com/Shashank2577/foundry-program/pull/135",
+        "branch": "story/FDY-123-tracker-adapter"
+      }
+    ],
+    "closed_unmerged": [],
+    "open_now": 4
+  },
+  "check_failures": [
+    {
+      "name": "Approval gate",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/foundry-program/actions/runs/33898594797",
+      "at": "2026-09-04T17:04:20Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "story/FDY-180-dod-deferral-form",
+      "url": "https://github.com/Shashank2577/foundry-program/actions/runs/33897100922",
+      "at": "2026-09-04T16:47:37Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "story/FDY-184-delivery-lead-naming",
+      "url": "https://github.com/Shashank2577/foundry-program/actions/runs/33896498427",
+      "at": "2026-09-04T16:40:58Z"
+    }
+  ],
+  "board": {
+    "status:ready": 2,
+    "status:in-review": 5,
+    "status:in-progress": 2,
+    "(no status)": 1
+  },
+  "needs_human": [
+    {
+      "number": 184,
+      "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
+      "url": "https://github.com/Shashank2577/foundry-program/issues/184"
+    }
+  ],
+  "blocked_stale": []
+}

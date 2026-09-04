@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Traceability matrix — Shashank2577/foundry-program</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+</style>
+</head><body><main>
+<h1>Traceability matrix</h1>
+<p class="sub">
+  Every requirement in <code>requirements/index.md</code>, joined to the commits
+  that carry its <code>Requirement:</code> trailer on <code>HEAD</code>,
+  joined to the merged pull requests those commits arrived in.
+  Computed, never authored — nothing on this page is hand-maintained.
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">14</div><div class="l">requirements</div></div>
+  <div class="tile"><div class="n" style="color:var(--green)">12</div><div class="l">traced</div></div>
+  <div class="tile"><div class="n" style="color:var(--amber)">1</div><div class="l">on main, no PR</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">1</div><div class="l">untraced</div></div>
+  <div class="tile"><div class="n">155</div><div class="l">commits scanned</div></div>
+</div>
+
+<div class="scroll"><table>
+  <thead><tr>
+    <th>REQ</th><th>Status</th><th>Requirement</th>
+    <th>Commits (trailer)</th><th>Merged PRs</th>
+  </tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">REQ-001</td>
+        <td><span class="pill green">traced</span></td>
+        <td>All agent coordination happens through the tracker; every agent action produces a durable, visible artifact. No hidden context, no side channels.<br><span class="muted mono">§1 P1–P2</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/c1b6351ef960e5ee886beab2c023b1f24c192275">c1b6351</a> fix(qa-verdict): return a rejected in-review story to status<br><span class="muted mono">devops · claude-code/2.1</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/b8b3c1075f38e8cff6dc69fb92f7057811f6331b">b8b3c10</a> fix(labels): trigger terminal-label tests on pull_request<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/ec45357309386a4f66c66f268c8feb01bc917d1d">ec45357</a> feat(labels): strip stale status:* labels when an issue clos<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/c0ae0225525eff4e08b581bf076cede7485ec8a2">c0ae022</a> feat(sync): add missing open issues to the project board<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/1eec1ea4ffd8373e96babcdee044debc962bd7a3">1eec1ea</a> fix(dispatch): a diagnostic crash must not take down session<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/df33c4ce429682de017d0c9c2334ec10ccb78c5a">df33c4c</a> fix(dispatch): judge a session on what it shipped, not its e<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li class="muted">+1 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/86">#86</a> fix(qa-verdict): return a rejected in-review story</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/44">#44</a> P0-16: strip stale status:* labels when an issue c</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/37">#37</a> P0-11: add missing open issues to the project boar</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/34">#34</a> BUG: a crash in the spend diagnostics took down se</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/26">#26</a> P0-13: A session is judged on what it shipped, not</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/19">#19</a> P0-9: Generated tracker surfaces — project board s</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-002</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Roles are harness-neutral packs (skills, tools, policy, templates) with distinct signed bot identities; attribution is cryptographic.<br><span class="muted mono">§3</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/a6c5a999d1039ac519998c4692d488730fafc4f4">a6c5a99</a> chore(throughput): raise WIP to 6, own ceremonies/, settle R<br><span class="muted mono">delivery-lead · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/98a528b978dc05ce933b5ed6660e1de50c596bed">98a528b</a> fix(devops): require a GitHub closing keyword in dod-check's<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/42604d50b8ca03df995f586d0acaca49fca1ccbd">42604d5</a> fix(assign): eligibility reads each role's own dispatchable_<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/313171fa2c45e730c1d4f02fa53d19ced96f47d5">313171f</a> fix(routing): make delivery-lead dispatchable, and check the<br><span class="muted mono">devops · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/d9f1d4f5ce11ec43d1e121d55552171d43cbff28">d9f1d4f</a> fix(dispatch): make dispatchable_from a per-role pack declar<br><span class="muted mono">devops · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/a8c41ede64e2ada54d1c8a4fd402648599c84e37">a8c41ed</a> fix(sync): map role:delivery-lead to the board's Role field<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li class="muted">+13 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/125">#125</a> chore(throughput): raise WIP to 6, own ceremonies/</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/94">#94</a> fix(devops): dod-check requires a closing keyword,</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/81">#81</a> fix(assign): eligibility reads each role's own dis</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/77">#77</a> BUG: delivery-lead is routable by the loop but not</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/74">#74</a> fix(dispatch): make dispatchable_from a per-role p</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/72">#72</a> P1-9: Delivery Lead role pack — governance gets an</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/63">#63</a> BUG: two role packs shipped unroutable, and the de</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/56">#56</a> P1-5: Tech Writer role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/55">#55</a> P1-4: Architect role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/43">#43</a> P0-17: Per-role dispatch credentials — least privi</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/41">#41</a> P1-1: Product Manager role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/36">#36</a> BUG: settings defaultMode is ignored; permission m</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/32">#32</a> BUG: the compiled allowlist cannot express a shell</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/30">#30</a> P0-15: Dispatcher grants the permissions it compil</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/17">#17</a> P0-8: Orchestrator pack v0 — assignment loop</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/12">#12</a> P0-3: Developer role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/11">#11</a> P0-2: Dispatcher v0 — work item → headless agent s</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-003</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Harness adapter: Claude Code, Codex, DeepSeek (et al.) interchangeable behind one dispatch contract; single-harness mode fully functional.<br><span class="muted mono">§11.2</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/965119412ebcbc62f98076f158c0ac552b28ee54">9651194</a> feat(dispatch): work item -&gt; headless agent session (v0)<br><span class="muted mono">developer · claude-code/2.1.220</span></li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/11">#11</a> P0-2: Dispatcher v0 — work item → headless agent s</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-004</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Tracker adapter: GitHub Projects ↔ Jira swappable via canonical work-item schema; git remains code-side source of truth either way.<br><span class="muted mono">§11.1</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/37917135e0c76ab04e4ad461fc9115cb31931a7b">3791713</a> feat(tracker): generated project board sync + wiki publish<br><span class="muted mono">developer · claude-code/2.1.220</span></li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/19">#19</a> P0-9: Generated tracker surfaces — project board s</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-005</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Git-native traceability spine: signed commits, commit trailers (Work-Item, Requirement, Agent-Role, Harness), git notes for metadata, CODEOWNERS routi<br><span class="muted mono">§4</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/6f6fd186a73cb5794bf72945673e0b0d7a128c1a">6f6fd18</a> fix(dod-check): ignore checkbox-shaped text inside code fenc<br><span class="muted mono">devops · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/0f447a3f0f2d37ca6a862362a65ab9af5b92184d">0f447a3</a> ci(unit-tests): discover every python test, do not enumerate<br><span class="muted mono">devops · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/ea4a9a851577c316df9363858e0861b46de0f06d">ea4a9a8</a> ci(dod): wire the DoD check's own tests, applying the sessio<br><span class="muted mono">devops · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/deca80287e8515ff213bd46f1005ff3c6c480f80">deca802</a> fix(policy): require a GitHub closing keyword in linked_work<br><span class="muted mono">architect · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/2d71fa5f80563ce76ebef0003c59fbc7c3249083">2d71fa5</a> fix(dispatch): wire test-dispatch-session-end.sh into CI as <br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/b6fdb2fa6a902a210742ae4fa065e6fbe6b4570b">b6fdb2f</a> feat(devops): fail CI when a test file runs nowhere<br><span class="muted mono">devops · claude-code/2.0</span></li><li class="muted">+3 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/177">#177</a> fix(dod-check): ignore checkbox-shaped text inside</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/175">#175</a> ci(unit-tests): discover every python test, do not</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/94">#94</a> fix(devops): dod-check requires a closing keyword,</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/93">#93</a> fix(policy): DoD linked_work_item requires a closi</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/89">#89</a> fix(dispatch): wire test-dispatch-session-end.sh i</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/85">#85</a> BUG: fail CI when a test file runs nowhere</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/56">#56</a> P1-5: Tech Writer role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/14">#14</a> P0-5: Traceability matrix generator v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/10">#10</a> P0-1: DoD check — policy-as-code required status c</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-006</td>
+        <td><span class="pill green">traced</span></td>
+        <td>All five ceremonies (refinement, planning, standup, review/demo, retro) run autonomously on schedule and each terminates in artifacts. Standups are ev<br><span class="muted mono">§5</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/08c99eac216e4928f9034bd6666a29e9e35837d1">08c99ea</a> fix(requirements): REQ-006 must test ceremonies that run, no<br><span class="muted mono">product-manager · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/a6c5a999d1039ac519998c4692d488730fafc4f4">a6c5a99</a> chore(throughput): raise WIP to 6, own ceremonies/, settle R<br><span class="muted mono">delivery-lead · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/83e4fe6a2ee5abbb0f3d9f62f96f896ea44651a2">83e4fe6</a> feat(retro): event-derived retro ceremony, one issue per win<br><span class="muted mono">devops · claude-code/2.1</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/65ccf28fd3d84e80923859519c64383e62e2244b">65ccf28</a> feat(refinement): dispatch the PM when the ready queue empti<br><span class="muted mono">devops · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/4bf175b5a3f0a17444f7e9301da3f47c51d7aab9">4bf175b</a> chore(orchestrator): declare the refill floor and claim cere<br><span class="muted mono">orchestrator · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/761a9306ca3b4ccf136e24ceea58aedda19de789">761a930</a> feat(role-packs): add Product Manager role pack v0<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li class="muted">+3 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/147">#147</a> fix(requirements): REQ-006 must test ceremonies th</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/125">#125</a> chore(throughput): raise WIP to 6, own ceremonies/</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/57">#57</a> feat(retro): event-derived retro ceremony, one iss</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/48">#48</a> P1-2: Refinement trigger — dispatch the PM when th</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/47">#47</a> P1-2 (prep): declare the refill floor and claim ce</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/41">#41</a> P1-1: Product Manager role pack v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/17">#17</a> P0-8: Orchestrator pack v0 — assignment loop</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/15">#15</a> P0-6: Standup digest v0 — event-derived, never sel</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-007</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Human-in-the-loop = decision gates (approve / choose between costed options), never free-text supervision. Few gates, all visual, each with an SLA and<br><span class="muted mono">§7</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/f435b14139ae1a151178d3251b19c71f61a649d2">f435b14</a> fix(governance): narrow delivery-lead scope; gate on write c<br><span class="muted mono">delivery-lead · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/8009aa95a6029172fc612550fe554ab9c9dc17f3">8009aa9</a> fix(devops): replace GNU date -d in gate-sla.sh with portabl<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/9bc5dd50c253a5b737bf28090246a966ac9ab74b">9bc5dd5</a> fix(gate-sla): make the SLA tests self-contained, restore PR<br><span class="muted mono">devops · claude-code/2.1</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/d04c52fecc150f4d62ac1bb0dfd07b5b512c3494">d04c52f</a> feat(delivery-lead): add role pack — governance gets an owne<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/2b87d85b2cb602574665ec00e7209af5480efa4a">2b87d85</a> docs(gates): document the three approval gates and their SLA<br><span class="muted mono">techwriter · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/e72a6901c2ebbb7d7dc1ee9761ffa349e8cede87">e72a690</a> feat(devops): enforce the approval-gate SLA<br><span class="muted mono">devops · claude-code/2.0</span></li><li class="muted">+7 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/102">#102</a> fix(governance): narrow delivery-lead scope; gate </li><li><a href="https://github.com/Shashank2577/foundry-program/pull/90">#90</a> fix(devops): replace GNU date -d in gate-sla.sh wi</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/65">#65</a> P1-7: Enforce the approval-gate SLA</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/72">#72</a> P1-9: Delivery Lead role pack — governance gets an</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/66">#66</a> P1-8: Document the approval gates and their SLA</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/61">#61</a> BUG: escalations ask for a decision without saying</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/48">#48</a> P1-2: Refinement trigger — dispatch the PM when th</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/47">#47</a> P1-2 (prep): declare the refill floor and claim ce</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/46">#46</a> P1-3: Approval gates as policy — critical work wai</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/24">#24</a> P0-12: Budgets measure cost; sessions report what </li><li><a href="https://github.com/Shashank2577/foundry-program/pull/21">#21</a> P0-10: One GitHub credential + correct setup steps</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-008</td>
+        <td><span class="pill red">untraced</span></td>
+        <td>Client layer: transcript→PRD with provenance-linked REQs, versioned client sign-offs, change requests with impact analysis, Monte Carlo estimation wit<br><span class="muted mono">§6</span></td>
+        <td><ul class="bare"><span class="muted">—</span></ul></td>
+        <td><ul class="bare"><span class="muted">—</span></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-009</td>
+        <td><span class="pill green">traced</span></td>
+        <td>QA holds a veto (`qa:rejected` blocks closure); Definition of Done is policy-as-code enforced as a required check; QA reports are published HTML artif<br><span class="muted mono">§8</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/ea4a9a851577c316df9363858e0861b46de0f06d">ea4a9a8</a> ci(dod): wire the DoD check's own tests, applying the sessio<br><span class="muted mono">devops · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/c1b6351ef960e5ee886beab2c023b1f24c192275">c1b6351</a> fix(qa-verdict): return a rejected in-review story to status<br><span class="muted mono">devops · claude-code/2.1</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/42604d50b8ca03df995f586d0acaca49fca1ccbd">42604d5</a> fix(assign): eligibility reads each role's own dispatchable_<br><span class="muted mono">developer · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/2bc6432a8253d0c2dbd96730e730fb96683307ca">2bc6432</a> fix(qa-verdict): re-check qa-gate on PRs when a verdict chan<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/d9f1d4f5ce11ec43d1e121d55552171d43cbff28">d9f1d4f</a> fix(dispatch): make dispatchable_from a per-role pack declar<br><span class="muted mono">devops · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/428f32c9d00032718b8482d2343c71f651b37448">428f32c</a> feat(qa): QA role pack v0 + binding verdict enforcement<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li class="muted">+1 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/94">#94</a> fix(devops): dod-check requires a closing keyword,</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/86">#86</a> fix(qa-verdict): return a rejected in-review story</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/81">#81</a> fix(assign): eligibility reads each role's own dis</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/80">#80</a> fix(qa-verdict): re-check qa-gate when a verdict c</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/74">#74</a> fix(dispatch): make dispatchable_from a per-role p</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/13">#13</a> P0-4: QA role pack v0 + verdict enforcement</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/10">#10</a> P0-1: DoD check — policy-as-code required status c</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-010</td>
+        <td><span class="pill amber">on main, no PR</span></td>
+        <td>Environment ladder preview→dev→staging→prod; production deploys sit behind a human gate (GitHub environment required reviewer); every release ships a <br><span class="muted mono">§9</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/3715a99f76b6c66910590bcecbbad4a5752819e3">3715a99</a> feat(dashboards): promote the published site through the env<br><span class="muted mono">devops · claude-code/2.0</span></li></ul></td>
+        <td><ul class="bare"><span class="muted">—</span></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-011</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Visibility layer: boards, generated dashboards (burndown, velocity, cost-per-story), computed traceability matrix (REQ→release, red/green). The progra<br><span class="muted mono">§10</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/3715a99f76b6c66910590bcecbbad4a5752819e3">3715a99</a> feat(dashboards): promote the published site through the env<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/08c99eac216e4928f9034bd6666a29e9e35837d1">08c99ea</a> fix(requirements): REQ-006 must test ceremonies that run, no<br><span class="muted mono">product-manager · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/cd6f3dc6a576e94d75725518453ed2ee24e1beee">cd6f3dc</a> fix(dashboards): assert the invariant, not a snapshot of tod<br><span class="muted mono">developer · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/2b87d85b2cb602574665ec00e7209af5480efa4a">2b87d85</a> docs(gates): document the three approval gates and their SLA<br><span class="muted mono">techwriter · claude-code/2.1.258</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/b8b3c1075f38e8cff6dc69fb92f7057811f6331b">b8b3c10</a> fix(labels): trigger terminal-label tests on pull_request<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/ec45357309386a4f66c66f268c8feb01bc917d1d">ec45357</a> feat(labels): strip stale status:* labels when an issue clos<br><span class="muted mono">devops · claude-code/2.0</span></li><li class="muted">+6 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/147">#147</a> fix(requirements): REQ-006 must test ceremonies th</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/143">#143</a> fix(dashboards): assert the invariant, not a snaps</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/66">#66</a> P1-8: Document the approval gates and their SLA</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/44">#44</a> P0-16: strip stale status:* labels when an issue c</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/37">#37</a> P0-11: add missing open issues to the project boar</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/28">#28</a> P0-14: Programme status page — traced vs actually </li><li><a href="https://github.com/Shashank2577/foundry-program/pull/19">#19</a> P0-9: Generated tracker surfaces — project board s</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/15">#15</a> P0-6: Standup digest v0 — event-derived, never sel</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/14">#14</a> P0-5: Traceability matrix generator v0</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-012</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Guardrails: least-privilege per role, per-work-item budgets (tokens/time/retries), escalation ladder (retry → alt approach → alt harness → human), not<br><span class="muted mono">§13</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/0f447a3f0f2d37ca6a862362a65ab9af5b92184d">0f447a3</a> ci(unit-tests): discover every python test, do not enumerate<br><span class="muted mono">devops · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/5ff7db7518c6b4c4d6ab885a636ee96e505c4ffb">5ff7db7</a> ci(dashboards): discover generator tests and pages instead o<br><span class="muted mono">devops · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/f435b14139ae1a151178d3251b19c71f61a649d2">f435b14</a> fix(governance): narrow delivery-lead scope; gate on write c<br><span class="muted mono">delivery-lead · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/62ae21505fa70707e28034cb21e1559fa9b4adb8">62ae215</a> fix(dispatch): session end moves a successful item to status<br><span class="muted mono">devops · claude-code/2.0</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/cfbb86275cffd1d92886910e42d7035cd5adfffd">cfbb862</a> fix(dispatch): compute new_status before the escalation quot<br><span class="muted mono">devops · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/d2a34bb81b6d692c3e30fd997c7ff5d592c89577">d2a34bb</a> Merge main into the QA-guard branch, combining both rollback<br><span class="muted mono">devops · claude-code/2.1.220</span></li><li class="muted">+16 more</li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/175">#175</a> ci(unit-tests): discover every python test, do not</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/141">#141</a> ci(dashboards): discover generator tests and pages</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/102">#102</a> fix(governance): narrow delivery-lead scope; gate </li><li><a href="https://github.com/Shashank2577/foundry-program/pull/88">#88</a> fix(dispatch): session end moves a successful item</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/74">#74</a> fix(dispatch): make dispatchable_from a per-role p</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/73">#73</a> fix(dispatch): session-end rollback strips every s</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/72">#72</a> P1-9: Delivery Lead role pack — governance gets an</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/71">#71</a> BUG: the developer turn budget kills half of all r</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/63">#63</a> BUG: two role packs shipped unroutable, and the de</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/46">#46</a> P1-3: Approval gates as policy — critical work wai</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/43">#43</a> P0-17: Per-role dispatch credentials — least privi</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/36">#36</a> BUG: settings defaultMode is ignored; permission m</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/34">#34</a> BUG: a crash in the spend diagnostics took down se</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/32">#32</a> BUG: the compiled allowlist cannot express a shell</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/30">#30</a> P0-15: Dispatcher grants the permissions it compil</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/26">#26</a> P0-13: A session is judged on what it shipped, not</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/24">#24</a> P0-12: Budgets measure cost; sessions report what </li><li><a href="https://github.com/Shashank2577/foundry-program/pull/21">#21</a> P0-10: One GitHub credential + correct setup steps</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/16">#16</a> P0-7: Budgets + escalation ladder v0</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/12">#12</a> P0-3: Developer role pack v0</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-013</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Persistent engineering memory across ephemeral sessions (git notes + MCP — Seal); retro learnings promote into role packs via reviewed PRs.<br><span class="muted mono">§12</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/c98915e0f234cdf1a1afe9995e2c23d428fe3f49">c98915e</a> feat(memory): git notes store, recovered from an unpushable <br><span class="muted mono">developer · claude-code</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/83e4fe6a2ee5abbb0f3d9f62f96f896ea44651a2">83e4fe6</a> feat(retro): event-derived retro ceremony, one issue per win<br><span class="muted mono">devops · claude-code/2.1</span></li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/136">#136</a> feat(memory): git notes store, recovered from an u</li><li><a href="https://github.com/Shashank2577/foundry-program/pull/57">#57</a> feat(retro): event-derived retro ceremony, one iss</li></ul></td>
+      </tr>
+      <tr>
+        <td class="req">REQ-014</td>
+        <td><span class="pill green">traced</span></td>
+        <td>Self-hosting: the system builds itself through itself. POC exit = one full sprint where every story improves the system, flows through the system, and<br><span class="muted mono">Self-hosting plan</span></td>
+        <td><ul class="bare"><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/0195f686ddacc2bd9f7d438d796b04603e1029c6">0195f68</a> ci(dashboards): install PyYAML for the status generator<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/029c78e41b336954a4eea3b7e791108b44bbd7ec">029c78e</a> feat(dashboards): programme status — traced vs actually sati<br><span class="muted mono">developer · claude-code/2.1.220</span></li><li><a class="mono" href="https://github.com/Shashank2577/foundry-program/commit/690af7e71b28ba78580b81dd6b80b734f3b2025b">690af7e</a> Stage 0: seed the control plane<br><span class="muted mono">human · manual</span></li></ul></td>
+        <td><ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/pull/28">#28</a> P0-14: Programme status page — traced vs actually </li></ul></td>
+      </tr>
+  </tbody>
+</table></div>
+
+<ul class="legend">
+  <li><span class="pill green">traced</span> at least one commit carrying this requirement reached main through a merged pull request</li>
+  <li><span class="pill amber">on main, no PR</span> commits exist on main but none is attributable to a merged pull request — a direct push, or seed history</li>
+  <li><span class="pill red">untraced</span> no commit on main carries this requirement</li>
+</ul>
+
+<footer>
+  Generated 2026-09-04 17:20 UTC from
+  <a href="https://github.com/Shashank2577/foundry-program">Shashank2577/foundry-program</a> at
+  <span class="mono">3715a99</span>.
+  
+</footer>
+</main></body></html>

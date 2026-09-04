@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Standup digest — Shashank2577/foundry-program</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+</style>
+</head><body><main>
+<h1>Standup digest</h1>
+<p class="sub">
+  Last 24 hours, computed from commit trailers, pull request transitions,
+  workflow conclusions and label history. Nobody was asked what they did —
+  an agent that claims progress it did not make does not appear to have made it.
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">28</div><div class="l">commits</div></div>
+  <div class="tile"><div class="n">24</div><div class="l">PRs opened</div></div>
+  <div class="tile"><div class="n">27</div><div class="l">PRs merged</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">3</div><div class="l">check failures</div></div>
+  <div class="tile"><div class="n" style="color:var(--amber)">0</div><div class="l">blocked &gt;24h</div></div>
+</div>
+
+<h2 style="font-size:1.05rem;margin:0 0 .6rem">Per-role activity</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Role</th><th>Commits</th><th>Requirements</th><th>Harness</th><th>What landed</th></tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">unknown</td>
+        <td>24</td>
+        <td class="mono">—</td>
+        <td class="mono muted">unknown</td>
+        <td><ul class="bare"><li><span class="mono">6566296</span> fix(gates): qa_verdict's default_if_unanswered described a h</li><li><span class="mono">a7fc86d</span> fix(status): derive PRD_ROLES from requirements/coverage.yam</li><li><span class="mono">ce2659d</span> feat(deploy): dispatchable deploy workflow with a real prod </li><li><span class="mono">aa2ec97</span> fix(check-test-wiring): simulate real discovery instead of g</li><li><span class="mono">79aed69</span> Define a DoD checklist deferral form (policy half) (#181)</li></ul></td>
+      </tr>      <tr>
+        <td class="req">devops</td>
+        <td>4</td>
+        <td class="mono">REQ-005, REQ-010, REQ-011, REQ-012</td>
+        <td class="mono muted">claude-code, claude-code/2.0</td>
+        <td><ul class="bare"><li><span class="mono">3715a99</span> feat(dashboards): promote the published site through the env</li><li><span class="mono">6f6fd18</span> fix(dod-check): ignore checkbox-shaped text inside code fenc</li><li><span class="mono">0f447a3</span> ci(unit-tests): discover every python test, do not enumerate</li><li><span class="mono">5ff7db7</span> ci(dashboards): discover generator tests and pages instead o</li></ul></td>
+      </tr>
+  </tbody>
+</table></div>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Needs a human decision</h2>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Blocked beyond 24h</h2>
+<ul class="bare"><li class="muted">nothing blocked beyond 24h</li></ul>
+<p class="muted" style="font-size:.85rem">
+  Each of these gets <span class="mono">needs-human</span> applied automatically.
+  Blocked is a state with a deadline, not a resting place.
+</p>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Pull requests</h2>
+<p class="muted" style="font-size:.85rem">4 open right now.</p>
+<ul class="bare"><li><strong>Opened</strong></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/196">#196</a> P3-7: Rewire sync-project.py through the tracker seam<span class="muted mono"> story/FDY-192-rewire-sync-project-tracker-seam</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/195">#195</a> fix(scope): claim portal/** and adapters/** in developer's write scope<span class="muted mono"> story/FDY-190-claim-portal-adapters-scope</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/189">#189</a> P1-18: Implement the DoD deferral form in dod-check and the dispatch p<span class="muted mono"> story/FDY-180-dod-deferral-form</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/188">#188</a> fix(prd): Delivery Lead and Delivery Manager are two roles, not one<span class="muted mono"> story/FDY-184-delivery-lead-naming</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/187">#187</a> fix(gates): define what a closure without a QA verdict actually means<span class="muted mono"> bug/FDY-179-qa-verdict-closure-classification</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/186">#186</a> P1-19: status.py hardcodes a role list that has never matched the pack<span class="muted mono"> story/FDY-185-status-role-list</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/182">#182</a> fix(check-test-wiring): simulate real discovery instead of grepping YA<span class="muted mono"> story/FDY-174-list-python-tests</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/181">#181</a> Define a DoD checklist deferral form (policy half)<span class="muted mono"> story/FDY-173-dod-deferral-form</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/177">#177</a> fix(dod-check): ignore checkbox-shaped text inside code fences<span class="muted mono"> bug/FDY-176-dod-ignores-fenced-boxes</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/175">#175</a> ci(unit-tests): discover every python test, do not enumerate directori<span class="muted mono"> bug/FDY-171-discover-all-python-tests</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/172">#172</a> P1-17: check a story's criteria against its assigned role's write scop<span class="muted mono"> story/FDY-168-check-story-scope-at-refinement</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/170">#170</a> docs(requirements): prove the REQ-013 memory round trip in production<span class="muted mono"> story/FDY-165-memory-roundtrip-evidence</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/167">#167</a> P1-16: compute the self-hosting verdict, catch notes that contradict t<span class="muted mono"> story/FDY-164-self-hosting-verdict</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/166">#166</a> P3-5: Memory seam — MemoryStore contract behind the git-notes backend<span class="muted mono"> story/FDY-158-memory-seam</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/163">#163</a> fix(requirements): correct stale notes: prose against computed checks<span class="muted mono"> story/FDY-159-notes-drift-audit</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/162">#162</a> P2-5: Client portal — what was delivered and what needs signing<span class="muted mono"> story/FDY-117-client-portal</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/161">#161</a> P2-8: Deploy workflow with a real production gate<span class="muted mono"> story/FDY-122-deploy-workflow-prod-gate</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/160">#160</a> docs(developer): state the trailer-contiguity rule explicitly<span class="muted mono"> bug/FDY-155-trailer-contiguity-rule</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/156">#156</a> fix(dod-check): name split trailer blocks instead of calling them miss<span class="muted mono"> bug/FDY-150-dod-trailer-diagnosis</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/154">#154</a> fix(dispatch): turn a workflow-scope push refusal into evidence, not a<span class="muted mono"> bug/FDY-134-workflow-refusal-diagnosis</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/153">#153</a> P3-3: Engineering memory — dispatcher writes and reads notes<span class="muted mono"> story/FDY-120-dispatcher-memory-notes</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/152">#152</a> P2-3: planning and review ceremony workflows (retro already ran)<span class="muted mono"> story/FDY-115-planning-review-ceremonies</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/151">#151</a> P2-10: Validators for the environment ladder and sign-off policies<span class="muted mono"> story/FDY-148-environment-and-signoff-validators</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/149">#149</a> P2-9: Ceremony declaration validator<span class="muted mono"> story/FDY-140-ceremony-declaration-validator</span></li></ul>
+<ul class="bare"><li><strong>Merged</strong></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/187">#187</a> fix(gates): define what a closure without a QA verdict actually means<span class="muted mono"> bug/FDY-179-qa-verdict-closure-classification</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/186">#186</a> P1-19: status.py hardcodes a role list that has never matched the pack<span class="muted mono"> story/FDY-185-status-role-list</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/182">#182</a> fix(check-test-wiring): simulate real discovery instead of grepping YA<span class="muted mono"> story/FDY-174-list-python-tests</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/181">#181</a> Define a DoD checklist deferral form (policy half)<span class="muted mono"> story/FDY-173-dod-deferral-form</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/177">#177</a> fix(dod-check): ignore checkbox-shaped text inside code fences<span class="muted mono"> bug/FDY-176-dod-ignores-fenced-boxes</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/175">#175</a> ci(unit-tests): discover every python test, do not enumerate directori<span class="muted mono"> bug/FDY-171-discover-all-python-tests</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/172">#172</a> P1-17: check a story's criteria against its assigned role's write scop<span class="muted mono"> story/FDY-168-check-story-scope-at-refinement</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/170">#170</a> docs(requirements): prove the REQ-013 memory round trip in production<span class="muted mono"> story/FDY-165-memory-roundtrip-evidence</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/167">#167</a> P1-16: compute the self-hosting verdict, catch notes that contradict t<span class="muted mono"> story/FDY-164-self-hosting-verdict</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/166">#166</a> P3-5: Memory seam — MemoryStore contract behind the git-notes backend<span class="muted mono"> story/FDY-158-memory-seam</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/163">#163</a> fix(requirements): correct stale notes: prose against computed checks<span class="muted mono"> story/FDY-159-notes-drift-audit</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/162">#162</a> P2-5: Client portal — what was delivered and what needs signing<span class="muted mono"> story/FDY-117-client-portal</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/161">#161</a> P2-8: Deploy workflow with a real production gate<span class="muted mono"> story/FDY-122-deploy-workflow-prod-gate</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/160">#160</a> docs(developer): state the trailer-contiguity rule explicitly<span class="muted mono"> bug/FDY-155-trailer-contiguity-rule</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/156">#156</a> fix(dod-check): name split trailer blocks instead of calling them miss<span class="muted mono"> bug/FDY-150-dod-trailer-diagnosis</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/154">#154</a> fix(dispatch): turn a workflow-scope push refusal into evidence, not a<span class="muted mono"> bug/FDY-134-workflow-refusal-diagnosis</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/153">#153</a> P3-3: Engineering memory — dispatcher writes and reads notes<span class="muted mono"> story/FDY-120-dispatcher-memory-notes</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/152">#152</a> P2-3: planning and review ceremony workflows (retro already ran)<span class="muted mono"> story/FDY-115-planning-review-ceremonies</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/151">#151</a> P2-10: Validators for the environment ladder and sign-off policies<span class="muted mono"> story/FDY-148-environment-and-signoff-validators</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/149">#149</a> P2-9: Ceremony declaration validator<span class="muted mono"> story/FDY-140-ceremony-declaration-validator</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/145">#145</a> fix(dispatch): a session can assert &quot;no change needed&quot; without failing<span class="muted mono"> bug/FDY-129-no-change-assertion</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/144">#144</a> P2-7: environment ladder declared as policy (REQ-010)<span class="muted mono"> story/FDY-121-environment-ladder-policy</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/141">#141</a> ci(dashboards): discover generator tests and pages instead of enumerat<span class="muted mono"> story/FDY-128-test-wiring-discovery</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/139">#139</a> P2-4: client sign-off as policy-as-code<span class="muted mono"> story/FDY-116-signoff-policy</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/138">#138</a> Each dashboard generator declares its own index entry<span class="muted mono"> story/FDY-127-dashboard-page-registry</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/137">#137</a> P1-15: ADR validator<span class="muted mono"> story/FDY-126-adr-validator</span></li><li><a href="https://github.com/Shashank2577/foundry-program/pull/135">#135</a> P3-4: Tracker adapter — GitHub and Jira behind one contract<span class="muted mono"> story/FDY-123-tracker-adapter</span></li></ul>
+<ul class="bare"><li><strong>Closed unmerged</strong></li><li class="muted">none</li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Check failures</h2>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/foundry-program/actions/runs/33898594797">Approval gate</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/foundry-program/actions/runs/33897100922">DoD</a> on <span class="mono">story/FDY-180-dod-deferral-form</span></li><li><a href="https://github.com/Shashank2577/foundry-program/actions/runs/33896498427">DoD</a> on <span class="mono">story/FDY-184-delivery-lead-naming</span></li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Board</h2>
+<ul class="bare"><li><span class="mono">(no status)</span> — 1</li><li><span class="mono">status:in-progress</span> — 2</li><li><span class="mono">status:in-review</span> — 5</li><li><span class="mono">status:ready</span> — 2</li></ul>
+
+<footer>
+  Generated 2026-09-04 17:18 UTC from
+  <a href="https://github.com/Shashank2577/foundry-program">Shashank2577/foundry-program</a>.
+  Event-derived (REQ-006) — no self-reported status appears on this page.
+</footer>
+</main></body></html>
