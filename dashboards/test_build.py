@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -166,6 +167,67 @@ class TestRender(unittest.TestCase):
         html = B.render_html(rows, {"repo": "a/b"})
         self.assertIn(">2<", html)   # two green
         self.assertIn(">3<", html)   # three requirements
+
+
+class TestPageDiscovery(unittest.TestCase):
+    """Generators declare their own index entry; build.py only discovers.
+
+    Covers dashboards#127: three consecutive merge conflicts on a
+    hardcoded page list in build.py, and an index that silently omitted a
+    page whose `append` a branch forgot.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.out = Path(self._tmp.name)
+
+    def test_no_pages(self):
+        pages, orphans = B.discover_pages(self.out)
+        self.assertEqual(pages, [])
+        self.assertEqual(orphans, [])
+
+    def test_one_page(self):
+        (self.out / "standup.html").write_text("<html></html>")
+        B.write_page(self.out, "standup.html", "Standup digest", "desc")
+        pages, orphans = B.discover_pages(self.out)
+        self.assertEqual(pages, [("standup.html", "Standup digest", "desc")])
+        self.assertEqual(orphans, [])
+
+    def test_all_pages_sorted_deterministically_regardless_of_write_order(self):
+        entries = [
+            ("traceability.html", "Traceability matrix", "d1"),
+            ("standup.html", "Standup digest", "d2"),
+            ("burndown.html", "Burndown & velocity", "d3"),
+            ("qa.html", "QA verdicts", "d4"),
+            ("decisions.html", "Decisions", "d5"),
+            ("status.html", "Programme status", "d6"),
+        ]
+        for href, title, desc in entries:
+            (self.out / href).write_text("<html></html>")
+            B.write_page(self.out, href, title, desc)
+
+        pages, orphans = B.discover_pages(self.out)
+        self.assertEqual(orphans, [])
+        self.assertEqual([p[0] for p in pages], sorted(e[0] for e in entries))
+        # Order must not depend on write order or filesystem listing order.
+        self.assertEqual(pages, sorted(entries, key=lambda e: e[0]))
+
+    def test_page_on_disk_with_no_declared_entry_is_reported_not_skipped(self):
+        (self.out / "standup.html").write_text("<html></html>")
+        B.write_page(self.out, "standup.html", "Standup digest", "desc")
+        # A generator that forgot to call write_page().
+        (self.out / "forgotten.html").write_text("<html></html>")
+
+        pages, orphans = B.discover_pages(self.out)
+        self.assertEqual(pages, [("standup.html", "Standup digest", "desc")])
+        self.assertEqual(orphans, ["forgotten.html"])
+
+    def test_index_html_itself_is_never_treated_as_an_orphan(self):
+        (self.out / "index.html").write_text("<html></html>")
+        pages, orphans = B.discover_pages(self.out)
+        self.assertEqual(pages, [])
+        self.assertEqual(orphans, [])
 
 
 class TestAgainstThisRepo(unittest.TestCase):

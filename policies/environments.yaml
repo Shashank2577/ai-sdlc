@@ -1,0 +1,141 @@
+# The environment ladder — policy as code. PRD §9. REQ-010.
+#
+# Split from #53 (see the evidence comment there): the platform half is
+# done — the four GitHub Environments below exist, and `prod` carries a
+# required-reviewer protection rule naming @Shashank2577, so a workflow
+# step declaring `environment: prod` genuinely pauses for a human. This
+# file is the policy half.
+#
+# What this file describes vs. what the platform enforces
+# ---------------------------------------------------------------------
+# This file describes the ladder: the four environments, the order work
+# promotes through them, who is expected to own a rollback at each tier,
+# and which environments require a human reviewer before a deploy step
+# targeting them runs.
+#
+# It does not enforce any of that. The reviewer requirement is enforced
+# by each environment's "required reviewers" protection rule, configured
+# on the GitHub Environment itself (repo Settings → Environments) — not
+# by this file, and not by anything a workflow YAML can override. A
+# workflow job that sets `environment: prod` is paused by the platform
+# the moment it starts, regardless of what this file says.
+#
+# The two things previously offered as evidence for REQ-010 — a gate
+# policy merely existing, and `environment:` appearing in the Pages
+# deploy — were both rejected because neither implied the other three
+# environments existed or that anything actually paused. This file is
+# only honest for as long as `scripts/check-environments.py` keeps
+# verifying it against the live repo (via the API) rather than trusting
+# it. That script queries `GET /repos/{owner}/{repo}/environments` and
+# fails the check if this file names an environment the API does not
+# return, or a `human_reviewer_required: true` environment that has no
+# reviewer configured. It is not in this file's write scope — see the
+# note at the bottom.
+
+version: 0
+
+# The order work promotes through. A total order: every environment has
+# at most one `promotes_to` and at most one environment naming it as
+# their `promotes_to`, so the chain has no branch and no cycle. `preview`
+# is the one entry point (nothing promotes into it); `prod` is the one
+# end (nothing promotes out of it — a prod rollback moves *within* prod,
+# it is not a promotion to another environment).
+promotion_order: [preview, dev, staging, prod]
+
+environments:
+  preview:
+    purpose: >-
+      Ephemeral, one per pull request. Exists so a person can look at a
+      change, not so anything depends on it.
+    promotes_from: null
+    promotes_to: dev
+    human_reviewer_required: false
+    unsupervised_deploys_allowed: true
+    rollback:
+      owner: role:devops
+      expectation: >-
+        None — the environment is destroyed and rebuilt on the next
+        push, or torn down when the pull request closes. There is
+        nothing durable to roll back to.
+    platform:
+      github_environment: preview
+      required_reviewers: []
+
+  dev:
+    purpose: Integration environment for work merged to `main`.
+    promotes_from: preview
+    promotes_to: staging
+    human_reviewer_required: false
+    unsupervised_deploys_allowed: true
+    rollback:
+      owner: role:devops
+      expectation: >-
+        Revert the offending commit on `main` and let the next run
+        redeploy. No manual data migration is expected at this tier —
+        if one is needed, `dev` is not where it should have been
+        discovered.
+    platform:
+      github_environment: dev
+      required_reviewers: []
+
+  staging:
+    purpose: >-
+      Last environment before `prod`. Rehearses the exact deploy `prod`
+      will run, so a promotion out of `staging` is not a surprise.
+    promotes_from: dev
+    promotes_to: prod
+    human_reviewer_required: false
+    unsupervised_deploys_allowed: true
+    rollback:
+      owner: role:devops
+      expectation: >-
+        Redeploy the last known-good release tag. Devops confirms the
+        result matches what `prod` would run before promoting again —
+        `staging` is where that mismatch is supposed to surface.
+    platform:
+      github_environment: staging
+      required_reviewers: []
+
+  prod:
+    purpose: What users get.
+    promotes_from: staging
+    promotes_to: null
+    human_reviewer_required: true
+    unsupervised_deploys_allowed: false
+    rollback:
+      owner: >-
+        @Shashank2577 approves, role:devops executes.
+      expectation: >-
+        Redeploy the previous release tag through the same gated
+        workflow a forward deploy uses. A rollback is a deploy, so it
+        waits on the same human reviewer — there is no fast path that
+        skips the review, because a rollback under pressure is exactly
+        when skipping it would seem reasonable.
+    platform:
+      github_environment: prod
+      required_reviewers: [Shashank2577]
+
+# What may never be deployed unsupervised, stated plainly rather than
+# left to be inferred from the table above.
+never_unsupervised:
+  - environment: prod
+    because: >-
+      Every deploy to `prod` — forward or rollback — runs through the
+      `prod` GitHub Environment, which requires @Shashank2577's review
+      before the job proceeds. No token or workflow in this repository
+      is scoped to bypass that; see PRD §9.
+
+# ---------------------------------------------------------------------
+# Follow-up this file cannot close by itself
+# ---------------------------------------------------------------------
+# The story this file is part of (#121) also calls for
+# `scripts/check-environments.py` plus tests, checking: every environment
+# named above exists on the repo (via the API), `promotion_order` is a
+# total order with no cycle, and every environment declares a
+# `rollback.owner`. That script and its tests are application code and
+# test code — `scripts/**` is not in this pack's write_scope
+# (role-packs/delivery-lead/policy.yaml), which is deliberate: the role
+# that can rewrite governance is not also the role that writes the code
+# enforcing it. See the PR for #121 for the exact script proposed as a
+# follow-up story for a role that can write `scripts/**` (developer or
+# qa both can).

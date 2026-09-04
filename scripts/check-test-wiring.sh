@@ -8,6 +8,13 @@
 # .github/workflows/. That's enough to catch the actual failure mode — a
 # test nobody runs — without parsing or executing the workflow graph.
 #
+# A workflow may also run every test file in a directory by pattern (e.g.
+# `for f in dashboards/test_*.py; do python3 "$f"; done`) instead of naming
+# each one — see dashboards.yml. A test file counts as wired if the literal
+# glob for its own directory ("dashboards/test_*.py") appears in a workflow,
+# even though its own exact name never does (#128: a growing family of test
+# files should need no workflow edit to add one more).
+#
 # A test file that is deliberately not run in CI needs an entry in
 # scripts/test-wiring-allowlist.txt (format: "<path><TAB><reason>"); an
 # entry with no reason does not count.
@@ -44,9 +51,21 @@ allowlisted=()
 while IFS= read -r -d '' file; do
   rel="${file#"$ROOT"/}"
   base="$(basename "$rel")"
+  dir="$(dirname "$rel")"
+
+  case "$base" in
+    test_*.py) glob_base="test_*.py" ;;
+    test-*.sh) glob_base="test-*.sh" ;;
+  esac
+  if [ "$dir" = "." ]; then
+    dir_glob="$glob_base"
+  else
+    dir_glob="$dir/$glob_base"
+  fi
 
   if grep -rlqF -- "$rel" "$WORKFLOWS" 2>/dev/null \
-     || grep -rlqF -- "$base" "$WORKFLOWS" 2>/dev/null; then
+     || grep -rlqF -- "$base" "$WORKFLOWS" 2>/dev/null \
+     || grep -rlqF -- "$dir_glob" "$WORKFLOWS" 2>/dev/null; then
     continue
   fi
 
@@ -81,8 +100,9 @@ fi
 if [ "${#failures[@]}" -gt 0 ] || [ "${#malformed[@]}" -gt 0 ]; then
   echo ""
   echo "Wire each one into the workflow that owns the script it tests (see"
-  echo "qa-gate.yml, budgets.yml, approval-gate.yml for the pattern), or add"
-  echo "a reasoned entry to $ALLOWLIST if not running it in CI is correct."
+  echo "qa-gate.yml, budgets.yml, approval-gate.yml for the pattern, or"
+  echo "dashboards.yml for a directory run by glob), or add a reasoned entry"
+  echo "to $ALLOWLIST if not running it in CI is correct."
   exit 1
 fi
 
