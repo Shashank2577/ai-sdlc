@@ -10,12 +10,25 @@ failures=()
 required=(Work-Item Requirement Agent-Role Harness)
 
 # 1. Every non-merge commit on the PR carries the four trailers.
+# Git only recognizes the final contiguous block of the message as
+# trailers — a blank line anywhere in that block (e.g. before a
+# harness-appended `Co-authored-by:`) knocks everything above the blank
+# line back into ordinary body text. A required trailer can therefore be
+# visible in `git log` and still be invisible to `%(trailers:only,unfold)`.
+# Distinguish that case ("present but outside the block") from a trailer
+# that never appears at all, since the fix for each is different.
 while read -r sha; do
   [ -z "$sha" ] && continue
   trailers=$(git log -1 --format='%(trailers:only,unfold)' "$sha")
   subject=$(git log -1 --format='%s' "$sha")
+  body=$(git log -1 --format='%B' "$sha")
   for t in "${required[@]}"; do
-    if ! grep -qi "^${t}:" <<<"$trailers"; then
+    if grep -qi "^${t}:" <<<"$trailers"; then
+      continue
+    fi
+    if grep -qi "^${t}:" <<<"$body"; then
+      failures+=("commit \`${sha:0:7}\` (\"${subject}\") has a \`${t}:\` line in the message, but it is outside the trailer block git recognizes — it is being read as body text, not a trailer. Trailers must form one contiguous block at the end of the commit message, after any appended \`Co-authored-by:\` line; a blank line anywhere in that block (often the one left before an appended \`Co-authored-by:\`) splits it, and everything above the split stops counting.")
+    else
       failures+=("commit \`${sha:0:7}\` (\"${subject}\") is missing trailer \`${t}:\`")
     fi
   done
