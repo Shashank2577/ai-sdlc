@@ -73,7 +73,10 @@ requirements:
       - {exists: .github/workflows/dispatch.yml}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_claude_code"}}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_codex"}}
-    notes: One harness is implemented. The pack format is neutral; the compiler is not.
+    notes: >-
+      Two of three named harnesses are implemented — compile_claude_code and
+      compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The
+      pack format is neutral; the compiler now covers most of it.
 
   REQ-004:
     summary: Tracker adapter — GitHub Projects and Jira swappable
@@ -81,7 +84,11 @@ requirements:
       - {exists: scripts/sync-project.py}
       - {exists: adapters/tracker/github}
       - {exists: adapters/tracker/jira}
-    notes: No adapter layer exists; the sync talks to GitHub directly.
+    notes: >-
+      adapters/tracker/github and adapters/tracker/jira both exist and pass
+      the same contract suite (#135). scripts/sync-project.py does not use
+      either yet and still talks to GitHub directly; the Jira adapter has
+      never been run against a live Jira instance.
 
   REQ-005:
     summary: Git-native traceability spine
@@ -114,8 +121,8 @@ requirements:
       # state is real progress — but for one, not for five.
       - {count: {glob: "ceremonies/*.yaml", at_least: 5}}
     notes: >-
-      Standup, refinement and retro run. Planning and review are declared
-      in ceremonies/ but have no workflow yet — #115.
+      All five ceremonies run — standup, refinement and retro, plus planning
+      and review, which landed in #152.
 
   REQ-007:
     summary: Human-in-the-loop as decision gates, never free-text supervision
@@ -131,7 +138,7 @@ requirements:
       - {exists: portal}
       - {glob: "scripts/*transcript*"}
       - {glob: "policies/signoff*.yaml"}
-    notes: Nothing built.
+    notes: scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133, #139). The client portal does not.
 
   REQ-009:
     summary: QA veto, DoD as policy-as-code, published QA reports
@@ -140,7 +147,7 @@ requirements:
       - {exists: scripts/qa-verdict.sh}
       - {exists: policies/dod.yaml}
       - {glob: "dashboards/qa*.py"}
-    notes: The veto is enforced. QA reports are comments, not published HTML.
+    notes: The veto is enforced. QA reports are published as dashboards/qa.html via GitHub Pages (#110), not only comments.
 
   REQ-010:
     summary: Environment ladder preview to prod, human gate, rollback plans
@@ -157,7 +164,10 @@ requirements:
       # for catching. The ladder itself has to be declared.
       - {exists: policies/environments.yaml}
     notes: >-
-      No deployment of any kind exists. Still the largest untouched area.
+      The ladder is declared (policies/environments.yaml) and four GitHub
+      Environments are configured, with a required-reviewer rule on prod —
+      but no deploy workflow or infra exists yet to walk it. Still the
+      largest untouched area.
 
   REQ-011:
     summary: Visibility — boards, generated dashboards, computed matrix
@@ -182,9 +192,10 @@ requirements:
       - {glob: "scripts/*memory*"}
       - {glob: "adapters/memory/**"}
     notes: >-
-      Store built (#119): write/read/search on refs/notes/foundry. Nobody
-      writes to it yet — dispatcher session-end and prompt assembly is
-      #120. No MCP server (PRD §12's later phase).
+      Store built (#119): write/read/search on refs/notes/foundry. The
+      dispatcher now reads it into the prompt and writes a note at session
+      end (#120, wired in #153). No adapters/memory/** layer and no MCP
+      server (PRD §12's later phase) — hence 50%, not 100%.
 
   REQ-014:
     summary: Self-hosting — the system builds itself through itself
@@ -193,5 +204,6 @@ requirements:
       - {exists: .github/workflows/orchestrate.yml}
       - {delivered_by_agent: 1}     # a dispatched session produced a merged PR
     notes: >-
-      The machinery exists and is armed. No dispatched session has yet produced
-      a merged pull request, so the central claim is unproven.
+      Demonstrated, not unproven: 46 merged pull requests have been produced
+      by a dispatched agent session, out of 73 merged overall (measured by
+      `collect_facts` in dashboards/status.py). The central claim holds.
