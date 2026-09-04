@@ -33,6 +33,15 @@ Harness: claude-code/2.1.220
 MSG
 ```
 
+Git only recognizes the final **contiguous block** of the message as
+trailers. The four trailers must sit together at the very end, with no
+blank line inside the block — including after any `Co-authored-by:` line
+a harness appends below them. A blank line anywhere in that block splits
+it: git only reads the piece below the split as trailers, and everything
+above it silently becomes body text that no trailer-reading tool (or the
+DoD check) will see. This is why the example above puts the trailers last
+and leaves no blank line before where `Co-authored-by:` would land.
+
 Verify before you push — this is one command and it catches the mistake
 that fails the DoD check most often:
 
@@ -40,7 +49,9 @@ that fails the DoD check most often:
 git log -1 --format='%(trailers:only,unfold)'
 ```
 
-Four lines out, or the commit is wrong.
+Four lines out, or the commit is wrong. If fewer come out than you wrote,
+suspect a blank line inside the trailer block before assuming a trailer is
+missing.
 
 For a whole branch:
 
