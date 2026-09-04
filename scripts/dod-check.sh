@@ -53,7 +53,12 @@ fi
 # box inside a ``` fence is quoted evidence, not an outstanding DoD item.
 # #172 — the PR adding scripts/check-story-scope.py — failed its own DoD
 # for pasting the input it feeds the checker.
-prose=$(awk 'BEGIN{f=0} /^[[:space:]]*```/{f=!f; next} !f{print}' <<<"$body")
+# Fenced blocks first, then inline `code` spans. Both are quotation.
+# The PR that added the fenced-block strip failed on its own body for
+# writing the literal in backticks while explaining the bug — so inline
+# spans are the same problem wearing different punctuation.
+prose=$(awk 'BEGIN{f=0} /^[[:space:]]*```/{f=!f; next} !f{print}' <<<"$body" \
+          | sed 's/`[^`]*`//g')
 if grep -Fq -- '- [ ]' <<<"$prose"; then
   failures+=("PR body has unchecked Definition of Done items")
 fi
