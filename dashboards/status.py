@@ -30,9 +30,10 @@ import build as B  # noqa: E402  — shared CSS and escaping
 REPO_ROOT = HERE.parent
 COVERAGE = REPO_ROOT / "requirements" / "coverage.yaml"
 
-# PRD §3 names eight roles; §5 names five ceremonies; §14 names the layout.
-PRD_ROLES = ["orchestrator", "product-manager", "architect", "developer",
-             "qa", "devops", "techwriter", "delivery-manager"]
+# §5 names five ceremonies; §14 names the layout. The role list (§3) is not
+# here — it lives in requirements/coverage.yaml's `policy.roles.expected`,
+# reconciled against role-packs/*/ by `collect_facts`, because a literal
+# here is exactly what went stale last time (#185).
 PRD_CEREMONIES = ["refinement", "planning", "standup", "review", "retro"]
 PRD_DIRS = ["prds", "requirements", "adrs", "role-packs", "ceremonies", "policies",
             "adapters", "dashboards", "portal", "compiler", ".github/workflows"]
@@ -59,6 +60,11 @@ def load_yaml() -> dict:
 
 def load_coverage() -> dict:
     return load_yaml().get("requirements", {})
+
+
+def load_expected_roles() -> list[str]:
+    """The reviewable, non-Python-literal source `roles_built` counts against."""
+    return list((load_yaml().get("policy") or {}).get("roles", {}).get("expected", []))
 
 
 def load_self_hosting_policy() -> dict:
@@ -175,10 +181,17 @@ def gh_json(args: list[str], default):
         return default
 
 
-def collect_facts(use_github: bool) -> dict:
+def collect_facts(use_github: bool, expected_roles: list[str]) -> dict:
     root = REPO_ROOT
+    packs_on_disk = sorted(p.name for p in (root / "role-packs").iterdir()
+                           if p.is_dir() and (p / "pack.yaml").is_file()) \
+        if (root / "role-packs").is_dir() else []
     facts = {
-        "roles_built": [r for r in PRD_ROLES if (root / "role-packs" / r / "pack.yaml").is_file()],
+        "roles_expected": expected_roles,
+        "roles_built": [r for r in expected_roles if r in packs_on_disk],
+        # A pack that exists but has no entry in the expected list — the
+        # other direction of the mismatch, invisible before #185.
+        "roles_unexpected": [r for r in packs_on_disk if r not in expected_roles],
         "ceremonies_built": [c for c in PRD_CEREMONIES
                              if (root / ".github" / "workflows" / f"{c}.yml").is_file()],
         "dirs_present": [d for d in PRD_DIRS if (root / d).is_dir()],
@@ -269,11 +282,16 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str
         <td class="mono muted">{e(', '.join(reqs))}</td>
       </tr>""")
 
-    def checklist(items, built, kind):
-        return "".join(
+    def checklist(items, built, kind, unexpected=None):
+        lis = "".join(
             f'<li>{"✓" if i in built else "○"} <span class="mono">{e(i)}</span>'
             f'{"" if i in built else f" <span class=muted>— not built</span>"}</li>'
-            for i in items) or f"<li class='muted'>no {kind}</li>"
+            for i in items)
+        lis += "".join(
+            f'<li>⚠ <span class="mono">{e(i)}</span> '
+            f'<span class=muted>— pack exists, not in the expected list</span></li>'
+            for i in (unexpected or []))
+        return lis or f"<li class='muted'>no {kind}</li>"
 
     overall = round(sum(c["pct"] for c in cov.values()) / len(cov)) if cov else 0
     verdict = self_hosting_verdict(facts, policy)
@@ -344,7 +362,7 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str
 {contradiction_banner}
 <div class="tiles">
   <div class="tile"><div class="n">{overall}%</div><div class="l">requirements satisfied</div></div>
-  <div class="tile"><div class="n">{len(facts['roles_built'])}/{len(PRD_ROLES)}</div><div class="l">role packs</div></div>
+  <div class="tile"><div class="n">{len(facts['roles_built'])}/{len(facts['roles_expected'])}</div><div class="l">role packs</div></div>
   <div class="tile"><div class="n">{len(facts['ceremonies_built'])}/{len(PRD_CEREMONIES)}</div><div class="l">ceremonies</div></div>
   <div class="tile"><div class="n">{len(facts['dirs_present'])}/{len(PRD_DIRS)}</div><div class="l">PRD §14 areas</div></div>
   <div class="tile"><div class="n" style="color:{'var(--green)' if delivered else 'var(--red)'}">{delivered}</div><div class="l">agent-delivered PRs</div></div>
@@ -367,7 +385,7 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str
 </table></div>
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Roles (PRD §3)</h2>
-<ul class="bare">{checklist(PRD_ROLES, facts['roles_built'], 'roles')}</ul>
+<ul class="bare">{checklist(facts['roles_expected'], facts['roles_built'], 'roles', facts.get('roles_unexpected'))}</ul>
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Ceremonies (PRD §5)</h2>
 <ul class="bare">{checklist(PRD_CEREMONIES, facts['ceremonies_built'], 'ceremonies')}</ul>
@@ -391,7 +409,7 @@ def main() -> int:
     ap.add_argument("--no-github", action="store_true")
     args = ap.parse_args()
 
-    facts = collect_facts(not args.no_github)
+    facts = collect_facts(not args.no_github, load_expected_roles())
     cov = evaluate(load_coverage(), REPO_ROOT, facts)
     policy = load_self_hosting_policy()
 
@@ -412,9 +430,13 @@ def main() -> int:
     B.write_page(args.out, "status.html", "Programme status",
                  "Traced vs actually satisfied, per requirement and phase")
 
+    if facts["roles_unexpected"]:
+        print(f"status: role pack(s) with no entry in policy.roles.expected: "
+              f"{', '.join(facts['roles_unexpected'])}", file=sys.stderr)
+
     overall = round(sum(c["pct"] for c in cov.values()) / len(cov)) if cov else 0
     print(f"status: {overall}% of requirements satisfied, "
-          f"{len(facts['roles_built'])}/{len(PRD_ROLES)} roles, "
+          f"{len(facts['roles_built'])}/{len(facts['roles_expected'])} roles, "
           f"{len(facts['ceremonies_built'])}/{len(PRD_CEREMONIES)} ceremonies, "
           f"{facts['agent_delivered_prs']} agent-delivered PR(s)")
     return 0

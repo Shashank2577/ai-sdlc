@@ -99,6 +99,52 @@ class TestEvaluate(unittest.TestCase):
         self.assertEqual(out["REQ-999"]["pct"], 0)
 
 
+class TestExpectedRoles(unittest.TestCase):
+    """`PRD_ROLES` used to be a Python literal that named a pack
+    (`delivery-manager`) which has never existed, so `roles_built` read
+    7/8 for the whole programme (#185). The expected list now lives in
+    requirements/coverage.yaml; this is the test that would have caught
+    the day the mismatch was introduced instead of a client reading the
+    wrong number.
+    """
+
+    def test_expected_roles_is_not_a_python_literal(self):
+        expected = S.load_expected_roles()
+        self.assertTrue(expected)
+        self.assertNotIn("delivery-manager", expected)
+        self.assertIn("delivery-lead", expected)
+
+    def test_expected_roles_matches_the_packs_on_disk_in_both_directions(self):
+        expected = set(S.load_expected_roles())
+        built = {p.name for p in (REPO_ROOT / "role-packs").iterdir()
+                 if p.is_dir() and (p / "pack.yaml").is_file()}
+        missing_packs = expected - built
+        unlisted_packs = built - expected
+        self.assertEqual(
+            missing_packs, set(),
+            f"requirements/coverage.yaml expects a role pack that does not "
+            f"exist: {missing_packs}")
+        self.assertEqual(
+            unlisted_packs, set(),
+            f"role pack(s) on disk have no entry in requirements/coverage.yaml "
+            f"policy.roles.expected: {unlisted_packs}")
+
+    def test_roles_built_is_eight_of_eight_with_the_packs_as_they_are_today(self):
+        facts = S.collect_facts(False, S.load_expected_roles())
+        self.assertEqual(len(facts["roles_built"]), 8)
+        self.assertEqual(len(facts["roles_expected"]), 8)
+        self.assertEqual(facts["roles_unexpected"], [])
+
+    def test_an_entry_with_no_pack_is_still_reported_as_missing(self):
+        facts = S.collect_facts(False, ["orchestrator", "phantom-role"])
+        self.assertIn("orchestrator", facts["roles_built"])
+        self.assertNotIn("phantom-role", facts["roles_built"])
+
+    def test_a_pack_with_no_entry_in_the_expected_list_is_reported_not_ignored(self):
+        facts = S.collect_facts(False, ["orchestrator"])
+        self.assertIn("qa", facts["roles_unexpected"])
+
+
 class TestAgainstThisRepo(unittest.TestCase):
     def test_every_requirement_in_the_index_has_coverage_criteria(self):
         # A requirement with no criteria would silently vanish from the page.
@@ -240,10 +286,11 @@ class TestNoteContradictsChecks(unittest.TestCase):
 
 class TestRender(unittest.TestCase):
     POLICY = {"machinery_at_least": 1, "practice_at_least": 10}
+    NO_ROLES = {"roles_built": [], "roles_expected": [], "roles_unexpected": []}
 
     def test_banner_states_the_unproven_machinery_claim_and_its_threshold(self):
         cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 0})
-        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+        html = S.render(cov, None, {**self.NO_ROLES, "ceremonies_built": [],
                                     "dirs_present": [], "agent_delivered_prs": 0,
                                     "merged_prs": 12, "dispatch_runs": {}},
                         {"repo": "a/b"}, self.POLICY)
@@ -253,7 +300,7 @@ class TestRender(unittest.TestCase):
 
     def test_banner_distinguishes_proven_machinery_from_unproven_practice(self):
         cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 3})
-        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+        html = S.render(cov, None, {**self.NO_ROLES, "ceremonies_built": [],
                                     "dirs_present": [], "agent_delivered_prs": 3,
                                     "merged_prs": 12, "dispatch_runs": {}},
                         {"repo": "a/b"}, self.POLICY)
@@ -263,7 +310,7 @@ class TestRender(unittest.TestCase):
 
     def test_banner_states_practice_proven_once_past_threshold(self):
         cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 46})
-        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+        html = S.render(cov, None, {**self.NO_ROLES, "ceremonies_built": [],
                                     "dirs_present": [], "agent_delivered_prs": 46,
                                     "merged_prs": 73, "dispatch_runs": {}},
                         {"repo": "a/b"}, self.POLICY)
@@ -273,17 +320,28 @@ class TestRender(unittest.TestCase):
         cov = {"REQ-001": {"summary": "s", "notes": "Nothing built.", "pct": 50,
                            "passed": 1, "total": 2, "checks": [],
                            "contradiction": "nothing built"}}
-        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+        html = S.render(cov, None, {**self.NO_ROLES, "ceremonies_built": [],
                                     "dirs_present": [], "agent_delivered_prs": 0,
                                     "merged_prs": 0, "dispatch_runs": {}},
                         {"repo": "a/b"}, self.POLICY)
         self.assertIn("contradict their own checks", html)
         self.assertIn("REQ-001", html)
 
+    def test_an_unexpected_pack_is_shown_on_the_page_not_dropped(self):
+        cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 0})
+        html = S.render(cov, None, {"roles_built": ["qa"], "roles_expected": ["qa"],
+                                    "roles_unexpected": ["mystery-role"],
+                                    "ceremonies_built": [], "dirs_present": [],
+                                    "agent_delivered_prs": 0, "merged_prs": 0,
+                                    "dispatch_runs": {}},
+                        {"repo": "a/b"}, self.POLICY)
+        self.assertIn("mystery-role", html)
+        self.assertIn("not in the expected list", html)
+
     def test_self_contained_and_escaped(self):
         cov = {"REQ-001": {"summary": "<script>x</script>", "notes": "", "checks": []}}
         html = S.render(S.evaluate(cov, REPO_ROOT, {}), None,
-                        {"roles_built": [], "ceremonies_built": [], "dirs_present": [],
+                        {**self.NO_ROLES, "ceremonies_built": [], "dirs_present": [],
                          "agent_delivered_prs": 0, "merged_prs": 0, "dispatch_runs": {}},
                         {"repo": "a/b"}, self.POLICY)
         self.assertNotIn("<script>x", html)
