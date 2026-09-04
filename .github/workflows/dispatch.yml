@@ -50,6 +50,8 @@ on:
     paths:
       - .github/workflows/dispatch.yml
       - scripts/test-dispatch-session-end.sh
+      - scripts/diagnose-workflow-push-refusal.sh
+      - scripts/test-diagnose-workflow-push-refusal.sh
 
 # Least privilege. The agent needs to push a branch, open a PR, and talk
 # to the work item. Nothing else. The test job below overrides this down
@@ -496,6 +498,39 @@ jobs:
             echo "deliberately — land something small, or escalate. A session killed at"
             echo "the ceiling leaves a half-finished branch and no explanation, which is"
             echo "the worst of both outcomes."
+            echo
+            echo "---"
+            echo
+            echo "## If \`git push\` is refused for a workflow file"
+            echo
+            echo "A push rejected with the message"
+            echo "\"refusing to allow a Personal Access Token to create or update"
+            echo "workflow ... without \`workflow\` scope\" is, for every"
+            echo "role but devops, the credential boundary working as designed — not a"
+            echo "broken or misconfigured credential. Only devops holds \`workflow\`"
+            echo "scope (ADR-0001), on purpose, so that no other role can edit the"
+            echo "checks and pipeline that govern it."
+            echo
+            echo "Do not investigate the token. Instead run:"
+            echo
+            echo '    bash scripts/diagnose-workflow-push-refusal.sh'
+            echo
+            echo "It reports, with evidence, whether this branch actually changes a"
+            echo "file under \`.github/workflows/\` relative to its merge base with"
+            echo "\`origin/main\`:"
+            echo
+            echo "- If it does: say so plainly in your commit/PR/escalation, name the"
+            echo "  file, remove it from this branch, and hand the change to devops"
+            echo "  instead of pushing it yourself (the pattern tracked in #128:"
+            echo "  escalate with the exact patch, a devops credential applies it)."
+            echo "- If it does not: say the cause is unknown — do not guess at one"
+            echo "  (a stale base, a wrong branch, a re-push of an old ref are"
+            echo "  theories, not findings). Paste the script's output verbatim into"
+            echo "  your escalation as evidence."
+            echo
+            echo "A prior session spent roughly a third of its turns on a wrong"
+            echo "credential theory before finding the real cause by hand (#134) —"
+            echo "run the script first."
             echo
 
             if [ "${REQUIRES_PR}" = "true" ]; then
@@ -1112,3 +1147,6 @@ jobs:
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
           bash scripts/test-dispatch-session-end.sh
+
+      - name: Test the workflow-push-refusal diagnosis
+        run: bash scripts/test-diagnose-workflow-push-refusal.sh
