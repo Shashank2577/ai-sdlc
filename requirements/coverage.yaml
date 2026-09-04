@@ -48,7 +48,14 @@ requirements:
       tier and the Agent-Role trailer
     checks:
       - {exists: compiler/compile-pack.py}
-      - {count: {glob: "role-packs/*/pack.yaml", at_least: 8}}   # PRD §3 names 8 roles
+      # PRD §3 names 9 roles as of #184: Delivery Lead (governance) was
+      # added to the catalog alongside Delivery Manager (client-facing) —
+      # they are different roles, not two names for one. Delivery Manager
+      # has no pack, so this reads 8, not 9, and should keep failing until
+      # one exists. It was `at_least: 8` — a threshold that happened to
+      # equal today's pack count only because Delivery Lead's pack was
+      # miscounted as satisfying the Delivery Manager slot. See #184.
+      - {count: {glob: "role-packs/*/pack.yaml", at_least: 9}}
       # Was `provisioned: true` — a target the programme has now decided
       # against, so it scored 33% forever against work nobody intended to
       # do. The human decision (2026-09-03) was to keep attribution by
@@ -63,9 +70,17 @@ requirements:
       # FOUNDRY_DEVOPS_TOKEN, orchestrator holds FOUNDRY_TOKEN.
       - {grep: {glob: "role-packs/devops/pack.yaml", pattern: "FOUNDRY_DEVOPS_TOKEN"}}
     notes: >-
-      All 8 packs exist. Attribution is by credential tier and the Agent-Role
-      trailer, not by signature — a decision, not a gap. Distinct per-role bot
-      identities were considered and rejected for v0; see adrs/.
+      8 of the 9 roles PRD §3 names have packs. The ninth, Delivery Lead
+      (governance: policies/, gates, budgets, escalation), was added later
+      (#64) and is not the same role as Delivery Manager (client-facing:
+      status reports, demo packages, the portal) — see
+      role-packs/delivery-lead/charter.md's "Do not conflate this with the
+      Delivery Manager" section. Delivery Manager has no pack; that is a
+      real gap (REQ-008's client portal is also unbuilt), not a naming
+      collision resolved by counting Delivery Lead twice (#184). Attribution
+      is by credential tier and the Agent-Role trailer, not by signature —
+      a decision, not a gap. Distinct per-role bot identities were
+      considered and rejected for v0; see adrs/.
 
   REQ-003:
     summary: Harness adapter — Claude Code, Codex, DeepSeek behind one contract
@@ -164,10 +179,16 @@ requirements:
       # for catching. The ladder itself has to be declared.
       - {exists: policies/environments.yaml}
     notes: >-
-      The ladder is declared (policies/environments.yaml) and four GitHub
-      Environments are configured, with a required-reviewer rule on prod —
-      but no deploy workflow or infra exists yet to walk it. Still the
-      largest untouched area.
+      The ladder is declared (policies/environments.yaml), four GitHub
+      Environments are configured with a required-reviewer rule on prod,
+      and a deploy workflow now walks it. The prod gate has been exercised
+      for real, not just declared: run 33887826522 paused for 31 minutes
+      waiting on @Shashank2577's approval, then proceeded and emitted its
+      rollback plan. But no application is deployed by any of this — there
+      is no application in this repository, so the deploy step is a
+      documented no-op. The ladder, the gate and the rollback-plan
+      mechanism are proven; deploying a real workload is not, and 3/3 here
+      should not be read as "this programme ships software" (#184).
 
   REQ-011:
     summary: Visibility — boards, generated dashboards, computed matrix
@@ -176,7 +197,14 @@ requirements:
       - {exists: dashboards/standup.py}
       - {exists: dashboards/status.py}
       - {glob: "dashboards/*burndown*.py"}
-    notes: Traceability, standup, programme status, and burndown/velocity.
+    notes: >-
+      Traceability, standup, programme status, and burndown/velocity.
+      One known inaccuracy on the status page as of #184: its role-pack
+      tile counts against a literal list in dashboards/status.py that still
+      names "delivery-manager" instead of the newly-distinguished Delivery
+      Lead / Delivery Manager pair, so it undercounts by one until #185
+      derives that list from something reviewable instead of a Python
+      literal. Tracked, not silently wrong.
 
   REQ-012:
     summary: Least privilege, per-item budgets, escalation ladder
