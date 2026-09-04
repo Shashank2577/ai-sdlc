@@ -1,0 +1,24 @@
+# The promotion manifest — the one thing infra/ is honest about right now.
+#
+# `policies/environments.yaml` describes the ladder: the four
+# environments, the order work promotes through them, who requires a
+# human reviewer, and who owns a rollback. This file describes the
+# *artifact* a deploy would carry along that ladder.
+#
+# There isn't one. This repository has no deployable application, so
+# there is nothing to build, version, or promote. `scripts/deploy-plan.py`
+# reads this file and says exactly that in the deploy workflow's output,
+# rather than inventing a Terraform stack, a fake build number, or any
+# other prop that would make the pipeline look further along than it is.
+#
+# When an application exists, `application` stops being null and gains
+# fields such as `build_artifact` (what a build step produces) and
+# `source_ref` (where it comes from) — whatever a real promotion plan
+# needs to name concretely. Until then, null is the honest value.
+version: 0
+application: null
+note: >-
+  No application exists in this repository. A dispatched deploy still
+  runs the promotion gate (policies/environments.yaml) and emits a
+  rollback-plan artifact, but the deploy step itself is a documented
+  no-op — see scripts/deploy-plan.py and .github/workflows/deploy.yml.
