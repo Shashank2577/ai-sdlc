@@ -34,6 +34,24 @@ policy:
     machinery_at_least: 1
     practice_at_least: 10
 
+  # The role list `dashboards/status.py` checks role-packs against. Not the
+  # PRD — the PRD (§3) still says "delivery manager" in one place and
+  # "delivery lead" in another (#184). The pack directory name is what
+  # every charter, policy, issue label (`role:delivery-lead`) and gate rule
+  # (`governance_role` in policies/gates.yaml) actually agrees on, so that
+  # is the spelling here. This list, not a Python literal, is what
+  # `roles_built` counts against — see #185.
+  roles:
+    expected:
+      - orchestrator
+      - product-manager
+      - architect
+      - developer
+      - qa
+      - devops
+      - techwriter
+      - delivery-lead
+
 requirements:
   REQ-001:
     summary: Coordination through the tracker; every action leaves an artifact
