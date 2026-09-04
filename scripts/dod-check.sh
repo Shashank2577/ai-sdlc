@@ -17,6 +17,7 @@ required=(Work-Item Requirement Agent-Role Harness)
 # visible in `git log` and still be invisible to `%(trailers:only,unfold)`.
 # Distinguish that case ("present but outside the block") from a trailer
 # that never appears at all, since the fix for each is different.
+pr_req_ids=()
 while read -r sha; do
   [ -z "$sha" ] && continue
   trailers=$(git log -1 --format='%(trailers:only,unfold)' "$sha")
@@ -32,6 +33,13 @@ while read -r sha; do
       failures+=("commit \`${sha:0:7}\` (\"${subject}\") is missing trailer \`${t}:\`")
     fi
   done
+  # Collect this PR's own Requirement ids as we walk anyway, for the
+  # deferral check below (policies/dod.yaml: requires_matching_requirement).
+  req_line=$(grep -i '^Requirement:' <<<"$trailers" || true)
+  [ -z "$req_line" ] && req_line=$(grep -i '^Requirement:' <<<"$body" || true)
+  while read -r rid; do
+    [ -n "$rid" ] && pr_req_ids+=("$rid")
+  done < <(grep -Eo 'REQ-[0-9]+' <<<"$req_line")
 done < <(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA")
 
 # 2. PR body closes a work item with a GitHub closing keyword (or opts out
@@ -62,6 +70,54 @@ prose=$(awk 'BEGIN{f=0} /^[[:space:]]*```/{f=!f; next} !f{print}' <<<"$body" \
 if grep -Fq -- '- [ ]' <<<"$prose"; then
   failures+=("PR body has unchecked Definition of Done items")
 fi
+
+# `- [~]` deferral form (policies/dod.yaml: checklist_complete.deferral).
+# It is not a third state that always passes: it counts as resolved only
+# when the line names a real, open issue and states a reason, and that
+# issue's body carries one of this PR's own Requirement ids. Anything
+# short of that fails exactly as a plain unticked box does — the form
+# lives in the policy file; this only checks a PR body against it.
+while IFS= read -r line; do
+  case "$line" in
+    *'- [~]'*) ;;
+    *) continue ;;
+  esac
+  if [[ "$line" =~ deferred[[:space:]]+to[[:space:]]+#([0-9]+):[[:space:]]*(.*)$ ]]; then
+    issue_num="${BASH_REMATCH[1]}"
+    reason="$(sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' <<<"${BASH_REMATCH[2]}")"
+    if [ -z "$reason" ]; then
+      failures+=("deferred item states no reason after \`deferred to #${issue_num}:\`: \`${line}\`")
+      continue
+    fi
+    issue_json=$(gh issue view "$issue_num" --json state,body 2>/dev/null || true)
+    if [ -z "$issue_json" ]; then
+      failures+=("deferred item points at #${issue_num}, which does not exist: \`${line}\`")
+      continue
+    fi
+    issue_state=$(jq -r '.state' <<<"$issue_json")
+    if [ "$issue_state" != "OPEN" ]; then
+      failures+=("deferred item points at #${issue_num}, which is not open (state: ${issue_state}): \`${line}\`")
+      continue
+    fi
+    if [ "${#pr_req_ids[@]}" -eq 0 ]; then
+      failures+=("deferred item points at #${issue_num}, but this PR carries no Requirement id to match it against: \`${line}\`")
+      continue
+    fi
+    issue_body=$(jq -r '.body // ""' <<<"$issue_json")
+    matched=0
+    for req in "${pr_req_ids[@]}"; do
+      if grep -qE "\\b${req}\\b" <<<"$issue_body"; then
+        matched=1
+        break
+      fi
+    done
+    if [ "$matched" -eq 0 ]; then
+      failures+=("deferred item points at #${issue_num}, whose body names none of this PR's Requirement ids ($(printf '%s ' "${pr_req_ids[@]}")): \`${line}\`")
+    fi
+  else
+    failures+=("deferred item does not match the required form \`- [~] <criterion> — deferred to #<issue>: <reason>\`: \`${line}\`")
+  fi
+done <<<"$prose"
 
 # 3. Verdict.
 if [ "${#failures[@]}" -gt 0 ]; then
