@@ -50,23 +50,27 @@ YAML
 "$CHECK" "$root" > "$WORK/out" 2>&1
 check "a test referenced by full path passes" 0 $? "$WORK/out" "wired to a workflow"
 
+# These four use test-*.sh, not test_*.py: shell suites stay grep-only
+# (#174 leaves them out of scope), so they exercise the fallback path —
+# no-workflow, no-.github, allowlisted, malformed-allowlist — without the
+# real discovery below applying and making the fixture's premise false.
 # ---------------------------------------------------------------------------
 root=$(fixture unwired)
-echo "def f(): pass" > "$root/scripts/test_orphan.py"
+echo "true" > "$root/scripts/test-orphan.sh"
 "$CHECK" "$root" > "$WORK/out" 2>&1
-check "a test referenced by no workflow fails" 1 $? "$WORK/out" "scripts/test_orphan.py"
+check "a test referenced by no workflow fails" 1 $? "$WORK/out" "scripts/test-orphan.sh"
 
 # ---------------------------------------------------------------------------
 root=$(fixture no-workflows-dir)
-echo "def f(): pass" > "$root/scripts/test_orphan.py"
+echo "true" > "$root/scripts/test-orphan.sh"
 rm -rf "$root/.github"
 "$CHECK" "$root" > "$WORK/out" 2>&1
-check "a repo with no workflows directory still fails, not crashes" 1 $? "$WORK/out" "scripts/test_orphan.py"
+check "a repo with no workflows directory still fails, not crashes" 1 $? "$WORK/out" "scripts/test-orphan.sh"
 
 # ---------------------------------------------------------------------------
 root=$(fixture allowlisted)
-echo "def f(): pass" > "$root/scripts/test_orphan.py"
-printf 'scripts/test_orphan.py\tExercised only by the live cron; tracked in #99.\n' \
+echo "true" > "$root/scripts/test-orphan.sh"
+printf 'scripts/test-orphan.sh\tExercised only by the live cron; tracked in #99.\n' \
   > "$root/scripts/test-wiring-allowlist.txt"
 "$CHECK" "$root" > "$WORK/out" 2>&1
 check "an allowlisted test with a reason passes" 0 $? "$WORK/out" "Allowlisted"
@@ -74,8 +78,8 @@ check "the reason is echoed back" 0 $? "$WORK/out" "tracked in #99"
 
 # ---------------------------------------------------------------------------
 root=$(fixture blank-reason)
-echo "def f(): pass" > "$root/scripts/test_orphan.py"
-printf 'scripts/test_orphan.py\t\n' > "$root/scripts/test-wiring-allowlist.txt"
+echo "true" > "$root/scripts/test-orphan.sh"
+printf 'scripts/test-orphan.sh\t\n' > "$root/scripts/test-wiring-allowlist.txt"
 "$CHECK" "$root" > "$WORK/out" 2>&1
 check "an allowlist entry with a blank reason still fails" 1 $? "$WORK/out" "no reason"
 
@@ -106,6 +110,11 @@ YAML
 "$CHECK" "$root" > "$WORK/out" 2>&1
 check "a file referenced by basename alone still counts as wired" 0 $? "$WORK/out" "wired"
 
+# dashboards/ is excluded from scripts/list-python-tests.sh (dashboards.yml
+# discovers and runs those itself), so a file there is the realistic case
+# of "excluded from the shared discovery script, but genuinely run by its
+# own workflow's glob" — recognised via the grep fallback, not real
+# discovery. Also doubles as the pre-existing directory-glob coverage.
 # ---------------------------------------------------------------------------
 root=$(fixture directory-glob-discovery)
 mkdir -p "$root/dashboards"
@@ -121,13 +130,14 @@ jobs:
           done
 YAML
 "$CHECK" "$root" > "$WORK/out" 2>&1
-check "a file covered by a directory-glob discovery loop counts as wired" 0 $? "$WORK/out" "wired"
+check "a file excluded from discovery but run by its own workflow's glob counts as wired" \
+  0 $? "$WORK/out" "wired"
 
 # ---------------------------------------------------------------------------
 root=$(fixture directory-glob-does-not-leak)
 mkdir -p "$root/dashboards" "$root/scripts"
 echo "def f(): pass" > "$root/dashboards/test_burndown.py"
-echo "def f(): pass" > "$root/scripts/test_orphan.py"
+echo "true" > "$root/scripts/test-orphan.sh"
 cat > "$root/.github/workflows/dashboards.yml" <<'YAML'
 on: pull_request
 jobs:
@@ -140,7 +150,44 @@ jobs:
 YAML
 "$CHECK" "$root" > "$WORK/out" 2>&1
 check "a glob wiring one directory does not wire a test file in another" 1 $? \
-  "$WORK/out" "scripts/test_orphan.py"
+  "$WORK/out" "scripts/test-orphan.sh"
+
+# The point of #174: a python test in a directory no workflow mentions —
+# not by name, not by its own directory glob, not even a comment — is
+# still reported as wired, because it is picked up by the same discovery
+# unit-tests.yml actually runs (scripts/list-python-tests.sh). No workflow
+# file is created in this fixture at all.
+# ---------------------------------------------------------------------------
+root=$(fixture discovered-new-directory)
+mkdir -p "$root/newmodule"
+echo "def f(): pass" > "$root/newmodule/test_widget.py"
+"$CHECK" "$root" > "$WORK/out" 2>&1
+check "a new test_*.py in a directory nobody has thought of is wired with no workflow edit" \
+  0 $? "$WORK/out" "wired"
+
+# A python test nested inside dashboards/ evades both discovery mechanisms:
+# scripts/list-python-tests.sh excludes everything under dashboards/
+# wholesale, and dashboards.yml's own `for f in dashboards/test_*.py` is a
+# non-recursive nullglob that never reaches a subdirectory. Nothing runs
+# it, so the check must still fail (#174 acceptance criterion: a genuinely
+# orphaned test file still fails, verified by a fixture, not just asserted).
+# ---------------------------------------------------------------------------
+root=$(fixture python-genuinely-orphaned)
+mkdir -p "$root/dashboards/sub"
+echo "def f(): pass" > "$root/dashboards/sub/test_deep.py"
+cat > "$root/.github/workflows/dashboards.yml" <<'YAML'
+on: pull_request
+jobs:
+  build:
+    steps:
+      - run: |
+          for f in dashboards/test_*.py; do
+            python3 "$f"
+          done
+YAML
+"$CHECK" "$root" > "$WORK/out" 2>&1
+check "a python test that evades both discovery loops still fails the check" 1 $? \
+  "$WORK/out" "dashboards/sub/test_deep.py"
 
 # ---------------------------------------------------------------------------
 echo

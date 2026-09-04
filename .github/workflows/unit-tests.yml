@@ -15,6 +15,13 @@
 # Shell suites (scripts/test-*.sh) stay wired to their own area workflows:
 # several stub `gh` on PATH or need a git identity, so they are not
 # uniformly safe to run in one loop. Worth revisiting once they are.
+#
+# The discovery itself lives in scripts/list-python-tests.sh, not inline
+# here, so check-test-wiring.sh can run the exact same discovery instead of
+# grepping this file for directory names. That is what closed #174: the
+# enumerated comment block that used to sit at the bottom of this file,
+# present only so the grep-based checker would match it, could go stale
+# exactly like #171's real enumeration did while the loop stayed correct.
 name: Unit tests
 
 on:
@@ -65,19 +72,6 @@ jobs:
               python3 "$f"
             fi
             echo "::endgroup::"
-          done < <(find . -name 'test_*.py' -type f -not -path './dashboards/*' \
-                     -not -path './.git/*' | sed 's|^\./||' | sort)
+          done < <(bash scripts/list-python-tests.sh)
           echo "ran $ran python test file(s)"
           [ "$ran" -gt 0 ] || { echo "::error::discovery found no test files"; exit 1; }
-
-      # Directory globs the loop above covers. Present only so
-      # scripts/check-test-wiring.sh can match them — it greps workflows
-      # for a file's own `<dir>/test_*.py`. The loop needs none of this,
-      # and a checker that simulated the discovery instead of grepping for
-      # literals would not need it either (#174).
-      #
-      #   scripts/test_*.py
-      #   compiler/test_*.py
-      #   portal/test_*.py
-      #   adapters/tracker/tests/test_*.py
-      #   adapters/memory/tests/test_*.py

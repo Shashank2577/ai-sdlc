@@ -4,16 +4,23 @@
 # a shipped test file had 13 of 20 cases failing and every CI check was
 # green, because no workflow referenced the file at all).
 #
-# Crude by design: a test file's path must appear somewhere under
-# .github/workflows/. That's enough to catch the actual failure mode — a
-# test nobody runs — without parsing or executing the workflow graph.
+# A test_*.py file is wired if it is one of the files unit-tests.yml's
+# discovery loop actually runs — checked by running that exact discovery
+# (scripts/list-python-tests.sh), not by grepping workflow YAML for its
+# name. Grepping for strings was fine when workflows named each test file,
+# but three of them now discover tests by glob or find, so a genuinely
+# executed file can match none of those strings. #174: the workaround was a
+# comment block in unit-tests.yml listing directory globs for no reason but
+# to satisfy this grep — enumeration by another name, and it could go
+# stale exactly like the real enumeration did in #171.
 #
-# A workflow may also run every test file in a directory by pattern (e.g.
-# `for f in dashboards/test_*.py; do python3 "$f"; done`) instead of naming
-# each one — see dashboards.yml. A test file counts as wired if the literal
-# glob for its own directory ("dashboards/test_*.py") appears in a workflow,
-# even though its own exact name never does (#128: a growing family of test
-# files should need no workflow edit to add one more).
+# Anything list-python-tests.sh doesn't cover (dashboards/, and test-*.sh
+# suites, which stay wired individually — out of scope for #174) falls back
+# to the crude check: a test file's path, name, or own directory glob (e.g.
+# `for f in dashboards/test_*.py; do python3 "$f"; done` in dashboards.yml)
+# must appear somewhere under .github/workflows/. That's enough to catch
+# the actual failure mode — a test nobody runs — without parsing or
+# executing the workflow graph.
 #
 # A test file that is deliberately not run in CI needs an entry in
 # scripts/test-wiring-allowlist.txt (format: "<path><TAB><reason>"); an
@@ -23,8 +30,10 @@
 set -euo pipefail
 
 ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKFLOWS="$ROOT/.github/workflows"
 ALLOWLIST="$ROOT/scripts/test-wiring-allowlist.txt"
+PY_DISCOVERED="$(bash "$SCRIPT_DIR/list-python-tests.sh" "$ROOT")"
 
 # allowlist_lookup <path> — sets ALLOW_REASON (possibly empty) and returns 0
 # if the path has an entry at all; returns 1 if it has none. A present-but-
@@ -54,7 +63,12 @@ while IFS= read -r -d '' file; do
   dir="$(dirname "$rel")"
 
   case "$base" in
-    test_*.py) glob_base="test_*.py" ;;
+    test_*.py)
+      glob_base="test_*.py"
+      if grep -qxF -- "$rel" <<<"$PY_DISCOVERED"; then
+        continue
+      fi
+      ;;
     test-*.sh) glob_base="test-*.sh" ;;
   esac
   if [ "$dir" = "." ]; then
