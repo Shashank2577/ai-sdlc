@@ -172,21 +172,120 @@ class TestAgainstThisRepo(unittest.TestCase):
                         "session has actually delivered a merged PR")
 
 
+class TestSelfHostingVerdict(unittest.TestCase):
+    """The verdict is computed against a reviewable threshold, not hardcoded.
+
+    Two claims, not one: "the machinery works at all" (one delivered PR) and
+    "self-hosting is the practice" (a threshold set in coverage.yaml, an
+    order of magnitude past the floor so one lucky run cannot pass it).
+    """
+
+    POLICY = {"machinery_at_least": 1, "practice_at_least": 10}
+
+    def test_zero_delivered_is_unproven_machinery(self):
+        v = S.self_hosting_verdict({"agent_delivered_prs": 0, "merged_prs": 0}, self.POLICY)
+        self.assertFalse(v["machinery_proven"])
+        self.assertFalse(v["practice_proven"])
+
+    def test_below_practice_threshold_is_proven_machinery_only(self):
+        v = S.self_hosting_verdict({"agent_delivered_prs": 9, "merged_prs": 20}, self.POLICY)
+        self.assertTrue(v["machinery_proven"])
+        self.assertFalse(v["practice_proven"],
+                         "9 delivered PRs is one short of the practice threshold of 10")
+
+    def test_at_practice_threshold_is_proven_practice(self):
+        v = S.self_hosting_verdict({"agent_delivered_prs": 10, "merged_prs": 20}, self.POLICY)
+        self.assertTrue(v["machinery_proven"])
+        self.assertTrue(v["practice_proven"],
+                        "10 delivered PRs meets the practice threshold of 10")
+
+    def test_threshold_lives_in_coverage_yaml_not_a_python_literal(self):
+        policy = S.load_self_hosting_policy()
+        self.assertIn("machinery_at_least", policy)
+        self.assertIn("practice_at_least", policy)
+        self.assertGreater(policy["practice_at_least"], policy["machinery_at_least"],
+                           "the practice claim must require more evidence than the "
+                           "machinery claim, or the two collapse into one")
+
+
+class TestNoteContradictsChecks(unittest.TestCase):
+    """The mechanism #159 asked for: a `notes:` field that denies work the
+    requirement's own checks say exists. Eight of fourteen notes had drifted
+    into exactly this state — each accurate when written, none revisited."""
+
+    def test_a_stale_unproven_note_on_a_scoring_requirement_is_flagged(self):
+        self.assertIsNotNone(S.note_contradicts_checks(
+            "No dispatched session has yet produced a merged PR; unproven.", 100))
+
+    def test_a_nothing_built_note_on_a_scoring_requirement_is_flagged(self):
+        self.assertIsNotNone(S.note_contradicts_checks("Nothing built.", 67))
+
+    def test_a_no_x_exists_note_on_a_scoring_requirement_is_flagged(self):
+        self.assertIsNotNone(S.note_contradicts_checks(
+            "No adapter layer exists; the sync talks to GitHub directly.", 100))
+
+    def test_a_zero_scoring_requirement_correctly_saying_nothing_is_built_is_not_flagged(self):
+        # This is the case the mechanism must NOT catch: the note is telling
+        # the truth. A requirement that scores 0% and says so is accurate,
+        # not stale.
+        self.assertIsNone(S.note_contradicts_checks("Nothing built.", 0))
+
+    def test_a_note_with_no_denial_phrase_is_not_flagged(self):
+        self.assertIsNone(S.note_contradicts_checks(
+            "Two of three named harnesses are implemented.", 100))
+
+    def test_an_empty_note_is_not_flagged(self):
+        self.assertIsNone(S.note_contradicts_checks("", 100))
+
+
 class TestRender(unittest.TestCase):
-    def test_banner_states_the_unproven_claim(self):
+    POLICY = {"machinery_at_least": 1, "practice_at_least": 10}
+
+    def test_banner_states_the_unproven_machinery_claim_and_its_threshold(self):
         cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 0})
         html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
                                     "dirs_present": [], "agent_delivered_prs": 0,
-                                    "merged_prs": 12, "dispatch_runs": {}}, {"repo": "a/b"})
+                                    "merged_prs": 12, "dispatch_runs": {}},
+                        {"repo": "a/b"}, self.POLICY)
         self.assertIn("Self-hosting is unproven", html)
-        self.assertIn("0 merged pull request(s)", html)
+        self.assertIn("0 have been", html)
+        self.assertIn("threshold is 1", html)
+
+    def test_banner_distinguishes_proven_machinery_from_unproven_practice(self):
+        cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 3})
+        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+                                    "dirs_present": [], "agent_delivered_prs": 3,
+                                    "merged_prs": 12, "dispatch_runs": {}},
+                        {"repo": "a/b"}, self.POLICY)
+        self.assertIn("machinery is proven", html)
+        self.assertIn("practice is not yet", html)
+        self.assertIn("threshold of 10", html)
+
+    def test_banner_states_practice_proven_once_past_threshold(self):
+        cov = S.evaluate(S.load_coverage(), REPO_ROOT, {"agent_delivered_prs": 46})
+        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+                                    "dirs_present": [], "agent_delivered_prs": 46,
+                                    "merged_prs": 73, "dispatch_runs": {}},
+                        {"repo": "a/b"}, self.POLICY)
+        self.assertIn("proven, as machinery and as practice", html)
+
+    def test_contradiction_is_surfaced_on_the_page(self):
+        cov = {"REQ-001": {"summary": "s", "notes": "Nothing built.", "pct": 50,
+                           "passed": 1, "total": 2, "checks": [],
+                           "contradiction": "nothing built"}}
+        html = S.render(cov, None, {"roles_built": [], "ceremonies_built": [],
+                                    "dirs_present": [], "agent_delivered_prs": 0,
+                                    "merged_prs": 0, "dispatch_runs": {}},
+                        {"repo": "a/b"}, self.POLICY)
+        self.assertIn("contradict their own checks", html)
+        self.assertIn("REQ-001", html)
 
     def test_self_contained_and_escaped(self):
         cov = {"REQ-001": {"summary": "<script>x</script>", "notes": "", "checks": []}}
         html = S.render(S.evaluate(cov, REPO_ROOT, {}), None,
                         {"roles_built": [], "ceremonies_built": [], "dirs_present": [],
                          "agent_delivered_prs": 0, "merged_prs": 0, "dispatch_runs": {}},
-                        {"repo": "a/b"})
+                        {"repo": "a/b"}, self.POLICY)
         self.assertNotIn("<script>x", html)
         self.assertNotIn("http://", html.split("<style>")[1].split("</style>")[0])
 

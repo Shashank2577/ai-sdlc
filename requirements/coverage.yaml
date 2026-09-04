@@ -17,6 +17,23 @@
 #   grep:   {glob, pattern}   at least one matching file contains the pattern
 version: 0
 
+# Thresholds for claims the status page renders as prose rather than a
+# checkbox, so the number a reader would want to argue with lives here
+# instead of buried in a render function.
+#
+# REQ-014's `delivered_by_agent: 1` check is a floor for "the machinery
+# works at all" — one merged PR from a dispatched session. That is not
+# the same claim as "self-hosting is how this programme actually ships",
+# which needs more than one data point. `machinery_at_least` gates the
+# weaker claim; `practice_at_least` gates the stronger one. Ten is chosen
+# as an order of magnitude past the floor — enough that a single lucky
+# run cannot pass it, deliberately conservative rather than tuned to
+# whatever the count happens to be today.
+policy:
+  self_hosting:
+    machinery_at_least: 1
+    practice_at_least: 10
+
 requirements:
   REQ-001:
     summary: Coordination through the tracker; every action leaves an artifact
