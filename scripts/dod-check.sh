@@ -48,7 +48,13 @@ if [ -z "$closing_ref" ] && [ -z "$opt_out" ]; then
     failures+=("PR body has no linked work item — write \`Closes #<issue>\` (Fixes/Resolves also work), or the opt-out phrase \`Relates to #<issue> — it does not close it\` if this PR deliberately closes nothing")
   fi
 fi
-if grep -Fq -- '- [ ]' <<<"$body"; then
+# Fenced code blocks are stripped first. A PR demonstrating a tool that
+# reads acceptance criteria has to *show* those criteria, and an unticked
+# box inside a ``` fence is quoted evidence, not an outstanding DoD item.
+# #172 — the PR adding scripts/check-story-scope.py — failed its own DoD
+# for pasting the input it feeds the checker.
+prose=$(awk 'BEGIN{f=0} /^[[:space:]]*```/{f=!f; next} !f{print}' <<<"$body")
+if grep -Fq -- '- [ ]' <<<"$prose"; then
   failures+=("PR body has unchecked Definition of Done items")
 fi
 
