@@ -109,5 +109,92 @@ check "the checklist rule still fails independently" 1 $? "$WORK/out" "unchecked
 
 # ---------------------------------------------------------------------------
 echo
+echo "scripts/dod-check.sh — commit_trailers (#150: split trailer block)"
+# ---------------------------------------------------------------------------
+# Rule 1 needs real commit history to walk, so these cases get their own
+# scratch repo rather than reusing REPO_ROOT's. Each case resets to the base
+# commit afterward so the three scenarios do not pile up on one branch.
+
+TRAILER_REPO="$WORK/trailer-repo"
+mkdir -p "$TRAILER_REPO"
+git -C "$TRAILER_REPO" init -q
+git -C "$TRAILER_REPO" config user.email "test@example.com"
+git -C "$TRAILER_REPO" config user.name "Test"
+git -C "$TRAILER_REPO" commit --allow-empty -q -m base
+BASE_TRAILER_SHA="$(git -C "$TRAILER_REPO" rev-parse HEAD)"
+
+cd "$TRAILER_REPO" || exit 1
+
+# Case 1: trailers form one contiguous block and Co-authored-by is appended
+# right after with no gap — the shape the harness is supposed to produce.
+setup; pr_body $'Closes #42\n\n- [x] done'
+git commit --allow-empty -q -F - <<'MSG'
+feat: contiguous trailers
+
+Work-Item: Shashank2577/foundry-program#150
+Requirement: REQ-005
+Agent-Role: devops
+Harness: claude-code/2.1.259
+Co-authored-by: claude[bot] <41898282+claude[bot]@users.noreply.github.com>
+MSG
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" PR_NUMBER=1 \
+  bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+check "contiguous trailers with trailing Co-authored-by pass" 0 $? "$WORK/out" "DoD check passed"
+git reset -q --hard "$BASE_TRAILER_SHA"
+
+# Case 2: reproduces #150 — a blank line before the appended Co-authored-by
+# splits the block. Git's trailer parser then sees only Co-authored-by, and
+# the other four trailers — present, readable, correctly formatted — read as
+# ordinary body text.
+setup; pr_body $'Closes #42\n\n- [x] done'
+git commit --allow-empty -q -F - <<'MSG'
+feat: split trailer block
+
+Work-Item: Shashank2577/foundry-program#150
+Requirement: REQ-005
+Agent-Role: devops
+Harness: claude-code/2.1.259
+
+Co-authored-by: claude[bot] <41898282+claude[bot]@users.noreply.github.com>
+MSG
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" PR_NUMBER=1 \
+  bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+got=$?
+check "split trailer block still fails the check" 1 "$got"
+check "split trailer block names the real cause, not \"missing\"" "$got" "$got" \
+  "$WORK/out" "outside the trailer block git recognizes"
+check "split trailer block states the contiguity rule" "$got" "$got" \
+  "$WORK/out" "one contiguous block at the end"
+git reset -q --hard "$BASE_TRAILER_SHA"
+
+# Case 3: a trailer that is genuinely absent — nowhere in the message, not
+# even outside the block — must still report as missing, distinguishably
+# from case 2.
+setup; pr_body $'Closes #42\n\n- [x] done'
+git commit --allow-empty -q -F - <<'MSG'
+feat: missing trailer
+
+Work-Item: Shashank2577/foundry-program#150
+Requirement: REQ-005
+Agent-Role: devops
+MSG
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" PR_NUMBER=1 \
+  bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+got=$?
+check "a genuinely missing trailer still fails" 1 "$got" "$WORK/out" "is missing trailer \`Harness:\`"
+if grep -qF "outside the trailer block" "$WORK/out"; then
+  printf '  FAIL  %s\n        did not expect "outside the trailer block" in output\n' \
+    "a genuinely missing trailer is not called \"outside the block\""
+  FAIL=$((FAIL+1))
+else
+  printf '  ok    %s\n' "a genuinely missing trailer is not called \"outside the block\""
+  PASS=$((PASS+1))
+fi
+git reset -q --hard "$BASE_TRAILER_SHA"
+
+cd "$REPO_ROOT" || exit 1
+
+# ---------------------------------------------------------------------------
+echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
