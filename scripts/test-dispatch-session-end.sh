@@ -62,14 +62,63 @@ exit 0
 STUB
 chmod +x "$WORK/bin/gh"
 
-# git ls-remote is the only git subcommand the step uses.
+# git ls-remote is what the step itself calls directly; fetch/rev-parse/
+# notes/push are what it and scripts/memory.py (real, not stubbed) call to
+# attach an engineering-memory note on an escalation (#120). Each is
+# independently controllable via MEMORY_*_FAIL so tests can prove the
+# fail-soft rule holds at every one of those points, not just in the
+# happy path. `notes` invocations (memory.py's own git calls) are logged
+# verbatim to GIT_NOTES_LOG so a test can check the actual --tried/--gotcha
+# text that was about to be written, not just whether the call happened.
 cat > "$WORK/bin/git" <<'STUB'
 #!/usr/bin/env bash
-if [ "$1" = "ls-remote" ]; then
-  cat "${LS_REMOTE_OUT:?}"
-  exit 0
-fi
-exit 0
+case "$1" in
+  ls-remote)
+    cat "${LS_REMOTE_OUT:?}"
+    exit 0
+    ;;
+  fetch)
+    if [ -n "${GIT_FETCH_LOG:-}" ]; then
+      printf '%s\n' "$*" >> "$GIT_FETCH_LOG"
+    fi
+    if [ "${MEMORY_FETCH_FAIL:-0}" = "1" ]; then
+      echo "fake: could not fetch" >&2
+      exit 1
+    fi
+    exit 0
+    ;;
+  rev-parse)
+    if [ "${MEMORY_REVPARSE_FAIL:-0}" = "1" ]; then
+      echo "fake: bad revision" >&2
+      exit 1
+    fi
+    echo "${MEMORY_COMMIT:-deadbeefdeadbeefdeadbeefdeadbeefdeadbeef}"
+    exit 0
+    ;;
+  notes)
+    if [ -n "${GIT_NOTES_LOG:-}" ]; then
+      # One line per argv element — the note body (the `-m` value) has its
+      # own embedded newlines, so this lands each "Tried:"/"Gotcha:" line
+      # of the formatted note on its own physical line, greppable directly.
+      printf '%s\n' "$@" >> "$GIT_NOTES_LOG"
+    fi
+    if [ "${MEMORY_WRITE_FAIL:-0}" = "1" ]; then
+      echo "fake: notes add failed" >&2
+      exit 1
+    fi
+    exit 0
+    ;;
+  push)
+    if [ "${MEMORY_PUSH_FAIL:-0}" = "1" ]; then
+      echo "fake: push failed" >&2
+      exit 1
+    fi
+    exit 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac
 STUB
 chmod +x "$WORK/bin/git"
 
@@ -99,7 +148,13 @@ names = [n for n in sys.argv[1].split(',') if n]
 print(json.dumps({'labels': [{'name': n} for n in names]}))" "$1"
 }
 
-# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> [current_labels] [requires_pr] [no_change_content]
+ls_remote_line() {  # ls_remote_line <branch> — one `git ls-remote --heads` line
+  printf 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef\trefs/heads/%s' "$1"
+}
+
+# run_session_end <issue> <agent_outcome> <cost_usd> <budget_cost_usd> <pr_head_ref|-> \
+#   [current_labels] [requires_pr] [no_change_content] [ls_remote_line] \
+#   [memory_fetch_fail] [memory_write_fail] [memory_push_fail]
 # Executes the extracted step and leaves gh's calls in $WORK/calls.log and
 # the posted comment body in $WORK/comment.md. current_labels defaults to
 # status:in-progress — the label session-start leaves on a session it did
@@ -110,11 +165,21 @@ print(json.dumps({'labels': [{'name': n} for n in names]}))" "$1"
 # written verbatim to $RUNNER_TEMP/no-change.md before the step runs, the
 # same file a session writes to assert "no change needed" (#129). Omitted
 # entirely means no such file — the pre-#129 behaviour.
+# ls_remote_line, when passed, is the branch line `git ls-remote` reports —
+# needed so $branches is non-empty and the engineering-memory note (#120)
+# takes the "fetch the pushed branch" path instead of falling back to HEAD.
+# memory_fetch_fail / memory_write_fail / memory_push_fail (default "0")
+# each make the corresponding git call the note-writing code makes fail,
+# to prove that failure is swallowed rather than taking the step down —
+# always reset explicitly here so a failure flag from one test case can
+# never leak into the next.
 run_session_end() {
   local issue=$1 outcome=$2 cost=$3 budget_cost=$4 pr_ref=$5
   local current_labels=${6:-status:in-progress}
   local requires_pr=${7:-true}
   local no_change_content=${8-__NONE__}
+  local ls_remote_line=${9-}
+  local mem_fetch_fail=${10:-0} mem_write_fail=${11:-0} mem_push_fail=${12:-0}
 
   CALLS_LOG="$WORK/calls.log"; : > "$CALLS_LOG"
   COMMENT_OUT="$WORK/comment.md"; : > "$COMMENT_OUT"
@@ -130,8 +195,22 @@ run_session_end() {
   labels_json "$current_labels" > "$WORK/issue-labels.json"
   export ISSUE_LABELS_JSON="$WORK/issue-labels.json"
 
-  : > "$WORK/ls-remote.txt"
+  if [ -n "$ls_remote_line" ]; then
+    printf '%s\n' "$ls_remote_line" > "$WORK/ls-remote.txt"
+  else
+    : > "$WORK/ls-remote.txt"
+  fi
   export LS_REMOTE_OUT="$WORK/ls-remote.txt"
+
+  : > "$WORK/git-notes.log"
+  export GIT_NOTES_LOG="$WORK/git-notes.log"
+  : > "$WORK/git-fetch.log"
+  export GIT_FETCH_LOG="$WORK/git-fetch.log"
+  export MEMORY_COMMIT="deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+  export MEMORY_FETCH_FAIL="$mem_fetch_fail"
+  export MEMORY_WRITE_FAIL="$mem_write_fail"
+  export MEMORY_PUSH_FAIL="$mem_push_fail"
+  export MEMORY_REVPARSE_FAIL="0"
 
   # RUNNER_TEMP is $WORK below, so this is exactly the path the real step
   # reads. Always reset it so no-change.md never leaks between test cases.
@@ -307,6 +386,62 @@ Ran the full test suite; everything passes as-is."
 assert "still a failure — spend is a real problem regardless of the conclusion" grep \
   'result=failure' "$WORK/comment.md"
 assert "still escalates" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: escalation attaches an engineering-memory note to the pushed branch (#120)"
+# ---------------------------------------------------------------------------
+run_session_end 601 failure 0.10 5.0 - status:in-progress true __NONE__ "$(ls_remote_line story/FDY-601-slug)"
+assert "fetches the pushed branch, not just HEAD" grep 'origin story/FDY-601-slug' "$WORK/git-fetch.log"
+assert "notes add carries the Attempts text (Tried:)" grep 'Tried: this was attempt 1 on this work item' "$WORK/git-notes.log"
+assert "notes add carries the Blocker text (Gotcha:)" grep 'Gotcha: the agent step reported' "$WORK/git-notes.log"
+assert "note is attached to the fetched commit and pushed" grep \
+  'noted on `deadbeefdeadbeefdeadbeefdeadbeefdeadbeef` and pushed to `refs/notes/foundry`' "$WORK/comment.md"
+assert "escalation still fires as before" grep 'Escalation — human decision required' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: escalation with no pushed branch notes HEAD instead (#120)"
+# ---------------------------------------------------------------------------
+run_session_end 602 failure 0.10 5.0 -
+assert "no branch to fetch, HEAD used instead" "!grep" 'origin' "$WORK/git-fetch.log"
+assert "still writes a note" grep 'Tried: this was attempt 1' "$WORK/git-notes.log"
+assert "note status reports success" grep 'noted on `deadbeefdeadbeefdeadbeefdeadbeefdeadbeef` and pushed' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: notes fetch fails — falls back to HEAD, session still completes (#120 fail-soft)"
+# ---------------------------------------------------------------------------
+run_session_end 603 failure 0.10 5.0 - status:in-progress true __NONE__ \
+  "$(ls_remote_line story/FDY-603-slug)" 1
+assert "fetch was attempted and failed" grep 'origin story/FDY-603-slug' "$WORK/git-fetch.log"
+assert "still falls back and writes a note on HEAD" grep 'Tried: this was attempt 1' "$WORK/git-notes.log"
+assert "note status still reports success via the HEAD fallback" grep \
+  'noted on `deadbeefdeadbeefdeadbeefdeadbeefdeadbeef` and pushed' "$WORK/comment.md"
+assert "escalation and label rollback still happen" grep '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+assert "the step's own stderr is captured, not left to crash it" "!grep" 'Traceback' "$WORK/stdout.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: memory.py write fails — swallowed, session still completes (#120 fail-soft)"
+# ---------------------------------------------------------------------------
+run_session_end 604 failure 0.10 5.0 - status:in-progress true __NONE__ "" 0 1
+assert "note failure reported in the comment" grep 'could not write a note' "$WORK/comment.md"
+assert "does not stop the comment being posted" grep 'gh issue comment' "$WORK/calls.log"
+assert "escalation still fires and the label rollback still happens" grep \
+  '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: notes push fails — note written locally, session still completes (#120 fail-soft)"
+# ---------------------------------------------------------------------------
+run_session_end 605 failure 0.10 5.0 - status:in-progress true __NONE__ "" 0 0 1
+assert "reports the note as unpushed" grep 'the push failed' "$WORK/comment.md"
+assert "still names the commit the note lives on" grep 'noted on `deadbeefdeadbeefdeadbeefdeadbeefdeadbeef`' "$WORK/comment.md"
+assert "escalation still fires and the label rollback still happens" grep \
+  '--add-label status:ready --add-label needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: no engineering-memory note for a successful session (#120)"
+# ---------------------------------------------------------------------------
+run_session_end 606 success 0.10 5.0 "story/FDY-606-slug" status:in-progress
+assert "no note-writing attempted" "!grep" 'Tried:' "$WORK/git-notes.log"
+assert "no engineering-memory line in the comment" "!grep" 'Engineering memory' "$WORK/comment.md"
 
 echo
 echo "$PASS passed, $FAIL failed"

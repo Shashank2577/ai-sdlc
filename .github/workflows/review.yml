@@ -1,0 +1,105 @@
+# The sprint review ceremony (P2-3, part of #115). PRD §5.4 names this as
+# one of five ceremonies; `ceremonies/review.yaml` is its declaration.
+#
+# `role: techwriter` in the declaration names the pack that owns and
+# maintains this compiled record — the same reading `ceremonies/retro.yaml`
+# and `ceremonies/standup.yaml` give `role: devops` for a ceremony that is
+# pure automation with no agent session, not a pack `gh workflow run
+# dispatch.yml` starts. `scripts/review.py` writes only the tracker;
+# techwriter's own `write_scope` (`docs/**`) is untouched.
+#
+# `scripts/review.py` reads `ceremonies/review.yaml`'s `role` field itself
+# at run time — this workflow does not hardcode it. The cron below is a
+# GitHub Actions constraint: `on.schedule` must be a literal, so it cannot
+# be read from the declaration file either, but its value is copied
+# verbatim from `ceremonies/review.yaml:cadence` and drifting the two apart
+# is a reviewable diff, not a silent hardcode.
+#
+# Event-derived, the same rule `scripts/retro.py` and
+# `dashboards/standup.py` follow: closed `type:story` issues, their
+# `qa:approved`/`qa:rejected` labels, their acceptance-criteria text, and
+# the pull request that shipped them. Nobody is asked what shipped. A
+# window with nothing closed still creates an issue —
+# `ceremonies/review.yaml`'s escalates_when treats that as a signal, not a
+# quiet no-op, so this does not early-return the way `scripts/retro.py`
+# does on an empty window.
+name: Review
+
+on:
+  pull_request:
+    paths:
+      - "scripts/review.py"
+      - "scripts/test_review.py"
+      - "ceremonies/review.yaml"
+      - ".github/workflows/review.yml"
+  schedule:
+    # Friday 09:00 UTC — ceremonies/review.yaml:cadence, verbatim.
+    - cron: "0 9 * * 5"
+  workflow_dispatch:
+    inputs:
+      window_days:
+        description: "Days of closed stories to fold into the review"
+        required: false
+        default: 7
+        type: number
+      dry_run:
+        description: "Compute the review and print it; create no issue"
+        required: false
+        default: false
+        type: boolean
+
+# Reads closed stories and PRs, and creates at most one issue per window.
+# No source, no policy, no docs/** write — this is the tracker artifact
+# only; a techwriter session's own docs output is that pack's, not this
+# ceremony's.
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: review
+  cancel-in-progress: false
+
+jobs:
+  # Runs everywhere, including pull requests, so a change to the window or
+  # verdict-mapping logic is checked before it next fires for real.
+  tests:
+    name: review-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Review generator tests
+        run: python3 scripts/test_review.py
+
+  review:
+    name: review-ceremony
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install --quiet pyyaml
+
+      - name: Run the review ceremony
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WINDOW_DAYS: ${{ inputs.window_days || 7 }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          args=(--repo "${GITHUB_REPOSITORY}" --window-days "${WINDOW_DAYS}" --run-url "${RUN_URL}")
+          if [ "${DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 scripts/review.py "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
