@@ -197,7 +197,17 @@ requirements:
       + adapters/memory/git_notes/, mirroring the tracker seam (#135);
       scripts/memory.py itself still calls git notes directly, unrewired, by
       the same design as the tracker seam. No MCP/Seal-backed second
-      implementation (PRD §12's later phase).
+      implementation (PRD §12's later phase) — that describes the code, not
+      an event. #165 forced the first real exercise of the write path: it
+      had shipped in #153 but every session since had succeeded, so it had
+      never actually fired. Dispatching #169 against a devops session with
+      an unmeetable ask made it escalate, and session end wrote and pushed a
+      note to refs/notes/foundry on commit 773451c (run 33855463986). A
+      second dispatch on the same issue then received that note in its
+      assembled prompt — visible verbatim in its own run log (run
+      33855617391) and quoted back in its first comment — before escalating
+      again. Read, search and write are now proven in production, not just
+      wired and unit-tested.
 
   REQ-014:
     summary: Self-hosting — the system builds itself through itself
