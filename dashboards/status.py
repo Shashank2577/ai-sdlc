@@ -49,12 +49,65 @@ PHASES = [
 ]
 
 
-def load_coverage() -> dict:
+def load_yaml() -> dict:
     try:
         import yaml
     except ImportError:  # pragma: no cover
         sys.exit("status: PyYAML is required")
-    return (yaml.safe_load(COVERAGE.read_text()) or {}).get("requirements", {})
+    return yaml.safe_load(COVERAGE.read_text()) or {}
+
+
+def load_coverage() -> dict:
+    return load_yaml().get("requirements", {})
+
+
+def load_self_hosting_policy() -> dict:
+    """Defaults match the floor the `delivered_by_agent` check has always used."""
+    policy = (load_yaml().get("policy") or {}).get("self_hosting") or {}
+    return {
+        "machinery_at_least": policy.get("machinery_at_least", 1),
+        "practice_at_least": policy.get("practice_at_least", 10),
+    }
+
+
+# A note asserting the requirement is unbuilt, phrased in any of these ways,
+# contradicts itself the moment the requirement's own checks score above
+# zero. Eight of fourteen notes drifted into exactly this state (#159) —
+# accurate when written, never revisited once the score moved. Deliberately
+# crude pattern matching: it has almost no false-positive surface, and it
+# catches the one failure that has actually happened, repeatedly.
+CONTRADICTION_PATTERNS = [re.compile(p, re.I) for p in (
+    r"nothing built", r"does not exist", r"no\b[\w /.'-]*\bexists?\b", r"unproven",
+)]
+
+
+def note_contradicts_checks(notes: str, pct: int) -> str | None:
+    """The matched phrase if `notes` denies work that `pct` says exists, else None."""
+    if pct <= 0 or not notes:
+        return None
+    for pat in CONTRADICTION_PATTERNS:
+        m = pat.search(notes)
+        if m:
+            return m.group(0)
+    return None
+
+
+def self_hosting_verdict(facts: dict, policy: dict) -> dict:
+    """What the delivered-PR count actually supports claiming, and at what threshold."""
+    delivered = facts.get("agent_delivered_prs", 0)
+    merged = facts.get("merged_prs", 0)
+    machinery_at_least = policy["machinery_at_least"]
+    practice_at_least = policy["practice_at_least"]
+    machinery_proven = delivered >= machinery_at_least
+    practice_proven = delivered >= practice_at_least
+    return {
+        "delivered": delivered,
+        "merged": merged,
+        "machinery_at_least": machinery_at_least,
+        "practice_at_least": practice_at_least,
+        "machinery_proven": machinery_proven,
+        "practice_proven": practice_proven,
+    }
 
 
 # --------------------------------------------------------------------------
@@ -95,13 +148,16 @@ def evaluate(coverage: dict, root: Path, facts: dict) -> dict:
     for req, spec in coverage.items():
         results = [run_check(c, root, facts) for c in spec.get("checks", [])]
         passed = sum(1 for ok, _ in results if ok)
+        notes = spec.get("notes", "")
+        pct = round(100 * passed / len(results)) if results else 0
         out[req] = {
             "summary": spec.get("summary", ""),
-            "notes": spec.get("notes", ""),
+            "notes": notes,
             "passed": passed,
             "total": len(results),
-            "pct": round(100 * passed / len(results)) if results else 0,
+            "pct": pct,
             "checks": [{"ok": ok, "text": text} for ok, text in results],
+            "contradiction": note_contradicts_checks(notes, pct),
         }
     return out
 
@@ -175,10 +231,12 @@ def bar(pct: int) -> str:
             f'height:7px;border-radius:99px"></div></div>')
 
 
-def render(cov: dict, trace: dict, facts: dict, meta: dict) -> str:
+def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str:
     e = B.esc
     trace_status = {r["req"]: r["status"] for r in (trace or {}).get("rows", [])}
     label = {"green": "traced", "amber": "on main, no PR", "red": "untraced"}
+
+    contradictions = {req: c["contradiction"] for req, c in cov.items() if c["contradiction"]}
 
     rows = []
     for req in sorted(cov):
@@ -187,6 +245,10 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict) -> str:
         gap = ""
         if c["notes"]:
             gap = f'<br><span class="muted">{e(c["notes"])}</span>'
+        if c["contradiction"]:
+            gap += (f'<br><span class="pill red">note contradicts its checks</span> '
+                    f'<span class="muted">matched "{e(c["contradiction"])}" '
+                    f'while scoring {c["pct"]}%</span>')
         rows.append(f"""      <tr>
         <td class="req">{e(req)}</td>
         <td><span class="pill {t}">{e(label.get(t, t))}</span></td>
@@ -214,9 +276,47 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict) -> str:
             for i in items) or f"<li class='muted'>no {kind}</li>"
 
     overall = round(sum(c["pct"] for c in cov.values()) / len(cov)) if cov else 0
-    delivered = facts.get("agent_delivered_prs", 0)
+    verdict = self_hosting_verdict(facts, policy)
+    delivered = verdict["delivered"]
     runs = facts.get("dispatch_runs", {})
     run_line = ", ".join(f"{n} {k}" for k, n in sorted(runs.items())) or "none yet"
+
+    if not verdict["machinery_proven"]:
+        banner_colour = "var(--red)"
+        verdict_line = (f'<strong>Self-hosting is unproven.</strong> The machinery '
+                        f'threshold is {verdict["machinery_at_least"]} merged pull '
+                        f'request delivered by a dispatched agent session; '
+                        f'{delivered} have been.')
+    elif not verdict["practice_proven"]:
+        banner_colour = "var(--amber)"
+        verdict_line = (f'<strong>Self-hosting machinery is proven; the practice is '
+                        f'not yet.</strong> {delivered} merged pull request(s) have '
+                        f'been produced by a dispatched agent session, out of '
+                        f'{verdict["merged"]} merged overall — past the machinery '
+                        f'threshold of {verdict["machinery_at_least"]}, short of the '
+                        f'practice threshold of {verdict["practice_at_least"]} set in '
+                        f'<code>requirements/coverage.yaml</code>.')
+    else:
+        banner_colour = "var(--green)"
+        verdict_line = (f'<strong>Self-hosting is proven, as machinery and as '
+                        f'practice.</strong> {delivered} merged pull request(s) have '
+                        f'been produced by a dispatched agent session, out of '
+                        f'{verdict["merged"]} merged overall — past the practice '
+                        f'threshold of {verdict["practice_at_least"]} set in '
+                        f'<code>requirements/coverage.yaml</code>.')
+
+    contradiction_banner = ""
+    if contradictions:
+        items = "".join(
+            f'<li><span class="mono">{e(req)}</span> — matched "{e(phrase)}"</li>'
+            for req, phrase in sorted(contradictions.items()))
+        contradiction_banner = f"""
+<div class="banner" style="border-left-color:var(--red)">
+  <strong>{len(contradictions)} requirement note(s) contradict their own checks.</strong>
+  A note denying work the checks say exists is stale prose beside a computed
+  number — see requirements/coverage.yaml.
+  <ul class="bare">{items}</ul>
+</div>"""
 
     return f"""<!doctype html>
 <html lang="en"><head>
@@ -237,14 +337,11 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict) -> str:
   barely built.
 </p>
 
-<div class="banner">
-  <strong>Self-hosting is unproven.</strong>
-  {delivered} merged pull request(s) have been produced by a dispatched agent
-  session, out of {facts.get('merged_prs', 0)} merged overall.
-  Dispatch runs so far: {e(run_line)}. Until that first number moves, the
-  central claim of this programme is machinery, not evidence.
+<div class="banner" style="border-left-color:{banner_colour}">
+  {verdict_line}
+  Dispatch runs so far: {e(run_line)}.
 </div>
-
+{contradiction_banner}
 <div class="tiles">
   <div class="tile"><div class="n">{overall}%</div><div class="l">requirements satisfied</div></div>
   <div class="tile"><div class="n">{len(facts['roles_built'])}/{len(PRD_ROLES)}</div><div class="l">role packs</div></div>
@@ -296,6 +393,7 @@ def main() -> int:
 
     facts = collect_facts(not args.no_github)
     cov = evaluate(load_coverage(), REPO_ROOT, facts)
+    policy = load_self_hosting_policy()
 
     trace_path = args.out / "traceability.json"
     trace = json.loads(trace_path.read_text()) if trace_path.is_file() else None
@@ -308,7 +406,7 @@ def main() -> int:
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}
 
     args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "status.html").write_text(render(cov, trace, facts, meta))
+    (args.out / "status.html").write_text(render(cov, trace, facts, meta, policy))
     (args.out / "status.json").write_text(
         json.dumps({"meta": meta, "facts": facts, "coverage": cov}, indent=2))
     B.write_page(args.out, "status.html", "Programme status",
