@@ -8,3 +8,4 @@
 # Format: one entry per line, "<path from repo root><TAB><reason>".
 # Blank lines and lines starting with # are ignored.
 
+adapters/memory/tests/test_git_notes.py	Already executed by unit-tests.yml's `find adapters -name 'test_*.py'` adapter-test loop — no workflow edit needed to run it. This checker's literal-substring heuristic only recognizes that loop's coverage via a comment string in unit-tests.yml (see the one there for adapters/tracker/tests/); adding the matching "adapters/memory/tests/test_*.py" comment line requires editing .github/workflows/, which is devops-only (ADR-0001, workflow-scope credential). Remove this entry once devops adds that comment line.

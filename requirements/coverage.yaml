@@ -192,10 +192,12 @@ requirements:
       - {glob: "scripts/*memory*"}
       - {glob: "adapters/memory/**"}
     notes: >-
-      Store built (#119): write/read/search on refs/notes/foundry. The
-      dispatcher now reads it into the prompt and writes a note at session
-      end (#120, wired in #153). No adapters/memory/** layer and no MCP
-      server (PRD §12's later phase) — hence 50%, not 100%.
+      Store built (#119): write/read/search on refs/notes/foundry. Dispatcher
+      reads and writes it (#120). Seam built (#158): adapters/memory/base.py
+      + adapters/memory/git_notes/, mirroring the tracker seam (#135);
+      scripts/memory.py itself still calls git notes directly, unrewired, by
+      the same design as the tracker seam. No MCP/Seal-backed second
+      implementation (PRD §12's later phase).
 
   REQ-014:
     summary: Self-hosting — the system builds itself through itself
