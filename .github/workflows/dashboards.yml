@@ -19,6 +19,15 @@ on:
       # ADRs are markdown outside dashboards/, so a new record with no
       # code change must still rebuild the page that renders it.
       - "adrs/**"
+      # portal/build.py reads these directly (policies/signoff.yaml for
+      # the sign-off vocabulary, signoff-check.py's classify() for state,
+      # gate-check.py's is_human() underneath that) — a change to any of
+      # them can change what the portal renders with no edit to portal/
+      # itself.
+      - "portal/**"
+      - "policies/signoff.yaml"
+      - "scripts/signoff-check.py"
+      - "scripts/gate-check.py"
       - ".github/workflows/dashboards.yml"
   schedule:
     # 06:10 UTC daily — the standup digest ages even when nothing is pushed,
@@ -109,6 +118,23 @@ jobs:
               | tee -a "$GITHUB_STEP_SUMMARY"
             echo "::endgroup::"
           done
+
+      # Not part of the dashboards/*.py discovery loop above: portal/ is a
+      # separate audience (a paying client, not an engineer — REQ-008,
+      # REQ-011) and lives outside dashboards/ on purpose. It landed with
+      # its own test suite (portal/test_build.py, wired into unit-
+      # tests.yml's discovery) but no generator step ever ran it, so the
+      # portal existed without ever being published (#193) — the same gap
+      # this file's own header warns about for a declaration with no
+      # workflow behind it. Built here, before the index, so the index
+      # picks it up the same way it picks up every dashboards/ page.
+      - name: Build the client portal
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 portal/build.py --out site --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
 
       # Last, so the index links every page built above — including any
       # page picked up by the discovery loop, with no edit needed here.
