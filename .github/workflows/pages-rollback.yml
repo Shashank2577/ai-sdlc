@@ -1,0 +1,71 @@
+# Rollback for the dashboards Pages publish (#191). `policies/environments.yaml`
+# says a rollback is a deploy and waits on the same reviewer as a forward
+# deploy — this workflow is that: it runs through `environment: prod`, so
+# the platform pauses it for @Shashank2577 exactly like `dashboards.yml`'s
+# `prod` job does. There is no fast path that skips the review.
+#
+# "Previous artifact" is not a description here: `pages-live` (written by
+# dashboards.yml's `prod` job, one commit per release) is real git history,
+# and this workflow reconstructs an older commit's tree as a *new* commit
+# (scripts/deploy-pages.py rollback) rather than force-pushing or resetting
+# — the release being rolled back from stays in the log.
+name: Pages rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      commits_back:
+        description: >-
+          How many prod releases to roll back. 1 (default) restores the
+          release before the current one.
+        required: false
+        default: "1"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: rollback
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Reconstruct the previous release on pages-live
+        env:
+          COMMITS_BACK: ${{ inputs.commits_back }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 scripts/deploy-pages.py rollback \
+            --branch pages-live \
+            --commits-back "$COMMITS_BACK"
+          git push origin pages-live
+
+      - name: Extract the restored tree for Pages
+        run: |
+          set -euo pipefail
+          mkdir -p site
+          rsync -a --exclude='.git' .worktree-deploy-pages/ site/
+          test -s site/index.html
+
+      - name: Package for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
