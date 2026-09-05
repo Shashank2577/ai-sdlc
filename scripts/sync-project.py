@@ -11,15 +11,34 @@ only what differs — so the board can be trusted without being tended.
 Writing to a user-level Project v2 needs a token with `project` scope;
 GITHUB_TOKEN does not have it. Without one this reports the plan and
 changes nothing, which is the honest failure for a scheduled job.
+
+Every tracker operation below goes through `adapters/tracker/base.py`'s
+`Tracker` interface (P3-7 / REQ-004) — this file has no `gh` call of its
+own. Which implementation backs a run is a single config read,
+`make_tracker()`; today that is `TRACKER_IMPL=github` (the default) or
+`TRACKER_IMPL=jira`. The Jira path is exercised only against
+`adapters/tracker/tests/test_jira.py`'s stubs — there is no live Jira
+behind it here (see that package's docstring), so picking it does not
+mean Jira integration works, only that the same algorithm runs against it.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+from pathlib import Path
+
+# `python3 scripts/sync-project.py` puts this file's own directory
+# (scripts/) on sys.path, not the repo root — so `adapters` needs help
+# to be importable regardless of how this script is invoked.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from adapters.tracker.base import BoardRef, Issue, Tracker  # noqa: E402
+from adapters.tracker.github import GitHubTracker  # noqa: E402
 
 REQ = re.compile(r"REQ-\d{3}")
 # Stories end their user-story line with `→ **REQ-002, REQ-003**`. When that
@@ -46,18 +65,6 @@ ROLE_BY_LABEL = {
     "role:techwriter": "TechWriter", "role:deliverymanager": "DeliveryManager",
     "role:delivery-lead": "DeliveryManager",
 }
-
-
-def gh_json(args: list[str]):
-    out = subprocess.run(["gh", *args], check=True, capture_output=True, text=True).stdout
-    return json.loads(out or "null")
-
-
-def graphql(query: str, **variables):
-    args = ["api", "graphql", "-f", f"query={query}"]
-    for k, v in variables.items():
-        args += ["-f", f"{k}={v}"]
-    return gh_json(args)
 
 
 # --------------------------------------------------------------------------
@@ -120,95 +127,130 @@ def plan_additions(issues: dict, on_board: set) -> list:
         key=lambda issue: issue["number"])
 
 
+def _issue_dict(issue: Issue) -> dict:
+    """`desired_fields` was written (and is tested) against the dict shape
+    `gh issue list --json` returns. Adapt the Tracker's `Issue` to that
+    shape rather than changing `desired_fields` — the mapping and its
+    tests stay untouched."""
+    return {
+        "number": issue.number,
+        "state": issue.state,
+        "body": issue.body,
+        "labels": [{"name": name} for name in issue.labels],
+    }
+
+
+# --------------------------------------------------------------------------
+# Which tracker backs this run — a config read, not an import choice
+# --------------------------------------------------------------------------
+
+def make_tracker() -> Tracker:
+    """The one place a run picks its `Tracker` implementation.
+
+    `TRACKER_IMPL=github` (the default) is today's behaviour, unchanged.
+    `TRACKER_IMPL=jira` is stub-verified only (see
+    `adapters/tracker/jira/client.py`'s docstring and
+    `adapters/tracker/tests/test_jira.py`) — there is no live Jira instance
+    behind it here, and setting this does not claim there is one.
+    """
+    impl = os.environ.get("TRACKER_IMPL", "github")
+    if impl == "github":
+        return GitHubTracker()
+    if impl == "jira":
+        from adapters.tracker.jira import JiraTracker
+        return JiraTracker(
+            base_url=os.environ["JIRA_BASE_URL"],
+            email=os.environ["JIRA_EMAIL"],
+            api_token=os.environ["JIRA_API_TOKEN"],
+            project_key=os.environ["JIRA_PROJECT_KEY"],
+            field_map=json.loads(os.environ.get("JIRA_FIELD_MAP", "{}")),
+            webhook_urls=json.loads(os.environ.get("JIRA_WEBHOOK_URLS", "{}")),
+        )
+    raise ValueError(f"unknown TRACKER_IMPL: {impl!r} (expected 'github' or 'jira')")
+
+
 # --------------------------------------------------------------------------
 # The world
 # --------------------------------------------------------------------------
 
-PROJECT_QUERY = """
-query($owner:String!, $number:Int!) {
-  user(login:$owner) { projectV2(number:$number) {
-    id
-    fields(first:40) { nodes {
-      ... on ProjectV2Field { id name }
-      ... on ProjectV2SingleSelectField { id name options { id name } }
-    }}
-    items(first:100) { nodes {
-      id
-      content { ... on Issue { number state } }
-      fieldValues(first:40) { nodes {
-        ... on ProjectV2ItemFieldTextValue        { text  field { ... on ProjectV2FieldCommon { name }}}
-        ... on ProjectV2ItemFieldSingleSelectValue{ name  field { ... on ProjectV2FieldCommon { name }}}
-      }}
-    }}
-  }}
-}"""
-
-
-def load_board(owner: str, number: int) -> dict:
-    # -F rather than -f: the query needs a real Int, and gh sends -f as a string.
-    out = subprocess.run(
-        ["gh", "api", "graphql", "-f", f"query={PROJECT_QUERY}",
-         "-f", f"owner={owner}", "-F", f"number={number}"],
-        check=True, capture_output=True, text=True).stdout
-    return json.loads(out)["data"]["user"]["projectV2"]
-
-
-def field_index(board: dict) -> dict:
-    idx = {}
-    for f in board["fields"]["nodes"]:
-        if not f:
-            continue
-        idx[f["name"]] = {"id": f["id"],
-                          "options": {o["name"]: o["id"] for o in f.get("options") or []}}
-    return idx
-
-
-def current_values(item: dict) -> dict:
-    out = {}
-    for v in item["fieldValues"]["nodes"]:
-        name = (v.get("field") or {}).get("name")
-        if name:
-            out[name] = v.get("text") if "text" in v else v.get("name")
-    return out
-
-
-def write_field(project_id: str, item_id: str, field: dict, value: str) -> None:
-    if field["options"]:
-        option = field["options"].get(value)
-        if option is None:
-            raise KeyError(f"option {value!r} does not exist on this field")
-        payload = f'{{ singleSelectOptionId: "{option}" }}'
-    else:
-        payload = f'{{ text: "{value}" }}'
-    graphql(f'''mutation {{ updateProjectV2ItemFieldValue(input:{{
-        projectId:"{project_id}" itemId:"{item_id}"
-        fieldId:"{field['id']}" value:{payload} }}) {{ projectV2Item {{ id }} }} }}''')
-
-
-def add_item(project_id: str, content_id: str) -> str:
-    """Add an issue to the board and return the new item's id."""
-    result = graphql(f'''mutation {{ addProjectV2ItemById(input:{{
-        projectId:"{project_id}" contentId:"{content_id}" }}) {{ item {{ id }} }} }}''')
-    return result["data"]["addProjectV2ItemById"]["item"]["id"]
-
-
-def apply_fields(project_id: str, item_id: str, number: int, fields: dict,
+def apply_fields(tracker: Tracker, board: BoardRef, number: int, board_fields: dict,
                   delta: dict, dry_run: bool) -> int | None:
     """Write every field in `delta`. Returns 1 on failure, None on success."""
     for name, value in delta.items():
-        field = fields.get(name)
-        if not field:
+        if name not in board_fields:
             print(f"  #{number}: no `{name}` field on this board — skipped")
             continue
         print(f"  #{number}: {name} -> {value}" + ("  (dry run)" if dry_run else ""))
         if dry_run:
             continue
         try:
-            write_field(project_id, item_id, field, value)
+            tracker.set_board_field(board, number, name, value)
         except (KeyError, subprocess.CalledProcessError) as exc:
             print(f"  #{number}: FAILED to set {name} — {exc}", file=sys.stderr)
             return 1
     return None
+
+
+def run_sync(tracker: Tracker, board: BoardRef, *, dry_run: bool) -> tuple[int, str]:
+    """The whole sync algorithm, independent of argv — so `main()` and tests
+    can drive it against any `Tracker`. Returns (exit code, summary line);
+    the summary is empty on early failure.
+
+    Only the board-schema read is wrapped against a permission failure —
+    that matches the original script, where a `gh` failure anywhere past
+    that point was never expected and was left to crash with a traceback
+    rather than be mistaken for the same "no `project` scope" cause."""
+    try:
+        board_fields = tracker.board_fields(board)
+    except subprocess.CalledProcessError as exc:
+        err = (exc.stderr or "").strip().replace("\n", " ")
+        print(f"sync-project: cannot read project {board.number} — {err[:300]}",
+              file=sys.stderr)
+        print("A token with `project` scope is required; GITHUB_TOKEN does not "
+              "have it. Set PROJECT_TOKEN.", file=sys.stderr)
+        return 2, ""
+
+    issues = {i.number: _issue_dict(i) for i in tracker.list_issues(state="all", limit=200)}
+
+    changes = 0
+    unchanged = 0
+    on_board = set()
+    for number in sorted(issues):
+        item = tracker.board_item(board, number)
+        if item is None:
+            continue
+        on_board.add(number)
+        delta = diff(item.field_values, desired_fields(issues[number]))
+        if not delta:
+            unchanged += 1
+            continue
+        changes += 1
+        failed = apply_fields(tracker, board, number, board_fields, delta, dry_run)
+        if failed:
+            return failed, ""
+
+    added = 0
+    for issue_data in plan_additions(issues, on_board):
+        number = issue_data["number"]
+        added += 1
+        changes += 1
+        print(f"  #{number}: add to board" + ("  (dry run)" if dry_run else ""))
+        if dry_run:
+            continue
+        try:
+            tracker.add_to_board(board, number)
+        except KeyError as exc:
+            print(f"  #{number}: FAILED to add — {exc}", file=sys.stderr)
+            return 1, ""
+        failed = apply_fields(tracker, board, number, board_fields,
+                               desired_fields(issue_data), dry_run)
+        if failed:
+            return failed, ""
+
+    verb = "would change" if dry_run else "changed"
+    summary = (f"project sync: {verb} {changes} item(s) ({added} added), "
+               f"{unchanged} already correct.")
+    return 0, summary
 
 
 def main() -> int:
@@ -218,61 +260,12 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    try:
-        board = load_board(args.owner, args.project)
-    except subprocess.CalledProcessError as exc:
-        err = (exc.stderr or "").strip().replace("\n", " ")
-        print(f"sync-project: cannot read project {args.project} — {err[:300]}",
-              file=sys.stderr)
-        print("A token with `project` scope is required; GITHUB_TOKEN does not "
-              "have it. Set PROJECT_TOKEN.", file=sys.stderr)
-        return 2
-
-    fields = field_index(board)
-    issues = {i["number"]: i for i in gh_json(
-        ["issue", "list", "--state", "all", "--limit", "200",
-         "--json", "number,title,state,labels,body,id"])}
-
-    changes = 0
-    unchanged = 0
-    on_board = set()
-    for item in board["items"]["nodes"]:
-        content = item.get("content") or {}
-        number = content.get("number")
-        if number is None or number not in issues:
-            continue
-        on_board.add(number)
-        delta = diff(current_values(item), desired_fields(issues[number]))
-        if not delta:
-            unchanged += 1
-            continue
-        changes += 1
-        failed = apply_fields(board["id"], item["id"], number, fields, delta, args.dry_run)
-        if failed:
-            return failed
-
-    added = 0
-    for issue_data in plan_additions(issues, on_board):
-        number = issue_data["number"]
-        added += 1
-        changes += 1
-        print(f"  #{number}: add to board" + ("  (dry run)" if args.dry_run else ""))
-        if args.dry_run:
-            continue
-        try:
-            item_id = add_item(board["id"], issue_data["id"])
-        except subprocess.CalledProcessError as exc:
-            print(f"  #{number}: FAILED to add — {exc}", file=sys.stderr)
-            return 1
-        failed = apply_fields(board["id"], item_id, number, fields,
-                               desired_fields(issue_data), args.dry_run)
-        if failed:
-            return failed
-
-    verb = "would change" if args.dry_run else "changed"
-    print(f"project sync: {verb} {changes} item(s) ({added} added), "
-          f"{unchanged} already correct.")
-    return 0
+    tracker = make_tracker()
+    board = BoardRef(owner=args.owner, number=args.project)
+    code, summary = run_sync(tracker, board, dry_run=args.dry_run)
+    if code == 0:
+        print(summary)
+    return code
 
 
 if __name__ == "__main__":
