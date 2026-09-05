@@ -231,6 +231,7 @@ print(json.dumps({'type': 'result', 'num_turns': 5, 'total_cost_usd': float(sys.
 
   cd "$REPO_ROOT" && \
   GH_TOKEN=x \
+  GITHUB_REPOSITORY=acme/widgets \
   ISSUE="$issue" ROLE=devops \
   TURNS=30 COST_USD="$budget_cost" TOKENS=400000 WALL_CLOCK=45 \
   MAX_RETRIES=2 BUDGET_SOURCE=policy PRIOR_FAILURES=0 \
