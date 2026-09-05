@@ -1,0 +1,320 @@
+# The product registry — one place every product is defined. PRD §2, §14.
+# REQ-004, REQ-012.
+#
+# Human decision, 2026-09-05: **control plane + product repos**, for
+# **independent products** (separate lifecycles, boards, environments and
+# sign-off chains). PRD §2's diagram already says this —
+# `HA -->|ephemeral agent session| RR[(Product Repos)]`, plural — and §14
+# says it in prose: "Product repos stay clean: code, tests, IaC, docs,
+# CONVENTIONS.md, CODEOWNERS, PR template, DoD check." Nothing before this
+# file made that real: the dispatcher, the dashboards and the tracker sync
+# each hardcode a single repository today (`sync-project.py --owner
+# Shashank2577 --project 2`, this repo's own remote), which is only safe
+# because there has only ever been one product. This file is what a second
+# one reads instead of a second hardcode.
+#
+# `dispatch.yml`'s header already states the dispatch contract as
+# `{ work_item, role, harness, repo, budget }`. Passing `repo` as a bare
+# string would satisfy the dispatcher and nothing else: the dashboards, the
+# tracker sync, the environment ladder and the budgets all need to know
+# *which products exist* and what is true of each, not just which repo the
+# current dispatch happens to target. This file answers that once, so
+# those four don't each grow their own answer.
+#
+# What this file is, and is not
+# ---------------------------------------------------------------------
+# This file declares products. It does not verify them. Exactly like
+# `policies/environments.yaml` (see that file's own header), a declaration
+# here is only honest for as long as something checks it against the live
+# repo instead of trusting it — that something is `scripts/check-products.py`,
+# specified under `validation` below and left for a linked developer/QA
+# story, same split `environments.yaml` used for #121. Until that script
+# exists and runs as a required check, every claim in this file — that a
+# repo exists, that a project board exists, that a repo is genuinely
+# bootstrapped — is unverified prose. Say so plainly rather than implying
+# otherwise.
+#
+# One role pack may write this file: `delivery-lead`, for the same reason
+# it may write `gates.yaml` and `environments.yaml` — see
+# `role-packs/delivery-lead/charter.md`. Every story that touches this
+# file is `critical` under `gates.yaml`'s `touches_governance` rule, so it
+# is approved by a person before it is ever dispatched.
+version: 0
+
+# ---------------------------------------------------------------------
+# Field reference — the meaning of every key a product entry may set.
+# Stated once, here, rather than repeated per entry.
+# ---------------------------------------------------------------------
+#
+# repo (required, string "owner/name")
+#   The product's repository. Read by: the dispatcher (resolves `repo` in
+#   the dispatch contract instead of a hardcoded default), dashboards
+#   (which repo a status page describes), tracker sync (which repo's
+#   issues feed which board).
+#
+# project (required, object {owner, number})
+#   The product's tracker board — a GitHub Projects v2 board, identified
+#   the same way `scripts/sync-project.py --owner --project` already takes
+#   it. Independent products get their own board; two products may not
+#   share a `project` entry, because "independent" (separate lifecycles,
+#   sign-off chains) is the decision this file exists to record, and a
+#   shared board would quietly merge two products' burndown into one.
+#
+# environments (required, list of objects {name, human_reviewer_required})
+#   Which rungs of `policies/environments.yaml`'s ladder apply to this
+#   product, and — the one thing a product may tighten, never loosen —
+#   whether *this product* additionally requires a human reviewer on a
+#   rung the ladder itself marks optional. `name` must be one of
+#   `environments.yaml`'s declared environments; a product cannot invent
+#   an environment `environments.yaml` doesn't know about. A product MAY
+#   NOT set `human_reviewer_required: false` on a rung the ladder marks
+#   `true` (today, only `prod`) — that would be a product weakening a
+#   platform-enforced gate through this file, the exact failure mode the
+#   gate-autonomy decision below forbids by a different route. Omitting an
+#   environment from this list means the product does not use that rung
+#   at all (e.g. a library with no deployed `prod`).
+#
+# budget_overrides (optional, map of role -> partial policy.yaml budgets)
+#   Per-role ceilings tighter than the role pack's own default in
+#   `role-packs/<role>/policy.yaml`. A key here may only lower a ceiling
+#   (`turns`, `cost_usd`, `tokens`, `wall_clock_minutes`), never raise one
+#   — a product cannot use its own registry entry to buy a role a bigger
+#   budget than governance already gave it everywhere else. Any role named
+#   here must also appear in this product's `roles` list, or have no
+#   `roles` restriction at all.
+#
+# roles (optional, list of role names)
+#   Which of the packs under `role-packs/` may be dispatched against this
+#   product. Absent or empty means all packs may. A name here must match
+#   an existing `role-packs/<name>/` directory — the registry cannot grant
+#   a dispatch to a role that has no pack to compile.
+#
+# bootstrapped (required, bool)
+#   Whether the repo actually has, right now, the four things §14 requires
+#   of a product repo: `CONVENTIONS.md`, `.github/CODEOWNERS`, a pull
+#   request template, and the DoD check wired in as a required status
+#   check on its default branch. This is a claim about the *target* repo,
+#   not about this file, and per the acceptance criteria it is never
+#   trusted on the word of whoever edited this entry — see `validation`
+#   below for exactly what must be true for the claim to hold. A dispatch
+#   against a product entry that is not genuinely bootstrapped produces
+#   work with nowhere traceable to land (no CODEOWNERS to route review, no
+#   DoD check to require) — see "fail closed" below for what that means in
+#   practice.
+#
+# notes (optional, free text)
+#   Anything about the product worth a human reading the registry knowing,
+#   that doesn't fit a typed field above. Not read by any script.
+
+# ---------------------------------------------------------------------
+# Decision: may a product declare its own gates?
+# ---------------------------------------------------------------------
+# No. `policies/gates.yaml` stays global, and this file has no field that
+# names, overrides, or references a gate. A product with a different risk
+# posture is real — that is exactly what `environments` above and
+# `budget_overrides` exist to express, because both can only ever get
+# *stricter* through this file. An approval gate is a different kind of
+# thing: `gates.yaml`'s whole design is that exactly one pack
+# (`delivery-lead`) can move it, that every change to it is `critical`
+# under its own `touches_governance` rule, and that the change is reviewed
+# by a person as a governance PR. Letting a product loosen — or even
+# retarget — a gate from *this* file would open a second, quieter path to
+# the same effect: a change to `products.yaml` is not a change to
+# `gates.yaml`, so it would not obviously get the same scrutiny, even
+# though it would have the same power. A product that genuinely needs a
+# different gate needs a new rule in `gates.yaml` itself, proposed and
+# reviewed the same way every other gate change is. This file may make a
+# product's *ladder* stricter (see `environments` above); it may never
+# make its *approval gate* different.
+gate_autonomy: none
+
+# ---------------------------------------------------------------------
+# Decision: what happens when the registry and reality disagree?
+# ---------------------------------------------------------------------
+# Fail closed, at every point of use. Specifically:
+#   - A `repo` that does not resolve via the API is not a product any
+#     script may dispatch against, sync, or render a dashboard for — it is
+#     a broken entry, reported as a validation failure, not silently
+#     skipped and not silently trusted.
+#   - A `bootstrapped: true` claim that the target repo does not actually
+#     satisfy (see `validation` below) is treated exactly like a false
+#     `repo` — the product is not eligible for dispatch until the claim is
+#     either fixed in the repo or corrected to `false` in this file.
+#   - An unresolvable `project`, or an `environments` entry naming
+#     something `environments.yaml` does not declare, or a `roles` entry
+#     naming a pack that does not exist, are all validation failures for
+#     the same reason: a claim this file cannot back is worse than no
+#     claim, because it is trusted by the four consumers named at the top
+#     until someone checks.
+# This file states the rule; it does not enforce it. Enforcement is
+# `scripts/check-products.py` (validation rules below), run the same way
+# `check-environments.py` runs for the ladder: as a required check on any
+# change to this file, and — once the dispatcher reads `products.yaml`
+# (a separate devops story) — as a pre-dispatch guard so a dispatch against
+# a failing entry refuses to start rather than running against a product
+# that turns out not to exist.
+disagreement_policy: fail_closed
+
+# ---------------------------------------------------------------------
+# Validation rules — precise enough to implement against. The script
+# itself (`scripts/check-products.py`) is `scripts/**`, developer/QA scope,
+# not this pack's (role-packs/delivery-lead/policy.yaml denies `scripts/**`
+# the same way it denies `src/**` and `tests/**`) — written here, built in
+# a linked story, exactly the split `environments.yaml` used for #121.
+# ---------------------------------------------------------------------
+validation:
+  - rule: repo_resolves
+    check: >-
+      For every entry under `products:`, `GET /repos/{repo}` returns 200.
+      A 404, a redirect (renamed repo), or a private repo the check's
+      token cannot see are all failures — a redirect is still a failure
+      because it means this file's `repo` string is already stale.
+
+  - rule: project_resolves
+    check: >-
+      For every entry's `project`, the GraphQL query
+      `user(login: $project.owner) { projectV2(number: $project.number) }`
+      (or `organization(login:)`, tried if `user` returns null) returns a
+      non-null project. Mirrors the query `scripts/sync-project.py`
+      already runs to load a board, so this reuses that contract instead
+      of inventing a second way to ask the same question.
+
+  - rule: environments_known
+    check: >-
+      Every `name` under an entry's `environments` list appears as a key
+      under `environments:` in `policies/environments.yaml`. No entry may
+      name an environment the ladder does not declare.
+
+  - rule: environments_not_weakened
+    check: >-
+      For every entry's `environments` list, if `environments.yaml` marks
+      that environment `human_reviewer_required: true`, the entry may not
+      set `human_reviewer_required: false`. Setting it `true` on a rung
+      the ladder marks `false` is allowed — that is the one direction this
+      file may move a gate.
+
+  - rule: roles_have_packs
+    check: >-
+      Every name under an entry's `roles` list has a matching directory
+      `role-packs/<name>/policy.yaml`. A product may not name a role that
+      has no pack to compile against it.
+
+  - rule: budget_overrides_only_tighten
+    check: >-
+      For every `budget_overrides.<role>.<field>` an entry sets, the value
+      is <= the same field's value in `role-packs/<role>/policy.yaml`'s
+      `budgets`. A value that raises a ceiling is a failure, not a warning
+      — the registry cannot become a side channel for a bigger budget than
+      governance granted the role everywhere else. This also implies
+      `role` must be a role the entry's own `roles` list permits, if that
+      list is non-empty.
+
+  - rule: bootstrapped_is_verified
+    check: >-
+      For every entry with `bootstrapped: true`, all four hold against the
+      live repo, not this file's say-so:
+        1. `GET /repos/{repo}/contents/CONVENTIONS.md` returns 200.
+        2. `GET /repos/{repo}/contents/.github/CODEOWNERS` returns 200.
+        3. `GET /repos/{repo}/contents/.github/pull_request_template.md`
+           returns 200 (GitHub also accepts `PULL_REQUEST_TEMPLATE.md` or a
+           `.github/PULL_REQUEST_TEMPLATE/` directory — accept any of the
+           three locations GitHub itself recognizes).
+        4. `GET /repos/{repo}/branches/{default_branch}/protection` has a
+           `required_status_checks.contexts` list containing an entry that
+           implements this repo's DoD check (named `dod` in this repo's
+           own branch protection — a linked product may use a different
+           context name for the equivalent check, so this is checked by
+           the product declaring which context name proves it, not by
+           hardcoding `dod`).
+      Any of the four failing while the entry claims `bootstrapped: true`
+      is a validation failure, reported by name (which of the four is
+      missing), not a pass.
+
+  - rule: no_duplicate_projects
+    check: >-
+      No two entries under `products:` may resolve to the same
+      `{project.owner, project.number}`. Independent products do not share
+      a board — see `project`'s field reference above.
+
+# ---------------------------------------------------------------------
+# What this file does not do (limits, stated as policy.yaml sibling files
+# state theirs)
+# ---------------------------------------------------------------------
+limits: >-
+  This file describes products; it enforces nothing by itself, the same
+  way `environments.yaml` describes a ladder the platform enforces and
+  `gates.yaml` describes gates that branch protection and label identity
+  enforce. Until `scripts/check-products.py` exists and runs as a required
+  check, every field here — including `bootstrapped` — is an unverified
+  claim. This file also does not decide *how* the dispatcher, the
+  dashboards or the tracker sync consume it; each of those is a separate,
+  linked story in its own owning role's scope (devops for the dispatcher,
+  developer/QA for the checker and dashboards), and none of them is
+  changed by this file landing. Declaring the registry is not the same as
+  anything reading it yet — that is deliberate, the same order
+  `environments.yaml` shipped in.
+
+# ---------------------------------------------------------------------
+# Template entry — not a product. Shows every field this file defines,
+# with every value explained inline. Deliberately kept OUTSIDE `products:`
+# so `check-products.py` never iterates it, tries to resolve
+# `owner/name-of-your-product`, and fails the build on a repo that was
+# never meant to exist.
+# ---------------------------------------------------------------------
+product_template:
+  repo: owner/name-of-your-product
+  project: {owner: your-org-or-user, number: 0}
+  environments:
+    - {name: preview, human_reviewer_required: false}
+    - {name: dev, human_reviewer_required: false}
+    - {name: staging, human_reviewer_required: false}
+    - {name: prod, human_reviewer_required: true}
+  budget_overrides:
+    developer: {cost_usd: 3.00}   # tighter than role-packs/developer's default; never looser
+  roles: [product-manager, architect, developer, qa, devops]
+  bootstrapped: false
+  notes: >-
+    Free text a human reading the registry benefits from. Not read by any
+    script.
+
+# ---------------------------------------------------------------------
+# The registry itself.
+# ---------------------------------------------------------------------
+products:
+  # The control plane is also a product it builds. Special-casing it here
+  # — leaving it out because "it's not a product repo, it's the program
+  # repo" — is exactly how the self-hosting property this file is meant
+  # to test quietly stops being tested. It is declared like any other
+  # entry, resolved against the real API like any other entry, and held
+  # to the same `bootstrapped` bar.
+  foundry-program:
+    repo: Shashank2577/ai-sdlc
+    project: {owner: Shashank2577, number: 2}
+    environments:
+      - {name: preview, human_reviewer_required: false}
+      - {name: dev, human_reviewer_required: false}
+      - {name: staging, human_reviewer_required: false}
+      - {name: prod, human_reviewer_required: true}
+    # No roles list: every pack under role-packs/ may be dispatched
+    # against its own control plane — that is the only way delivery-lead
+    # sessions, for one, run at all.
+    bootstrapped: true
+    notes: >-
+      Verified 2026-09-05: CONVENTIONS.md, .github/CODEOWNERS and
+      .github/pull_request_template.md all exist at HEAD, and `main`'s
+      branch protection requires the `dod` status check
+      (`gh api repos/Shashank2577/ai-sdlc/branches/main/protection` ->
+      required_status_checks.contexts includes "dod"). The repo's own
+      README still titles it "foundry-program" and CONVENTIONS.md's
+      Work-Item trailer example still reads
+      `Shashank2577/foundry-program#<issue>` — both predate a repository
+      rename this file does not attempt to paper over. `repo` above is the
+      name the API actually resolves today; the registry key
+      (`foundry-program`) keeps the name the rest of this repo's own prose
+      already uses, so the mismatch is visible instead of hidden by
+      picking one and silently overwriting the other. Same stopgap
+      distinction #203 draws for the ten `--repo` defaults it swapped to
+      `ai-sdlc`: a default is configuration and should be current
+      (`repo:` above is), a citation is history and should not move
+      (README's title and CONVENTIONS.md's trailer example are neither
+      wrong nor this file's job to fix).
