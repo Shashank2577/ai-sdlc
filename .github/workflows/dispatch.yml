@@ -610,6 +610,17 @@ jobs:
             `Closes #<issue#>`, the requirement ids, and every Definition of Done
             checkbox ticked **only if it is actually true**. An unticked box fails the
             DoD check; a falsely ticked one is worse.
+          - If a criterion genuinely cannot be met by this PR — it needs a human
+            approval this session cannot self-grant, for instance — do not leave a
+            bare `- [ ]` and do not tick it falsely. Mark it `- [~]` and state, on the
+            same line, a `#<issue>` reference to a real, currently-open issue tracking
+            the gap, plus a reason after the word `deferred` — e.g. `- [~] <criterion>
+            — deferred to #172: <reason>`. That issue must itself carry one of this
+            PR's own `Requirement:` ids, so the deferral cannot quietly drop a REQ.
+            Both the issue and the reason are required; a `- [~]` naming no issue, a
+            closed or nonexistent one, or stating no reason fails the DoD check
+            exactly as an unchecked box does. `policies/dod.yaml`'s
+            `checklist_complete.deferral` is the form of record.
           - Put real evidence in the Evidence section — command output, links, a
             walkthrough. If an acceptance criterion cannot be met, say so there.
             An honest gap beats a quiet one; silently narrowing scope is the failure
