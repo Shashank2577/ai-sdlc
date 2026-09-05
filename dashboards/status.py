@@ -405,7 +405,7 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "dashboards" / "site")
-    ap.add_argument("--repo", default="Shashank2577/foundry-program")
+    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
     ap.add_argument("--no-github", action="store_true")
     args = ap.parse_args()
 
