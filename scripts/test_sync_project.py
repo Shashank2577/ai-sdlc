@@ -12,6 +12,7 @@ the board just quietly says the wrong thing.
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -141,6 +142,133 @@ class TestPlanAdditions(unittest.TestCase):
         issues = {9: issue(number=9), 3: issue(number=3)}
         self.assertEqual([i["number"] for i in S.plan_additions(issues, on_board=set())],
                          [3, 9])
+
+
+class TestRunSyncAgainstTrackerStubs(unittest.TestCase):
+    """P3-7: `run_sync` is the whole algorithm main() drives, written once
+    against `adapters.tracker.base.Tracker` — not against `gh`. Running it
+    against the Jira adapter's stubs (no live Jira exists, see
+    adapters/tracker/jira/client.py's docstring) proves the seam actually
+    carries sync-project.py's logic, which is REQ-004's claim. It is not
+    proof the Jira adapter works against a real Jira instance."""
+
+    def test_full_sync_against_github_stub(self):
+        from adapters.tracker.base import BoardRef
+        from adapters.tracker.github import GitHubTracker
+        from adapters.tracker.tests.test_github import FakeGh
+
+        fake = FakeGh()
+        # The seeded fixture's issue #1 carries "status:ready", but this
+        # board's only Status options are Todo/In Progress/Done — give it a
+        # label this board can actually represent, matching the Jira run
+        # below so the two are a fair side-by-side comparison.
+        fake.issues[1]["labels"] = ["status:in-progress"]
+        tracker = GitHubTracker(run=fake)
+        board = BoardRef(owner="o", number=1)
+
+        code, summary = S.run_sync(tracker, board, dry_run=False)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(summary,
+                          "project sync: changed 1 item(s) (1 added), 0 already correct.")
+        self.assertEqual(fake.items[1]["fields"].get("Status"), "In Progress")
+
+    def test_full_sync_against_jira_stub(self):
+        from adapters.tracker.base import BoardRef
+        from adapters.tracker.jira import JiraTracker
+        from adapters.tracker.tests.test_jira import FakeJira
+
+        fake = FakeJira()
+        # Same relabel as the GitHub run above, for the same reason: a fair
+        # side-by-side comparison of the same algorithm against both stubs.
+        fake.issues[1]["fields"]["labels"] = ["status:in-progress"]
+        tracker = JiraTracker(
+            base_url="https://example.atlassian.net", email="bot@example.com",
+            api_token="unused-in-tests", project_key="FDY",
+            field_map={"Requirement-ID": {"id": "customfield_10052", "type": "text"}},
+            webhook_urls={"dispatch.yml": "https://example.atlassian.net/webhook/dispatch"},
+            transport=fake,
+        )
+        board = BoardRef(owner="FDY", number=5)
+
+        code, summary = S.run_sync(tracker, board, dry_run=False)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(summary,
+                          "project sync: changed 1 item(s) (1 added), 0 already correct.")
+        # Same operations as the GitHub run: issue #1 added to the board
+        # (here, the active sprint) and its Status field transitioned to
+        # match the label — driven by the exact same run_sync() call.
+        self.assertEqual(fake.sprint_issues["500"], ["FDY-1"])
+        self.assertEqual(fake.issues[1]["fields"]["status"]["name"], "In Progress")
+
+    def test_dry_run_against_jira_stub_changes_nothing(self):
+        from adapters.tracker.base import BoardRef
+        from adapters.tracker.jira import JiraTracker
+        from adapters.tracker.tests.test_jira import FakeJira
+
+        fake = FakeJira()
+        fake.issues[1]["fields"]["labels"] = ["status:in-progress"]
+        tracker = JiraTracker(
+            base_url="https://example.atlassian.net", email="bot@example.com",
+            api_token="unused-in-tests", project_key="FDY",
+            field_map={"Requirement-ID": {"id": "customfield_10052", "type": "text"}},
+            webhook_urls={"dispatch.yml": "https://example.atlassian.net/webhook/dispatch"},
+            transport=fake,
+        )
+        board = BoardRef(owner="FDY", number=5)
+
+        code, summary = S.run_sync(tracker, board, dry_run=True)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(summary,
+                          "project sync: would change 1 item(s) (1 added), 0 already correct.")
+        self.assertEqual(fake.sprint_issues["500"], [])
+        self.assertEqual(fake.issues[1]["fields"]["status"]["name"], "Ready")
+
+
+class TestMakeTracker(unittest.TestCase):
+    """The implementation is chosen by config in exactly one place:
+    `make_tracker()` reads `TRACKER_IMPL`. Everything else in the script
+    only ever sees a `Tracker`."""
+
+    def test_defaults_to_github(self):
+        from adapters.tracker.github import GitHubTracker
+        old = os.environ.pop("TRACKER_IMPL", None)
+        try:
+            self.assertIsInstance(S.make_tracker(), GitHubTracker)
+        finally:
+            if old is not None:
+                os.environ["TRACKER_IMPL"] = old
+
+    def test_env_var_switches_to_jira(self):
+        from adapters.tracker.jira import JiraTracker
+        env = {
+            "TRACKER_IMPL": "jira", "JIRA_BASE_URL": "https://example.atlassian.net",
+            "JIRA_EMAIL": "bot@example.com", "JIRA_API_TOKEN": "x", "JIRA_PROJECT_KEY": "FDY",
+        }
+        old = {k: os.environ.get(k) for k in env}
+        os.environ.update(env)
+        try:
+            self.assertIsInstance(S.make_tracker(), JiraTracker)
+        finally:
+            for k, v in old.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+
+    def test_unknown_impl_raises(self):
+        old = os.environ.get("TRACKER_IMPL")
+        os.environ["TRACKER_IMPL"] = "carrier-pigeon"
+        try:
+            with self.assertRaises(ValueError):
+                S.make_tracker()
+        finally:
+            if old is None:
+                os.environ.pop("TRACKER_IMPL", None)
+            else:
+                os.environ["TRACKER_IMPL"] = old
 
 
 class TestAgainstThisRepo(unittest.TestCase):

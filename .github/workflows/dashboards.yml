@@ -1,12 +1,57 @@
-# Generated views over the program's own history, published to GitHub Pages.
+# Generated views over the program's own history, published to GitHub Pages
+# through the same environment ladder REQ-010 declares (policies/environments.yaml)
+# instead of straight to Pages. See #191: this is the only real deployable in
+# the repo, so it is the one thing that actually walks `dev` -> `staging` ->
+# `prod`. `preview` is out of scope here -- it is per-PR/ephemeral by
+# definition (policies/environments.yaml), and dashboards.yml never builds on
+# a PR to publish anything, only to test the generators (see `build` below).
 #
-# On main: rebuild and deploy. On a PR: build and run the tests, deploy
-# nothing. The matrix changes with every merge, not only when dashboards/
-# changes, so main is not path-filtered.
+# One artifact, three stops:
+#   build   -- generate the site once, upload it as a plain (non-Pages)
+#              artifact so every stop below downloads the identical bytes.
+#   dev     -- `environment: dev` (no reviewer, per policy). Sanity-checks
+#              the artifact itself, not a rebuild of it.
+#   staging -- `environment: staging` (no reviewer). Mirrors the artifact
+#              onto the `pages-staging` branch, which is *not* the Pages
+#              publish source -- it exists so a reviewer has a real URL
+#              (raw.githack.com, serving that branch) to look at before
+#              `prod` is asked to approve anything.
+#   prod    -- `environment: prod`, which carries a required-reviewer rule
+#              (policies/environments.yaml, verified live in #187/#191's
+#              evidence) -- the platform pauses this job for @Shashank2577
+#              regardless of what this file says. On approval, mirrors the
+#              same artifact onto `pages-live` (the rollback history --
+#              see .github/workflows/pages-rollback.yml) and only then
+#              calls actions/deploy-pages, which is what actually goes
+#              live at https://shashank2577.github.io/foundry-program/.
 #
-# One-time human setup: Settings → Pages → Source = "GitHub Actions".
-# Without it the deploy job fails, loudly and on purpose — a dashboard that
+# On main: build, then walk the ladder. On a PR: build and run the tests,
+# publish nothing. The matrix changes with every merge, not only when
+# dashboards/ changes, so main is not path-filtered.
+#
+# `dev`/`staging`/`prod` gate on the event not being `pull_request`, not on
+# `github.ref == 'refs/heads/main'` -- deliberately, matching deploy.yml's
+# already-reviewed precedent (#161): the environment's protection rule is
+# the control, not a ref check in this file. `push` only ever fires for
+# `main` (see the trigger above) and `schedule` always runs against the
+# default branch, so the only place this matters is `workflow_dispatch`,
+# which can target any ref -- and there, `prod`'s reviewer sees exactly
+# which ref/run they are approving before it goes live. A ref check here
+# would be a second lock on the same door prod's reviewer already guards,
+# and would also block dispatching this file, deliberately, from a branch
+# to prove the gate pauses before that branch is ever merged.
+#
+# One-time human setup: Settings -> Pages -> Source = "GitHub Actions".
+# Without it the `prod` job fails, loudly and on purpose -- a dashboard that
 # silently stops publishing is worse than one that visibly breaks.
+#
+# Trade-off, decided (see #191): gating `prod` means the client-visible page
+# can lag `main` for however long the reviewer takes. `dev` and `staging`
+# stay unsupervised (policy already says so) precisely to bound that lag to
+# the approval step alone -- nothing upstream of `prod` is ever stale. The
+# alternative, publishing ungated as before, means REQ-010's gate is real
+# everywhere except the one artifact a client actually looks at. Staleness
+# bounded by a human decision beats freshness with no gate.
 name: Dashboards
 
 on:
@@ -19,7 +64,17 @@ on:
       # ADRs are markdown outside dashboards/, so a new record with no
       # code change must still rebuild the page that renders it.
       - "adrs/**"
+      # portal/build.py reads these directly (policies/signoff.yaml for
+      # the sign-off vocabulary, signoff-check.py's classify() for state,
+      # gate-check.py's is_human() underneath that) — a change to any of
+      # them can change what the portal renders with no edit to portal/
+      # itself.
+      - "portal/**"
+      - "policies/signoff.yaml"
+      - "scripts/signoff-check.py"
+      - "scripts/gate-check.py"
       - ".github/workflows/dashboards.yml"
+      - "scripts/deploy-pages.py"
   schedule:
     # 06:10 UTC daily — the standup digest ages even when nothing is pushed,
     # and a digest that only refreshes on merges would go stale exactly on
@@ -110,6 +165,23 @@ jobs:
             echo "::endgroup::"
           done
 
+      # Not part of the dashboards/*.py discovery loop above: portal/ is a
+      # separate audience (a paying client, not an engineer — REQ-008,
+      # REQ-011) and lives outside dashboards/ on purpose. It landed with
+      # its own test suite (portal/test_build.py, wired into unit-
+      # tests.yml's discovery) but no generator step ever ran it, so the
+      # portal existed without ever being published (#193) — the same gap
+      # this file's own header warns about for a declaration with no
+      # workflow behind it. Built here, before the index, so the index
+      # picks it up the same way it picks up every dashboards/ page.
+      - name: Build the client portal
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 portal/build.py --out site --repo "${GITHUB_REPOSITORY}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
       # Last, so the index links every page built above — including any
       # page picked up by the discovery loop, with no edit needed here.
       - name: Rebuild the index
@@ -117,22 +189,122 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 dashboards/build.py --out site --repo "${GITHUB_REPOSITORY}"
 
-      - name: Upload the site
+      # Plain artifact, not upload-pages-artifact: this is the one build
+      # that dev/staging/prod all download unchanged. Only `prod` converts
+      # it to Pages' format, right before the one real publish (#191).
+      - name: Upload the built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboards-site-${{ github.run_id }}
+          path: site
+          retention-days: 14
+
+  dev:
+    name: dev
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions: {}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dashboards-site-${{ github.run_id }}
+          path: site
+
+      # `dev` per policies/environments.yaml is the integration checkpoint
+      # for work merged to main. Dashboards has no separate dev-only
+      # surface to deploy to, so the checkpoint is a smoke check against
+      # the artifact everything downstream will carry unmodified — not a
+      # rebuild, not a placeholder.
+      - name: Smoke-check the built artifact
+        run: |
+          set -euo pipefail
+          test -s site/index.html
+          test -s site/traceability.json
+          python3 -c "import json; json.load(open('site/traceability.json'))"
+          echo "dev: artifact looks intact" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  staging:
+    name: staging
+    needs: dev
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://raw.githack.com/${{ github.repository }}/pages-staging/index.html
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dashboards-site-${{ github.run_id }}
+          path: site
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Mirror the artifact onto pages-staging
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 scripts/deploy-pages.py publish \
+            --branch pages-staging \
+            --source site \
+            --message "staging candidate -- run ${{ github.run_id }}, source ${{ github.sha }}"
+          git push origin pages-staging
+
+  prod:
+    name: prod
+    needs: staging
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # The platform pauses here for prod's required reviewer
+    # (policies/environments.yaml; verified against the live repo, not
+    # assumed — see #191's evidence) before anything below runs.
+    environment:
+      name: prod
+      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dashboards-site-${{ github.run_id }}
+          path: site
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Recorded before the Pages deploy, not after: this is the release
+      # history rollback reads from (pages-rollback.yml), so a deploy that
+      # fails partway through Pages still leaves the record that it
+      # started, and a reviewer approving this run has already committed
+      # to it being the next rollback target.
+      - name: Record the release on pages-live
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 scripts/deploy-pages.py publish \
+            --branch pages-live \
+            --source site \
+            --message "prod release -- run ${{ github.run_id }}, source ${{ github.sha }}"
+          git push origin pages-live
+
+      - name: Package for Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
-  deploy:
-    name: deploy
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
       - id: deploy
         uses: actions/deploy-pages@v4

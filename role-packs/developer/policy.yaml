@@ -52,6 +52,19 @@ write_scope:
     # a gap `scripts/check-story-scope.py` (#168) surfaced by flagging
     # every dashboard story as unscoped for every role, itself included.
     - "dashboards/**"
+    # Same gap as dashboards/**, found the same way (#190): written by
+    # developer sessions (#162) but never declared, so #168's check would
+    # flag every future portal story as out-of-scope for the role that
+    # actually owns it. `portal/build.py` is application code in the same
+    # shape as `dashboards/*.py` — it belongs with the role that writes
+    # code, not with product-manager (prds/requirements) or techwriter
+    # (docs describe code, they don't ship it).
+    - "portal/**"
+    # Same gap again, same PR (#190): written by developer sessions
+    # (#135, #166) but never declared. `adapters/` is application code —
+    # tracker/memory client implementations and their contract tests —
+    # not policy, not a role pack, not CI.
+    - "adapters/**"
     - "role-packs/developer/**"
   deny:
     # PRD §3 assigns .github/workflows/ to DevOps. A role that writes code

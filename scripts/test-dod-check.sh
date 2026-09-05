@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# Tests for scripts/dod-check.sh's linked_work_item rule (#91 defines the
-# policy, #92 enforces it): a closing keyword, or the opt-out phrase, is
-# required — a bare `#<issue>` mention is not enough.
+# Tests for scripts/dod-check.sh: linked_work_item (#91 defines the policy,
+# #92 enforces it — a closing keyword, or the opt-out phrase, is required, a
+# bare `#<issue>` mention is not enough), checkbox quoting in fences and
+# inline spans (#176), and the checklist_complete deferral form (#173
+# defines the policy, #180 enforces it).
 #
 # BASE_SHA and HEAD_SHA are pinned to the same commit so `git rev-list
 # BASE..HEAD` is empty and the commit-trailer check (rule 1) never fires;
-# only the PR-body rule (rule 2) is under test here. A stub `gh` returns
-# canned PR bodies, same pattern as scripts/test-qa-enforcement.sh.
+# only the PR-body rule (rule 2) is under test in those groups. The
+# deferral group needs real Requirement trailers to match against, so it
+# gets its own commits in the scratch repo the commit_trailers group
+# already sets up. A stub `gh` returns canned PR bodies and issues, same
+# pattern as scripts/test-qa-enforcement.sh.
 #
 #   bash scripts/test-dod-check.sh
 set -uo pipefail
@@ -41,6 +46,14 @@ emit() { if [ -n "$jqexpr" ]; then jq -r "$jqexpr"; else cat; fi; }
 case "$1 $2" in
   "pr view")    printf '{"body":%s}\n' "$(cat "$state/pr-body.json")" | emit ;;
   "pr comment") : ;;
+  "issue view")
+    issue_file="$state/issue-$3.json"
+    if [ ! -f "$issue_file" ]; then
+      echo "GraphQL: Could not resolve to an Issue with the number of $3." >&2
+      exit 1
+    fi
+    cat "$issue_file" | emit
+    ;;
   *) echo "stub gh: unhandled: $*" >&2; exit 1 ;;
 esac
 STUB
@@ -53,6 +66,11 @@ setup() {
 }
 
 pr_body() { jq -Rs . <<<"$1" > "$STATE_DIR/pr-body.json"; }
+# issue <num> <state> <body>  — registers a stub issue for `gh issue view`.
+issue() {
+  jq -n --arg state "$2" --arg body "$3" '{state: $state, body: $body}' \
+    > "$STATE_DIR/issue-$1.json"
+}
 
 # check <description> <expected-exit> <actual-exit> [<file-to-grep> <needle>]
 check() {
@@ -106,6 +124,23 @@ check "no issue reference at all fails, as before" 1 $? "$WORK/out" "no linked w
 setup; pr_body $'Closes #42\n\n- [ ] not done'
 bash scripts/dod-check.sh > "$WORK/out" 2>&1
 check "the checklist rule still fails independently" 1 $? "$WORK/out" "unchecked Definition of Done"
+
+# ---------------------------------------------------------------------------
+echo
+echo "scripts/dod-check.sh — checkbox quoting in fences and inline spans (#176)"
+# ---------------------------------------------------------------------------
+
+setup; pr_body $'Closes #42\n\nDemonstrates the checker:\n\n```\n- [ ] example input\n```\n\n- [x] done'
+bash scripts/dod-check.sh > "$WORK/out" 2>&1
+check "an unticked box inside a fenced block is ignored" 0 $? "$WORK/out" "DoD check passed"
+
+setup; pr_body $'Closes #42\n\nThe literal text is `- [ ] example` in the input.\n\n- [x] done'
+bash scripts/dod-check.sh > "$WORK/out" 2>&1
+check "an unticked box inside an inline code span is ignored" 0 $? "$WORK/out" "DoD check passed"
+
+setup; pr_body $'Closes #42\n\n```\n- [ ] quoted example\n```\n\n- [ ] real outstanding item'
+bash scripts/dod-check.sh > "$WORK/out" 2>&1
+check "a quoted box in a fence does not hide a real unticked box in prose" 1 $? "$WORK/out" "unchecked Definition of Done"
 
 # ---------------------------------------------------------------------------
 echo
@@ -190,6 +225,80 @@ else
   printf '  ok    %s\n' "a genuinely missing trailer is not called \"outside the block\""
   PASS=$((PASS+1))
 fi
+git reset -q --hard "$BASE_TRAILER_SHA"
+
+# ---------------------------------------------------------------------------
+echo
+echo "scripts/dod-check.sh — checklist_complete deferral (#173 policy, #180 check)"
+# ---------------------------------------------------------------------------
+# The deferral check matches the referenced issue's body against this PR's
+# own Requirement ids, which only exist on a real commit trailer — so this
+# group needs one commit, not the empty-rev-list SAME_SHA trick above.
+# REQ-010 mirrors #161, the live case #180 verifies against: its one
+# unmet criterion was "`environment:` used so the platform enforces the
+# gate — verified by a real dispatch to `prod` pausing, with the run
+# linked in Evidence", which no session could self-satisfy before merge.
+
+git commit --allow-empty -q -F - <<'MSG'
+feat: deploy workflow prod gate
+
+Work-Item: Shashank2577/foundry-program#161
+Requirement: REQ-010
+Agent-Role: devops
+Harness: claude-code/2.1.259
+MSG
+DEFER_HEAD="$(git rev-parse HEAD)"
+
+run_defer() {
+  BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$DEFER_HEAD" PR_NUMBER=1 \
+    bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+}
+
+setup
+issue 172 OPEN "Tracks the human approval for REQ-010's production gate."
+pr_body $'Closes #161\n\n- [~] `environment:` used so the platform enforces the gate — verified by a real dispatch to `prod` pausing, with the run linked in Evidence — deferred to #172: needs a human reviewer to approve the pending deployment; no session can self-approve it'
+run_defer
+check "#161's live case: a valid deferral (open issue, matching REQ, stated reason) passes" 0 $? "$WORK/out" "DoD check passed"
+
+setup
+issue 172 OPEN "Tracks the human approval for REQ-010's production gate."
+pr_body $'Closes #161\n\n- [~] verified by a real dispatch to prod pausing — deferred: needs a human reviewer'
+run_defer
+check "a deferral with no issue number fails" 1 $? "$WORK/out" "does not match the required form"
+
+setup
+issue 172 CLOSED "Tracks the human approval for REQ-010's production gate."
+pr_body $'Closes #161\n\n- [~] verified by a real dispatch to prod pausing — deferred to #172: needs a human reviewer'
+run_defer
+check "a deferral naming a closed issue fails" 1 $? "$WORK/out" "which is not open"
+
+setup
+pr_body $'Closes #161\n\n- [~] verified by a real dispatch to prod pausing — deferred to #9999: needs a human reviewer'
+run_defer
+check "a deferral naming a nonexistent issue fails" 1 $? "$WORK/out" "which does not exist"
+
+setup
+issue 172 OPEN "Tracks the human approval for REQ-010's production gate."
+pr_body $'Closes #161\n\n- [~] verified by a real dispatch to prod pausing — deferred to #172:'
+run_defer
+check "a deferral with no stated reason fails" 1 $? "$WORK/out" "states no reason"
+
+setup
+issue 172 OPEN "No matching requirement mentioned here."
+pr_body $'Closes #161\n\n- [~] verified by a real dispatch to prod pausing — deferred to #172: needs a human reviewer'
+run_defer
+check "a deferral to an issue with no matching Requirement id fails" 1 $? "$WORK/out" "names none of this PR's Requirement ids"
+
+setup
+pr_body $'Closes #161\n\n- [ ] verified by a real dispatch to prod pausing'
+run_defer
+check "a plain unticked box is still not a deferral and fails" 1 $? "$WORK/out" "unchecked Definition of Done"
+
+setup
+pr_body $'Closes #161\n\n- [x] verified by a real dispatch to prod pausing'
+run_defer
+check "all boxes ticked, no deferral needed, passes" 0 $? "$WORK/out" "DoD check passed"
+
 git reset -q --hard "$BASE_TRAILER_SHA"
 
 cd "$REPO_ROOT" || exit 1
