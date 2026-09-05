@@ -3,8 +3,18 @@
 # GitHub Environments exist and `prod` has a required-reviewer rule
 # naming @Shashank2577.
 #
-# There is no application in this repository. This workflow does not
-# pretend otherwise: `plan` computes and prints what a real deploy would
+# There is no *generic* application in this repository for this workflow
+# to deploy. The dashboards site is a real deployable, and it walks this
+# same environment ladder through its own workflow — see
+# .github/workflows/dashboards.yml (#191) — not through this one, because
+# its artifact (a generated static site) and this workflow's dispatch
+# shape (an arbitrary named target with nothing to build) are different
+# enough that folding one into the other would obscure both. This file
+# stays exactly what it says below: a documented no-op for whatever
+# application shows up next.
+#
+# This workflow does not pretend otherwise: `plan` computes and prints
+# what a real deploy would
 # promote and from where (reading policies/environments.yaml and
 # infra/promotion-manifest.yaml at run time — nothing about the ladder is
 # hardcoded here), and `deploy` repeats that, states plainly that nothing
