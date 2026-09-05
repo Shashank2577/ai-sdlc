@@ -118,10 +118,17 @@ requirements:
       - {exists: adapters/tracker/github}
       - {exists: adapters/tracker/jira}
     notes: >-
-      adapters/tracker/github and adapters/tracker/jira both exist and pass
-      the same contract suite (#135). scripts/sync-project.py does not use
-      either yet and still talks to GitHub directly; the Jira adapter has
-      never been run against a live Jira instance.
+      scripts/sync-project.py is now rewired through adapters/tracker/base.py
+      (#192): every tracker call is an interface call, and which
+      implementation backs a run is a single config read (`TRACKER_IMPL`,
+      default `github`). A test drives the script's full sync algorithm
+      against both adapters' stubs and gets the same result from each. That
+      proves the seam is load-bearing, not merely present — but it is proof
+      against stubs, not against a live Jira. adapters/tracker/jira has still
+      never been run against a real Jira instance; there are no credentials
+      or instance to run it against here. "Seam proven against stubs" and
+      "Jira integration works" are different claims, and only the first one
+      is made.
 
   REQ-005:
     summary: Git-native traceability spine
