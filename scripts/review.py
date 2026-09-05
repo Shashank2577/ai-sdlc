@@ -227,7 +227,7 @@ def render_issue_body(review: dict, meta: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--repo", default="Shashank2577/foundry-program")
+    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
     ap.add_argument("--window-days", type=int, default=7)
     ap.add_argument("--now", default="", help="ISO timestamp; for reproducible runs")
     ap.add_argument("--dry-run", action="store_true",
