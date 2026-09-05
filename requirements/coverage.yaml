@@ -86,15 +86,31 @@ requirements:
       identities were considered and rejected for v0; see adrs/.
 
   REQ-003:
-    summary: Harness adapter — Claude Code, Codex, DeepSeek behind one contract
+    summary: Harness adapter — role packs compile for whichever harness a session runs under
     checks:
       - {exists: .github/workflows/dispatch.yml}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_claude_code"}}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_codex"}}
+      - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_opencode"}}
     notes: >-
-      Two of three named harnesses are implemented — compile_claude_code and
-      compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The
-      pack format is neutral; the compiler now covers most of it.
+      These checks prove existence, not use — read a 100% here as "three
+      compile_* functions exist and are exercised by
+      compiler/test_compile_pack.py", never as "three harnesses have run a
+      session". Only claude-code has: every merged PR this programme has
+      produced carries a `Harness: claude-code/*` trailer (#210). codex
+      (#109) and opencode (#210) compile and pass compiler/test_compile_pack.py,
+      but no role pack declares either in pack.yaml:harness_compat, and
+      .github/workflows/dispatch.yml still hard-codes
+      `--harness claude-code` and the claude-code-action step — neither has
+      ever been dispatched. Getting a second harness from "compiles" to
+      "has run a session" needs a role pack opt-in, a dispatch.yml branch
+      per harness (devops-owned, outside compiler/), and a live run that
+      produces a merged PR — none of which a `checks:` entry here can
+      currently verify by itself (compare REQ-014's `delivered_by_agent`,
+      which measures merged PRs from *any* dispatched session but does not
+      distinguish which harness ran them). DeepSeek, Kiro, Cursor, and
+      Copilot are not implemented; awslabs/aidlc-workflows' `harness/` tree
+      is the reference for what each would need.
 
   REQ-004:
     summary: Tracker adapter — GitHub Projects and Jira swappable
