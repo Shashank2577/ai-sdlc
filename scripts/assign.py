@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import functools
 import json
+import os
 import re
 import subprocess
 import sys
@@ -25,6 +26,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POLICY_PATH = REPO_ROOT / "role-packs" / "orchestrator" / "policy.yaml"
+PRODUCTS_PATH = REPO_ROOT / "policies" / "products.yaml"
 
 # Used only if the pack is missing entirely. Conservative on purpose: a
 # broken policy read must not become an unbounded loop.
@@ -209,10 +211,37 @@ def collect_issues_with_open_prs() -> set[int]:
     return out
 
 
+@functools.lru_cache(maxsize=None)
+def current_product() -> str:
+    """The `policies/products.yaml` key whose `repo` is this checkout's own
+    repo (#208). This loop always runs in the control plane — GH_REPO is
+    set to it by orchestrate.yml — so deriving the key from the registry
+    means dispatch.yml's now-required `product` input is filled in without
+    this file hardcoding a product name that would go stale the moment a
+    second product is registered. `foundry-program` is the fallback only
+    for a missing/unreadable registry or an unmatched repo, both of which
+    would otherwise leave `product` empty and every dispatch refused.
+    """
+    fallback = "foundry-program"
+    repo = os.environ.get("GH_REPO", "")
+    if not repo or not PRODUCTS_PATH.is_file():
+        return fallback
+    try:
+        import yaml
+        data = yaml.safe_load(PRODUCTS_PATH.read_text()) or {}
+    except Exception:
+        return fallback
+    for key, entry in (data.get("products") or {}).items():
+        if isinstance(entry, dict) and entry.get("repo") == repo:
+            return key
+    return fallback
+
+
 def dispatch_one(entry: dict) -> tuple[bool, str]:
     try:
         gh(["workflow", "run", "dispatch.yml",
-            "-f", f"issue={entry['number']}", "-f", f"role={entry['role']}"])
+            "-f", f"issue={entry['number']}", "-f", f"role={entry['role']}",
+            "-f", f"product={current_product()}"])
         return True, ""
     except subprocess.CalledProcessError as exc:
         return False, (exc.stderr or exc.stdout or "").strip().replace("\n", " ")[:300]
