@@ -729,6 +729,16 @@ jobs:
           EXECUTION_FILE: ${{ steps.agent.outputs.execution_file }}
           MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
           REQUIRES_PR: ${{ steps.pack.outputs.requires_pr }}
+          # Declared rather than inherited. Actions sets GITHUB_REPOSITORY
+          # for every step, so the engineering-memory block below has always
+          # worked in CI — but this step runs under `set -u`, and every other
+          # variable it reads is named here. Leaving one implicit meant the
+          # escalation path aborted on `unbound variable` anywhere the
+          # default was absent, which is precisely what
+          # scripts/test-dispatch-session-end.sh does: 43 of its assertions
+          # were failing because the step died before posting the escalation
+          # comment or moving a single label.
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
