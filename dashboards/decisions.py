@@ -390,7 +390,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "dashboards" / "site")
     ap.add_argument("--ref", default="HEAD", help="unused; kept for CLI parity with the other generators")
-    ap.add_argument("--repo", default="Shashank2577/foundry-program")
+    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
     ap.add_argument("--now", default="", help="ISO timestamp; for reproducible runs")
     args = ap.parse_args()
 
