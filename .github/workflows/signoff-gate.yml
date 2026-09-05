@@ -1,0 +1,405 @@
+# The client sign-off gate, issue side. `policies/signoff.yaml` declares
+# who may sign a story off and what evidence backs it; `scripts/signoff-
+# check.py` classifies an issue's sign-off state and rejects a bot-applied
+# `signoff:approved`. Neither was ever called from a workflow (#193) — the
+# gate existed only on paper, the same shape the production gate was in
+# before #183.
+#
+# Three moments, three jobs, none of them restating what the policy file
+# or the checker already say:
+#
+#   issue closes, `qa:approved` present   -> request-signoff: labels the
+#                                             issue `signoff:requested` and
+#                                             comments the question and
+#                                             evidence read live from
+#                                             policies/signoff.yaml, linked
+#                                             to the portal page that shows
+#                                             it (REQ-008).
+#   `signoff:approved` labeled            -> identity-check: classifies by
+#                                             *who* applied it, via
+#                                             scripts/signoff-check.py
+#                                             (which reuses gate-check.py's
+#                                             is_human rather than a second
+#                                             identity rule — the same
+#                                             mechanism dispatch_approval
+#                                             uses). A bot actor: the label
+#                                             is stripped, a rejection
+#                                             comment is posted, and the
+#                                             job fails so the rejection is
+#                                             visible on the run. A person:
+#                                             `signoff:requested` clears
+#                                             and the portal rebuild is
+#                                             kicked off immediately rather
+#                                             than waiting for its own
+#                                             06:10 UTC cron.
+#   `signoff:change-requested` or
+#   `type:change-request` labeled         -> change-request: reopens the
+#                                             signed scope per
+#                                             policies/signoff.yaml's
+#                                             `change_request.effect` —
+#                                             `signoff:approved` is removed,
+#                                             `signoff:change-requested`
+#                                             replaces it, and a closed
+#                                             issue reopens. Identity-
+#                                             checked the same way: a bot
+#                                             cannot invalidate a sign-off
+#                                             either.
+#
+# `issues:` workflows only ever run from the default branch (same caveat
+# approval-gate.yml and terminal-label.yml already carry), so a pull
+# request touching this file gets the `pull_request`-triggered test job
+# below as its only live verification — the actual issue-event path is
+# only exerciseable once this is on `main`.
+name: Signoff gate
+
+on:
+  issues:
+    types: [closed, labeled]
+  pull_request:
+    paths:
+      - ".github/workflows/signoff-gate.yml"
+      - "policies/signoff.yaml"
+      - "scripts/signoff-check.py"
+      - "scripts/gate-check.py"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  # Offline proof that the identity mechanism this workflow leans on
+  # actually does what the jobs below assume: a bot-applied label reads as
+  # unsigned/rejected, a person's reads as signed. Fixtures only, same
+  # shape as scripts/test_signoff_check.py, run here because this file has
+  # no script of its own to carry them (scripts/** is not this story's
+  # write scope — only .github/workflows/**, per the work item).
+  signoff-gate-tests:
+    name: signoff-gate-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: The live policy validates
+        run: python3 scripts/signoff-check.py --validate-policy
+      - name: A bot-applied signoff:approved classifies as rejected, a person's as signed
+        run: |
+          python3 <<'PY'
+          import importlib.util
+
+          spec = importlib.util.spec_from_file_location("sc", "scripts/signoff-check.py")
+          sc = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(sc)
+
+          bot_events = [{"label": "signoff:approved", "actor": "some-agent[bot]",
+                         "created_at": "2026-01-01T00:00:00Z"}]
+          state, detail = sc.classify(["signoff:approved"], bot_events)
+          assert state == sc.STATE_UNSIGNED, f"bot actor should be rejected, got {state}: {detail}"
+          assert "bot actor" in detail
+
+          human_events = [{"label": "signoff:approved", "actor": "a-real-person",
+                            "created_at": "2026-01-01T00:00:00Z"}]
+          state, detail = sc.classify(["signoff:approved"], human_events)
+          assert state == sc.STATE_SIGNED, f"a person's label should be signed, got {state}: {detail}"
+
+          state, _ = sc.classify(["signoff:change-requested", "signoff:approved"], human_events)
+          assert state == sc.STATE_CHANGE_REQUESTED, "change-requested must win over a stale approval"
+
+          print("signoff identity checks: bot rejected, person accepted, CR outranks a stale approval — OK")
+          PY
+      - name: gate-check's is_human rejects the same bot shapes the CR path relies on
+        run: |
+          python3 <<'PY'
+          import importlib.util
+
+          spec = importlib.util.spec_from_file_location("gc", "scripts/gate-check.py")
+          gc = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(gc)
+
+          for bot in ("dependabot[bot]", "github-actions", "copilot"):
+              assert not gc.is_human(bot), f"{bot} should not count as human"
+          assert gc.is_human("a-real-person")
+
+          print("is_human: bot actors rejected, a person accepted — OK")
+          PY
+
+  request-signoff:
+    name: request-signoff
+    if: github.event_name == 'issues' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+      - name: Ask the client to sign off, naming the evidence policies/signoff.yaml requires
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PORTAL_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/portal.html
+        run: |
+          set -euo pipefail
+
+          labels=$(gh issue view "$ISSUE" --json labels --jq '[.labels[].name]')
+
+          if ! jq -e 'index("qa:approved")' <<<"$labels" >/dev/null; then
+            echo "#${ISSUE}: closed without qa:approved. Not a signable delivery; nothing to ask about."
+            exit 0
+          fi
+          if jq -e 'index("signoff:requested") or index("signoff:approved") or index("signoff:change-requested")' <<<"$labels" >/dev/null; then
+            echo "#${ISSUE}: already carries a sign-off label. Not asking again."
+            exit 0
+          fi
+
+          note="${RUNNER_TEMP:-/tmp}/signoff-request-${ISSUE}.md"
+          PORTAL_URL="$PORTAL_URL" RUN_URL="$RUN_URL" python3 - > "$note" <<'PY'
+          import os
+          import yaml
+
+          scope = yaml.safe_load(open("policies/signoff.yaml"))["signoffs"]["story"]
+          evidence = "\n".join(f"- {e}" for e in scope["evidence_required"])
+
+          print("### Sign-off requested")
+          print()
+          print(scope["question"])
+          print()
+          print("**What this delivery is being judged against:**")
+          print()
+          print(evidence)
+          print()
+          print(f"See it on the portal: {os.environ['PORTAL_URL']}")
+          print()
+          print(
+              f"Per `policies/signoff.yaml`: unanswered after {scope['sla_hours']}h this "
+              "escalates; left unanswered altogether, it "
+              f"{scope['default_if_unanswered']}. Only a person applying "
+              "`signoff:approved` here satisfies it — an agent role cannot; "
+              "`scripts/signoff-check.py` rejects a bot-applied label the same way "
+              "the dispatch-approval gate rejects a bot-applied `status:ready`."
+          )
+          print()
+          print(f"Run: {os.environ['RUN_URL']}")
+          PY
+
+          gh label create "signoff:requested" --color "FBCA04" \
+            --description "Delivered; awaiting the client's sign-off decision" --force >/dev/null
+
+          gh issue edit "$ISSUE" --add-label "signoff:requested"
+          gh issue comment "$ISSUE" --body-file "$note"
+          cat "$note" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+          echo "#${ISSUE}: sign-off requested."
+
+  identity-check:
+    name: signoff-identity-check
+    if: >-
+      github.event_name == 'issues' && github.event.action == 'labeled' &&
+      github.event.label.name == 'signoff:approved'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      actions: write   # to kick the portal rebuild the moment a real sign-off lands
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pyyaml
+
+      - name: Classify by who applied it, not by the label alone
+        id: classify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          set +e
+          detail=$(python3 scripts/signoff-check.py --classify --issue "$ISSUE" --scope story)
+          code=$?
+          set -e
+          echo "$detail"
+          state="rejected"
+          [ "$code" -eq 0 ] && state="signed"
+          {
+            echo "state=$state"
+            echo "detail=$detail"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: A bot cannot grant a client sign-off — strip it and say why
+        if: steps.classify.outputs.state != 'signed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          DETAIL: ${{ steps.classify.outputs.detail }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE" --remove-label "signoff:approved"
+
+          note="${RUNNER_TEMP:-/tmp}/signoff-rejected-${ISSUE}.md"
+          {
+            echo "### Sign-off rejected"
+            echo
+            echo "${DETAIL}"
+            echo
+            echo "\`signoff:approved\` only counts when a person applies it — the same"
+            echo "identity rule the dispatch-approval gate enforces on \`status:ready\`"
+            echo "(\`scripts/gate-check.py\`'s \`is_human\`, reused by"
+            echo "\`scripts/signoff-check.py\` rather than a second rule that could"
+            echo "drift from it). The label is removed; this story stays unsigned."
+            echo
+            echo "Run: ${RUN_URL}"
+          } > "$note"
+
+          gh issue comment "$ISSUE" --body-file "$note"
+          cat "$note" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+          echo "::error::signoff:approved on #${ISSUE} was rejected — ${DETAIL}"
+          exit 1
+
+      - name: Record a real sign-off
+        if: steps.classify.outputs.state == 'signed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          DETAIL: ${{ steps.classify.outputs.detail }}
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE" --remove-label "signoff:requested" 2>/dev/null || true
+          gh issue comment "$ISSUE" --body "Sign-off recorded: ${DETAIL}. Rebuilding the portal now so it reflects this."
+          echo "${DETAIL}" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+
+      - name: Rebuild the portal now rather than waiting for its own schedule
+        if: steps.classify.outputs.state == 'signed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run dashboards.yml
+
+  change-request:
+    name: change-request-reopens-signed-work
+    if: >-
+      github.event_name == 'issues' && github.event.action == 'labeled' &&
+      (github.event.label.name == 'signoff:change-requested' || github.event.label.name == 'type:change-request')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Identify who filed it — a bot cannot invalidate a sign-off either
+        id: actor
+        env:
+          ACTOR: ${{ github.event.sender.login }}
+        run: |
+          set -euo pipefail
+          human=$(python3 -c "
+          import importlib.util, os
+          spec = importlib.util.spec_from_file_location('gc', 'scripts/gate-check.py')
+          gc = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(gc)
+          print('true' if gc.is_human(os.environ['ACTOR']) else 'false')
+          ")
+          echo "human=$human" >> "$GITHUB_OUTPUT"
+
+      - name: A bot-filed change request does not touch a sign-off
+        if: steps.actor.outputs.human != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          ACTOR: ${{ github.event.sender.login }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE" --remove-label "${{ github.event.label.name }}"
+          gh issue comment "$ISSUE" --body "\`${{ github.event.label.name }}\` applied by \`${ACTOR}\`, a bot actor — rejected. Reopening signed work per \`policies/signoff.yaml\`'s \`change_request\` is a human decision (the account lead and the client), the same as granting the sign-off itself. Run: ${RUN_URL}"
+          echo "::error::${{ github.event.label.name }} on #${ISSUE} was applied by a bot actor — rejected."
+          exit 1
+
+      # `type:change-request` names the CR issue itself; the scope it
+      # reopens is whichever issue its body references (policies/
+      # signoff.yaml: "an issue labeled type:change-request referencing
+      # the signed scope"). `signoff:change-requested` applied directly to
+      # the signed issue needs no lookup — it already is the target.
+      - name: Find the signed scope this change request reopens
+        id: target
+        if: steps.actor.outputs.human == 'true'
+        env:
+          ISSUE: ${{ github.event.issue.number }}
+          LABEL: ${{ github.event.label.name }}
+          BODY: ${{ github.event.issue.body }}
+        run: |
+          set -euo pipefail
+          if [ "$LABEL" = "signoff:change-requested" ]; then
+            echo "issue=$ISSUE" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          target=$(grep -oE '#[0-9]+' <<<"$BODY" | head -1 | tr -d '#' || true)
+          if [ -z "$target" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "issue=$target" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: A change-request issue with no referenced scope has nothing to reopen
+        if: steps.actor.outputs.human == 'true' && steps.target.outputs.found != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh issue comment "$ISSUE" --body "This is labeled \`type:change-request\` but its body names no \`#<issue>\` for the signed scope it reopens. Add a reference (e.g. \`Signed scope: #123\`) and relabel to retry."
+
+      - name: Reopen the signed scope, per policies/signoff.yaml's change_request effect
+        if: steps.actor.outputs.human == 'true' && steps.target.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_ISSUE: ${{ github.event.issue.number }}
+          TARGET_ISSUE: ${{ steps.target.outputs.issue }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          labels=$(gh issue view "$TARGET_ISSUE" --json labels --jq '[.labels[].name]' 2>/dev/null) \
+            || { echo "#${TARGET_ISSUE} does not exist; nothing to reopen."; exit 0; }
+
+          if ! jq -e 'index("signoff:approved")' <<<"$labels" >/dev/null; then
+            echo "#${TARGET_ISSUE} does not carry signoff:approved — nothing signed to reopen yet."
+            exit 0
+          fi
+
+          gh label create "signoff:change-requested" --color "D93F0B" \
+            --description "A change request reopened this signed scope" --force >/dev/null
+
+          gh issue edit "$TARGET_ISSUE" --remove-label "signoff:approved" --add-label "signoff:change-requested"
+
+          state=$(gh issue view "$TARGET_ISSUE" --json state --jq '.state')
+          note="${RUNNER_TEMP:-/tmp}/change-request-${TARGET_ISSUE}.md"
+          {
+            echo "### Reopened by a change request"
+            echo
+            echo "#${SOURCE_ISSUE} is a change request against this signed delivery."
+            echo "Per \`policies/signoff.yaml\`'s \`change_request.effect\`, \`signoff:approved\`"
+            echo "is removed and replaced with \`signoff:change-requested\` until the CR"
+            echo "resolves and this is re-signed."
+            echo
+            echo "Run: ${RUN_URL}"
+          } > "$note"
+
+          if [ "$state" = "CLOSED" ]; then
+            gh issue reopen "$TARGET_ISSUE" --comment "$(cat "$note")"
+          else
+            gh issue comment "$TARGET_ISSUE" --body-file "$note"
+          fi
+          cat "$note" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+          echo "#${TARGET_ISSUE}: reopened by change request #${SOURCE_ISSUE}."
