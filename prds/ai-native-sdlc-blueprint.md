@@ -87,12 +87,14 @@ Each role is a pack with its own **bot identity** (GitHub machine account, signi
 | **DevOps / SRE** | CI/CD, environments, releases, incidents | Pipelines, IaC, release trains, rollback runbooks, incident issues | `infra/`, `.github/workflows/` |
 | **Tech Writer** | Docs, release notes, demo scripts | Docs PRs, release notes from trailers, annotated demo walkthroughs | `docs/` |
 | **Delivery Manager** | Client-facing state | Status reports, estimation docs, demo packages, RAID log | Client portal content |
+| **Delivery Lead** | Governance — the gates, budgets, escalation ladder and pack format itself | Policy PRs, gate changes, escalation-option reviews | `policies/`, `role-packs/delivery-lead/` |
 
 Notes:
 
 - **QA has a veto.** A `qa:rejected` label blocks story closure regardless of what the developer agent claims. Three rejections on one story auto-escalates to a human.
 - **Developer agents never touch `main`.** Protected branches + required checks + CODEOWNERS make this structurally impossible, not behaviorally requested.
 - **CODEOWNERS routes reviews to roles:** `/tests/` → QA bot, `/adrs/` → human architect, `/infra/prod/` → human DevOps lead, everything else → cross-review (see §11).
+- **Delivery Lead is not Delivery Manager.** The two names are not spelling variants of one role — they are different jobs. Delivery Lead owns governance (this section names it explicitly now; earlier drafts only used the name informally in §7's gate table, which read as a collision with Delivery Manager and prompted #184). Delivery Manager owns client-facing state and has no pack yet — that gap is real and is tracked by REQ-008/REQ-002, not closed by this entry.
 
 ### Role pack format (harness-neutral)
 
@@ -192,7 +194,7 @@ Few, high-leverage, and visual. Too many gates and humans rubber-stamp; the desi
 | Merge to protected branch | Human or policy | PR review | Branch protection + CODEOWNERS |
 | Staging → production | Release approver | **GitHub environment required-reviewer** | Literally a button; deploy blocks until pressed |
 | Release sign-off | Client / PM | Portal + signed tag | Signed annotated tag |
-| Budget breach / escalation | Delivery lead | Escalation issue with options | Choose option A/B/C |
+| Budget breach / escalation | Delivery Lead (§3) | Escalation issue with options | Choose option A/B/C |
 
 Two rules keep this honest. **Agents propose options, not essays** — an ADR is "Option A: Kafka (cost, ops burden, fit) / Option B: SQS (…) / recommendation + why," and an escalation is "stuck because X; options: retry with approach B, descope to C, or need human pairing." And **every gate has an SLA with a default** — defined per gate in `policies/gates.yaml` (e.g., sprint plan auto-adopts the proposal after 48h of silence; production deploys never default to yes).
 
