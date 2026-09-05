@@ -82,6 +82,20 @@ fi
 # issue's body carries one of this PR's own Requirement ids. Anything
 # short of that fails exactly as a plain unticked box does — the form
 # lives in the policy file; this only checks a PR body against it.
+# Continuation lines are folded in first. A markdown list item continues
+# on the indented lines beneath it, and a deferral has to carry a reason —
+# which is exactly the kind of text that wraps. Reading only the first
+# physical line rejected #218's perfectly-formed deferral because its
+# `deferred to #N:` landed on line two. Third variant of the same
+# wrapping problem: #177 (quoted literal), #189 (prose mid-line), this
+# (a real item spanning lines).
+folded=$(awk '
+  /^[[:space:]]*- \[[ x~]\]/ { if (NR>1) printf "\n"; printf "%s", $0; seen=1; next }
+  seen && /^[[:space:]]+[^[:space:]]/ { sub(/^[[:space:]]+/, " "); printf "%s", $0; next }
+  { if (seen) { printf "\n"; seen=0 } print }
+  END { if (seen) printf "\n" }
+' <<<"$prose")
+
 while IFS= read -r line; do
   # Same anchoring as the unticked check above, for the same reason.
   case "$line" in
@@ -123,7 +137,7 @@ while IFS= read -r line; do
   else
     failures+=("deferred item does not match the required form \`- [~] <criterion> — deferred to #<issue>: <reason>\`: \`${line}\`")
   fi
-done <<<"$prose"
+done <<<"$folded"
 
 # 3. Verdict.
 if [ "${#failures[@]}" -gt 0 ]; then
