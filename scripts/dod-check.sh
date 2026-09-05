@@ -67,7 +67,12 @@ fi
 # spans are the same problem wearing different punctuation.
 prose=$(awk 'BEGIN{f=0} /^[[:space:]]*```/{f=!f; next} !f{print}' <<<"$body" \
           | sed 's/`[^`]*`//g')
-if grep -Fq -- '- [ ]' <<<"$prose"; then
+# Anchored to line start. A checklist item is only a checklist item at the
+# beginning of a line — mid-sentence it is prose about one. Stripping
+# quotation is not enough on its own: an inline code span wrapped across
+# two lines survives the line-based sed above, which is how this very PR
+# failed its own check while documenting the form it adds.
+if grep -Eq '^[[:space:]]*- \[ \]' <<<"$prose"; then
   failures+=("PR body has unchecked Definition of Done items")
 fi
 
@@ -78,8 +83,9 @@ fi
 # short of that fails exactly as a plain unticked box does — the form
 # lives in the policy file; this only checks a PR body against it.
 while IFS= read -r line; do
+  # Same anchoring as the unticked check above, for the same reason.
   case "$line" in
-    *'- [~]'*) ;;
+    ' - [~]'*|'- [~]'*|'  - [~]'*|'   - [~]'*|'    - [~]'*) ;;
     *) continue ;;
   esac
   if [[ "$line" =~ deferred[[:space:]]+to[[:space:]]+#([0-9]+):[[:space:]]*(.*)$ ]]; then
