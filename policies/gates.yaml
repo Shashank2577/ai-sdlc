@@ -151,5 +151,61 @@ gates:
     question: "Does this meet its acceptance criteria?"
     owner: qa                       # an agent role may satisfy this one
     granted_by: the `qa:approved` label
-    default_if_unanswered: story cannot close
+    # Corrected by #179. This used to read "story cannot close" — a claim
+    # about a hook that does not exist. GitHub has no pre-close hook, only
+    # a post-close one: close_guard (scripts/qa-verdict.sh) reopens an
+    # issue closed *while carrying* qa:rejected. It has never stopped a
+    # closure that carries no verdict at all, and was never designed to.
+    # The first sprint-review ceremony (#178) read the old line literally,
+    # found 46 closures with no verdict, and reported the veto as broken.
+    # It was not broken; this line described a rule that was never
+    # written. See closure_classification below for the rule that
+    # actually governs "no verdict at all".
+    default_if_unanswered: >-
+      closes anyway. Whether that is a gap depends on the closure's shape
+      — see closure_classification.
     enforced_by: [qa_gate_check, close_guard]
+
+    # What "closed with no verdict" actually means, added by #179 to
+    # replace a raw closed-story count with a classification a person can
+    # act on. A verdict is only meaningful for a story that shipped code;
+    # demanding one for a closure that shipped nothing would just train
+    # people to rubber-stamp.
+    closure_classification:
+      genuine_gap:
+        when: >-
+          GitHub's own `stateReason` on the issue is COMPLETED, a merged
+          pull request closed it, and it carries neither `qa:approved` nor
+          `qa:rejected`.
+        because: >-
+          Code merged and nobody from QA looked at it — the exact shape
+          the veto exists to catch.
+      not_a_gap:
+        when: >-
+          `stateReason` is NOT_PLANNED, or the closing comment names the
+          issue that superseded, absorbed, or already delivered this one.
+        because: >-
+          Split-by-ownership, superseded, and already-delivered closures
+          ship no code of their own under this issue; there is nothing for
+          QA to have verified.
+      decision: surface, not block
+      why_not_block: >-
+        GitHub cannot prevent a close, only reopen after the fact — which
+        close_guard already does for rejections. Applying that same
+        reopen-after-the-fact mechanism to "no verdict at all" would
+        reopen every legitimate not_planned/superseded/split closure too,
+        on a classification rule that is still new. Surface the genuine
+        gaps first; revisit blocking once the classification has run for
+        a while and the false-positive rate is known.
+      override: >-
+        A human closing an issue always wins. Nothing in this
+        classification reopens a closure — it only adds the issue to a
+        report a person reads. See role-packs/qa/policy.yaml for the one
+        case that *does* reopen (`verdict.blocks_closure`, qa:rejected
+        only).
+      measured_2026-09-04: >-
+        Applied retroactively to the 47 stories #178 counted as closed in
+        its window: 45 were COMPLETED (44 with no verdict, 1 — #52 —
+        qa:approved) and 2 (#53, #54) were NOT_PLANNED with no merged PR.
+        Of the 46 with no verdict, 44 are genuine gaps by the rule above
+        and 2 are not. Full breakdown posted to #179.

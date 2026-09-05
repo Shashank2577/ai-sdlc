@@ -450,7 +450,7 @@ def main() -> int:
     args = ap.parse_args()
 
     policy = SC.load_policy(SC.SIGNOFF_POLICY)
-    facts = STATUS.collect_facts(not args.no_github)
+    facts = STATUS.collect_facts(not args.no_github, STATUS.load_expected_roles())
     coverage = STATUS.evaluate(STATUS.load_coverage(), REPO_ROOT, facts)
 
     commits = B.collect_commits(args.ref)
