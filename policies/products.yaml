@@ -312,4 +312,9 @@ products:
       name the API actually resolves today; the registry key
       (`foundry-program`) keeps the name the rest of this repo's own prose
       already uses, so the mismatch is visible instead of hidden by
-      picking one and silently overwriting the other.
+      picking one and silently overwriting the other. Same stopgap
+      distinction #203 draws for the ten `--repo` defaults it swapped to
+      `ai-sdlc`: a default is configuration and should be current
+      (`repo:` above is), a citation is history and should not move
+      (README's title and CONVENTIONS.md's trailer example are neither
+      wrong nor this file's job to fix).
