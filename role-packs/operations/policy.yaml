@@ -1,0 +1,85 @@
+# Operations policy — budgets, forbidden actions, human-in-the-loop
+# triggers.
+version: 0
+role: operations
+
+budgets:
+  # Same order as security: a readiness review is cheaper than
+  # implementation but broader than a pure acceptance-criteria check —
+  # reading the environment ladder, the rollback plan, and the deploy
+  # workflow together. No session history yet to measure from.
+  turns: 55
+  cost_usd: 4.00           # the ceiling: a breach here escalates
+  tokens: 300000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 35
+  max_retries: 1
+  on_breach: escalate
+
+readiness_report:
+  # Deliberately not a verdict label with enforcement, unlike qa:* and
+  # security:*. A go/no-go gate on deploy promotion needs the same kind of
+  # required-check wiring security's veto is waiting on; inventing a
+  # second unenforced gate here, instead of proposing one devops story
+  # that does both properly, would be scope creep this pack was written
+  # to avoid. See charter.md.
+  form: comment_on_work_item
+  states: [ready, not_ready, gap_named]
+  enforced: false
+  blocked_on: future_devops_story_if_this_becomes_a_gate
+
+forbidden:
+  - push_to_default_branch
+  - force_push
+  - merging_any_pull_request
+  - approving_any_pull_request
+  - fixing_the_rollback_gap_it_found   # report with specifics; devops fixes it
+  - dispatching_or_running_a_deploy
+  - approving_a_prod_promotion          # policies/environments.yaml names the human reviewer
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_policies_directory          # policies/environments.yaml is delivery-lead owned
+  - editing_other_role_packs
+  - editing_ci_pipelines                # DevOps owns .github/workflows/ and infra/
+  - editing_infra                       # DevOps owns infra/**
+  - widening_its_own_credential_or_anothers
+  - rewriting_published_history
+
+write_scope:
+  allow:
+    - "role-packs/operations/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - "compiler/**"
+    - "scripts/**"
+    - "policies/**"
+    - ".github/**"
+    - "infra/**"
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/!(operations)/**"
+  # Readiness judgments leave the system as reports and comments, the same
+  # way security's findings do — nothing here needs a committed file to
+  # be evidence.
+
+hitl_triggers:
+  - rollback_plan_realism_cannot_be_confirmed_without_unavailable_access
+  - change_appears_to_narrow_prods_human_gate
+  - promotion_order_or_environment_ladder_itself_looks_wrong
+  - budget_breach
+  - three_failed_attempts_at_same_approach
+
+escalation:
+  template: role-packs/operations/templates/escalation-comment.md
+  label: needs-human
+  ladder:
+    - retry
+    - alternate_approach
+    - alternate_harness
+    - human
+
+identity:
+  bot_account: foundry-operations-bot
+  provisioned: false
+  blocked_on: human

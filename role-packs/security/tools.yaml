@@ -1,0 +1,63 @@
+# Security tool allowlist. Read everything a reviewer needs to see; write
+# almost nothing. The asymmetry is the point — see charter.md for why a
+# role reviewing credential handling must not hold the widest credential
+# or the widest write scope in the system.
+version: 0
+role: security
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search
+  write:
+    - write_file          # role-packs/security/** only; see policy.yaml:write_scope
+    - edit_file
+  execute:
+    - shell
+  web:
+    - fetch_url            # CVE / advisory lookups; no credentials are ever sent
+
+shell:
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git show*"
+    - "gh pr view*"
+    - "gh pr diff*"
+    - "gh pr checks*"
+    - "gh pr comment*"
+    - "gh issue view*"
+    - "gh issue list*"
+    - "gh issue create*"        # findings out of scope for this story
+    - "gh issue comment*"
+    - "gh issue edit*"          # security:* labels
+    - "gh run view*"
+    - "gh api repos/*"          # timeline events for the rejection count
+    # Dependency and static-scan tooling — inspection only, nothing here
+    # writes or executes what it inspects.
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "cat*"
+    - "ls*"
+    - "wc*"
+    - "diff*"
+    - "jq*"
+  deny:
+    - "git push*"                # security does not push; findings are labels/comments
+    - "gh pr merge*"
+    - "gh pr review*--approve*"  # the verdict is a label, not a GitHub approval
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh workflow*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh api*actions/permissions*"
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"

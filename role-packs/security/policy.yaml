@@ -1,0 +1,108 @@
+# Security policy — budgets, forbidden actions, human-in-the-loop triggers.
+version: 0
+role: security
+
+budgets:
+  # Same order as QA: review is cheaper than implementation, but a
+  # security pass over a diff plus its dependency and permission surface
+  # runs longer than a pure acceptance-criteria check. Sits between QA's
+  # (40 turns) and the developer's (90) with no session history yet to
+  # measure from.
+  turns: 55
+  cost_usd: 4.00           # the ceiling: a breach here escalates
+  tokens: 300000            # tripwire only — reported, never a breach
+  wall_clock_minutes: 35
+  max_retries: 1
+  on_breach: escalate
+
+verdict:
+  # The rules this policy states. Unlike QA's, nothing in
+  # .github/workflows/** enforces them yet — see charter.md and
+  # `enforcement` below. That gap is a linked devops story, not silence.
+  labels: [security:approved, security:rejected]
+  exactly_one: true
+  requires_comment: true
+  intended_to_block_closure: security:rejected
+  rejection_escalation_threshold: 3
+
+enforcement:
+  status: not_yet_wired
+  # What QA has that this role does not, named so the gap cannot be
+  # mistaken for "done": scripts/qa-gate.sh (required status check) and
+  # scripts/qa-verdict.sh (close-guard reopen on a rejected closure). A
+  # security-gate.sh / security-verdict.sh pair, wired the same way, is
+  # .github/workflows/** — devops's write scope, not this pack's.
+  blocked_on: devops_story
+  # Shashank2577/ai-sdlc#216 — "Wire structural enforcement for the
+  # security veto". Until it lands, `security:rejected` is a documented,
+  # binding-by-convention recommendation a human merging the PR can see
+  # and can still override.
+  tracking_issue: "Shashank2577/ai-sdlc#216"
+  do_not_claim: the veto is enforced
+
+forbidden:
+  - push_to_default_branch
+  - force_push
+  - merging_any_pull_request
+  - approving_any_pull_request      # the verdict is a label, not a GitHub approval
+  - fixing_the_vulnerability_it_found   # reject with specifics; a dev fixes it
+  - approving_without_evidence
+  - applying_both_verdict_labels
+  - editing_branch_protection
+  - editing_repository_settings
+  - editing_secrets
+  - editing_policies_directory
+  - editing_other_role_packs
+  - editing_ci_pipelines             # DevOps owns .github/workflows/
+  - editing_source_outside_own_pack
+  - widening_its_own_credential_or_anothers
+  - exploiting_a_finding_against_live_credentials_or_systems
+  - rewriting_published_history
+
+write_scope:
+  allow:
+    - "role-packs/security/**"
+  deny:
+    - "src/**"
+    - "tests/**"
+    - "compiler/**"
+    - "scripts/**"
+    - "policies/**"
+    - ".github/**"
+    - "infra/**"
+    - "prds/**"
+    - "requirements/**"
+    - "role-packs/!(security)/**"
+  # Narrower than every role it reviews, deliberately — see charter.md.
+  # Findings leave the system as qa-style tracker writes: security:*
+  # labels, comments on work items, and new bug issues. Nothing here
+  # needs a committed file to be evidence; a cited file:line is.
+
+hitl_triggers:
+  - confirming_a_finding_requires_access_this_role_should_not_have
+  - exposure_severe_enough_to_need_immediate_human_attention
+  - fix_requires_editing_another_roles_write_scope
+  - third_rejection_on_one_work_item
+  - budget_breach
+
+escalation:
+  template: role-packs/security/templates/escalation-comment.md
+  label: needs-human
+  ladder:
+    - retry
+    - alternate_approach
+    - alternate_harness
+    - human
+
+independence:
+  # Same reasoning as QA (PRD §11.2): a PR authored by one harness reviewed
+  # by another decorrelates blind spots. Not enforceable in single-harness
+  # mode.
+  prefer_different_harness_from_author: true
+  enforced: false
+  blocked_on: second_harness
+
+identity:
+  bot_account: foundry-security-bot
+  provisioned: false
+  blocked_on: human
