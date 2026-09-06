@@ -137,6 +137,52 @@ else
   FAIL=$((FAIL+1))
 fi
 
+# ---------------------------------------------------------------------------
+echo "credential boundary: holds under a second harness too (#222)"
+# ---------------------------------------------------------------------------
+# dispatch.yml resolves `github_token` from `steps.pack.outputs.token_secret`
+# identically in the claude-code and codex agent steps — neither branches on
+# `inputs.harness` to pick a different secret. This proves the same thing one
+# level down, against the compiler both steps actually call: compiling the
+# same role for claude-code and for codex must emit the same
+# `token-secret` file. If a future harness target ever computed that
+# per-harness instead of per-role, a developer session could end up on
+# FOUNDRY_DEVOPS_TOKEN under the "wrong" harness with nothing here to catch
+# it — this is the regression test for exactly that drift.
+COMPILE_TMP="$(mktemp -d)"
+trap 'rm -rf "$WORK" "$COMPILE_TMP"' EXIT
+mismatch=0
+for pack in "$REPO_ROOT"/role-packs/*/pack.yaml; do
+  role="$(basename "$(dirname "$pack")")"
+  compat="$(python3 -c "
+import yaml
+p = (yaml.safe_load(open('$pack')) or {}).get('harness_compat', {})
+print('yes' if (p.get('codex') or {}).get('supported') else 'no')
+")"
+  [ "$compat" = "yes" ] || continue
+  if ! python3 "$REPO_ROOT/compiler/compile-pack.py" --role "$role" \
+        --harness claude-code --out "$COMPILE_TMP" >/dev/null 2>&1 \
+      || ! python3 "$REPO_ROOT/compiler/compile-pack.py" --role "$role" \
+        --harness codex --out "$COMPILE_TMP" >/dev/null 2>&1; then
+    printf '  FAIL  %s did not compile for both harnesses\n' "$role"
+    mismatch=1
+    continue
+  fi
+  cc_secret="$(cat "$COMPILE_TMP/$role/claude-code/token-secret")"
+  codex_secret="$(cat "$COMPILE_TMP/$role/codex/token-secret")"
+  if [ "$cc_secret" != "$codex_secret" ]; then
+    printf '  FAIL  %s: claude-code compiles to %s, codex to %s\n' \
+      "$role" "$cc_secret" "$codex_secret"
+    mismatch=1
+  fi
+done
+if [ "$mismatch" -eq 0 ]; then
+  printf '  ok    %s\n' "every codex-eligible role compiles to the same token-secret under both harnesses"
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+fi
+
 echo
 echo "$PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
