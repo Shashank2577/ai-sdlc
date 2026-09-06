@@ -276,6 +276,29 @@ jobs:
           repository: ${{ steps.product.outputs.repo }}
           token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          # The control plane is already checked out to $CP_DIR, inside this
+          # workspace. actions/checkout cleans its destination by default,
+          # and this one's destination is the workspace root — so the
+          # default wiped $CP_DIR and every dispatch died at the next step
+          # with `can't open file .../_control-plane/scripts/read-budget.py`.
+          # The order cannot be swapped: the control plane holds
+          # policies/products.yaml, which is what names the product to check
+          # out here. Runners are fresh per job, so there is nothing stale
+          # for a clean to protect against.
+          clean: false
+
+      # Belt to the `clean: false` above. If $CP_DIR ever disappears again,
+      # fail here — naming the cause — rather than three steps later with a
+      # missing-file error that reads like a broken path.
+      - name: Verify the control plane survived the product checkout
+        run: |
+          set -euo pipefail
+          if [ ! -f "${CP_DIR}/scripts/read-budget.py" ]; then
+            echo "::error::${CP_DIR} was removed by the product checkout. \
+          The control plane must remain readable — see clean: false above."
+            exit 1
+          fi
+          echo "Control plane intact at \`${CP_DIR}\`." >> "$GITHUB_STEP_SUMMARY"
 
       # Engineering memory (#120, REQ-013): pull refs/notes/foundry into the
       # checkout so prompt assembly (step 5) can read what earlier sessions
