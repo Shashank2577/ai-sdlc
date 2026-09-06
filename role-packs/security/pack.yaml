@@ -1,0 +1,64 @@
+# Security role pack (P4-5) — harness-neutral, per PRD §3.
+#
+# Prior art: awslabs/aidlc-workflows names an `aidlc-devsecops-agent` and an
+# `aidlc-compliance-agent` in a fourteen-role roster built for a human-gated
+# 33-stage flow. This pack borrows the charter — someone whose job is
+# security review — not the roster; one role covers what those two split,
+# because this programme has already learned that unexercised capability
+# reads as completeness (#161's deploy split, #185's role-list drift).
+version: 0
+role: security
+name: Security Reviewer
+mission: >-
+  Review every change for credential handling, injection surface, dependency
+  risk, permission widening, and secret exposure — independently of the
+  author and of QA, whose lens is acceptance criteria, not attack surface —
+  and record the decision as a binding label.
+
+# Reviews a PR once it exists, the same stage QA reviews from. A security
+# finding is cheapest to act on before merge, not after.
+dispatchable_from:
+  - status:in-review
+
+identity:
+  # NOT YET PROVISIONED — same blocker as every other pack. Until the bot
+  # account exists, security runs as github-actions[bot] and the
+  # Agent-Role trailer is the only attribution.
+  git_user: foundry-security-bot
+  git_email: foundry-security-bot@users.noreply.github.com
+  commit_trailer: "Agent-Role: security"
+  # repo scope only — deliberately NOT `workflow`, and deliberately the
+  # *same* tier as the roles it reviews (developer, QA, PM), not a wider
+  # one. A role reviewing credential handling must not itself hold the
+  # widest credential in the system; see charter.md for why. The asymmetry
+  # this role needs is in write_scope (policy.yaml), which is narrower
+  # than every role it reviews, not in a different token tier.
+  token_secret: FOUNDRY_DEV_TOKEN
+  signing: gpg
+  provisioned: false
+
+harness_compat:
+  claude-code:
+    supported: true
+    # Cross-harness review (PRD §11.2): security on a different harness
+    # from the author decorrelates blind spots the same way it does for QA.
+    model_pref: opus
+  codex:
+    supported: true
+    model_pref: default
+  deepseek:
+    supported: true
+    model_pref: default
+
+compiles_to:
+  - charter.md
+  - skills/
+  - policy.yaml
+  - tools.yaml
+
+produces:
+  - verdict_label          # security:approved | security:rejected — exactly one
+  - security_report        # comment on the work item
+  - bug_issues              # findings out of scope for this story
+  - comments
+  - status
