@@ -270,32 +270,43 @@ jobs:
       # under, now exercised against the product repo. No `ref:`: omitting
       # it checks out the product repo's own default branch, whatever that
       # is, rather than assuming it matches the control plane's.
+      # actions/checkout deletes the contents of a destination that is not
+      # already the same repository — `clean: false` does not prevent that,
+      # it only skips `git clean` on a matching one. The product's
+      # destination is the workspace root (the agent action works there),
+      # and the control plane lives inside it, so the checkout below wipes
+      # it. #228 fixed the symptom with `clean: false` and the guard still
+      # fired, which is how we learned the distinction.
+      #
+      # RUNNER_TEMP is outside the workspace and checkout never touches it.
+      # Moving the control plane there before the product arrives is the
+      # only ordering that works: the registry that names the product lives
+      # in the control plane, so it cannot be checked out second.
+      - name: Move the control plane out of the workspace
+        run: |
+          set -euo pipefail
+          cp -a "${CP_DIR}" "${RUNNER_TEMP}/control-plane"
+          echo "CP_DIR=${RUNNER_TEMP}/control-plane" >> "$GITHUB_ENV"
+          echo "Control plane moved to \`${RUNNER_TEMP}/control-plane\`, out of the \
+          product checkout's path." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout the product repo — the agent's work tree
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.product.outputs.repo }}
           token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          # The control plane is already checked out to $CP_DIR, inside this
-          # workspace. actions/checkout cleans its destination by default,
-          # and this one's destination is the workspace root — so the
-          # default wiped $CP_DIR and every dispatch died at the next step
-          # with `can't open file .../_control-plane/scripts/read-budget.py`.
-          # The order cannot be swapped: the control plane holds
-          # policies/products.yaml, which is what names the product to check
-          # out here. Runners are fresh per job, so there is nothing stale
-          # for a clean to protect against.
-          clean: false
 
-      # Belt to the `clean: false` above. If $CP_DIR ever disappears again,
-      # fail here — naming the cause — rather than three steps later with a
-      # missing-file error that reads like a broken path.
+      # Belt to the move above. If $CP_DIR is ever unreachable again, fail
+      # here — naming the cause — rather than three steps later with a
+      # missing-file error that reads like a broken path. This guard is why
+      # the first fix's failure was obvious instead of mysterious.
       - name: Verify the control plane survived the product checkout
         run: |
           set -euo pipefail
           if [ ! -f "${CP_DIR}/scripts/read-budget.py" ]; then
             echo "::error::${CP_DIR} was removed by the product checkout. \
-          The control plane must remain readable — see clean: false above."
+          The control plane must survive it — see the move step above."
             exit 1
           fi
           echo "Control plane intact at \`${CP_DIR}\`." >> "$GITHUB_STEP_SUMMARY"
