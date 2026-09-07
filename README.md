@@ -26,16 +26,18 @@ Full design, including swappable trackers (GitHub Projects / Jira) and swappable
 
 ## Running the dispatcher
 
-`.github/workflows/dispatch.yml` turns a work item into a headless agent session. Actions → **Dispatch** → Run workflow, then give it an issue number, a role (`developer` or `qa`) and a turn budget. Or from a terminal:
+`.github/workflows/dispatch.yml` turns a work item into a headless agent session. Actions → **Dispatch** → Run workflow, then give it an issue number, a role (`developer` or `qa`), a harness and a turn budget. Or from a terminal:
 
 ```sh
-gh workflow run dispatch.yml -f issue=3 -f role=developer -f max_turns=30
+gh workflow run dispatch.yml -f issue=3 -f role=developer -f harness=claude-code -f max_turns=30
 ```
+
+`harness` (`claude-code` or `codex`) is a dispatch input, not a hardcoded default (#222) — the workflow refuses to compile a role/harness pair the role's own `pack.yaml:harness_compat` doesn't declare `supported: true` for, so a dispatch cannot silently run a role under a harness its pack never opted into.
 
 Two things have to be true first, and the workflow fails loudly rather than quietly if they aren't:
 
 - **The issue is labelled `status:ready`.** This is the prompt-injection guard, not paperwork. The issue body goes verbatim into a session holding write credentials, and on a public repo anyone can open an issue — but only someone with write access can apply a label. So the only untrusted text an agent ever reads is text a maintainer approved.
-- **A harness credential exists.** No API key required: `claude setup-token` mints one from a Claude Code subscription, stored as `CLAUDE_CODE_OAUTH_TOKEN`. Set `ANTHROPIC_API_KEY` instead if you would rather bill an API key; when both are present the API key wins.
+- **A credential exists for the chosen harness.** For `claude-code`: no API key required, `claude setup-token` mints one from a Claude Code subscription, stored as `CLAUDE_CODE_OAUTH_TOKEN`. Set `ANTHROPIC_API_KEY` instead if you would rather bill an API key; when both are present the API key wins. For `codex`: `CODEX_API_KEY`, the environment variable the codex CLI itself reads for API-key auth — there is no OAuth-token alternative for it yet. Either way this is a harness-level credential, shared by every role that runs under it, distinct from the per-role `token_secret` (`FOUNDRY_DEV_TOKEN`/`FOUNDRY_DEVOPS_TOKEN`/...) that governs what the session can push.
 
 The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure, cancellation or a budget breach it hands the item back as `status:ready` + `needs-human` with a structured note — goal, attempts, blocker, costed options A/B/C — so the human gets a decision, not a transcript.
 
