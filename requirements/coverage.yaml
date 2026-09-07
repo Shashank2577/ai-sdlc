@@ -112,20 +112,37 @@ requirements:
       compile_* functions exist and are exercised by
       compiler/test_compile_pack.py", never as "three harnesses have run a
       session". Only claude-code has: every merged PR this programme has
-      produced carries a `Harness: claude-code/*` trailer (#210). codex
-      (#109) and opencode (#210) compile and pass compiler/test_compile_pack.py,
-      but no role pack declares either in pack.yaml:harness_compat, and
-      .github/workflows/dispatch.yml still hard-codes
-      `--harness claude-code` and the claude-code-action step — neither has
-      ever been dispatched. Getting a second harness from "compiles" to
-      "has run a session" needs a role pack opt-in, a dispatch.yml branch
-      per harness (devops-owned, outside compiler/), and a live run that
-      produces a merged PR — none of which a `checks:` entry here can
-      currently verify by itself (compare REQ-014's `delivered_by_agent`,
-      which measures merged PRs from *any* dispatched session but does not
-      distinguish which harness ran them). DeepSeek, Kiro, Cursor, and
-      Copilot are not implemented; awslabs/aidlc-workflows' `harness/` tree
-      is the reference for what each would need.
+      produced carries a `Harness: claude-code/*` trailer (#210).
+
+      #222 closed part of the "compiles" vs "has run" gap this note used to
+      describe in full: every role pack has declared
+      `harness_compat.codex.supported: true` since the packs were first
+      written (#42) — that half of the old note was already stale, not
+      newly fixed — and `.github/workflows/dispatch.yml` no longer
+      hard-codes `--harness claude-code`; `harness` is now a dispatch input,
+      gated by compile-pack.py's own harness_compat check, with its own
+      codex agent step (installs `@openai/codex`, runs `codex exec
+      --profile <role>` against the compiled `sandbox-policy.toml`) that
+      preserves the same checkout/budget/session-start/session-end contract
+      claude-code runs under. `scripts/test-diagnose-workflow-push-refusal.sh`
+      now also proves, structurally, that which GitHub credential a role
+      gets does not depend on which harness is driving it — every
+      codex-eligible role compiles to the same `token-secret` under both
+      harnesses.
+
+      What is still true, and still the thing this note exists to say
+      plainly: **no codex session has ever run.** The agent step's
+      preflight fails closed without a `CODEX_API_KEY` repository secret,
+      which no role pack can provision for itself — #241 is the live
+      trial this needs, blocked on that secret, tracking exactly the "has
+      run a session, produced a merged PR" bar this note has always meant.
+      Until #241 closes, read a 100% here the same way as before: the
+      dispatch path exists and is tested, not that it has been exercised.
+      opencode (#210) compiles and passes compiler/test_compile_pack.py but
+      has no dispatch.yml step at all yet — a separate, smaller version of
+      the same gap. DeepSeek, Kiro, Cursor, and Copilot are not
+      implemented; awslabs/aidlc-workflows' `harness/` tree is the
+      reference for what each would need.
 
   REQ-004:
     summary: Tracker adapter — GitHub Projects and Jira swappable
