@@ -1,0 +1,65 @@
+# Operations tool allowlist. Read the pipeline, the ladder and the plan
+# widely; write almost nothing. This role judges what a deploy is about to
+# do — it does not need to write infra/** or .github/workflows/** to do
+# that, and deliberately cannot (devops owns both).
+version: 0
+role: operations
+
+tools:
+  read:
+    - read_file
+    - list_files
+    - search
+  write:
+    - write_file          # role-packs/operations/** only; see policy.yaml:write_scope
+    - edit_file
+  execute:
+    - shell
+  web:
+    - fetch_url
+
+shell:
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git log*"
+    - "git show*"
+    - "gh pr view*"
+    - "gh pr diff*"
+    - "gh pr checks*"
+    - "gh pr comment*"
+    - "gh issue view*"
+    - "gh issue list*"
+    - "gh issue create*"        # gaps out of scope for this story
+    - "gh issue comment*"
+    - "gh issue edit*"
+    - "gh run view*"
+    - "gh run list*"
+    - "gh api repos/*"
+    # Reading the ladder and the deploy plan without running either.
+    - "python3 scripts/deploy-plan.py*"
+    - "cat*"
+    - "ls*"
+    - "grep*"
+    - "rg*"
+    - "find*"
+    - "diff*"
+    - "jq*"
+    - "wc*"
+  deny:
+    - "git push*"                # operations does not push
+    - "gh pr merge*"
+    - "gh pr review*--approve*"
+    - "gh workflow*"              # dispatching a deploy is not this role's call
+    - "gh secret*"
+    - "gh repo edit*"
+    - "gh api*--method DELETE*"
+    - "gh api*branches/main/protection*"
+    - "gh api*actions/permissions*"
+    - "gh api*environments*--method*"   # read the ladder, never edit it
+
+mcp:
+  required: []
+  optional:
+    - name: tracker
+      purpose: "Work-item read/write when a harness has no gh shim"

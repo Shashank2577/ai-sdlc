@@ -4,7 +4,7 @@
 `policies/products.yaml` can claim `bootstrapped: true` for a product; this
 is the thing that makes the claim true, and the thing that checks it against
 the live repo instead of trusting the flag. Per that policy's own
-`bootstrapped_is_verified` rule, four things must hold on the *target*
+`bootstrapped_is_verified` rule, five things must hold on the *target*
 repo, not on this file's say-so:
 
   1. `CONVENTIONS.md` at the repo root
@@ -15,6 +15,13 @@ repo, not on this file's say-so:
      (`dod` by default — see `--dod-context`), enforced against admins too
      — the combination this repo's own `main` uses to make a direct push
      structurally impossible rather than merely forbidden
+  5. `required_conversation_resolution` on that same branch protection —
+     without it, a PR can merge with review threads left open, exactly
+     the hole tracked in #227 (21 findings merged unanswered on this
+     repo before it was turned on here by hand). This is the enforcement
+     half of that fix; the PR template below carries the advisory half —
+     see `pull_request_template()`'s docstring for why it is advisory,
+     not a second technical check.
 
     bootstrap-product.py --check <product>      # report state, change nothing
     bootstrap-product.py --install <product>     # install what's missing
@@ -104,6 +111,25 @@ def codeowners(owner: str) -> str:
 
 
 def pull_request_template() -> str:
+    """The PR template installed on the target repo (#227).
+
+    `required_conversation_resolution`, installed alongside this by
+    `plan_conversation_resolution` / `api_put_protection`, is the
+    enforcement half of the merge pre-check: GitHub itself refuses to
+    merge a PR with an unresolved review thread, no matter who is doing
+    the merging or through what interface. A second, custom check that
+    also inspects thread state would only ever fail in cases GitHub's own
+    gate already blocks — pure duplicate machinery, never observable as
+    the thing that caught a mistake. So the "Before merging" item below
+    is a self-attestation, not an independently verified check: no script
+    reads review threads to confirm it. It exists so the person about to
+    click merge actually looks, rather than trusting the branch-
+    protection block alone — visibility, not a second gate. (A repo whose
+    own DoD check enforces "no unchecked box" generically will still
+    require this one ticked before merge, the same as any other item
+    here — that is the generic rule doing its job, not this item being
+    independently verified.)
+    """
     return """## What
 
 <!-- the change, in plain words -->
@@ -121,6 +147,13 @@ REQ-
 - [ ] Every commit carries the four trailers (Work-Item, Requirement, Agent-Role, Harness)
 - [ ] Work item linked above
 - [ ] Acceptance criteria on the issue are met (say how in Evidence)
+
+## Before merging (self-attestation — no script verifies this one)
+
+- [ ] Every review thread on this PR has been read and answered
+      (`required_conversation_resolution` branch protection blocks the
+      merge button if one is left unresolved; this line is so the
+      merger actually looks, not just relies on the block)
 
 ## Evidence
 
@@ -226,6 +259,40 @@ def plan_branch_protection(protection: Optional[dict], context: str, is_admin: b
     return ItemResult("branch protection", "created", f"was missing ({current.detail}), now configured")
 
 
+def check_conversation_resolution(protection: Optional[dict]) -> ItemResult:
+    """#227: without this, a PR can merge with review threads left open.
+
+    Read from the same branch-protection payload `check_branch_protection`
+    reads (GitHub returns it as one object), not a separate call — so a
+    repo that has the `dod` check but had this one setting loosened by
+    hand is caught as its own, separately-named failure rather than
+    folded into (or masked by) "branch protection: present".
+    """
+    if protection is None:
+        return ItemResult("required conversation resolution", "missing", "no protection configured on the default branch")
+    rcr = protection.get("required_conversation_resolution")
+    enabled = bool(rcr.get("enabled")) if isinstance(rcr, dict) else bool(rcr)
+    if enabled:
+        return ItemResult(
+            "required conversation resolution", "present",
+            "enabled — a PR cannot merge while it has an unresolved review thread",
+        )
+    return ItemResult("required conversation resolution", "missing", "not enabled — unresolved review threads do not block merge")
+
+
+def plan_conversation_resolution(protection: Optional[dict], is_admin: bool) -> ItemResult:
+    current = check_conversation_resolution(protection)
+    if current.status == "present":
+        return ItemResult("required conversation resolution", "unchanged", current.detail)
+    if not is_admin:
+        return ItemResult(
+            "required conversation resolution", "no_admin",
+            f"missing ({current.detail}) but the credential lacks admin on this repo — "
+            "not applied; files were installed regardless",
+        )
+    return ItemResult("required conversation resolution", "created", f"was missing ({current.detail}), now enabled")
+
+
 OK_STATUSES = {"present", "unchanged", "created", "present_elsewhere"}
 
 
@@ -313,15 +380,26 @@ def api_get_protection(repo: str, branch: str) -> Optional[dict]:
     return json.loads(proc.stdout)
 
 
-def api_put_protection(repo: str, branch: str, context: str) -> None:
+def api_put_protection(repo: str, branch: str, context: str, existing: Optional[dict] = None) -> None:
     # Matches this repo's own `main`: required_status_checks + enforce_admins
     # is what blocks a direct push (see check_branch_protection's docstring).
     # required_pull_request_reviews is left null, same as the reference.
+    #
+    # This PUT replaces the whole protection resource, so any context
+    # already required (e.g. a repo whose contexts grew by hand after
+    # bootstrap) is carried forward rather than clobbered down to just
+    # `context` — this call now also fires to add
+    # required_conversation_resolution alone, when the status-check side
+    # was already correct, and that must not silently drop other contexts.
+    contexts = list(((existing or {}).get("required_status_checks") or {}).get("contexts") or [])
+    if context not in contexts:
+        contexts.append(context)
     body = {
-        "required_status_checks": {"strict": False, "contexts": [context]},
+        "required_status_checks": {"strict": False, "contexts": contexts},
         "enforce_admins": True,
         "required_pull_request_reviews": None,
         "restrictions": None,
+        "required_conversation_resolution": True,
     }
     proc = gh(["api", "-X", "PUT", f"repos/{repo}/branches/{branch}/protection", "--input", "-"], stdin=json.dumps(body))
     if proc.returncode != 0:
@@ -350,6 +428,7 @@ def do_check(
     meta = get_repo_meta(repo)
     protection = get_protection(repo, meta["default_branch"])
     results.append(check_branch_protection(protection, dod_context))
+    results.append(check_conversation_resolution(protection))
     return results
 
 
@@ -360,7 +439,7 @@ def do_install(
     get_file: Callable[[str, str], Optional[str]] = api_get_file,
     put_file: Callable[[str, str, str, str], None] = api_put_file,
     get_protection: Callable[[str, str], Optional[dict]] = api_get_protection,
-    put_protection: Callable[[str, str, str], None] = api_put_protection,
+    put_protection: Callable[..., None] = api_put_protection,
     get_repo_meta: Callable[[str], dict] = api_repo_meta,
 ) -> list[ItemResult]:
     results = []
@@ -377,10 +456,16 @@ def do_install(
 
     meta = get_repo_meta(repo)
     protection = get_protection(repo, meta["default_branch"])
-    plan = plan_branch_protection(protection, dod_context, meta["is_admin"])
-    if plan.status == "created":
-        put_protection(repo, meta["default_branch"], dod_context)
-    results.append(plan)
+    protection_plan = plan_branch_protection(protection, dod_context, meta["is_admin"])
+    conversation_plan = plan_conversation_resolution(protection, meta["is_admin"])
+    # One PUT covers both — either one alone needing a write (e.g. a repo
+    # bootstrapped before #227, whose status check is already correct but
+    # whose conversation-resolution setting was never turned on) still
+    # has to make this call, not just the case where both are missing.
+    if protection_plan.status == "created" or conversation_plan.status == "created":
+        put_protection(repo, meta["default_branch"], dod_context, existing=protection)
+    results.append(protection_plan)
+    results.append(conversation_plan)
     return results
 
 

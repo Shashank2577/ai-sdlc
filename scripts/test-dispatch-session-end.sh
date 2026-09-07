@@ -229,9 +229,20 @@ print(json.dumps({'type': 'result', 'num_turns': 5, 'total_cost_usd': float(sys.
                    'usage': {'input_tokens': 100, 'output_tokens': 100}}))
 " "$cost" > "$WORK/execution.json"
 
+  # Two repositories (#208): the work item lives in GITHUB_REPOSITORY (the
+  # control plane, unconditionally — Actions sets it to whichever repo the
+  # workflow runs in); the pull request lives in PRODUCT_REPO, a different
+  # repository on purpose, so any assertion that greps for one and not the
+  # other proves the step actually said `--repo` rather than relying on
+  # whichever repo happened to be checked out. CP_DIR points at the real
+  # repo root so the step's `${CP_DIR}/scripts/...` calls hit the genuine
+  # spend-report.py / memory.py, not a stub.
   cd "$REPO_ROOT" && \
   GH_TOKEN=x \
   GITHUB_REPOSITORY=acme/widgets \
+  CP_DIR="$REPO_ROOT" \
+  PRODUCT_REPO=acme/widgets-product \
+  PRODUCT_TOKEN=fake-product-token \
   ISSUE="$issue" ROLE=devops \
   TURNS=30 COST_USD="$budget_cost" TOKENS=400000 WALL_CLOCK=45 \
   MAX_RETRIES=2 BUDGET_SOURCE=policy PRIOR_FAILURES=0 \
@@ -443,6 +454,31 @@ echo "session-end: no engineering-memory note for a successful session (#120)"
 run_session_end 606 success 0.10 5.0 "story/FDY-606-slug" status:in-progress
 assert "no note-writing attempted" "!grep" 'Tried:' "$WORK/git-notes.log"
 assert "no engineering-memory line in the comment" "!grep" 'Engineering memory' "$WORK/comment.md"
+
+# ---------------------------------------------------------------------------
+echo "session-end: two repositories — PR calls target the product repo, issue calls the control plane (#208)"
+# ---------------------------------------------------------------------------
+run_session_end 701 success 0.10 5.0 "story/FDY-701-slug" status:in-progress
+assert "PR lookup is sent to the product repo" grep \
+  "gh pr list --repo acme/widgets-product --state all" "$WORK/calls.log"
+assert "PR lookup is not sent to the control plane" "!grep" \
+  "gh pr list --repo acme/widgets --state all" "$WORK/calls.log"
+assert "issue comment is sent to the control plane" grep \
+  "gh issue comment 701 --repo acme/widgets --body-file" "$WORK/calls.log"
+assert "issue edit (status:in-review) is sent to the control plane" grep \
+  "gh issue edit 701 --repo acme/widgets " "$WORK/calls.log"
+assert "no gh call is left without an explicit --repo" "!grep" "gh issue view 701 --json labels" "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: two repositories — a failed session escalates against the control-plane issue, still reads the product repo's PRs (#208)"
+# ---------------------------------------------------------------------------
+run_session_end 702 failure 0.10 5.0 -
+assert "PR lookup is still sent to the product repo even with no PR to find" grep \
+  "gh pr list --repo acme/widgets-product" "$WORK/calls.log"
+assert "label rollback is sent to the control plane" grep \
+  "gh issue edit 702 --repo acme/widgets --remove-label status:ready" "$WORK/calls.log"
+assert "escalation comment is sent to the control plane" grep \
+  "gh issue comment 702 --repo acme/widgets --body-file" "$WORK/calls.log"
 
 echo
 echo "$PASS passed, $FAIL failed"

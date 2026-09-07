@@ -335,6 +335,44 @@ class TestCodexOutput(unittest.TestCase):
         self.assertIn("Distinctive skill body.", agents_md)   # skills
 
 
+class TestOpencodeOutput(unittest.TestCase):
+    def test_artifacts_and_permission_mapping(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            out = cp.compile_opencode(cp.read_pack("widget"))
+
+        self.assertIn("AGENTS.md", out)
+        self.assertIn("opencode.json", out)
+        self.assertIn("token-secret", out)
+        self.assertIn("dispatchable-from", out)
+
+        # opencode's permission.bash is a real glob, so every rule —
+        # including the interior wildcard that trips up both other
+        # targets — maps across. Nothing is unmappable here.
+        self.assertNotIn("UNMAPPABLE.md", out)
+
+        import json
+
+        settings = json.loads(out["opencode.json"])
+        bash_perms = settings["permission"]["bash"]
+        self.assertEqual(bash_perms["*"], "ask")
+        self.assertEqual(bash_perms["git status"], "allow")
+        self.assertEqual(bash_perms["git log*"], "allow")
+        self.assertEqual(bash_perms["git push*--force*"], "deny")
+
+    def test_prompt_contains_charter_budget_and_skills(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nDistinctive skill body.\n")
+            agents_md = cp.compile_opencode(cp.read_pack("widget"))["AGENTS.md"]
+
+        self.assertIn("Do widget things.", agents_md)         # charter
+        self.assertIn("Turns: 10", agents_md)                 # budget
+        self.assertIn("Cost ceiling: $1.5", agents_md)        # the enforced line
+        self.assertIn("push_to_default_branch", agents_md)    # forbidden
+        self.assertIn("budget_breach", agents_md)              # hitl trigger
+        self.assertIn("Distinctive skill body.", agents_md)   # skills
+
+
 class TestEveryHarnessEmitsDispatcherArtifacts(unittest.TestCase):
     """#113: the dispatcher's shipped-nothing gate greps a compiled pack's
     `produces` file, and a missing file used to fail open (requires_pr
@@ -386,11 +424,14 @@ class TestRealPacksInThisRepo(unittest.TestCase):
                 self.assertTrue(out["system-prompt.md"].strip())
                 self.assertTrue(pack["skills"], f"{role} has no skills/")
 
-                # A pack that compiles for one harness and not the other is
+                # A pack that compiles for one harness and not the others is
                 # exactly the gap REQ-003 flags: this is the check that
                 # would catch it.
                 codex_out = cp.compile_codex(pack)
                 self.assertTrue(codex_out["AGENTS.md"].strip())
+
+                opencode_out = cp.compile_opencode(pack)
+                self.assertTrue(opencode_out["AGENTS.md"].strip())
 
 
 if __name__ == "__main__":

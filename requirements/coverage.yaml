@@ -41,6 +41,11 @@ policy:
   # (`governance_role` in policies/gates.yaml) actually agrees on, so that
   # is the spelling here. This list, not a Python literal, is what
   # `roles_built` counts against — see #185.
+  #
+  # security and operations added by #211: nothing previously reviewed a
+  # change for credential handling, injection surface, or deploy safety.
+  # Adding them here means `roles_built` honestly reports 8/10 until both
+  # packs exist, rather than silently staying green at 8/8 forever.
   roles:
     expected:
       - orchestrator
@@ -51,6 +56,8 @@ policy:
       - devops
       - techwriter
       - delivery-lead
+      - security
+      - operations
 
 requirements:
   REQ-001:
@@ -101,15 +108,48 @@ requirements:
       considered and rejected for v0; see adrs/.
 
   REQ-003:
-    summary: Harness adapter — Claude Code, Codex, DeepSeek behind one contract
+    summary: Harness adapter — role packs compile for whichever harness a session runs under
     checks:
       - {exists: .github/workflows/dispatch.yml}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_claude_code"}}
       - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_codex"}}
+      - {grep: {glob: compiler/compile-pack.py, pattern: "def compile_opencode"}}
     notes: >-
-      Two of three named harnesses are implemented — compile_claude_code and
-      compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The
-      pack format is neutral; the compiler now covers most of it.
+      These checks prove existence, not use — read a 100% here as "three
+      compile_* functions exist and are exercised by
+      compiler/test_compile_pack.py", never as "three harnesses have run a
+      session". Only claude-code has: every merged PR this programme has
+      produced carries a `Harness: claude-code/*` trailer (#210).
+
+      #222 closed part of the "compiles" vs "has run" gap this note used to
+      describe in full: every role pack has declared
+      `harness_compat.codex.supported: true` since the packs were first
+      written (#42) — that half of the old note was already stale, not
+      newly fixed — and `.github/workflows/dispatch.yml` no longer
+      hard-codes `--harness claude-code`; `harness` is now a dispatch input,
+      gated by compile-pack.py's own harness_compat check, with its own
+      codex agent step (installs `@openai/codex`, runs `codex exec
+      --profile <role>` against the compiled `sandbox-policy.toml`) that
+      preserves the same checkout/budget/session-start/session-end contract
+      claude-code runs under. `scripts/test-diagnose-workflow-push-refusal.sh`
+      now also proves, structurally, that which GitHub credential a role
+      gets does not depend on which harness is driving it — every
+      codex-eligible role compiles to the same `token-secret` under both
+      harnesses.
+
+      What is still true, and still the thing this note exists to say
+      plainly: **no codex session has ever run.** The agent step's
+      preflight fails closed without a `CODEX_API_KEY` repository secret,
+      which no role pack can provision for itself — #241 is the live
+      trial this needs, blocked on that secret, tracking exactly the "has
+      run a session, produced a merged PR" bar this note has always meant.
+      Until #241 closes, read a 100% here the same way as before: the
+      dispatch path exists and is tested, not that it has been exercised.
+      opencode (#210) compiles and passes compiler/test_compile_pack.py but
+      has no dispatch.yml step at all yet — a separate, smaller version of
+      the same gap. DeepSeek, Kiro, Cursor, and Copilot are not
+      implemented; awslabs/aidlc-workflows' `harness/` tree is the
+      reference for what each would need.
 
   REQ-004:
     summary: Tracker adapter — GitHub Projects and Jira swappable

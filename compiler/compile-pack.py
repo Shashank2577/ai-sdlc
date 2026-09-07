@@ -2,13 +2,21 @@
 """Compile a harness-neutral role pack into harness-specific config.
 
 PRD §3: role packs are neutral; a compiler renders them per harness.
-This is the v0 compiler. It knows one harness properly (claude-code) and
-degrades honestly for the others rather than pretending.
+This is the v0 compiler. It degrades honestly for a harness it cannot
+fully express rather than pretending — see UNMAPPABLE.md below.
 
     compile-pack.py --role developer --check
     compile-pack.py --role developer --harness claude-code --out build/
 
 Requires PyYAML (present on GitHub-hosted ubuntu runners).
+
+Prior art: awslabs/aidlc-workflows (MIT-0) ships thin per-harness surfaces
+over one harness-neutral core/ for seven targets (claude, codex, copilot,
+cursor, kiro, kiro-ide, opencode) — the same shape this file follows.
+compile_opencode's permission mapping below borrows a specific reading from
+their harness/opencode/opencode.json: opencode's permission.bash is a real
+glob (last matching rule wins), unlike Claude Code's prefix-only
+Bash(cmd:*) — a difference discovered by reading their tree, not guessed.
 """
 
 from __future__ import annotations
@@ -307,7 +315,54 @@ def compile_codex(pack: dict) -> dict[str, str]:
     return out
 
 
-HARNESSES = {"claude-code": compile_claude_code, "codex": compile_codex}
+def compile_opencode(pack: dict) -> dict[str, str]:
+    """Render a pack as an opencode AGENTS.md plus an opencode.json permission map.
+
+    opencode auto-reads a project-root AGENTS.md (same convention as
+    Codex) and gates shell commands through `permission.bash`, a map of
+    glob pattern -> "allow"/"ask"/"deny" evaluated with the *last*
+    matching rule winning (awslabs/aidlc-workflows' harness/opencode ships
+    exactly this "*": "ask" catch-all with more specific overrides after
+    it — see harness/opencode/opencode.json in that repo).
+
+    That is a genuine glob, not a prefix match: `*` matches anywhere in the
+    string, so a rule like `git push*--force*` — the one pattern
+    to_bash_rule cannot express for Claude Code, and codex cannot express
+    at all — maps across unchanged. tools.yaml already writes its shell
+    rules as shell globs, so allow/deny entries are copied verbatim as
+    permission keys; ordering allow before deny lets a specific deny win
+    over a broader allow, the same intent tools.yaml already expresses.
+    Nothing here ends up in UNMAPPABLE.md — the first target that doesn't
+    need it.
+    """
+    tools = pack["tools"]
+
+    bash_perms = {"*": "ask"}
+    for pattern in (tools.get("shell", {}) or {}).get("allow", []):
+        bash_perms[pattern] = "allow"
+    for pattern in (tools.get("shell", {}) or {}).get("deny", []):
+        bash_perms[pattern] = "deny"
+
+    settings = {
+        "$schema": "https://opencode.ai/config.json",
+        "permission": {"bash": bash_perms},
+    }
+
+    return {
+        "AGENTS.md": render_role_doc(pack),
+        "opencode.json": json.dumps(settings, indent=2) + "\n",
+        # Harness-agnostic; see compile_claude_code's identical comment.
+        "token-secret": pack["token_secret"] + "\n",
+        "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
+        "produces": "\n".join(pack["produces"]) + "\n",
+    }
+
+
+HARNESSES = {
+    "claude-code": compile_claude_code,
+    "codex": compile_codex,
+    "opencode": compile_opencode,
+}
 
 
 def main() -> int:
