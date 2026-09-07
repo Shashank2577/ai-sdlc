@@ -2,8 +2,20 @@
 # Two-repository dispatch (P4-2, #208): the control plane and the product
 # a dispatch targets are no longer assumed to be the same repository.
 #
-# Implements the PRD §11.2 dispatch contract in its single-harness form:
-#   dispatch: { work_item, role, harness: claude-code, repo, budget }
+# Two-harness dispatch (P4-7, #222): `harness` is a dispatch input, not a
+# hardcoded literal. The compiler (#213) could already render a pack for
+# claude-code, codex or opencode; nothing downstream picked the target,
+# and no pack opted a second one in for real dispatch. The input is the
+# source of the choice — visible and auditable per dispatch, the same way
+# `role`, `product` and `max_turns` already are — and step 1 below still
+# refuses to compile a role/harness pair the pack's own
+# `pack.yaml:harness_compat` does not declare `supported: true` for
+# (compile-pack.py's own check, not a second one grown here). So the
+# choice has two owners on purpose: the dispatcher decides *when* a
+# harness runs, the pack decides *whether it may*.
+#
+# Implements the PRD §11.2 dispatch contract:
+#   dispatch: { work_item, role, harness, repo, budget }
 #   expected_outputs: [branch, commits, pr, comments, status]
 #
 # `repo` above is resolved through `policies/products.yaml` (#202), not
@@ -67,6 +79,14 @@ on:
           - architect
           - techwriter
           - delivery-lead
+      harness:
+        description: "Harness to run this session under"
+        required: true
+        default: claude-code
+        type: choice
+        options:
+          - claude-code
+          - codex
       max_turns:
         description: "Turn budget override; 0 uses the role pack's policy.yaml"
         required: false
@@ -154,16 +174,35 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
+          # Fails closed here, not later: compile-pack.py refuses a
+          # role/harness pair unless the pack's own
+          # `pack.yaml:harness_compat.<harness>.supported` says true (#213).
+          # The dispatch input above picked which harness to try; this is
+          # what actually gates it — a pack that never opts in cannot be
+          # dispatched under it no matter what the input says.
           python3 "${CP_DIR}/compiler/compile-pack.py" --role "${ROLE}" \
-            --harness claude-code --out "${RUNNER_TEMP}/pack"
-          settings="${RUNNER_TEMP}/pack/${ROLE}/claude-code/settings.json"
-          echo "settings=${settings}" >> "$GITHUB_OUTPUT"
+            --harness "${HARNESS}" --out "${RUNNER_TEMP}/pack"
+          pack_dir="${RUNNER_TEMP}/pack/${ROLE}/${HARNESS}"
+
+          # settings.json is a Claude-Code-specific artifact (its
+          # Bash-permission allow/deny map) — other harnesses compile
+          # their own tool-permission surface under the same pack_dir
+          # (codex: sandbox-policy.toml) and the agent step for that
+          # harness reads it directly rather than through this output.
+          if [ "${HARNESS}" = "claude-code" ]; then
+            echo "settings=${pack_dir}/settings.json" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pack_dir=${pack_dir}" >> "$GITHUB_OUTPUT"
 
           # Which credential this role runs with. The pack declares it; the
           # dispatcher carries no role->secret table of its own, so adding a
           # role does not mean editing this workflow. This same credential
-          # is now also what checks out the product repo, below.
-          token_secret=$(cat "${RUNNER_TEMP}/pack/${ROLE}/claude-code/token-secret")
+          # is now also what checks out the product repo, below. Harness-
+          # agnostic on purpose: which repo-write credential a role gets is
+          # a question about the role, not about which harness happens to
+          # be driving it this dispatch (#222) — see the preflight step
+          # for the harness-specific *inference* credential instead.
+          token_secret=$(cat "${pack_dir}/token-secret")
           echo "token_secret=${token_secret}" >> "$GITHUB_OUTPUT"
           echo "Credential declared by the pack: ${token_secret}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -172,7 +211,7 @@ jobs:
           # dispatcher carries no role->state table of its own, and adding
           # or changing a role's entry point is a pack PR, not a workflow
           # edit (#67).
-          dispatchable_from=$(paste -sd, "${RUNNER_TEMP}/pack/${ROLE}/claude-code/dispatchable-from")
+          dispatchable_from=$(paste -sd, "${pack_dir}/dispatchable-from")
           echo "dispatchable_from=${dispatchable_from}" >> "$GITHUB_OUTPUT"
           echo "Dispatchable from (declared by the pack): ${dispatchable_from}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -188,7 +227,7 @@ jobs:
           # broken, not that the role has no output shape. Defaulting
           # requires_pr=false here silently disabled the shipped-nothing
           # gate for every role (#113) — error instead.
-          produces_file="${RUNNER_TEMP}/pack/${ROLE}/claude-code/produces"
+          produces_file="${pack_dir}/produces"
           if [ ! -f "$produces_file" ]; then
             echo "::error::compiled pack has no produces file at ${produces_file} — refusing to relax the shipped-nothing gate"
             exit 1
@@ -198,14 +237,15 @@ jobs:
           echo "requires_pr=${requires_pr}" >> "$GITHUB_OUTPUT"
           echo "Requires a pull request to count as shipped (declared by the pack): ${requires_pr}" >> "$GITHUB_STEP_SUMMARY"
           {
-            echo "## Compiled permissions"
+            echo "## Compiled permissions (${HARNESS})"
             echo
-            echo '```json'
-            cat "$settings"
+            echo '```'
+            ls "$pack_dir"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
         env:
           ROLE: ${{ inputs.role }}
+          HARNESS: ${{ inputs.harness }}
 
       # ---------------------------------------------------------------
       # 2. Resolve the product. Fail closed: an unregistered or
@@ -402,22 +442,51 @@ jobs:
             >> "$GITHUB_STEP_SUMMARY"
 
       # Fail before touching the tracker if the session could never run.
+      # Which secret this checks is a function of the harness, not the
+      # role — the inference credential (an LLM API key) is shared across
+      # every role that runs under a given harness, exactly like
+      # ANTHROPIC_API_KEY already was for every claude-code role. That is
+      # a different axis from `token_secret` above: token_secret is the
+      # GitHub write credential, per role, unaffected by which harness is
+      # driving the session (#222 — see the PR description for why the
+      # two must not be conflated).
       - name: Preflight — an agent credential must be configured
         env:
+          HARNESS: ${{ inputs.harness }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "${ANTHROPIC_API_KEY}" ] && [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
-            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN is set on this repository. \
-          Add one (see README) — the dispatcher cannot start a session without a harness credential."
-            exit 1
-          fi
-          if [ -n "${ANTHROPIC_API_KEY}" ]; then
-            echo "Harness credential: ANTHROPIC_API_KEY" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Harness credential: CLAUDE_CODE_OAUTH_TOKEN" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          case "${HARNESS}" in
+            claude-code)
+              if [ -z "${ANTHROPIC_API_KEY}" ] && [ -z "${CLAUDE_CODE_OAUTH_TOKEN}" ]; then
+                echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN is set on \
+              this repository. Add one (see README) — the dispatcher cannot start a claude-code \
+              session without one."
+                exit 1
+              fi
+              if [ -n "${ANTHROPIC_API_KEY}" ]; then
+                echo "Harness credential: ANTHROPIC_API_KEY" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "Harness credential: CLAUDE_CODE_OAUTH_TOKEN" >> "$GITHUB_STEP_SUMMARY"
+              fi
+              ;;
+            codex)
+              if [ -z "${CODEX_API_KEY}" ]; then
+                echo "::error::CODEX_API_KEY is not set on this repository. The codex CLI reads \
+              this exact variable for API-key auth — add it as a repository secret before a codex \
+              dispatch can start (a repository-settings action, not something this workflow can do \
+              for itself)."
+                exit 1
+              fi
+              echo "Harness credential: CODEX_API_KEY" >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              echo "::error::No credential preflight is wired for harness '${HARNESS}'."
+              exit 1
+              ;;
+          esac
 
 
       # ---------------------------------------------------------------
@@ -541,6 +610,7 @@ jobs:
           PRIOR_FAILURES: ${{ steps.budget.outputs.prior_failures }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
+          HARNESS: ${{ inputs.harness }}
         run: |
           set -euo pipefail
           comment="${RUNNER_TEMP}/start-comment.md"
@@ -552,7 +622,7 @@ jobs:
           | Work item | \`${GITHUB_REPOSITORY}#${ISSUE}\` |
           | Product | \`${PRODUCT}\` (\`${PRODUCT_REPO}\`) |
           | Role | \`${ROLE}\` |
-          | Harness | \`claude-code\` (GitHub-hosted runner) |
+          | Harness | \`${HARNESS}\` (GitHub-hosted runner) |
           | Budget | \`\$${COST_USD}\` · \`${TURNS}\` turns · \`${WALL_CLOCK}\` min · \`${MAX_RETRIES}\` retries |
           | Budget source | \`${BUDGET_SOURCE}\` |
           | Prior failed sessions | ${PRIOR_FAILURES} |
@@ -873,8 +943,19 @@ jobs:
             echo "> product repo other than the control plane, GITHUB_TOKEN cannot reach"
             echo "> it at all — the product checkout above would already have failed."
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Run agent session
-        id: agent
+      # Exactly one of the next two steps runs — gated on the same
+      # `inputs.harness` the compile step already validated against the
+      # pack. Only the middle changes per harness (#222): the checkout,
+      # the prompt, the budget, the credential resolution above, and the
+      # session-end reporting below are identical either way. Each
+      # harness gets its own step because each harness's headless
+      # invocation is a genuinely different shape — a marketplace action
+      # with its own input surface for claude-code, a CLI this repo has no
+      # equivalent action for yet for codex — not because the contract
+      # around them differs.
+      - name: Run agent session (claude-code)
+        id: agent_claude
+        if: inputs.harness == 'claude-code'
         # Wall-clock budget, enforced by the runner rather than requested in
         # the prompt. A budget an agent can talk itself past is not a budget.
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.wall_clock_minutes) }}
@@ -903,6 +984,75 @@ jobs:
           # gh calls use.
           github_token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
 
+      # No published GitHub Action wraps the codex CLI the way
+      # claude-code-action wraps claude-code (openai/codex-action exists
+      # but its permission-profile input is a small built-in enum, not a
+      # custom TOML profile — it cannot consume the compiled
+      # sandbox-policy.toml at all, which just moves the same gap
+      # somewhere less visible). Driving the CLI directly instead means
+      # this step both installs a pinned version and consumes the
+      # compiled artifact for real, rather than compiling one nothing
+      # reads — the exact gap #222's issue named for settings.json before
+      # it was wired up above.
+      #
+      # `--profile "${ROLE}"` reads the compiled sandbox-policy.toml
+      # verbatim: CODEX_HOME points at the directory holding it, so the
+      # `[profiles.<role>]` table it defines (`approval_policy = "never"`,
+      # `sandbox_mode = "workspace-write"`) is what actually gates this
+      # session, not a hand-written flag that could drift from what the
+      # compiler emits. tools.yaml's shell allow/deny rules are still
+      # UNMAPPABLE.md for this harness (compile_codex says why); branch
+      # protection and the token's own scope are what holds regardless.
+      #
+      # No GitHub-authored equivalent of settings.json's Bash allow/deny
+      # exists for codex, and no equivalent of claude-code-action's
+      # execution-log output either — codex exec's `--json` stream is
+      # captured below and handed to spend-report.py anyway, but its
+      # schema is not Claude's `type: result` record, so it degrades to
+      # "not measured" rather than a fabricated number (spend-report.py
+      # already treats a log it cannot parse as unmeasured, never a
+      # breach). Turns are not enforced for this harness at all: codex
+      # exec has no `--max-turns` equivalent, so wall-clock is the only
+      # hard stop that holds here. Both gaps are the live trial's to
+      # surface, not this comment's to paper over.
+      - name: Run agent session (codex)
+        id: agent_codex
+        if: inputs.harness == 'codex'
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.wall_clock_minutes) }}
+        env:
+          ROLE: ${{ inputs.role }}
+          PACK_DIR: ${{ steps.pack.outputs.pack_dir }}
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+          PROMPT: ${{ steps.prompt.outputs.text }}
+        run: |
+          set -euo pipefail
+          npm install --global @openai/codex@0.153.4
+
+          export CODEX_HOME="${RUNNER_TEMP}/codex-home"
+          mkdir -p "${CODEX_HOME}"
+          cp "${PACK_DIR}/sandbox-policy.toml" "${CODEX_HOME}/config.toml"
+
+          execution_file="${RUNNER_TEMP}/codex-execution.jsonl"
+          set +e
+          codex exec \
+            --skip-git-repo-check \
+            --profile "${ROLE}" \
+            --json \
+            "${PROMPT}" > "${execution_file}" 2> "${RUNNER_TEMP}/codex-stderr.log"
+          status=$?
+          set -e
+          echo "execution_file=${execution_file}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## codex exec"
+            echo
+            echo "Exit status: ${status}. Profile: \`${ROLE}\` (from \`${PACK_DIR}/sandbox-policy.toml\`)."
+            echo
+            echo '```'
+            tail -c 4000 "${RUNNER_TEMP}/codex-stderr.log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+
       # ---------------------------------------------------------------
       # 8. Session end. Always.
       # ---------------------------------------------------------------
@@ -926,8 +1076,12 @@ jobs:
           PRIOR_FAILURES: ${{ steps.budget.outputs.prior_failures }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           STARTED: ${{ steps.session_start.outcome }}
-          AGENT_OUTCOME: ${{ steps.agent.outcome }}
-          EXECUTION_FILE: ${{ steps.agent.outputs.execution_file }}
+          # Exactly one of agent_claude / agent_codex actually ran (#222);
+          # the other's `if:` was false and its `outcome` reads `skipped`,
+          # which is why this can pick whichever branch's id is non-empty
+          # without needing a third, normalizing step in between.
+          AGENT_OUTCOME: ${{ inputs.harness == 'codex' && steps.agent_codex.outcome || steps.agent_claude.outcome }}
+          EXECUTION_FILE: ${{ inputs.harness == 'codex' && steps.agent_codex.outputs.execution_file || steps.agent_claude.outputs.execution_file }}
           MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
           REQUIRES_PR: ${{ steps.pack.outputs.requires_pr }}
           # Declared rather than inherited. Actions sets GITHUB_REPOSITORY
