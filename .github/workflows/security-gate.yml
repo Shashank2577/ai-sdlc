@@ -1,0 +1,36 @@
+# Security veto, PR side: a pull request cannot merge while a work item it
+# closes carries security:rejected. Pairs with security-verdict.yml, which
+# guards manual closes. Mirrors qa-gate.yml exactly, s/qa/security/.
+name: Security gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  security-gate:
+    name: security-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Honour the security verdict on every linked work item
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash scripts/security-gate.sh
+
+  # The veto is a security control; it gets its own tests, and they run on
+  # every PR that touches it rather than only when someone remembers.
+  security-enforcement-tests:
+    name: security-enforcement-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the gate, the close guard and the rejection ladder
+        run: bash scripts/test-security-enforcement.sh
