@@ -54,7 +54,8 @@ routing:
   # "Role" field would need a project-scoped token; see the story's PR.
   field: label
   prefix: "role:"
-  supported: [developer, qa, product-manager, devops, architect, techwriter, delivery-lead]
+  supported: [developer, qa, product-manager, devops, architect, techwriter, delivery-lead,
+              security, operations]
   # An item without one of these is unrefined, not "probably a dev story".
   default: null
 

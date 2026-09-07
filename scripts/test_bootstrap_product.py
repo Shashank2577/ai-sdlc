@@ -63,13 +63,17 @@ class FakeGitHub:
         assert branch == self.default_branch
         return self.protection
 
-    def put_protection(self, repo: str, branch: str, context: str) -> None:
+    def put_protection(self, repo: str, branch: str, context: str, existing: dict | None = None) -> None:
         assert repo == REPO
         assert branch == self.default_branch
         self.protection_puts += 1
+        contexts = list(((existing or {}).get("required_status_checks") or {}).get("contexts") or [])
+        if context not in contexts:
+            contexts.append(context)
         self.protection = {
-            "required_status_checks": {"strict": False, "contexts": [context]},
+            "required_status_checks": {"strict": False, "contexts": contexts},
             "enforce_admins": {"enabled": True},
+            "required_conversation_resolution": {"enabled": True},
         }
 
     def get_repo_meta(self, repo: str) -> dict:
@@ -101,10 +105,11 @@ def bootstrapped_files() -> dict[str, str]:
     }
 
 
-def bootstrapped_protection(context: str = "dod") -> dict:
+def bootstrapped_protection(context: str = "dod", conversation_resolution: bool = True) -> dict:
     return {
         "required_status_checks": {"strict": False, "contexts": [context]},
         "enforce_admins": {"enabled": True},
+        "required_conversation_resolution": {"enabled": conversation_resolution},
     }
 
 
@@ -158,6 +163,56 @@ class TestPlanBranchProtection(unittest.TestCase):
 
     def test_missing_without_admin_is_reported_not_swallowed(self):
         r = B.plan_branch_protection(None, "dod", is_admin=False)
+        self.assertEqual(r.status, "no_admin")
+        self.assertIn("admin", r.detail)
+
+
+class TestCheckConversationResolution(unittest.TestCase):
+    def test_no_protection_is_missing(self):
+        r = B.check_conversation_resolution(None)
+        self.assertEqual(r.status, "missing")
+
+    def test_disabled_is_missing(self):
+        protection = bootstrapped_protection(conversation_resolution=False)
+        r = B.check_conversation_resolution(protection)
+        self.assertEqual(r.status, "missing")
+
+    def test_enabled_is_present(self):
+        r = B.check_conversation_resolution(bootstrapped_protection())
+        self.assertEqual(r.status, "present")
+
+    def test_a_repo_with_correct_branch_protection_but_loosened_conversation_resolution_is_caught(self):
+        # #227's exact failure shape: the `dod` status check and
+        # enforce_admins are both still correct, so `check_branch_protection`
+        # alone would call this repo fully bootstrapped — this is the
+        # separate, independently-checked item that catches the loosening.
+        protection = bootstrapped_protection(conversation_resolution=False)
+        self.assertEqual(B.check_branch_protection(protection, "dod").status, "present")
+        self.assertEqual(B.check_conversation_resolution(protection).status, "missing")
+
+
+class TestPlanConversationResolution(unittest.TestCase):
+    def test_already_satisfied_is_unchanged(self):
+        r = B.plan_conversation_resolution(bootstrapped_protection(), is_admin=True)
+        self.assertEqual(r.status, "unchanged")
+
+    def test_missing_with_admin_is_created(self):
+        r = B.plan_conversation_resolution(None, is_admin=True)
+        self.assertEqual(r.status, "created")
+
+    def test_missing_without_admin_is_reported_not_swallowed(self):
+        r = B.plan_conversation_resolution(None, is_admin=False)
+        self.assertEqual(r.status, "no_admin")
+        self.assertIn("admin", r.detail)
+
+    def test_loosened_with_admin_is_created(self):
+        protection = bootstrapped_protection(conversation_resolution=False)
+        r = B.plan_conversation_resolution(protection, is_admin=True)
+        self.assertEqual(r.status, "created")
+
+    def test_loosened_without_admin_is_reported_not_swallowed(self):
+        protection = bootstrapped_protection(conversation_resolution=False)
+        r = B.plan_conversation_resolution(protection, is_admin=False)
         self.assertEqual(r.status, "no_admin")
         self.assertIn("admin", r.detail)
 
@@ -241,9 +296,41 @@ class TestScenarios(unittest.TestCase):
         protection_result = next(r for r in results if r.name == "branch protection")
         self.assertEqual(protection_result.status, "no_admin")
         self.assertIn("admin", protection_result.detail)
+        conversation_result = next(r for r in results if r.name == "required conversation resolution")
+        self.assertEqual(conversation_result.status, "no_admin")
+        self.assertIn("admin", conversation_result.detail)
         self.assertEqual(fake.protection_puts, 0)
         # files were installed regardless
         self.assertEqual(set(fake.put_files), {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE})
+
+    def test_loosened_repo_check_catches_it_without_touching_files(self):
+        # #227's acceptance criterion: a repo bootstrapped, then loosened
+        # by hand (here, required_conversation_resolution turned back off
+        # while everything else stays correct), is caught by --check.
+        fake = FakeGitHub(files=bootstrapped_files(), protection=bootstrapped_protection(conversation_resolution=False))
+        results = B.do_check(REPO, "dod", **fake.check_world())
+        self.assertFalse(B.is_ok(results))
+        conversation_result = next(r for r in results if r.name == "required conversation resolution")
+        self.assertEqual(conversation_result.status, "missing")
+        branch_protection_result = next(r for r in results if r.name == "branch protection")
+        self.assertEqual(branch_protection_result.status, "present")
+
+    def test_loosened_repo_install_fixes_it_without_dropping_other_contexts(self):
+        # The fix must not clobber a status-check context this product
+        # added on top of `dod` after bootstrap — the PUT this call makes
+        # replaces the whole protection resource, so anything already
+        # required has to be carried forward, not just the context this
+        # script itself cares about.
+        protection = bootstrapped_protection(conversation_resolution=False)
+        protection["required_status_checks"]["contexts"].append("qa-gate")
+        fake = FakeGitHub(files=bootstrapped_files(), protection=protection)
+        results = B.do_install(REPO, "dod", **fake.install_world())
+        self.assertTrue(B.is_ok(results))
+        self.assertEqual(fake.protection_puts, 1)
+        self.assertTrue(fake.protection["required_conversation_resolution"]["enabled"])
+        self.assertEqual(set(fake.protection["required_status_checks"]["contexts"]), {"dod", "qa-gate"})
+        # no file was touched — this was purely a protection fix
+        self.assertEqual(fake.put_files, {})
 
 
 # --------------------------------------------------------------------------
