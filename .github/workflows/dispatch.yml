@@ -71,6 +71,17 @@ on:
         required: true
         default: developer
         type: choice
+        # Enumerated because GitHub requires it: `type: choice` options must
+        # be literal, so this one list cannot be derived from the packs the
+        # way dispatchable_from, produces and token_secret all are. That
+        # makes it the one place a new role can be added everywhere else and
+        # still be undispatchable (#236) — which is what happened when
+        # security and operations landed.
+        #
+        # scripts/test_assign.py::test_every_routable_role_can_be_dispatched
+        # compares this list against routing.supported and fails when they
+        # drift, so the enumeration is at least guarded even though it
+        # cannot be removed.
         options:
           - developer
           - qa
@@ -79,6 +90,8 @@ on:
           - architect
           - techwriter
           - delivery-lead
+          - security
+          - operations
       harness:
         description: "Harness to run this session under"
         required: true
