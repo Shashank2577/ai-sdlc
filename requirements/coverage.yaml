@@ -41,6 +41,11 @@ policy:
   # (`governance_role` in policies/gates.yaml) actually agrees on, so that
   # is the spelling here. This list, not a Python literal, is what
   # `roles_built` counts against — see #185.
+  #
+  # security and operations added by #211: nothing previously reviewed a
+  # change for credential handling, injection surface, or deploy safety.
+  # Adding them here means `roles_built` honestly reports 8/10 until both
+  # packs exist, rather than silently staying green at 8/8 forever.
   roles:
     expected:
       - orchestrator
@@ -51,6 +56,8 @@ policy:
       - devops
       - techwriter
       - delivery-lead
+      - security
+      - operations
 
 requirements:
   REQ-001:
