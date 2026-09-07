@@ -318,3 +318,38 @@ products:
       (`repo:` above is), a citation is history and should not move
       (README's title and CONVENTIONS.md's trailer example are neither
       wrong nor this file's job to fix).
+
+  ai-sdlc-pilot:
+    repo: Shashank2577/ai-sdlc-pilot
+    project: {owner: Shashank2577, number: 2}
+    environments:
+      - {name: preview, human_reviewer_required: false}
+      - {name: staging, human_reviewer_required: false}
+      - {name: prod, human_reviewer_required: true}
+    roles: [product-manager, architect, developer, qa, devops, techwriter]
+    bootstrapped: true
+    notes: >-
+      The first product that is not the control plane. Created 2026-09-07 to
+      exercise the two-repo path, which had never executed: the dispatcher's
+      product resolution, the bootstrap, and a Definition of Done check
+      running in a repository other than this one.
+
+      It is deliberately small and deliberately real — a status page
+      generator with tests that can fail and a build that exits non-zero on
+      unreadable input. A toy would not exercise QA, sign-off or deployment
+      honestly, and four requirements here already read satisfied against a
+      control plane with no runtime, no users and nothing to deploy.
+
+      Set true from a verification, not from intent. On 2026-09-07
+      `bootstrap-product.py --check` reported 0/5 against this repo,
+      `--install` wrote CONVENTIONS.md, .github/CODEOWNERS and the PR
+      template and configured branch protection, and `--check` then
+      reported 5/5 and exited 0. A second `--install` created nothing,
+      so it is idempotent. Live confirmation:
+      `gh api repos/Shashank2577/ai-sdlc-pilot/branches/main/protection`
+      shows required check `dod` and required_conversation_resolution
+      enabled.
+
+      That run is also the first time the bootstrap has bootstrapped
+      anything — it existed and had never been used, like several other
+      capabilities this registry describes.
