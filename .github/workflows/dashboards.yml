@@ -87,7 +87,18 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  # Was false, which wedged the group and left the site unpublished for
+  # three days (#245): when the run holding it ended abnormally the group
+  # was never released, and every later run sat `pending` with no jobs at
+  # all — indefinitely, with nothing else running in the repo.
+  #
+  # A superseded dashboards build has nothing worth finishing. Every page
+  # is regenerated from scratch on each run and the deploy is idempotent,
+  # so cancelling one costs a rebuild. Leaving the group wedged costs
+  # silent staleness on the pages a client reads, which is the failure
+  # this programme keeps finding: a green signal that means "nobody
+  # measured recently" rather than "everything is fine".
+  cancel-in-progress: true
 
 jobs:
   build:
