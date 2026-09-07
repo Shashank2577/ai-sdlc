@@ -147,6 +147,45 @@ gates:
     # list.
     enforced_by: [branch_protection, required_checks, tools_yaml_deny]
 
+    # #226: 21 chatgpt-codex-connector review findings across the five
+    # foundational PRs (15 of them P1) were merged with every thread
+    # unread, unreplied, unresolved. `required_conversation_resolution`
+    # was checked at the time and found off on `main` — one branch-
+    # protection setting away from GitHub blocking exactly that merge.
+    #
+    # Decision: turn it on, not duplicate it in policies/dod.yaml. It is
+    # now `enabled: true` on `main` (confirmed live via the GitHub API
+    # during #226's triage — verify with
+    # `gh api repos/<owner>/<repo>/branches/main/protection -q
+    # .required_conversation_resolution`), alongside `enforce_admins:
+    # true`, so no role — human included — can merge over an unresolved
+    # thread by bypassing branch protection.
+    #
+    # Why branch protection and not the DoD check: the DoD is PR-specific
+    # policy-as-code, re-implemented per repo in scripts/dod-check.sh: it
+    # would have to re-derive "does this PR have an unresolved review
+    # thread" from the GraphQL API itself, duplicating a fact GitHub
+    # already tracks and already gates merge on natively. Two mechanisms
+    # asserting the same rule is how they drift apart — see #100 and #225
+    # for two different times this repo shipped exactly that drift. One
+    # structural control, asserted where the platform already enforces
+    # it, beats a script re-checking what the merge button already
+    # checked.
+    #
+    # The trade-off, taken deliberately rather than by default: a single
+    # unresolved nitpick — including one on a thread nobody plans to act
+    # on — can now block an otherwise-ready, urgent merge until someone
+    # explicitly resolves or replies to it. Judged worth it against the
+    # alternative this story exists to fix: 15 unresolved P1 findings
+    # landing on the spine of the system (`dod-check.sh`, `dispatch.yml`,
+    # `compile-pack.py`, `qa-gate.sh`, `qa-verdict.yml`, `build.py`)
+    # without a single human or agent reading them.
+    review_threads_resolved:
+      enforced_by: branch_protection
+      setting: required_conversation_resolution
+      status: enabled
+      verified: 2026-09-06
+
   qa_verdict:
     question: "Does this meet its acceptance criteria?"
     owner: qa                       # an agent role may satisfy this one
