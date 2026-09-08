@@ -129,11 +129,29 @@ class TestExpectedRoles(unittest.TestCase):
             f"role pack(s) on disk have no entry in requirements/coverage.yaml "
             f"policy.roles.expected: {unlisted_packs}")
 
-    def test_roles_built_is_eight_of_eight_with_the_packs_as_they_are_today(self):
+    def test_every_expected_role_is_built_and_every_pack_is_expected(self):
+        """The relationship, not the count.
+
+        This asserted `== 8` and broke the moment two roles were added —
+        `10 != 8`, on a change that succeeded. That failure took the whole
+        dashboards build down, which is what stopped the site publishing
+        for three days (#245): a green suite turned red because the
+        programme grew.
+
+        Same shape as the literals removed from
+        `test_the_page_does_not_claim_more_than_the_repo_has` in #142, and
+        the third time a snapshot assertion has failed on progress rather
+        than regression. The count is not the property worth pinning —
+        that the expected list and the packs on disk agree, in both
+        directions, is.
+        """
         facts = S.collect_facts(False, S.load_expected_roles())
-        self.assertEqual(len(facts["roles_built"]), 8)
-        self.assertEqual(len(facts["roles_expected"]), 8)
-        self.assertEqual(facts["roles_unexpected"], [])
+        self.assertTrue(facts["roles_expected"], "no roles declared at all")
+        self.assertEqual(
+            sorted(facts["roles_built"]), sorted(facts["roles_expected"]),
+            "a declared role has no pack, or the two lists have drifted")
+        self.assertEqual(facts["roles_unexpected"], [],
+                         "a pack on disk is absent from the expected list")
 
     def test_an_entry_with_no_pack_is_still_reported_as_missing(self):
         facts = S.collect_facts(False, ["orchestrator", "phantom-role"])
