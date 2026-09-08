@@ -7,7 +7,11 @@ set -euo pipefail
 : "${BASE_SHA:?}" "${HEAD_SHA:?}" "${PR_NUMBER:?}"
 
 failures=()
-required=(Work-Item Requirement Agent-Role Harness)
+# A product with genuinely different conventions (#246) overrides this by
+# setting DOD_REQUIRED_TRAILERS in its own copy of the workflow that calls
+# this script — never by forking the script. Unset (every caller today,
+# including this repo's own workflow), the four-trailer set is unchanged.
+read -ra required <<<"${DOD_REQUIRED_TRAILERS:-Work-Item Requirement Agent-Role Harness}"
 
 # 1. Every non-merge commit on the PR carries the four trailers.
 # Git only recognizes the final contiguous block of the message as
