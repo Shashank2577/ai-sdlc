@@ -17,12 +17,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # #225: same reasoning as dod-check.yml's `dod` job — `qa-gate` is a
+      # required check, so it must not run the merge ref's own copy of the
+      # veto it is enforcing. `qa-enforcement-tests` (below) proves a PR
+      # that legitimately changes this script still works, on its own
+      # copy, in a job that is not required and so cannot decide the merge.
+      - name: Pin the QA gate to main, not this PR's own copy
+        run: |
+          set -euo pipefail
+          git show origin/main:scripts/qa-gate.sh > "$RUNNER_TEMP/qa-gate.sh"
+          [ -s "$RUNNER_TEMP/qa-gate.sh" ]
 
       - name: Honour the QA verdict on every linked work item
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: bash scripts/qa-gate.sh
+        run: bash "$RUNNER_TEMP/qa-gate.sh"
 
   # The veto is a security control; it gets its own tests, and they run on
   # every PR that touches it rather than only when someone remembers.

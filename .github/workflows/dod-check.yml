@@ -13,6 +13,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # #225: `pull_request` checks out the merge ref, which carries the
+      # PR's own changes — a PR that weakens this script would otherwise be
+      # graded by its own weakened copy. `dod` is a required check
+      # (branch protection), so it runs the version of the script on
+      # `main`, not whatever this branch shipped. `fetch-depth: 0` above
+      # already pulls every branch, `main` included; this only pins which
+      # copy of the script executes. Commit range walking still reads
+      # BASE_SHA..HEAD_SHA from the full history this checkout fetched, so
+      # the PR's own commits are still what gets judged — only the judge
+      # is trusted. `dod-check-tests` (below) is where a PR that legitimately
+      # changes this script proves the change works, on its own copy, in a
+      # job that is not required and so cannot decide the merge.
+      - name: Pin the DoD check to main, not this PR's own copy
+        run: |
+          set -euo pipefail
+          git show origin/main:scripts/dod-check.sh > "$RUNNER_TEMP/dod-check.sh"
+          [ -s "$RUNNER_TEMP/dod-check.sh" ]
       - name: Run Definition of Done check
         env:
           GH_TOKEN: ${{ github.token }}
@@ -20,7 +37,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: bash scripts/dod-check.sh
+        run: bash "$RUNNER_TEMP/dod-check.sh"
 
   # The linked_work_item rule (closing keyword or explicit opt-out) is a
   # policy-enforcement control; it gets its own tests on every PR that
