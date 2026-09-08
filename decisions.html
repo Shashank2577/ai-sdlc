@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Decisions — Shashank2577/foundry-program</title>
+<title>Decisions — Shashank2577/ai-sdlc</title>
 <style>
 :root {
   --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
@@ -64,9 +64,9 @@ tr.pastsla { background: var(--red-bg) }
 </p>
 
 <div class="tiles">
-  <div class="tile"><div class="n">5</div><div class="l">waiting on you</div></div>
-  <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">past SLA</div></div>
-  <div class="tile"><div class="n">65</div><div class="l">decided</div></div>
+  <div class="tile"><div class="n">2</div><div class="l">waiting on you</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">1</div><div class="l">past SLA</div></div>
+  <div class="tile"><div class="n">91</div><div class="l">decided</div></div>
 </div>
 
 <h2 style="font-size:1.05rem;margin:0 0 .6rem">Waiting on you</h2>
@@ -75,30 +75,15 @@ tr.pastsla { background: var(--red-bg) }
   <thead><tr><th>Item</th><th>Why</th><th>Waiting</th></tr></thead>
   <tbody>
       <tr class="">
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</td>
-        <td><div><strong>changes_requirements</strong> — mentions `prds/` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
-        <td class="mono">0.6h <span class="muted">(SLA 24h)</span><br>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/221">PR221</a> P4-6: ADR — learning loop detects recurring corrections mechanically, </td>
+        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
+        <td class="mono">73.6h<br>
+            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
+      </tr>      <tr class="pastsla">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</td>
+        <td><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
+        <td class="mono">55.6h <span class="pill red">past 24h SLA</span><br>
             <span class="muted" style="font-size:.8em">since `needs-human` was applied</span></td>
-      </tr>      <tr class="">
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/188">PR188</a> fix(prd): Delivery Lead and Delivery Manager are two roles, not one</td>
-        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
-        <td class="mono">0.6h<br>
-            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
-      </tr>      <tr class="">
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/189">PR189</a> P1-18: Implement the DoD deferral form in dod-check and the dispatch p</td>
-        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
-        <td class="mono">0.5h<br>
-            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
-      </tr>      <tr class="">
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/196">PR196</a> P3-7: Rewire sync-project.py through the tracker seam</td>
-        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
-        <td class="mono">0.1h<br>
-            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
-      </tr>      <tr class="">
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/195">PR195</a> fix(scope): claim portal/** and adapters/** in developer's write scope</td>
-        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
-        <td class="mono">0.1h<br>
-            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
       </tr>
   </tbody>
 </table></div>
@@ -112,402 +97,558 @@ tr.pastsla { background: var(--red-bg) }
   <thead><tr><th>Item</th><th>Decision &amp; why held</th><th>By</th><th>When</th><th>Artefact</th></tr></thead>
   <tbody>
       <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</td>
-        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">#246</a> CRITICAL: bootstrap requires a dod check the product repo cannot produ</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
-        <td class="mono">2026-09-04T17:05:44Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/194">issue #194</a></td>
+        <td class="mono">2026-09-07T01:06:46Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">issue #246</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/193">#193</a> P3-8: Wire the sign-off gate into the loop — the client layer has neve</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/245">#245</a> The published site silently stopped deploying three days ago</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T01:05:45Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/247">PR #247</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/198">#198</a> Exercise the sign-off gate live and record REQ-008's note (post-merge </td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>changes_requirements</strong> — mentions `requirements/coverage.yaml` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:18Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/198">issue #198</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/206">#206</a> Build scripts/check-products.py against policies/products.yaml</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:16Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/206">issue #206</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/241">#241</a> P4-7 follow-up: run the live codex trial dispatch.yml now supports</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>touches_credentials</strong> — mentions `FOUNDRY_` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div><div><strong>changes_requirements</strong> — mentions `requirements/coverage.yaml` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:14Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/241">issue #241</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/236">#236</a> BUG: security and operations are unroutable — missing from dispatch.ym</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:13Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/236">issue #236</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/235">#235</a> Traceability matrix: squash-merge trailers, failed PR lookups, and a b</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:11Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/235">issue #235</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/234">#234</a> qa-gate.sh treats a failed label lookup as an empty (non-rejected) lab</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:10Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/234">issue #234</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/233">#233</a> compile-pack.py: write_scope never reaches the agent prompt, and --che</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `branch protection` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>changes_requirements</strong> — mentions `prds/` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:08Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/233">issue #233</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/232">#232</a> Dispatcher builds the agent prompt from the issue's current content, n</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:06Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/232">issue #232</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/231">#231</a> dod-check.sh: trailer values, issue existence, and fork-PR reporting a</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-07T00:54:04Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/231">issue #231</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/216">#216</a> Wire structural enforcement for the security veto (security-gate.sh / </td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-06T15:29:51Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/237">PR #237</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/215">#215</a> Build role-packs/security/ and role-packs/operations/ per ADR-0008</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>touches_credentials</strong> — mentions `gh secret` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-06T15:29:49Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/238">PR #238</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/227">#227</a> Every new product repo would start with the same unread-review hole</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T17:35:57Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/239">PR #239</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/226">#226</a> 21 review findings on the foundational PRs were never read, answered, </td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `branch protection` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T17:20:12Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/240">PR #240</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/224">#224</a> Register a second product and run one story against it — the two-repo </td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T17:07:05Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/224">issue #224</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/222">#222</a> P4-7: Dispatch under a second harness — the compiler has two targets, </td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T16:58:06Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/242">PR #242</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/211">#211</a> P4-5: A security role and an operations role — nothing has ever review</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T15:59:16Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/217">PR #217</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/210">#210</a> P4-4: More harness targets — one works, the criteria claim two</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T15:58:48Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/213">PR #213</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/209">#209</a> P4-3: Bootstrap a product repo — and verify it, rather than trusting t</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T15:58:24Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/214">PR #214</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/208">#208</a> P4-2: Dispatcher targets a product repo, not only itself</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>touches_credentials</strong> — mentions `PAT` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T15:58:21Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/218">PR #218</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/207">#207</a> PILOT: one story, one product repo, issue to deployed, nothing untrack</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T14:12:58Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/207">issue #207</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/202">#202</a> P4-1: Declare the product registry — one place every product is define</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-05T07:00:34Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/205">PR #205</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/193">#193</a> P3-8: Wire the sign-off gate into the loop — the client layer has neve</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>production_or_release</strong> — mentions `production` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T17:05:25Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/193">issue #193</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/199">PR #199</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/185">#185</a> P1-19: status.py hardcodes a role list that has never matched the pack</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/192">#192</a> P3-7: Rewire sync-project.py through the tracker seam — it still calls</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-04T17:05:03Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/196">PR #196</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/190">#190</a> portal/ and adapters/ are in no role's write scope, so the new story-s</td>
+        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-04T17:04:17Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/195">PR #195</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/180">#180</a> P1-18: Implement the DoD deferral form in dod-check and the dispatch p</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-04T16:39:18Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/189">PR #189</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/185">#185</a> P1-19: status.py hardcodes a role list that has never matched the pack</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T15:43:14Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/186">PR #186</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/186">PR #186</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/183">#183</a> Exercise the production gate once deploy.yml is on main</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/184">#184</a> The PRD names the eighth role twice, so the page reports 7/8 forever</td>
+        <td>Approved to proceed (`status:ready`)<br><div><strong>changes_requirements</strong> — mentions `prds/` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
+        <td>Shashank2577</td>
+        <td class="mono">2026-09-04T15:42:53Z</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/188">PR #188</a></td>
+      </tr>      <tr>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/183">#183</a> Exercise the production gate once deploy.yml is on main</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T15:08:25Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/183">issue #183</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/183">issue #183</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/174">#174</a> check-test-wiring greps for strings, so discovered tests need a commen</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/174">#174</a> check-test-wiring greps for strings, so discovered tests need a commen</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T12:59:18Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/182">PR #182</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/182">PR #182</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/173">#173</a> Define a DoD deferral form so honesty does not fail the build (policy </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/173">#173</a> Define a DoD deferral form so honesty does not fail the build (policy </td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T12:07:55Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/181">PR #181</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/181">PR #181</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/171">#171</a> BUG: test-wiring fails on main — portal/test_build.py runs in no workf</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/171">#171</a> BUG: test-wiring fails on main — portal/test_build.py runs in no workf</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `required status` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>changes_requirements</strong> — mentions `requirements/coverage.yaml` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T08:58:49Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/175">PR #175</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/175">PR #175</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/168">#168</a> P1-17: Check at refinement that a story's criteria fit the assigned ro</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/168">#168</a> P1-17: Check at refinement that a story's criteria fit the assigned ro</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T08:47:27Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/172">PR #172</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/172">PR #172</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/165">#165</a> Engineering memory has never written a note in production — refs/notes</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/165">#165</a> Engineering memory has never written a note in production — refs/notes</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `production` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T08:35:14Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/170">PR #170</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/170">PR #170</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/158">#158</a> P3-5: Memory seam — MemoryStore contract behind the git-notes backend</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/158">#158</a> P3-5: Memory seam — MemoryStore contract behind the git-notes backend</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T08:33:55Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/166">PR #166</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/166">PR #166</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/164">#164</a> P1-16: Compute the self-hosting verdict, and catch notes that contradi</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/164">#164</a> P1-16: Compute the self-hosting verdict, and catch notes that contradi</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T08:33:38Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/167">PR #167</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/167">PR #167</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/159">#159</a> Self-hosting verdict is hardcoded 'unproven' while the page prints 46 </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/159">#159</a> Self-hosting verdict is hardcoded 'unproven' while the page prints 46 </td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T06:37:40Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/163">PR #163</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/163">PR #163</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/122">#122</a> P2-8: Deploy workflow with a real production gate</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/122">#122</a> P2-8: Deploy workflow with a real production gate</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T02:47:15Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/161">PR #161</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/161">PR #161</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/155">#155</a> Commit-hygiene skill doesn't state the trailer-contiguity rule</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/155">#155</a> Commit-hygiene skill doesn't state the trailer-contiguity rule</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T02:43:50Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/160">PR #160</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/160">PR #160</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/117">#117</a> P2-5: Client portal — what was delivered and what needs signing</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/117">#117</a> P2-5: Client portal — what was delivered and what needs signing</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-04T02:43:27Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/162">PR #162</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/162">PR #162</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/150">#150</a> BUG: DoD reports trailers missing when they are present but outside th</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/150">#150</a> BUG: DoD reports trailers missing when they are present but outside th</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T17:26:40Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/156">PR #156</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/156">PR #156</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/148">#148</a> P2-10: Validators for the environment ladder and sign-off policies</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/148">#148</a> P2-10: Validators for the environment ladder and sign-off policies</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>production_or_release</strong> — mentions `rollback` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T17:22:35Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/151">PR #151</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/151">PR #151</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/120">#120</a> P3-3: Engineering memory — dispatcher writes and reads notes</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/120">#120</a> P3-3: Engineering memory — dispatcher writes and reads notes</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T17:14:40Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/153">PR #153</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/153">PR #153</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/140">#140</a> P2-9: Ceremony declaration validator</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/140">#140</a> P2-9: Ceremony declaration validator</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T17:14:37Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/149">PR #149</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/149">PR #149</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/115">#115</a> P2-3: Planning, review and retro ceremony workflows</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/115">#115</a> P2-3: Planning, review and retro ceremony workflows</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T17:14:35Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/152">PR #152</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/152">PR #152</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/134">#134</a> BUG: a by-design workflow-scope refusal is indistinguishable from a br</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/134">#134</a> BUG: a by-design workflow-scope refusal is indistinguishable from a br</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>touches_credentials</strong> — mentions `FOUNDRY_` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:47:22Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/154">PR #154</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/154">PR #154</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/129">#129</a> BUG: a session that correctly finds nothing to change is marked a fail</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/129">#129</a> BUG: a session that correctly finds nothing to change is marked a fail</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:43:10Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/145">PR #145</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/145">PR #145</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/128">#128</a> The test-wiring handoff has blocked four PRs — remove it or queue it</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/128">#128</a> The test-wiring handoff has blocked four PRs — remove it or queue it</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>touches_credentials</strong> — mentions `FOUNDRY_` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:41:35Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/141">PR #141</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/141">PR #141</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/127">#127</a> Three merges in a row conflicted on build.py's page registry</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/127">#127</a> Three merges in a row conflicted on build.py's page registry</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:41:33Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/138">PR #138</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/138">PR #138</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/126">#126</a> P1-15: ADR validator</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/126">#126</a> P1-15: ADR validator</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:36:03Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/137">PR #137</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/137">PR #137</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/113">#113</a> BUG: shipped-nothing gate fails open when a compiled pack has no produ</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/113">#113</a> BUG: shipped-nothing gate fails open when a compiled pack has no produ</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:58Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/131">PR #131</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/131">PR #131</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/123">#123</a> P3-4: Tracker adapter — GitHub and Jira behind one contract</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/123">#123</a> P3-4: Tracker adapter — GitHub and Jira behind one contract</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>large_estimate</strong> — mentions `Estimate: L` Not a risk rule, a cost one. Large stories are where budgets go and where scope quietly widens; a person should see them first.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:56Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/135">PR #135</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/135">PR #135</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/121">#121</a> P2-7: Environment ladder declared as policy</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/121">#121</a> P2-7: Environment ladder declared as policy</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:54Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/144">PR #144</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/144">PR #144</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/118">#118</a> P2-6: Transcript to draft PRD and candidate requirements</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/118">#118</a> P2-6: Transcript to draft PRD and candidate requirements</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:50Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/133">PR #133</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/133">PR #133</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/116">#116</a> P2-4: Client sign-off as policy-as-code</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/116">#116</a> P2-4: Client sign-off as policy-as-code</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:48Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/139">PR #139</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/139">PR #139</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/114">#114</a> P2-2: Declare all five ceremonies as policy</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/114">#114</a> P2-2: Declare all five ceremonies as policy</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:46Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/132">PR #132</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/132">PR #132</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/105">#105</a> P1-13: ADR dashboard — render the decision records as a page</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/105">#105</a> P1-13: ADR dashboard — render the decision records as a page</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:44Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/130">PR #130</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/130">PR #130</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/103">#103</a> P1-11: Architecture decision records — establish the format and backfi</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/103">#103</a> P1-11: Architecture decision records — establish the format and backfi</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T16:35:42Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/111">PR #111</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/111">PR #111</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/104">#104</a> P1-12: Decisions dashboard — what is waiting on a human, and what was </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/104">#104</a> P1-12: Decisions dashboard — what is waiting on a human, and what was </td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T07:37:40Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/112">PR #112</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/112">PR #112</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/99">#99</a> BUG: dispatcher marks a clean tracker-only session as failure when no </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/99">#99</a> BUG: dispatcher marks a clean tracker-only session as failure when no </td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T07:31:17Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/108">PR #108</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/108">PR #108</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/98">#98</a> P0-19: QA verdict dashboard — pass/fail matrix by requirement</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/98">#98</a> P0-19: QA verdict dashboard — pass/fail matrix by requirement</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T07:31:15Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/110">PR #110</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/110">PR #110</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/97">#97</a> P0-18: Codex compiler target — compile_codex</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/97">#97</a> P0-18: Codex compiler target — compile_codex</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T07:31:12Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/109">PR #109</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/109">PR #109</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/96">#96</a> P1-10: Burndown &amp; velocity dashboard</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/96">#96</a> P1-10: Burndown &amp; velocity dashboard</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-03T07:31:10Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/107">PR #107</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/107">PR #107</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/92">#92</a> BUG: dod-check must require a closing keyword, not a bare issue mentio</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/92">#92</a> BUG: dod-check must require a closing keyword, not a bare issue mentio</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T18:34:03Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/94">PR #94</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/94">PR #94</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/91">#91</a> BUG: the DoD accepts a work-item mention, so merged PRs leave issues o</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/91">#91</a> BUG: the DoD accepts a work-item mention, so merged PRs leave issues o</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T18:30:52Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/93">PR #93</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/93">PR #93</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/87">#87</a> BUG: scripts requiring GNU coreutils fail for reviewers on macOS</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/87">#87</a> BUG: scripts requiring GNU coreutils fail for reviewers on macOS</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T16:45:51Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/90">PR #90</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/90">PR #90</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/84">#84</a> BUG: scripts/test-dispatch-session-end.sh runs nowhere in CI</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/84">#84</a> BUG: scripts/test-dispatch-session-end.sh runs nowhere in CI</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T16:19:40Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/89">PR #89</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/89">PR #89</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/83">#83</a> BUG: a successful session is trusted to move its own label, and often </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/83">#83</a> BUG: a successful session is trusted to move its own label, and often </td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `rollback` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T16:09:59Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/88">PR #88</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/88">PR #88</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/82">#82</a> BUG: a rejected story never returns to a state its author can be dispa</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/82">#82</a> BUG: a rejected story never returns to a state its author can be dispa</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T16:08:28Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/86">PR #86</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/86">PR #86</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/79">#79</a> BUG: the orchestrator's eligibility ignores per-role dispatchable stat</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/79">#79</a> BUG: the orchestrator's eligibility ignores per-role dispatchable stat</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T14:32:33Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/81">PR #81</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/81">PR #81</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/75">#75</a> BUG: qa:rejected makes work permanently ineligible — rejected stories </td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/75">#75</a> BUG: qa:rejected makes work permanently ineligible — rejected stories </td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>governance_role</strong> — label `role:delivery-lead` Delivery Lead is the one role whose write scope includes `policies/**` — the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T14:23:53Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/75">issue #75</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/75">issue #75</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/58">#58</a> BUG: session-end rollback leaves stale status labels and undoes a ship</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/58">#58</a> BUG: session-end rollback leaves stale status labels and undoes a ship</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `rollback` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T14:01:46Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/73">PR #73</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/73">PR #73</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/69">#69</a> BUG: a test suite no workflow runs reported green</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/69">#69</a> BUG: a test suite no workflow runs reported green</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T13:37:46Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/85">PR #85</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/85">PR #85</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/68">#68</a> BUG: a QA verdict landing after the last PR check leaves a stale green</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/68">#68</a> BUG: a QA verdict landing after the last PR check leaves a stale green</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T13:37:43Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/80">PR #80</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/80">PR #80</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/67">#67</a> BUG: the QA role cannot be dispatched — the guard requires status:read</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/67">#67</a> BUG: the QA role cannot be dispatched — the guard requires status:read</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `required check` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T13:37:41Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/74">PR #74</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/74">PR #74</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/59">#59</a> P1-8: Document the approval gates and their SLA</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/59">#59</a> P1-8: Document the approval gates and their SLA</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T13:19:29Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/66">PR #66</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/66">PR #66</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/51">#51</a> P1-6: Retro ceremony v0 — event-derived, one issue per window</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/51">#51</a> P1-6: Retro ceremony v0 — event-derived, one issue per window</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T09:35:27Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/57">PR #57</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/57">PR #57</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/49">#49</a> P1-4: Architect role pack v0</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/49">#49</a> P1-4: Architect role pack v0</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>touches_credentials</strong> — mentions `token_secret` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T09:35:22Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/55">PR #55</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/55">PR #55</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/40">#40</a> P1-2: Refinement trigger — dispatch the PM when the ready queue emptie</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/40">#40</a> P1-2: Refinement trigger — dispatch the PM when the ready queue emptie</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>touches_governance</strong> — mentions `policies/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T08:34:46Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/47">PR #47</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/47">PR #47</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/39">#39</a> P1-1: Product Manager role pack v0</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/39">#39</a> P1-1: Product Manager role pack v0</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T06:47:24Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/41">PR #41</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/41">PR #41</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/35">#35</a> BUG: settings defaultMode is ignored; permission mode must be a CLI fl</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/35">#35</a> BUG: settings defaultMode is ignored; permission mode must be a CLI fl</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T04:23:07Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/36">PR #36</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/36">PR #36</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/33">#33</a> BUG: a crash in the spend diagnostics took down session end</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/33">#33</a> BUG: a crash in the spend diagnostics took down session end</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>production_or_release</strong> — mentions `rollback` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T04:12:05Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/34">PR #34</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/34">PR #34</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/31">#31</a> BUG: the compiled allowlist cannot express a shell, and denials are un</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/31">#31</a> BUG: the compiled allowlist cannot express a shell, and denials are un</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T03:54:29Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/32">PR #32</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/32">PR #32</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/29">#29</a> P0-15: Dispatcher grants the permissions it compiled, and counts retri</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/29">#29</a> P0-15: Dispatcher grants the permissions it compiled, and counts retri</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T03:38:17Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/30">PR #30</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/30">PR #30</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/27">#27</a> P0-14: Programme status page — traced vs actually satisfied</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/27">#27</a> P0-14: Programme status page — traced vs actually satisfied</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T03:12:30Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/28">PR #28</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/28">PR #28</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/25">#25</a> P0-13: A session is judged on what it shipped, not its exit code</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/25">#25</a> P0-13: A session is judged on what it shipped, not its exit code</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T03:05:41Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/26">PR #26</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/26">PR #26</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/23">#23</a> P0-12: Budgets measure cost; sessions report what they did</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/23">#23</a> P0-12: Budgets measure cost; sessions report what they did</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T02:46:30Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/24">PR #24</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/24">PR #24</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/20">#20</a> P0-10: One GitHub credential + correct setup steps</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/20">#20</a> P0-10: One GitHub credential + correct setup steps</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>touches_credentials</strong> — mentions `PAT` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T02:07:43Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/21">PR #21</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/21">PR #21</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/18">#18</a> P0-9: Generated tracker surfaces — project board sync + wiki publish</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/18">#18</a> P0-9: Generated tracker surfaces — project board sync + wiki publish</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-02T01:13:54Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/19">PR #19</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/19">PR #19</a></td>
       </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/foundry-program/issues/9">#9</a> P0-8: Orchestrator pack v0 — assignment loop</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/9">#9</a> P0-8: Orchestrator pack v0 — assignment loop</td>
         <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-01T18:35:27Z</td>
-        <td><a href="https://github.com/Shashank2577/foundry-program/pull/17">PR #17</a></td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/17">PR #17</a></td>
       </tr>
   </tbody>
 </table></div>
 
 <footer>
-  Generated 2026-09-04 17:18 UTC from
-  <a href="https://github.com/Shashank2577/foundry-program">Shashank2577/foundry-program</a>, reading
+  Generated 2026-09-08 18:28 UTC from
+  <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>, reading
   <span class="mono">policies/gates.yaml</span> (SLA 24h)
   and <span class="mono">scripts/gate-check.py</span> for classification.
 </footer>

@@ -1,124 +1,38 @@
 {
   "meta": {
-    "repo": "Shashank2577/foundry-program",
-    "repo_url": "https://github.com/Shashank2577/foundry-program",
-    "generated_at": "2026-09-04 17:19 UTC"
+    "repo": "Shashank2577/ai-sdlc",
+    "repo_url": "https://github.com/Shashank2577/ai-sdlc",
+    "generated_at": "2026-09-08 18:29 UTC"
   },
   "matrix": {
-    "REQ-013": [
+    "REQ-001": [
       {
-        "number": 51,
-        "title": "P1-6: Retro ceremony v0 \u2014 event-derived, one issue per window",
+        "number": 2,
+        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 54,
-        "title": "P3-1: Engineering memory in git notes",
+        "number": 18,
+        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 103,
-        "title": "P1-11: Architecture decision records \u2014 establish the format and backfill what has actually been decided",
+        "number": 22,
+        "title": "P0-11: Project sync adds missing work items to the board",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 105,
-        "title": "P1-13: ADR dashboard \u2014 render the decision records as a page",
+        "number": 25,
+        "title": "P0-13: A session is judged on what it shipped, not its exit code",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 119,
-        "title": "P3-2: Engineering memory \u2014 the git notes store",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 120,
-        "title": "P3-3: Engineering memory \u2014 dispatcher writes and reads notes",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 126,
-        "title": "P1-15: ADR validator",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 158,
-        "title": "P3-5: Memory seam \u2014 MemoryStore contract behind the git-notes backend",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 165,
-        "title": "Engineering memory has never written a note in production \u2014 refs/notes/foundry is empty",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 194,
-        "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-007": [
-      {
-        "number": 20,
-        "title": "P0-10: One GitHub credential + correct setup steps",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 23,
-        "title": "P0-12: Budgets measure cost; sessions report what they did",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 40,
-        "title": "P1-2: Refinement trigger \u2014 dispatch the PM when the ready queue empties",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 45,
-        "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 52,
-        "title": "P1-7: Enforce the approval-gate SLA",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 59,
-        "title": "P1-8: Document the approval gates and their SLA",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 64,
-        "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 101,
-        "title": "Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 104,
-        "title": "P1-12: Decisions dashboard \u2014 what is waiting on a human, and what was decided",
+        "number": 38,
+        "title": "P0-16: A closed work item carries a terminal status label",
         "state": "CLOSED",
         "verdict": "pending"
       },
@@ -129,58 +43,14 @@
         "verdict": "pending"
       },
       {
-        "number": 134,
-        "title": "BUG: a by-design workflow-scope refusal is indistinguishable from a broken credential",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 173,
-        "title": "Define a DoD deferral form so honesty does not fail the build (policy half)",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 180,
-        "title": "P1-18: Implement the DoD deferral form in dod-check and the dispatch prompt",
+        "number": 232,
+        "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
         "state": "OPEN",
         "verdict": "pending"
       },
       {
-        "number": 193,
-        "title": "P3-8: Wire the sign-off gate into the loop \u2014 the client layer has never been exercised",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-008": [
-      {
-        "number": 116,
-        "title": "P2-4: Client sign-off as policy-as-code",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 117,
-        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 118,
-        "title": "P2-6: Transcript to draft PRD and candidate requirements",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 148,
-        "title": "P2-10: Validators for the environment ladder and sign-off policies",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 193,
-        "title": "P3-8: Wire the sign-off gate into the loop \u2014 the client layer has never been exercised",
+        "number": 251,
+        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -201,50 +71,42 @@
       {
         "number": 192,
         "title": "P3-7: Rewire sync-project.py through the tracker seam \u2014 it still calls GitHub directly",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-010": [
-      {
-        "number": 53,
-        "title": "P2-1: Environment ladder declared, production gate real",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 121,
-        "title": "P2-7: Environment ladder declared as policy",
+        "number": 202,
+        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 122,
-        "title": "P2-8: Deploy workflow with a real production gate",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 148,
-        "title": "P2-10: Validators for the environment ladder and sign-off policies",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 183,
-        "title": "Exercise the production gate once deploy.yml is on main",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 184,
-        "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
+        "number": 206,
+        "title": "Build scripts/check-products.py against policies/products.yaml",
         "state": "OPEN",
         "verdict": "pending"
       },
       {
-        "number": 191,
-        "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
+        "number": 207,
+        "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 208,
+        "title": "P4-2: Dispatcher targets a product repo, not only itself",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 224,
+        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 251,
+        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -367,7 +229,7 @@
       {
         "number": 184,
         "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       },
       {
@@ -379,6 +241,146 @@
       {
         "number": 191,
         "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 203,
+        "title": "Repo renamed to ai-sdlc \u2014 update live defaults, keep historical citations",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 235,
+        "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 245,
+        "title": "The published site silently stopped deploying three days ago",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 251,
+        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-005": [
+      {
+        "number": 2,
+        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 6,
+        "title": "P0-5: Traceability matrix generator v0",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 50,
+        "title": "P1-5: Tech Writer role pack v0",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 100,
+        "title": "BUG: approval-gate tests are path-filtered away from the files they assert about \u2014 main is red and CI cannot see it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 150,
+        "title": "BUG: DoD reports trailers missing when they are present but outside the trailer block",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 168,
+        "title": "P1-17: Check at refinement that a story's criteria fit the assigned role's write scope",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 173,
+        "title": "Define a DoD deferral form so honesty does not fail the build (policy half)",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 174,
+        "title": "check-test-wiring greps for strings, so discovered tests need a comment to satisfy it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 176,
+        "title": "BUG: DoD counts checkbox-shaped sample input in code fences as unticked items",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 180,
+        "title": "P1-18: Implement the DoD deferral form in dod-check and the dispatch prompt",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 200,
+        "title": "BUG: session-end aborts on an unbound variable \u2014 43 of 74 assertions red on main",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 209,
+        "title": "P4-3: Bootstrap a product repo \u2014 and verify it, rather than trusting the flag",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 219,
+        "title": "BUG: a deferral that wraps across lines is rejected \u2014 the reason is on line two",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 225,
+        "title": "SECURITY: every required check runs the pull request's own code",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 226,
+        "title": "21 review findings on the foundational PRs were never read, answered, or resolved",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 227,
+        "title": "Every new product repo would start with the same unread-review hole",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 231,
+        "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 235,
+        "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 246,
+        "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -483,6 +485,240 @@
       {
         "number": 190,
         "title": "portal/ and adapters/ are in no role's write scope, so the new story-scope check will cry wolf",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 202,
+        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 206,
+        "title": "Build scripts/check-products.py against policies/products.yaml",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 208,
+        "title": "P4-2: Dispatcher targets a product repo, not only itself",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 209,
+        "title": "P4-3: Bootstrap a product repo \u2014 and verify it, rather than trusting the flag",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 222,
+        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 224,
+        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 225,
+        "title": "SECURITY: every required check runs the pull request's own code",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 227,
+        "title": "Every new product repo would start with the same unread-review hole",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 228,
+        "title": "CRITICAL: the product checkout deletes the control plane \u2014 every dispatch has failed since #218",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 232,
+        "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 233,
+        "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 234,
+        "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 241,
+        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 246,
+        "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-014": [
+      {
+        "number": 27,
+        "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 159,
+        "title": "Self-hosting verdict is hardcoded 'unproven' while the page prints 46 agent-delivered PRs beside it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 164,
+        "title": "P1-16: Compute the self-hosting verdict, and catch notes that contradict their checks",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 200,
+        "title": "BUG: session-end aborts on an unbound variable \u2014 43 of 74 assertions red on main",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 207,
+        "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 208,
+        "title": "P4-2: Dispatcher targets a product repo, not only itself",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 224,
+        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 228,
+        "title": "CRITICAL: the product checkout deletes the control plane \u2014 every dispatch has failed since #218",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 244,
+        "title": "PILOT: show when the status page was generated",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 246,
+        "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-003": [
+      {
+        "number": 3,
+        "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 97,
+        "title": "P0-18: Codex compiler target \u2014 compile_codex",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 113,
+        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 210,
+        "title": "P4-4: More harness targets \u2014 one works, the criteria claim two",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 222,
+        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 241,
+        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-009": [
+      {
+        "number": 2,
+        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 5,
+        "title": "P0-4: QA role pack v0 + verdict enforcement",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 98,
+        "title": "P0-19: QA verdict dashboard \u2014 pass/fail matrix by requirement",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 179,
+        "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 223,
+        "title": "Decision needed: accept ADR-0008 (security + operations roles) or revise it",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 226,
+        "title": "21 review findings on the foundational PRs were never read, answered, or resolved",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 231,
+        "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 234,
+        "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -551,7 +787,7 @@
       {
         "number": 184,
         "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       },
       {
@@ -559,42 +795,90 @@
         "title": "P1-19: status.py hardcodes a role list that has never matched the packs",
         "state": "CLOSED",
         "verdict": "pending"
+      },
+      {
+        "number": 211,
+        "title": "P4-5: A security role and an operations role \u2014 nothing has ever reviewed this for security",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 223,
+        "title": "Decision needed: accept ADR-0008 (security + operations roles) or revise it",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 233,
+        "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
+        "state": "OPEN",
+        "verdict": "pending"
       }
     ],
-    "REQ-005": [
+    "REQ-007": [
       {
-        "number": 2,
-        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
+        "number": 20,
+        "title": "P0-10: One GitHub credential + correct setup steps",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 6,
-        "title": "P0-5: Traceability matrix generator v0",
+        "number": 23,
+        "title": "P0-12: Budgets measure cost; sessions report what they did",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 50,
-        "title": "P1-5: Tech Writer role pack v0",
+        "number": 40,
+        "title": "P1-2: Refinement trigger \u2014 dispatch the PM when the ready queue empties",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 100,
-        "title": "BUG: approval-gate tests are path-filtered away from the files they assert about \u2014 main is red and CI cannot see it",
+        "number": 45,
+        "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 150,
-        "title": "BUG: DoD reports trailers missing when they are present but outside the trailer block",
+        "number": 52,
+        "title": "P1-7: Enforce the approval-gate SLA",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 59,
+        "title": "P1-8: Document the approval gates and their SLA",
         "state": "CLOSED",
         "verdict": "pending"
       },
       {
-        "number": 168,
-        "title": "P1-17: Check at refinement that a story's criteria fit the assigned role's write scope",
+        "number": 64,
+        "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 101,
+        "title": "Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 104,
+        "title": "P1-12: Decisions dashboard \u2014 what is waiting on a human, and what was decided",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 129,
+        "title": "BUG: a session that correctly finds nothing to change is marked a failure",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 134,
+        "title": "BUG: a by-design workflow-scope refusal is indistinguishable from a broken credential",
         "state": "CLOSED",
         "verdict": "pending"
       },
@@ -605,20 +889,188 @@
         "verdict": "pending"
       },
       {
-        "number": 174,
-        "title": "check-test-wiring greps for strings, so discovered tests need a comment to satisfy it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 176,
-        "title": "BUG: DoD counts checkbox-shaped sample input in code fences as unticked items",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
         "number": 180,
         "title": "P1-18: Implement the DoD deferral form in dod-check and the dispatch prompt",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 193,
+        "title": "P3-8: Wire the sign-off gate into the loop \u2014 the client layer has never been exercised",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 198,
+        "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 219,
+        "title": "BUG: a deferral that wraps across lines is rejected \u2014 the reason is on line two",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 225,
+        "title": "SECURITY: every required check runs the pull request's own code",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-013": [
+      {
+        "number": 51,
+        "title": "P1-6: Retro ceremony v0 \u2014 event-derived, one issue per window",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 54,
+        "title": "P3-1: Engineering memory in git notes",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 103,
+        "title": "P1-11: Architecture decision records \u2014 establish the format and backfill what has actually been decided",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 105,
+        "title": "P1-13: ADR dashboard \u2014 render the decision records as a page",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 119,
+        "title": "P3-2: Engineering memory \u2014 the git notes store",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 120,
+        "title": "P3-3: Engineering memory \u2014 dispatcher writes and reads notes",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 126,
+        "title": "P1-15: ADR validator",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 158,
+        "title": "P3-5: Memory seam \u2014 MemoryStore contract behind the git-notes backend",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 165,
+        "title": "Engineering memory has never written a note in production \u2014 refs/notes/foundry is empty",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 194,
+        "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 212,
+        "title": "P4-6: Learning loop \u2014 the same correction was made seven times and none of it stuck",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-010": [
+      {
+        "number": 53,
+        "title": "P2-1: Environment ladder declared, production gate real",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 121,
+        "title": "P2-7: Environment ladder declared as policy",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 122,
+        "title": "P2-8: Deploy workflow with a real production gate",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 148,
+        "title": "P2-10: Validators for the environment ladder and sign-off policies",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 183,
+        "title": "Exercise the production gate once deploy.yml is on main",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 184,
+        "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 191,
+        "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 207,
+        "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
+        "state": "CLOSED",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-008": [
+      {
+        "number": 116,
+        "title": "P2-4: Client sign-off as policy-as-code",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 117,
+        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 118,
+        "title": "P2-6: Transcript to draft PRD and candidate requirements",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 148,
+        "title": "P2-10: Validators for the environment ladder and sign-off policies",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 193,
+        "title": "P3-8: Wire the sign-off gate into the loop \u2014 the client layer has never been exercised",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 198,
+        "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -689,110 +1141,6 @@
         "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
         "state": "OPEN",
         "verdict": "pending"
-      }
-    ],
-    "REQ-009": [
-      {
-        "number": 2,
-        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 5,
-        "title": "P0-4: QA role pack v0 + verdict enforcement",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 98,
-        "title": "P0-19: QA verdict dashboard \u2014 pass/fail matrix by requirement",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 179,
-        "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-014": [
-      {
-        "number": 27,
-        "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 159,
-        "title": "Self-hosting verdict is hardcoded 'unproven' while the page prints 46 agent-delivered PRs beside it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 164,
-        "title": "P1-16: Compute the self-hosting verdict, and catch notes that contradict their checks",
-        "state": "CLOSED",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-001": [
-      {
-        "number": 2,
-        "title": "P0-1: DoD check \u2014 policy-as-code required status check",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 18,
-        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 22,
-        "title": "P0-11: Project sync adds missing work items to the board",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 25,
-        "title": "P0-13: A session is judged on what it shipped, not its exit code",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 38,
-        "title": "P0-16: A closed work item carries a terminal status label",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 129,
-        "title": "BUG: a session that correctly finds nothing to change is marked a failure",
-        "state": "CLOSED",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-003": [
-      {
-        "number": 3,
-        "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 97,
-        "title": "P0-18: Codex compiler target \u2014 compile_codex",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 113,
-        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
-        "state": "CLOSED",
-        "verdict": "approved"
       }
     ]
   }

@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delivery portal — Shashank2577/ai-sdlc</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+
+.section { margin: 2.5rem 0 }
+.card { border:1px solid var(--line); border-radius:8px; padding:1rem 1.2rem;
+  background:var(--card); margin-bottom:.9rem }
+.card h3 { margin:0 0 .3rem; font-size:1rem }
+.card .meta { color:var(--muted); font-size:.85rem; margin:.2rem 0 }
+.badge { display:inline-block; padding:.1rem .55rem; border-radius:99px;
+  font-size:.78rem; font-weight:600; background:var(--amber-bg); color:var(--amber) }
+.badge.ok { background:var(--green-bg); color:var(--green) }
+ul.evidence { margin:.4rem 0 0; padding-left:1.2rem; font-size:.85rem; color:var(--muted) }
+.empty { color:var(--muted); font-style:italic }
+</style>
+</head><body><main>
+<h1>Delivery portal</h1>
+<p class="sub">
+  What has actually been delivered, what needs your decision, and what is
+  still in progress — computed from merged pull requests, from
+  <code>requirements/coverage.yaml</code>'s own checks, and from
+  <code>policies/signoff.yaml</code>. Generated 2026-09-08 18:32 UTC
+  from <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>.
+</p>
+
+
+<div class="section">
+  <h2 style="font-size:1.25rem">Delivered</h2>
+  <div class="section">
+    <h2 style="font-size:1.1rem">All five ceremonies run autonomously and end in artifacts</h2>
+    <p class="meta">Verified as actually built: 6/6 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Standup digest v0 — event-derived, never self-reported</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/15">pull request #15</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Refinement trigger — dispatch the PM when the ready queue empties</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/48">pull request #48</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Retro ceremony v0 — event-derived, one issue per window</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/57">pull request #57</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a requirement read 100% while two of five ceremonies could not run</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/147">pull request #147</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Coordination through the tracker; every action leaves an artifact</h2>
+    <p class="meta">Verified as actually built: 3/3 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>DoD check — policy-as-code required status check</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/10">pull request #10</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Generated tracker surfaces — project board sync + wiki publish</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/19">pull request #19</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Project sync adds missing work items to the board</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/37">pull request #37</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>A session is judged on what it shipped, not its exit code</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/26">pull request #26</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>A closed work item carries a terminal status label</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/44">pull request #44</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">General delivery</h2>
+    
+    <div class="card">
+      <h3>the compiled allowlist cannot express a shell, and denials are uncountable</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/32">pull request #32</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a crash in the spend diagnostics took down session end</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/34">pull request #34</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>settings defaultMode is ignored; permission mode must be a CLI flag</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/36">pull request #36</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>session-end rollback leaves stale status labels and undoes a shipped story</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/73">pull request #73</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>escalations ask for a decision without saying how to enact one</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/61">pull request #61</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>two role packs shipped unroutable, and the devops turn budget sits on the boundary</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/63">pull request #63</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>the QA role cannot be dispatched — the guard requires an internal marker</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/74">pull request #74</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a QA verdict landing after the last PR check leaves a stale green</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/80">pull request #80</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a test suite no workflow runs reported green</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/85">pull request #85</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>the developer turn budget kills half of all role-pack stories</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/71">pull request #71</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>delivery-lead is routable by the loop but not by the dispatcher</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/77">pull request #77</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>the orchestrator's eligibility ignores per-role dispatchable states</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/81">pull request #81</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a rejected story never returns to a state its author can be dispatched from</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/86">pull request #86</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a successful session is trusted to move its own label, and often does not</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/88">pull request #88</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>scripts/test-dispatch-session-end.sh runs nowhere in CI</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/89">pull request #89</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>scripts requiring GNU coreutils fail for reviewers on macOS</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/90">pull request #90</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>the DoD accepts a work-item mention, so merged PRs leave issues open</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/93">pull request #93</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>dod-check must require a closing keyword, not a bare issue mention</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/94">pull request #94</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>test-wiring fails on main — portal/test_build.py runs in no workflow</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/175">pull request #175</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>security and operations are unroutable — missing from dispatch.yml and orchestrator routing.supported</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/248">pull request #248</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Git-native traceability spine</h2>
+    <p class="meta">Verified as actually built: 4/4 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Traceability matrix generator v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/14">pull request #14</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>DoD counts checkbox-shaped sample input in code fences as unticked items</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/177">pull request #177</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>session-end aborts on an unbound variable — 43 of 74 assertions red on main</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/201">pull request #201</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>a deferral that wraps across lines is rejected — the reason is on line two</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/220">pull request #220</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Harness-neutral role packs, with attribution by per-role credential tier and the Agent-Role trailer</h2>
+    <p class="meta">Verified as actually built: 3/3 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Dispatcher v0 — work item → headless agent session</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/11">pull request #11</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Developer role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/12">pull request #12</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Orchestrator pack v0 — assignment loop</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/17">pull request #17</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Dispatcher grants the permissions it compiled, and counts retries it can see</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/30">pull request #30</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Product Manager role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/41">pull request #41</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Per-role dispatch credentials — least privilege, not one omnibus token</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/43">pull request #43</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Architect role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/55">pull request #55</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Tech Writer role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/56">pull request #56</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Delivery Lead role pack — governance gets an owner</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/72">pull request #72</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Throughput and scope: raise WIP, give ceremonies an owner, settle a requirement</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/125">pull request #125</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Human-in-the-loop as decision gates, never free-text supervision</h2>
+    <p class="meta">Verified as actually built: 4/4 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>One GitHub credential + correct setup steps</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/21">pull request #21</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Budgets measure cost; sessions report what they did</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/24">pull request #24</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Approval gates as policy — critical work waits for a person</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/46">pull request #46</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Enforce the approval-gate SLA</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/65">pull request #65</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Document the approval gates and their SLA</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/66">pull request #66</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/102">pull request #102</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Least privilege, per-item budgets, escalation ladder</h2>
+    <p class="meta">Verified as actually built: 4/4 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Budgets + escalation ladder v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/16">pull request #16</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>The test-wiring handoff has blocked four PRs — remove it or queue it</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/141">pull request #141</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>CRITICAL: the product checkout deletes the control plane — every dispatch has failed since #218</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/230">pull request #230</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Persistent engineering memory across ephemeral sessions</h2>
+    <p class="meta">Verified as actually built: 2/2 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Engineering memory — the git notes store</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/136">pull request #136</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">QA veto, DoD as policy-as-code, published QA reports</h2>
+    <p class="meta">Verified as actually built: 4/4 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>QA role pack v0 + verdict enforcement</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/13">pull request #13</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Tracker adapter — GitHub Projects and Jira swappable</h2>
+    <p class="meta">Verified as actually built: 3/3 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Register a second product and run one story against it — the two-repo path has never executed</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/243">pull request #243</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:1.1rem">Visibility — boards, generated dashboards, computed matrix</h2>
+    <p class="meta">Verified as actually built: 4/4 checks pass (100%), computed 2026-09-08 18:32 UTC from <code>requirements/coverage.yaml</code> — <a href="status.html">see how</a>.</p>
+    <div class="card">
+      <h3>Programme status page — traced vs actually satisfied</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/28">pull request #28</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>main is red because a requirement was satisfied — status test pins literals</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/143">pull request #143</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>Repo renamed to ai-sdlc — update live defaults, keep historical citations</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/204">pull request #204</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+    <div class="card">
+      <h3>The published site silently stopped deploying three days ago</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/247">pull request #247</a>.
+        Sign-off: <span class="badge ">awaiting your sign-off</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2 style="font-size:1.25rem">Awaiting your sign-off</h2>
+    <div class="card">
+      <h3>DoD check — policy-as-code required status check</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/10">pull request #10</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Dispatcher v0 — work item → headless agent session</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/11">pull request #11</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Developer role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/12">pull request #12</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>QA role pack v0 + verdict enforcement</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/13">pull request #13</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Traceability matrix generator v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/14">pull request #14</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Standup digest v0 — event-derived, never self-reported</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/15">pull request #15</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Budgets + escalation ladder v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/16">pull request #16</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Orchestrator pack v0 — assignment loop</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/17">pull request #17</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Generated tracker surfaces — project board sync + wiki publish</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/19">pull request #19</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>One GitHub credential + correct setup steps</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/21">pull request #21</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Project sync adds missing work items to the board</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/37">pull request #37</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Budgets measure cost; sessions report what they did</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/24">pull request #24</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>A session is judged on what it shipped, not its exit code</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/26">pull request #26</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Programme status page — traced vs actually satisfied</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/28">pull request #28</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Dispatcher grants the permissions it compiled, and counts retries it can see</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/30">pull request #30</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>the compiled allowlist cannot express a shell, and denials are uncountable</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/32">pull request #32</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a crash in the spend diagnostics took down session end</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/34">pull request #34</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>settings defaultMode is ignored; permission mode must be a CLI flag</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/36">pull request #36</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>A closed work item carries a terminal status label</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/44">pull request #44</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Product Manager role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/41">pull request #41</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Refinement trigger — dispatch the PM when the ready queue empties</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/48">pull request #48</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Per-role dispatch credentials — least privilege, not one omnibus token</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/43">pull request #43</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Approval gates as policy — critical work waits for a person</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/46">pull request #46</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Architect role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/55">pull request #55</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Tech Writer role pack v0</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/56">pull request #56</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Retro ceremony v0 — event-derived, one issue per window</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/57">pull request #57</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Enforce the approval-gate SLA</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/65">pull request #65</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>session-end rollback leaves stale status labels and undoes a shipped story</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/73">pull request #73</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Document the approval gates and their SLA</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/66">pull request #66</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>escalations ask for a decision without saying how to enact one</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/61">pull request #61</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>two role packs shipped unroutable, and the devops turn budget sits on the boundary</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/63">pull request #63</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Delivery Lead role pack — governance gets an owner</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/72">pull request #72</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>the QA role cannot be dispatched — the guard requires an internal marker</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/74">pull request #74</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a QA verdict landing after the last PR check leaves a stale green</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/80">pull request #80</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a test suite no workflow runs reported green</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/85">pull request #85</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>the developer turn budget kills half of all role-pack stories</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/71">pull request #71</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>delivery-lead is routable by the loop but not by the dispatcher</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/77">pull request #77</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>the orchestrator's eligibility ignores per-role dispatchable states</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/81">pull request #81</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a rejected story never returns to a state its author can be dispatched from</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/86">pull request #86</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a successful session is trusted to move its own label, and often does not</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/88">pull request #88</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>scripts/test-dispatch-session-end.sh runs nowhere in CI</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/89">pull request #89</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>scripts requiring GNU coreutils fail for reviewers on macOS</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/90">pull request #90</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>the DoD accepts a work-item mention, so merged PRs leave issues open</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/93">pull request #93</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>dod-check must require a closing keyword, not a bare issue mention</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/94">pull request #94</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/102">pull request #102</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Engineering memory — the git notes store</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/136">pull request #136</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Throughput and scope: raise WIP, give ceremonies an owner, settle a requirement</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/125">pull request #125</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>The test-wiring handoff has blocked four PRs — remove it or queue it</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/141">pull request #141</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>main is red because a requirement was satisfied — status test pins literals</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/143">pull request #143</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a requirement read 100% while two of five ceremonies could not run</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/147">pull request #147</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>test-wiring fails on main — portal/test_build.py runs in no workflow</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/175">pull request #175</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>DoD counts checkbox-shaped sample input in code fences as unticked items</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/177">pull request #177</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>session-end aborts on an unbound variable — 43 of 74 assertions red on main</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/201">pull request #201</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Repo renamed to ai-sdlc — update live defaults, keep historical citations</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/204">pull request #204</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>a deferral that wraps across lines is rejected — the reason is on line two</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/220">pull request #220</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>Register a second product and run one story against it — the two-repo path has never executed</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/243">pull request #243</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>CRITICAL: the product checkout deletes the control plane — every dispatch has failed since #218</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/230">pull request #230</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>security and operations are unroutable — missing from dispatch.yml and orchestrator routing.supported</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/248">pull request #248</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+    <div class="card">
+      <h3>The published site silently stopped deploying three days ago</h3>
+      <p class="meta">Delivered via <a href="https://github.com/Shashank2577/ai-sdlc/pull/247">pull request #247</a>.
+        Current state: <span class="badge">awaiting your sign-off</span></p>
+      <p class="meta">Before this can be signed off:</p>
+      <ul class="evidence"><li>it passed quality review</li><li>it passed the project's required checks</li><li>the task tracking it is finished</li></ul>
+    </div>
+</div>
+
+<div class="section">
+  <h2 style="font-size:1.25rem">Open change requests</h2>
+<p class="empty">No open change requests right now.</p>
+</div>
+
+<div class="section">
+  <h2 style="font-size:1.25rem">In progress</h2>
+    <div class="card"><h3>Backlog refill — refine toward unsatisfied requirements</h3><p class="meta">being worked on right now</p></div>
+    <div class="card"><h3>Sprint Review: 2026-08-28 to 2026-09-04</h3><p class="meta">in progress</p></div>
+    <div class="card"><h3>46 of 47 closed stories had no QA verdict — the veto is fine, the rule was never written</h3><p class="meta">finished and being checked before it counts as delivered</p></div>
+    <div class="card"><h3>Promote the published site through the ladder — the only real deployable currently bypasses it</h3><p class="meta">finished and being checked before it counts as delivered</p></div>
+    <div class="card"><h3>Exercise the engineering memory round trip — no note has ever been written</h3><p class="meta">waiting on a decision</p></div>
+    <div class="card"><h3>Exercise the sign-off gate live and record a requirement's note (post-merge of #193)</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>Build scripts/check-products.py against policies/products.yaml</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>Learning loop — the same correction was made seven times and none of it stuck</h3><p class="meta">finished and being checked before it counts as delivered</p></div>
+    <div class="card"><h3>Decision needed: accept ADR-0008 (security + operations roles) or revise it</h3><p class="meta">in progress</p></div>
+    <div class="card"><h3>SECURITY: every required check runs the pull request's own code</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>P4-7 follow-up: run the live codex trial dispatch.yml now supports</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>PILOT: show when the status page was generated</h3><p class="meta">finished and being checked before it counts as delivered</p></div>
+    <div class="card"><h3>CRITICAL: bootstrap requires a dod check the product repo cannot produce — every product is unmergeable</h3><p class="meta">queued to start</p></div>
+    <div class="card"><h3>Retro: 2026-08-31 to 2026-09-07</h3><p class="meta">in progress</p></div>
+    <div class="card"><h3>Sprint Plan: 2026-09-07</h3><p class="meta">in progress</p></div>
+    <div class="card"><h3>The board sync has been failing for two days — 16 tickets never reached the board</h3><p class="meta">being worked on right now</p></div>
+</div>
+
+<footer>
+  Generated 2026-09-08 18:32 UTC from
+  <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a> ·
+  sources: merged pull requests, <code>requirements/coverage.yaml</code>,
+  <code>policies/signoff.yaml</code>.
+</footer>
+</main></body></html>

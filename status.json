@@ -1,7 +1,7 @@
 {
   "meta": {
-    "repo": "Shashank2577/foundry-program",
-    "generated_at": "2026-09-04 17:19 UTC"
+    "repo": "Shashank2577/ai-sdlc",
+    "generated_at": "2026-09-08 18:30 UTC"
   },
   "facts": {
     "roles_expected": [
@@ -12,7 +12,9 @@
       "qa",
       "devops",
       "techwriter",
-      "delivery-lead"
+      "delivery-lead",
+      "security",
+      "operations"
     ],
     "roles_built": [
       "orchestrator",
@@ -22,7 +24,9 @@
       "qa",
       "devops",
       "techwriter",
-      "delivery-lead"
+      "delivery-lead",
+      "security",
+      "operations"
     ],
     "roles_unexpected": [],
     "ceremonies_built": [
@@ -45,45 +49,13 @@
       "compiler",
       ".github/workflows"
     ],
-    "agent_delivered_prs": 58,
+    "agent_delivered_prs": 45,
     "dispatch_runs": {
-      "success": 85,
-      "in_progress": 1,
-      "failure": 12
+      "success": 77,
+      "failure": 23
     },
-    "merged_prs": 87,
+    "merged_prs": 111,
     "dispatched_issues": [
-      22,
-      38,
-      39,
-      40,
-      49,
-      50,
-      51,
-      52,
-      58,
-      59,
-      64,
-      67,
-      68,
-      69,
-      75,
-      79,
-      82,
-      83,
-      84,
-      87,
-      91,
-      92,
-      95,
-      96,
-      97,
-      98,
-      99,
-      100,
-      103,
-      104,
-      105,
       106,
       113,
       114,
@@ -120,7 +92,23 @@
       185,
       190,
       191,
-      192
+      192,
+      193,
+      194,
+      202,
+      208,
+      209,
+      210,
+      211,
+      212,
+      215,
+      216,
+      222,
+      224,
+      225,
+      226,
+      227,
+      244
     ]
   },
   "coverage": {
@@ -148,7 +136,7 @@
     },
     "REQ-002": {
       "summary": "Harness-neutral role packs, with attribution by per-role credential tier and the Agent-Role trailer",
-      "notes": "All 8 packs exist. Attribution is by credential tier and the Agent-Role trailer, not by signature \u2014 a decision, not a gap. Distinct per-role bot identities were considered and rejected for v0; see adrs/.",
+      "notes": "8 of the 9 roles PRD \u00a73 names have packs. The ninth, Delivery Lead (governance: policies/, gates, budgets, escalation), was added later (#64) and is not the same role as Delivery Manager (client-facing: status reports, demo packages, the portal) \u2014 see role-packs/delivery-lead/charter.md's \"Do not conflate this with the Delivery Manager\" section. Delivery Manager has no pack; that is a real gap (REQ-008's client portal is also unbuilt), not a naming collision resolved by counting Delivery Lead twice (#184). Attribution is by credential tier and the Agent-Role trailer, not by signature \u2014 a decision, not a gap. Distinct per-role bot identities were considered and rejected for v0; see adrs/.",
       "passed": 3,
       "total": 3,
       "pct": 100,
@@ -159,7 +147,7 @@
         },
         {
           "ok": true,
-          "text": "`role-packs/*/pack.yaml` >= 8 (found 8)"
+          "text": "`role-packs/*/pack.yaml` >= 9 (found 10)"
         },
         {
           "ok": true,
@@ -169,10 +157,10 @@
       "contradiction": null
     },
     "REQ-003": {
-      "summary": "Harness adapter \u2014 Claude Code, Codex, DeepSeek behind one contract",
-      "notes": "Two of three named harnesses are implemented \u2014 compile_claude_code and compile_codex in compiler/compile-pack.py (#109). DeepSeek is not. The pack format is neutral; the compiler now covers most of it.",
-      "passed": 3,
-      "total": 3,
+      "summary": "Harness adapter \u2014 role packs compile for whichever harness a session runs under",
+      "notes": "These checks prove existence, not use \u2014 read a 100% here as \"three compile_* functions exist and are exercised by compiler/test_compile_pack.py\", never as \"three harnesses have run a session\". Only claude-code has: every merged PR this programme has produced carries a `Harness: claude-code/*` trailer (#210).\n#222 closed part of the \"compiles\" vs \"has run\" gap this note used to describe in full: every role pack has declared `harness_compat.codex.supported: true` since the packs were first written (#42) \u2014 that half of the old note was already stale, not newly fixed \u2014 and `.github/workflows/dispatch.yml` no longer hard-codes `--harness claude-code`; `harness` is now a dispatch input, gated by compile-pack.py's own harness_compat check, with its own codex agent step (installs `@openai/codex`, runs `codex exec --profile <role>` against the compiled `sandbox-policy.toml`) that preserves the same checkout/budget/session-start/session-end contract claude-code runs under. `scripts/test-diagnose-workflow-push-refusal.sh` now also proves, structurally, that which GitHub credential a role gets does not depend on which harness is driving it \u2014 every codex-eligible role compiles to the same `token-secret` under both harnesses.\nWhat is still true, and still the thing this note exists to say plainly: **no codex session has ever run.** The agent step's preflight fails closed without a `CODEX_API_KEY` repository secret, which no role pack can provision for itself \u2014 #241 is the live trial this needs, blocked on that secret, tracking exactly the \"has run a session, produced a merged PR\" bar this note has always meant. Until #241 closes, read a 100% here the same way as before: the dispatch path exists and is tested, not that it has been exercised. opencode (#210) compiles and passes compiler/test_compile_pack.py but has no dispatch.yml step at all yet \u2014 a separate, smaller version of the same gap. DeepSeek, Kiro, Cursor, and Copilot are not implemented; awslabs/aidlc-workflows' `harness/` tree is the reference for what each would need.",
+      "passed": 4,
+      "total": 4,
       "pct": 100,
       "checks": [
         {
@@ -186,13 +174,17 @@
         {
           "ok": true,
           "text": "`def compile_codex` found in `compiler/compile-pack.py`"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_opencode` found in `compiler/compile-pack.py`"
         }
       ],
       "contradiction": null
     },
     "REQ-004": {
       "summary": "Tracker adapter \u2014 GitHub Projects and Jira swappable",
-      "notes": "adapters/tracker/github and adapters/tracker/jira both exist and pass the same contract suite (#135). scripts/sync-project.py does not use either yet and still talks to GitHub directly; the Jira adapter has never been run against a live Jira instance.",
+      "notes": "scripts/sync-project.py is now rewired through adapters/tracker/base.py (#192): every tracker call is an interface call, and which implementation backs a run is a single config read (`TRACKER_IMPL`, default `github`). A test drives the script's full sync algorithm against both adapters' stubs and gets the same result from each. That proves the seam is load-bearing, not merely present \u2014 but it is proof against stubs, not against a live Jira. adapters/tracker/jira has still never been run against a real Jira instance; there are no credentials or instance to run it against here. \"Seam proven against stubs\" and \"Jira integration works\" are different claims, and only the first one is made.",
       "passed": 3,
       "total": 3,
       "pct": 100,
@@ -348,7 +340,7 @@
     },
     "REQ-010": {
       "summary": "Environment ladder preview to prod, human gate, rollback plans",
-      "notes": "The ladder is declared (policies/environments.yaml) and four GitHub Environments are configured, with a required-reviewer rule on prod \u2014 but no deploy workflow or infra exists yet to walk it. Still the largest untouched area.",
+      "notes": "The ladder is declared (policies/environments.yaml), four GitHub Environments are configured with a required-reviewer rule on prod, and a deploy workflow now walks it. The prod gate has been exercised for real, not just declared: run 33887826522 paused for 31 minutes waiting on @Shashank2577's approval, then proceeded and emitted its rollback plan. But no application is deployed by any of this \u2014 there is no application in this repository, so the deploy step is a documented no-op. The ladder, the gate and the rollback-plan mechanism are proven; deploying a real workload is not, and 3/3 here should not be read as \"this programme ships software\" (#184).",
       "passed": 3,
       "total": 3,
       "pct": 100,
@@ -366,11 +358,11 @@
           "text": "`policies/environments.yaml` exists"
         }
       ],
-      "contradiction": "no deploy workflow or infra exists"
+      "contradiction": null
     },
     "REQ-011": {
       "summary": "Visibility \u2014 boards, generated dashboards, computed matrix",
-      "notes": "Traceability, standup, programme status, and burndown/velocity.",
+      "notes": "Traceability, standup, programme status, and burndown/velocity. One known inaccuracy on the status page as of #184: its role-pack tile counts against a literal list in dashboards/status.py that still names \"delivery-manager\" instead of the newly-distinguished Delivery Lead / Delivery Manager pair, so it undercounts by one until #185 derives that list from something reviewable instead of a Python literal. Tracked, not silently wrong.",
       "passed": 4,
       "total": 4,
       "pct": 100,
@@ -455,7 +447,7 @@
         },
         {
           "ok": true,
-          "text": "1 PR(s) delivered by a dispatched session (found 58)"
+          "text": "1 PR(s) delivered by a dispatched session (found 45)"
         }
       ],
       "contradiction": "unproven"

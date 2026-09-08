@@ -1,8 +1,8 @@
 {
   "meta": {
-    "repo": "Shashank2577/foundry-program",
-    "repo_url": "https://github.com/Shashank2577/foundry-program",
-    "generated_at": "2026-09-04 17:18 UTC"
+    "repo": "Shashank2577/ai-sdlc",
+    "repo_url": "https://github.com/Shashank2577/ai-sdlc",
+    "generated_at": "2026-09-08 18:28 UTC"
   },
   "records": [
     {
@@ -280,6 +280,46 @@
         [
           "Consequences",
           "Any future approval-shaped gate in this repo (this ADR's mechanism is\nreused, not just precedent, by ADR-0003's `governance_role` rule and\nADR-0004's capability scoping) is expected to check actor identity from the\nevent payload, not label presence, or it inherits this exact forgeability\ngap. `scripts/test_gate_check.py` is where that expectation is checked in\ncode."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0008",
+      "filename": "0008-security-and-operations-roles-scaffold-proposed-not-built.md",
+      "title": "Add security (veto) and operations (advisory) roles \u2014 scaffold proposed here, built by a developer story",
+      "status_raw": "proposed",
+      "status": "proposed",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/ai-sdlc#211",
+      "requirements": [
+        "REQ-002",
+        "REQ-009"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "",
+      "date": "",
+      "sections": [
+        [
+          "Context",
+          "Eight role packs exist. Every merged PR is reviewed for correctness by QA\nand, for critical work, by a human governance gate. **Nothing reviews a\nchange for security** \u2014 credential handling, injection surface, dependency\nrisk, permission widening, secret exposure \u2014 even though this system holds\ncredentials, mints tokens, runs arbitrary agent sessions on runners, and\npublishes a public site. Nothing owns what happens after a merge either:\nwhether a deploy is safe to promote, whether a rollback plan is real, what\na failure in `prod` means. `policies/environments.yaml` declares a rollback\nowner and a human-reviewer rule, but nobody's charter is to judge whether\neither is true for a specific change.\n\n`awslabs/aidlc-workflows` names fourteen roles for a human-gated 33-stage\nflow, including `aidlc-devsecops-agent`, `aidlc-compliance-agent`,\n`aidlc-operations-agent`, and `aidlc-pipeline-deploy-agent`. This ADR\ncredits that roster as the prior art for \"security and operations should\nhave named owners\" without adopting its scale \u2014 see Option B.\n\nThis is a structural decision, not a code review: it sets a new role's\ncredential tier, decides whether its write scope can be narrower than the\nroles it reviews, and \u2014 for security specifically \u2014 creates a verdict\nlabel the system is not yet wired to enforce. It also crosses the\narchitect pack's own write scope: building the packs means writing\n`role-packs/security/**` and `role-packs/operations/**`, and registering\nthem means writing `requirements/coverage.yaml`. `role-packs/architect/charter.md`\nis explicit that this pack does not write another role's pack, \"not even\nthe scaffold for the thing you just decided\" \u2014 the scaffold belongs in\nthis ADR's Consequences, built by a developer session dispatched against a\nwork item that links back here. `role-packs/architect/pack.yaml` itself was\nbuilt exactly that way, under `Agent-Role: developer`\n(commit 3fddd3e), as was `role-packs/delivery-lead/` (commit d04c52f, whose\nmessage states it followed the same pattern). This ADR follows that\nprecedent rather than breaking it a third time."
+        ],
+        [
+          "Options considered",
+          "### Option A: Do nothing \u2014 leave the gap as prose in this ADR\n\n- **Cost:** Zero packs to build or maintain. But the gap this ADR exists\n  to close is exactly the one #211 names: a vulnerability is caught by\n  luck, not by a role whose job is to look for it. Every future PR keeps\n  shipping with no security lens and no owner for deploy/rollback\n  judgment.\n- **Consequence:** REQ-002's role roster and REQ-009's veto model both stay\n  incomplete on the one dimension this programme has explicitly flagged as\n  a real hole rather than a missing box on a chart.\n\n### Option B: Adopt `awslabs/aidlc-workflows`'s roster wholesale (14 roles, including 4 that split this ADR's two concerns further)\n\n- **Cost:** At minimum four new packs\n  (`devsecops`, `compliance`, `operations`, `pipeline-deploy`) instead of\n  two, each needing its own budget, write scope, credential-tier decision,\n  and escalation ladder \u2014 roughly double the packs for the same two\n  concerns this ADR addresses, plus the coordination overhead of deciding\n  which of two-to-four overlapping charters a given finding belongs to.\n- **Consequence:** This repo has already paid for this mistake once \u2014\n  `requirements/coverage.yaml`'s own `roles_built` check (#185) exists\n  because unexercised capability reads as completeness. A 14-role roster\n  sized for a human-gated 33-stage flow, most of it never dispatched here,\n  repeats that pattern at four times the scale for these two concerns\n  alone.\n\n### Option C: Two new roles \u2014 `security` (binding veto, unenforced pending a devops story) and `operations` (advisory report, no gate) \u2014 recommended\n\n- **Cost:** Two packs to build and maintain (~55-turn, $4 budget each per\n  the drafted `policy.yaml`, priced between QA's review budget and the\n  developer's implementation budget). Security's veto label carries no\n  structural enforcement until a separate devops story wires a\n  `security-gate.sh`/`security-verdict.sh` pair the way QA's works \u2014 that\n  is real, admitted cost, not hidden in this ADR. Both packs must declare a\n  credential tier and a write scope narrower than what they review, which\n  is itself a decision worth recording (see below).\n- **Consequence:** The two concerns #211 names \u2014 nothing reviews for\n  security, nothing owns post-merge deploy judgment \u2014 get a named owner\n  each, at the minimum roster size that does it, with the enforcement gap\n  stated rather than claimed.\n\nWithin Option C, two further decisions this ADR is recording:\n\n- **Security's credential tier is `FOUNDRY_DEV_TOKEN`, the same tier as\n  developer/QA/PM/architect \u2014 not a wider one.** A role reviewing\n  credential handling must not itself hold the widest credential in the\n  system; that would invert the point of having it. The asymmetry this\n  role needs is expressed in write scope, not token scope: security's\n  `write_scope.allow` is `role-packs/security/**` only \u2014 narrower than\n  every role it reviews, including QA's (which at least owns `tests/**`).\n  Findings leave the system as labels, comments, and new bug issues \u2014\n  tracker writes, not file writes \u2014 because there is nothing this role\n  needs to commit to prove a finding; a cited file:line is the evidence.\n- **Security gets a QA-shaped verdict label; operations gets a report,\n  not a second unenforced gate.** #211 asks for a veto \"like QA's\" for\n  security specifically, not for operations. Giving operations its own\n  `ops:go`/`ops:no-go` label with no enforcement behind it either would be\n  two unenforced gates instead of one honestly-stated one \u2014 the same\n  completeness-by-appearance failure Option B commits at a different\n  layer. Operations instead posts a readiness report (ready /\n  not-ready-because-X / named gap) on the work item, which is a narrower\n  claim it can actually back today."
+        ],
+        [
+          "Recommendation",
+          "Recommend C: it closes both named gaps at the minimum roster size, prices\nthe real cost of the unenforced veto instead of hiding it, and keeps\nsecurity's own write scope narrower than the credentials and code it\nreviews \u2014 which the alternative of building it here, in a pack whose write\nscope already includes `role-packs/security/**`-adjacent reach, would have\nmade harder to argue honestly."
+        ],
+        [
+          "Decision",
+          "**Decided:** pending \u2014 this ADR proposes Option C; `adrs/` is\nCODEOWNERS-routed to a human architect, who decides on merge by editing\nthis section (`Status: accepted`, `Decided by:`, `Date:`) rather than by\nprose elsewhere."
+        ],
+        [
+          "Consequences",
+          "If Option C is accepted, two follow-up work items exist so the scaffold\nlands without this ADR's author writing outside its own pack:\n\n1. **A developer story** to create `role-packs/security/**` and\n   `role-packs/operations/**` (`pack.yaml`, `charter.md`, `policy.yaml`,\n   `tools.yaml`, `skills/`, `templates/`) and add both to\n   `requirements/coverage.yaml`'s `policy.roles.expected`, so\n   `roles_built` reports honestly against 10 roles instead of silently\n   staying green at 8/8. A complete, compiler-validated draft of every\n   file \u2014 verified against `compiler/compile-pack.py --check` for both\n   `claude-code` and `codex`, matching the shape Option C commits to\n   above \u2014 is attached as a patch on that story, ready to apply rather\n   than re-derived from this ADR's prose. Link: Shashank2577/ai-sdlc#215.\n2. **A devops story** to give `security:rejected` the same structural\n   enforcement `qa:rejected` has (`security-gate.sh` as a required status\n   check, a close-guard reopening a closure carrying `security:rejected`,\n   the same pattern `scripts/qa-gate.sh` / `scripts/qa-verdict.sh` set).\n   Until it lands, `security:rejected` is a documented,\n   binding-by-convention recommendation a human merging the PR can see and\n   can still override \u2014 the security pack's own `charter.md` and\n   `policy.yaml` say so explicitly rather than claiming the veto exists.\n   Link: Shashank2577/ai-sdlc#216.\n\nNeither follow-up widens an existing role's credential or write scope;\neach pack declares its own `token_secret` (`FOUNDRY_DEV_TOKEN`, this\npack's tier) and the dispatcher resolves it with no role\u2192secret table to\nedit, per ADR-0001."
         ]
       ],
       "error": null
