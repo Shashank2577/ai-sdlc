@@ -45,6 +45,11 @@ class GitHubTracker(Tracker):
     def _graphql(self, query: str, **variables) -> dict:
         args = ["api", "graphql", "-f", f"query={query}"]
         for k, v in variables.items():
+            # A None variable is omitted, not sent. `-f cursor=None` reaches
+            # the API as the literal string "None" and GraphQL rejects it —
+            # an optional variable left out is what "no cursor yet" means.
+            if v is None:
+                continue
             flag = "-F" if isinstance(v, int) else "-f"
             args += [flag, f"{k}={v}"]
         return self._gh_json(args)
@@ -118,14 +123,16 @@ class GitHubTracker(Tracker):
     # --- project board ----------------------------------------------------------
 
     _PROJECT_QUERY = """
-    query($owner:String!, $number:Int!) {
+    query($owner:String!, $number:Int!, $cursor:String) {
       user(login:$owner) { projectV2(number:$number) {
         id
         fields(first:40) { nodes {
           ... on ProjectV2Field { id name }
           ... on ProjectV2SingleSelectField { id name options { id name } }
         }}
-        items(first:100) { nodes {
+        items(first:100, after:$cursor) {
+          pageInfo { hasNextPage endCursor }
+          nodes {
           id
           content { ... on Issue { number state } }
           fieldValues(first:40) { nodes {
@@ -137,8 +144,29 @@ class GitHubTracker(Tracker):
     }"""
 
     def _load_board(self, board: BoardRef) -> dict:
-        return self._graphql(self._PROJECT_QUERY, owner=board.owner, number=board.number)[
-            "data"]["user"]["projectV2"]
+        """Every item on the board, following pagination.
+
+        `items(first:100)` used to be the whole query. The board crossed 100
+        items and everything past the hundredth became invisible: a
+        just-added item could not be found, `set_board_field` reported
+        "issue #N is not on this board", and the sync exited 1 on every run
+        for two days while 16 tickets sat off the board. The failure only
+        began when the board grew, which is why it looked like a permission
+        or ordering problem rather than a page-size one.
+        """
+        board_raw, cursor = None, None
+        while True:
+            page = self._graphql(self._PROJECT_QUERY, owner=board.owner,
+                                  number=board.number,
+                                  cursor=cursor)["data"]["user"]["projectV2"]
+            if board_raw is None:
+                board_raw = page
+            else:
+                board_raw["items"]["nodes"].extend(page["items"]["nodes"])
+            info = page["items"].get("pageInfo") or {}
+            if not info.get("hasNextPage"):
+                return board_raw
+            cursor = info["endCursor"]
 
     @staticmethod
     def _field_index(raw_board: dict) -> dict:
