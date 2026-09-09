@@ -1,12 +1,8 @@
 {
   "window_days": 60,
-  "generated_at": "2026-09-08T18:28:35.506452+00:00",
+  "generated_at": "2026-09-09T11:13:11.073730+00:00",
   "story_count": 62,
   "burndown": [
-    {
-      "date": "2026-07-10",
-      "open": 0
-    },
     {
       "date": "2026-07-11",
       "open": 0
@@ -217,23 +213,23 @@
     },
     {
       "date": "2026-09-01",
-      "open": 8
+      "open": 0
     },
     {
       "date": "2026-09-02",
-      "open": 2
+      "open": 3
     },
     {
       "date": "2026-09-03",
-      "open": 7
+      "open": 8
     },
     {
       "date": "2026-09-04",
-      "open": 4
+      "open": 2
     },
     {
       "date": "2026-09-05",
-      "open": 4
+      "open": 6
     },
     {
       "date": "2026-09-06",
@@ -246,52 +242,56 @@
     {
       "date": "2026-09-08",
       "open": 4
+    },
+    {
+      "date": "2026-09-09",
+      "open": 4
     }
   ],
   "velocity": [
     {
-      "week_start": "2026-07-10",
-      "week_end": "2026-07-17",
+      "week_start": "2026-07-11",
+      "week_end": "2026-07-18",
       "closed": 0
     },
     {
-      "week_start": "2026-07-17",
-      "week_end": "2026-07-24",
+      "week_start": "2026-07-18",
+      "week_end": "2026-07-25",
       "closed": 0
     },
     {
-      "week_start": "2026-07-24",
-      "week_end": "2026-07-31",
+      "week_start": "2026-07-25",
+      "week_end": "2026-08-01",
       "closed": 0
     },
     {
-      "week_start": "2026-07-31",
-      "week_end": "2026-08-07",
+      "week_start": "2026-08-01",
+      "week_end": "2026-08-08",
       "closed": 0
     },
     {
-      "week_start": "2026-08-07",
-      "week_end": "2026-08-14",
+      "week_start": "2026-08-08",
+      "week_end": "2026-08-15",
       "closed": 0
     },
     {
-      "week_start": "2026-08-14",
-      "week_end": "2026-08-21",
+      "week_start": "2026-08-15",
+      "week_end": "2026-08-22",
       "closed": 0
     },
     {
-      "week_start": "2026-08-21",
-      "week_end": "2026-08-28",
+      "week_start": "2026-08-22",
+      "week_end": "2026-08-29",
       "closed": 0
     },
     {
-      "week_start": "2026-08-28",
-      "week_end": "2026-09-04",
+      "week_start": "2026-08-29",
+      "week_end": "2026-09-05",
       "closed": 49
     },
     {
-      "week_start": "2026-09-04",
-      "week_end": "2026-09-08",
+      "week_start": "2026-09-05",
+      "week_end": "2026-09-09",
       "closed": 9
     }
   ]

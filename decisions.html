@@ -64,9 +64,9 @@ tr.pastsla { background: var(--red-bg) }
 </p>
 
 <div class="tiles">
-  <div class="tile"><div class="n">2</div><div class="l">waiting on you</div></div>
+  <div class="tile"><div class="n">8</div><div class="l">waiting on you</div></div>
   <div class="tile"><div class="n" style="color:var(--red)">1</div><div class="l">past SLA</div></div>
-  <div class="tile"><div class="n">91</div><div class="l">decided</div></div>
+  <div class="tile"><div class="n">88</div><div class="l">decided</div></div>
 </div>
 
 <h2 style="font-size:1.05rem;margin:0 0 .6rem">Waiting on you</h2>
@@ -77,12 +77,42 @@ tr.pastsla { background: var(--red-bg) }
       <tr class="">
         <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/221">PR221</a> P4-6: ADR — learning loop detects recurring corrections mechanically, </td>
         <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
-        <td class="mono">73.6h<br>
+        <td class="mono">90.4h<br>
             <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
       </tr>      <tr class="pastsla">
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</td>
         <td><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div></td>
-        <td class="mono">55.6h <span class="pill red">past 24h SLA</span><br>
+        <td class="mono">72.3h <span class="pill red">past 24h SLA</span><br>
+            <span class="muted" style="font-size:.8em">since `needs-human` was applied</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/252">PR252</a> fix(tracker): follow pagination — the board grew past one page</td>
+        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
+        <td class="mono">16.7h<br>
+            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/253">PR253</a> fix(ci): pin the deciding checks to main, not the PR's own copy</td>
+        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
+        <td class="mono">16.6h<br>
+            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">#246</a> CRITICAL: bootstrap requires a dod check the product repo cannot produ</td>
+        <td><span class="muted">unknown</span></td>
+        <td class="mono">16.5h <span class="muted">(SLA 24h)</span><br>
+            <span class="muted" style="font-size:.8em">since `needs-human` was applied</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/255">PR255</a> fix(bootstrap): give a bootstrapped product repo something to produce </td>
+        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
+        <td class="mono">16.5h<br>
+            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/254">PR254</a> feat(products): implement check-products.py against policies/products.</td>
+        <td><div><strong>awaiting_review</strong> —  The `merge` gate (policies/gates.yaml) is owner: human — an open pull request waits on a person to review and merge it.</div></td>
+        <td class="mono">16.5h<br>
+            <span class="muted" style="font-size:.8em">since the pull request was opened</span></td>
+      </tr>      <tr class="">
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/245">#245</a> The published site silently stopped deploying three days ago</td>
+        <td><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
+        <td class="mono">13.4h <span class="muted">(SLA 24h)</span><br>
             <span class="muted" style="font-size:.8em">since `needs-human` was applied</span></td>
       </tr>
   </tbody>
@@ -97,29 +127,11 @@ tr.pastsla { background: var(--red-bg) }
   <thead><tr><th>Item</th><th>Decision &amp; why held</th><th>By</th><th>When</th><th>Artefact</th></tr></thead>
   <tbody>
       <tr>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">#246</a> CRITICAL: bootstrap requires a dod check the product repo cannot produ</td>
-        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
-        <td>Shashank2577</td>
-        <td class="mono">2026-09-07T01:06:46Z</td>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">issue #246</a></td>
-      </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/245">#245</a> The published site silently stopped deploying three days ago</td>
-        <td>Approved to proceed (`status:ready`)<br><div><strong>pipeline_role</strong> — label `role:devops` DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate.</div><div><strong>production_or_release</strong> — mentions `deploy` PRD §9: production sits behind a human gate and nothing an agent does unsupervised is irreversible.</div></td>
-        <td>Shashank2577</td>
-        <td class="mono">2026-09-07T01:05:45Z</td>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/pull/247">PR #247</a></td>
-      </tr>      <tr>
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/198">#198</a> Exercise the sign-off gate live and record REQ-008's note (post-merge </td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>changes_requirements</strong> — mentions `requirements/coverage.yaml` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
         <td>Shashank2577</td>
         <td class="mono">2026-09-07T00:54:18Z</td>
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/198">issue #198</a></td>
-      </tr>      <tr>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/206">#206</a> Build scripts/check-products.py against policies/products.yaml</td>
-        <td>Approved to proceed (`status:ready`)<br><span class="muted">unknown</span></td>
-        <td>Shashank2577</td>
-        <td class="mono">2026-09-07T00:54:16Z</td>
-        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/206">issue #206</a></td>
       </tr>      <tr>
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/241">#241</a> P4-7 follow-up: run the live codex trial dispatch.yml now supports</td>
         <td>Approved to proceed (`status:ready`)<br><div><strong>touches_governance</strong> — mentions `.github/workflows/` These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it.</div><div><strong>touches_credentials</strong> — mentions `FOUNDRY_` Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit.</div><div><strong>changes_requirements</strong> — mentions `requirements/coverage.yaml` A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call.</div></td>
@@ -647,7 +659,7 @@ tr.pastsla { background: var(--red-bg) }
 </table></div>
 
 <footer>
-  Generated 2026-09-08 18:28 UTC from
+  Generated 2026-09-09 11:13 UTC from
   <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>, reading
   <span class="mono">policies/gates.yaml</span> (SLA 24h)
   and <span class="mono">scripts/gate-check.py</span> for classification.

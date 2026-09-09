@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-08T18:28:02.375216+00:00",
+  "generated_at": "2026-09-09T11:12:33.623308+00:00",
   "roles": [
     {
       "role": "devops",
@@ -22,7 +22,32 @@
   ],
   "commits_total": 1,
   "pulls": {
-    "opened": [],
+    "opened": [
+      {
+        "number": 255,
+        "title": "fix(bootstrap): give a bootstrapped product repo something to produce `dod`",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/255",
+        "branch": "bug/FDY-246-product-repo-dod-check"
+      },
+      {
+        "number": 254,
+        "title": "feat(products): implement check-products.py against policies/products.yaml",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/254",
+        "branch": "story/FDY-206-check-products-py"
+      },
+      {
+        "number": 253,
+        "title": "fix(ci): pin the deciding checks to main, not the PR's own copy",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/253",
+        "branch": "story/FDY-225-trusted-ref-checks"
+      },
+      {
+        "number": 252,
+        "title": "fix(tracker): follow pagination \u2014 the board grew past one page",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/252",
+        "branch": "bug/FDY-251-paginate-board-query"
+      }
+    ],
     "merged": [
       {
         "number": 248,
@@ -32,9 +57,87 @@
       }
     ],
     "closed_unmerged": [],
-    "open_now": 1
+    "open_now": 5
   },
   "check_failures": [
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34337473614",
+      "at": "2026-09-09T09:56:03Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34312998424",
+      "at": "2026-09-09T04:57:56Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34294760749",
+      "at": "2026-09-09T00:22:53Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34283307606",
+      "at": "2026-09-08T21:56:33Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34282555607",
+      "at": "2026-09-08T21:47:55Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34265416875",
+      "at": "2026-09-08T18:50:20Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34264875882",
+      "at": "2026-09-08T18:44:53Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "story/FDY-206-check-products-py",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34264644279",
+      "at": "2026-09-08T18:42:34Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "story/FDY-206-check-products-py",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34264644230",
+      "at": "2026-09-08T18:42:34Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "story/FDY-225-trusted-ref-checks",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34264460489",
+      "at": "2026-09-08T18:40:42Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "story/FDY-225-trusted-ref-checks",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34264411789",
+      "at": "2026-09-08T18:40:13Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "bug/FDY-251-paginate-board-query",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34263357090",
+      "at": "2026-09-08T18:29:40Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "bug/FDY-248-roles-broke-the-build",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34263184202",
+      "at": "2026-09-08T18:27:53Z"
+    },
     {
       "name": "Project sync",
       "branch": "main",
@@ -46,70 +149,26 @@
       "branch": "main",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34238298013",
       "at": "2026-09-08T14:26:43Z"
-    },
-    {
-      "name": "Dashboards",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34219127779",
-      "at": "2026-09-08T11:08:35Z"
-    },
-    {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34212390199",
-      "at": "2026-09-08T09:52:21Z"
-    },
-    {
-      "name": "Orchestrate",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34210712890",
-      "at": "2026-09-08T09:34:05Z"
-    },
-    {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34188629214",
-      "at": "2026-09-08T04:54:05Z"
-    },
-    {
-      "name": "Orchestrate",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34186950801",
-      "at": "2026-09-08T04:25:41Z"
-    },
-    {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34170632067",
-      "at": "2026-09-07T23:37:02Z"
-    },
-    {
-      "name": "Orchestrate",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34170075048",
-      "at": "2026-09-07T23:26:58Z"
-    },
-    {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34160299696",
-      "at": "2026-09-07T20:40:24Z"
-    },
-    {
-      "name": "Orchestrate",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/34159676108",
-      "at": "2026-09-07T20:30:35Z"
     }
   ],
   "board": {
+    "status:in-progress": 2,
     "(no status)": 4,
-    "status:ready": 11,
-    "status:in-review": 4,
-    "status:blocked": 1,
-    "status:in-progress": 1
+    "status:in-review": 8,
+    "status:ready": 7,
+    "status:blocked": 1
   },
   "needs_human": [
+    {
+      "number": 246,
+      "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/246"
+    },
+    {
+      "number": 245,
+      "title": "The published site silently stopped deploying three days ago",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/245"
+    },
     {
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
@@ -121,7 +180,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 92.0,
+      "hours": 108.8,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -129,7 +188,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 47.3,
+      "hours": 64.1,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
