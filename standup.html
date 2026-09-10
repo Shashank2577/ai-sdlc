@@ -58,10 +58,10 @@ footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
 </p>
 
 <div class="tiles">
-  <div class="tile"><div class="n">1</div><div class="l">commits</div></div>
-  <div class="tile"><div class="n">4</div><div class="l">PRs opened</div></div>
-  <div class="tile"><div class="n">1</div><div class="l">PRs merged</div></div>
-  <div class="tile"><div class="n" style="color:var(--red)">15</div><div class="l">check failures</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">commits</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">PRs opened</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">PRs merged</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">6</div><div class="l">check failures</div></div>
   <div class="tile"><div class="n" style="color:var(--amber)">2</div><div class="l">blocked &gt;24h</div></div>
 </div>
 
@@ -69,13 +69,7 @@ footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
 <div class="scroll"><table>
   <thead><tr><th>Role</th><th>Commits</th><th>Requirements</th><th>Harness</th><th>What landed</th></tr></thead>
   <tbody>
-      <tr>
-        <td class="req">devops</td>
-        <td>1</td>
-        <td class="mono">REQ-002, REQ-011</td>
-        <td class="mono muted">claude-code</td>
-        <td><ul class="bare"><li><span class="mono">3aff6ae</span> fix: adding two roles broke the dashboards build and made th</li></ul></td>
-      </tr>
+<tr><td colspan="5" class="muted">No commits in the window. That is a fact about the window, not a status report.</td></tr>
   </tbody>
 </table></div>
 
@@ -83,7 +77,7 @@ footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
 <ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/246">#246</a> CRITICAL: bootstrap requires a dod check the product repo cannot produ</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/245">#245</a> The published site silently stopped deploying three days ago</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</li></ul>
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Blocked beyond 24h</h2>
-<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be — <strong>108.8h</strong> blocked · needs-human already applied</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/224">#224</a> Register a second product and run one story against it — the two-repo  — <strong>64.1h</strong> blocked · needs-human already applied</li></ul>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be — <strong>132.7h</strong> blocked · needs-human already applied</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/224">#224</a> Register a second product and run one story against it — the two-repo  — <strong>88.0h</strong> blocked · needs-human already applied</li></ul>
 <p class="muted" style="font-size:.85rem">
   Each of these gets <span class="mono">needs-human</span> applied automatically.
   Blocked is a state with a deadline, not a resting place.
@@ -91,18 +85,18 @@ footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Pull requests</h2>
 <p class="muted" style="font-size:.85rem">5 open right now.</p>
-<ul class="bare"><li><strong>Opened</strong></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/255">#255</a> fix(bootstrap): give a bootstrapped product repo something to produce <span class="muted mono"> bug/FDY-246-product-repo-dod-check</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/254">#254</a> feat(products): implement check-products.py against policies/products.<span class="muted mono"> story/FDY-206-check-products-py</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/253">#253</a> fix(ci): pin the deciding checks to main, not the PR's own copy<span class="muted mono"> story/FDY-225-trusted-ref-checks</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/252">#252</a> fix(tracker): follow pagination — the board grew past one page<span class="muted mono"> bug/FDY-251-paginate-board-query</span></li></ul>
-<ul class="bare"><li><strong>Merged</strong></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/248">#248</a> fix: adding two roles broke the dashboards build and made them undispa<span class="muted mono"> bug/FDY-248-roles-broke-the-build</span></li></ul>
+<ul class="bare"><li><strong>Opened</strong></li><li class="muted">none</li></ul>
+<ul class="bare"><li><strong>Merged</strong></li><li class="muted">none</li></ul>
 <ul class="bare"><li><strong>Closed unmerged</strong></li><li class="muted">none</li></ul>
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Check failures</h2>
-<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34337473614">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34312998424">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34294760749">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34283307606">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34282555607">Dispatch</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34265416875">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34264875882">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34264644279">Project sync</a> on <span class="mono">story/FDY-206-check-products-py</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34264644230">DoD</a> on <span class="mono">story/FDY-206-check-products-py</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34264460489">DoD</a> on <span class="mono">story/FDY-225-trusted-ref-checks</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34264411789">Project sync</a> on <span class="mono">story/FDY-225-trusted-ref-checks</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34263357090">Project sync</a> on <span class="mono">bug/FDY-251-paginate-board-query</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34263184202">Project sync</a> on <span class="mono">bug/FDY-248-roles-broke-the-build</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34239661617">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34238298013">Orchestrate</a> on <span class="mono">main</span></li></ul>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34463096010">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34439236397">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34420924855">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34408801329">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34390831267">Project sync</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/34365216763">Project sync</a> on <span class="mono">main</span></li></ul>
 
 <h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Board</h2>
 <ul class="bare"><li><span class="mono">(no status)</span> — 4</li><li><span class="mono">status:blocked</span> — 1</li><li><span class="mono">status:in-progress</span> — 2</li><li><span class="mono">status:in-review</span> — 8</li><li><span class="mono">status:ready</span> — 7</li></ul>
 
 <footer>
-  Generated 2026-09-09 11:12 UTC from
+  Generated 2026-09-10 11:09 UTC from
   <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>.
   Event-derived (REQ-006) — no self-reported status appears on this page.
 </footer>
