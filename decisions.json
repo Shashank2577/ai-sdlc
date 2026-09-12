@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-11 11:09 UTC",
+    "generated_at": "2026-09-12 10:38 UTC",
     "sla_hours": 24
   },
   "waiting": [
@@ -17,7 +17,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 138.3,
+      "age_hours": 161.8,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -34,7 +34,7 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 120.2,
+      "age_hours": 143.7,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -50,23 +50,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 64.7,
-      "age_source": "since the pull request was opened",
-      "sla_hours": null,
-      "past_sla": null
-    },
-    {
-      "kind": "pr",
-      "number": 254,
-      "title": "feat(products): implement check-products.py against policies/products.yaml",
-      "url": "https://github.com/Shashank2577/ai-sdlc/pull/254",
-      "why": [
-        {
-          "rule": "awaiting_review",
-          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
-        }
-      ],
-      "age_hours": 64.5,
+      "age_hours": 88.1,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -82,7 +66,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 64.5,
+      "age_hours": 88.0,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -93,7 +77,7 @@
       "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/246",
       "why": "unknown",
-      "age_hours": 64.4,
+      "age_hours": 87.9,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -109,7 +93,23 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 64.4,
+      "age_hours": 87.9,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "pr",
+      "number": 254,
+      "title": "feat(products): implement check-products.py against policies/products.yaml",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/254",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 87.9,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -131,7 +131,7 @@
           "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
         }
       ],
-      "age_hours": 61.4,
+      "age_hours": 84.8,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
