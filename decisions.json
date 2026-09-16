@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-15 11:36 UTC",
+    "generated_at": "2026-09-16 11:24 UTC",
     "sla_hours": 24
   },
   "waiting": [
@@ -17,7 +17,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 234.8,
+      "age_hours": 258.6,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -34,7 +34,7 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 216.7,
+      "age_hours": 240.5,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -50,7 +50,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 161.1,
+      "age_hours": 184.9,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -61,7 +61,7 @@
       "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/246",
       "why": "unknown",
-      "age_hours": 160.9,
+      "age_hours": 184.7,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -77,7 +77,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 160.9,
+      "age_hours": 184.7,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -93,7 +93,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 160.9,
+      "age_hours": 184.7,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -109,7 +109,7 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 160.9,
+      "age_hours": 184.7,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
@@ -131,7 +131,7 @@
           "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
         }
       ],
-      "age_hours": 157.8,
+      "age_hours": 181.6,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
