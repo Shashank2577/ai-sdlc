@@ -1,12 +1,8 @@
 {
   "window_days": 60,
-  "generated_at": "2026-09-16T11:24:26.946007+00:00",
+  "generated_at": "2026-09-17T11:32:25.742806+00:00",
   "story_count": 62,
   "burndown": [
-    {
-      "date": "2026-07-18",
-      "open": 0
-    },
     {
       "date": "2026-07-19",
       "open": 0
@@ -246,52 +242,56 @@
     {
       "date": "2026-09-16",
       "open": 4
+    },
+    {
+      "date": "2026-09-17",
+      "open": 4
     }
   ],
   "velocity": [
     {
-      "week_start": "2026-07-18",
-      "week_end": "2026-07-25",
+      "week_start": "2026-07-19",
+      "week_end": "2026-07-26",
       "closed": 0
     },
     {
-      "week_start": "2026-07-25",
-      "week_end": "2026-08-01",
+      "week_start": "2026-07-26",
+      "week_end": "2026-08-02",
       "closed": 0
     },
     {
-      "week_start": "2026-08-01",
-      "week_end": "2026-08-08",
+      "week_start": "2026-08-02",
+      "week_end": "2026-08-09",
       "closed": 0
     },
     {
-      "week_start": "2026-08-08",
-      "week_end": "2026-08-15",
+      "week_start": "2026-08-09",
+      "week_end": "2026-08-16",
       "closed": 0
     },
     {
-      "week_start": "2026-08-15",
-      "week_end": "2026-08-22",
+      "week_start": "2026-08-16",
+      "week_end": "2026-08-23",
       "closed": 0
     },
     {
-      "week_start": "2026-08-22",
-      "week_end": "2026-08-29",
+      "week_start": "2026-08-23",
+      "week_end": "2026-08-30",
       "closed": 0
     },
     {
-      "week_start": "2026-08-29",
-      "week_end": "2026-09-05",
-      "closed": 49
+      "week_start": "2026-08-30",
+      "week_end": "2026-09-06",
+      "closed": 57
     },
     {
-      "week_start": "2026-09-05",
-      "week_end": "2026-09-12",
-      "closed": 9
+      "week_start": "2026-09-06",
+      "week_end": "2026-09-13",
+      "closed": 1
     },
     {
-      "week_start": "2026-09-12",
-      "week_end": "2026-09-16",
+      "week_start": "2026-09-13",
+      "week_end": "2026-09-17",
       "closed": 0
     }
   ]
