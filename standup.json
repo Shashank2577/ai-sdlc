@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-17T11:31:48.821937+00:00",
+  "generated_at": "2026-09-18T11:04:41.507610+00:00",
   "roles": [],
   "commits_total": 0,
   "pulls": {
@@ -13,38 +13,32 @@
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35196576933",
-      "at": "2026-09-17T07:50:45Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35313431038",
+      "at": "2026-09-18T06:05:43Z"
     },
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35170967136",
-      "at": "2026-09-17T01:32:40Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35291461055",
+      "at": "2026-09-18T00:30:12Z"
     },
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35160606088",
-      "at": "2026-09-16T23:03:56Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35277418642",
+      "at": "2026-09-17T21:34:17Z"
     },
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35145574097",
-      "at": "2026-09-16T20:16:37Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35258393794",
+      "at": "2026-09-17T18:22:10Z"
     },
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35126456861",
-      "at": "2026-09-16T17:09:51Z"
-    },
-    {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35092547098",
-      "at": "2026-09-16T11:51:11Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35228282530",
+      "at": "2026-09-17T13:37:51Z"
     }
   ],
   "board": {
@@ -76,7 +70,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 301.1,
+      "hours": 324.6,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -84,7 +78,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 256.4,
+      "hours": 279.9,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
