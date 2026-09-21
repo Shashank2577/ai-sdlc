@@ -33,6 +33,14 @@ class GitHubTracker(Tracker):
         network or a real repository."""
         self._repo = repo
         self._run = run
+        # Item ids returned by this adapter's own `addProjectV2ItemById`
+        # calls, by issue number. Projects v2 reads are eventually
+        # consistent: PR #252's sync run added #225, re-queried the board,
+        # and got a page without it — "issue #225 is not on this board",
+        # exit 1, one item after the pagination fix had been proven to
+        # work on #223. The mutation already handed back the id; a write
+        # straight after an add uses it instead of waiting for the read.
+        self._added_items: dict[int, str] = {}
 
     def _gh(self, args: list[str]) -> str:
         if self._repo:
@@ -208,7 +216,8 @@ class GitHubTracker(Tracker):
             'projectId:$project contentId:$content }) { item { id } } }',
             project=raw["id"], content=issue.id,
         )
-        result["data"]["addProjectV2ItemById"]["item"]["id"]  # raise if the shape is wrong
+        item_id = result["data"]["addProjectV2ItemById"]["item"]["id"]  # raise if the shape is wrong
+        self._added_items[issue_number] = item_id
 
     def set_board_field(self, board: BoardRef, issue_number: int, field_name: str,
                          value: str) -> None:
@@ -224,6 +233,10 @@ class GitHubTracker(Tracker):
             if content.get("number") == issue_number:
                 item_id = item["id"]
                 break
+        if item_id is None:
+            # Only for an add this adapter made itself — never a way to
+            # invent an item for an issue that was never added.
+            item_id = self._added_items.get(issue_number)
         if item_id is None:
             raise KeyError(f"issue #{issue_number} is not on this board")
 
