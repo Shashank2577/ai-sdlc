@@ -1,0 +1,55 @@
+# The commit of *this* repo (the control plane) that a bootstrapped
+# product repo's DoD workflow fetches `scripts/dod-check.sh` from. #246.
+#
+# Why a SHA, not a tag or `main`
+# ---------------------------------------------------------------------
+# `main` was rejected on sight: a product's required check would then
+# change behaviour under it the moment this repo's `main` moves, with no
+# review on the product side — exactly #225 (a check whose definition a
+# pull request can move out from under itself) recreated one hop away, in
+# every product repo instead of just this one. A tag is reassignable by
+# anyone with tag-write here, so it does not actually pin anything harder
+# than `main` does; it only pins the string. A commit SHA is the one
+# reference that cannot be moved, redefined or reassigned out from under a
+# product after the product has picked it — the same property that makes
+# a SHA the safe choice anywhere else this repo pins one.
+#
+# The bump mechanism
+# ---------------------------------------------------------------------
+# `ref` below is read once, at the moment `bootstrap-product.py --install`
+# generates a product's `.github/workflows/dod-check.yml` — the value is
+# baked into that file's committed content, not looked up at CI run time.
+# A change to `scripts/dod-check.sh` (or anything it depends on, e.g.
+# `scripts/qa-gate.sh`'s closing-keyword regex) does not take effect for
+# any already-bootstrapped product until:
+#
+#   1. this file's `ref` is bumped, in its own reviewed PR, to the new
+#      commit — a change here is exactly the kind of thing
+#      `policies/products.yaml`'s `touches_governance` framing exists for,
+#      so treat it with the same care; and
+#   2. `bootstrap-product.py --install <product>` is re-run per product to
+#      regenerate its workflow file at the new pin (the existing
+#      conservative "differs from desired content -> conflict, left
+#      untouched" install rule means this is not automatic — a product
+#      that has hand-edited its installed workflow, e.g. to point at a
+#      pin of its own choosing per the customization note below, is
+#      surfaced as a conflict, not silently overwritten).
+#
+# A product is never force-migrated: it stays on whatever SHA is baked
+# into its own copy of the workflow file until someone re-runs `--install`
+# against it. That is the same trust model this file's sibling policies
+# already use (a claim is only as true as the last thing that checked it)
+# applied to a ref instead of a boolean.
+#
+# Customizing per product (the #246 "different conventions" question)
+# ---------------------------------------------------------------------
+# Once installed, a product's `.github/workflows/dod-check.yml` is that
+# product's own file — exactly the same standing `CONVENTIONS.md` already
+# has post-install (bootstrap will not overwrite either if hand-edited).
+# A product that wants a check ahead of the next registry-wide bump may
+# edit its own copy's `ref:` directly, the same way it may already edit
+# its own `CONVENTIONS.md`. A product that wants different required
+# trailers sets `DOD_REQUIRED_TRAILERS` in that same file's `env:` block
+# (see `scripts/dod-check.sh`, which reads it with the four-trailer set
+# as its default) — never by forking the script itself.
+ref: 3aff6ae6bbad1fdd634f745c80d0fa56cde21a82

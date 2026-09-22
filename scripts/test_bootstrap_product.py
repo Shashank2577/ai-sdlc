@@ -102,6 +102,7 @@ def bootstrapped_files() -> dict[str, str]:
         "CONVENTIONS.md": B.conventions_md(),
         ".github/CODEOWNERS": B.codeowners("acme"),
         B.CANONICAL_PR_TEMPLATE: B.pull_request_template(),
+        B.DOD_CHECK_WORKFLOW_PATH: B.dod_check_workflow(B.load_dod_check_pin()),
     }
 
 
@@ -257,7 +258,10 @@ class TestScenarios(unittest.TestCase):
         fake = FakeGitHub()
         results = B.do_install(REPO, "dod", **fake.install_world())
         self.assertTrue(B.is_ok(results))
-        self.assertEqual(set(fake.put_files), {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE})
+        self.assertEqual(
+            set(fake.put_files),
+            {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE, B.DOD_CHECK_WORKFLOW_PATH},
+        )
         self.assertEqual(fake.protection_puts, 1)
 
     def test_install_twice_is_a_no_op_the_second_time(self):
@@ -301,7 +305,10 @@ class TestScenarios(unittest.TestCase):
         self.assertIn("admin", conversation_result.detail)
         self.assertEqual(fake.protection_puts, 0)
         # files were installed regardless
-        self.assertEqual(set(fake.put_files), {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE})
+        self.assertEqual(
+            set(fake.put_files),
+            {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE, B.DOD_CHECK_WORKFLOW_PATH},
+        )
 
     def test_loosened_repo_check_catches_it_without_touching_files(self):
         # #227's acceptance criterion: a repo bootstrapped, then loosened
@@ -331,6 +338,68 @@ class TestScenarios(unittest.TestCase):
         self.assertEqual(set(fake.protection["required_status_checks"]["contexts"]), {"dod", "qa-gate"})
         # no file was touched — this was purely a protection fix
         self.assertEqual(fake.put_files, {})
+
+    def test_protection_requiring_dod_with_no_workflow_to_produce_it_is_not_ok(self):
+        # #246, exactly: ai-sdlc-pilot's actual shape before the fix — every
+        # file present, branch protection correctly requiring `dod` — but
+        # nothing in the repo can ever make that check report. Before this
+        # item existed, `do_check` had no way to see that and reported
+        # 5/5 OK on a permanently unmergeable repo.
+        files = {k: v for k, v in bootstrapped_files().items() if k != B.DOD_CHECK_WORKFLOW_PATH}
+        fake = FakeGitHub(files=files, protection=bootstrapped_protection())
+        results = B.do_check(REPO, "dod", **fake.check_world())
+        self.assertFalse(B.is_ok(results))
+        workflow_result = next(r for r in results if r.name == "dod check workflow")
+        self.assertEqual(workflow_result.status, "missing")
+        # everything else genuinely is fine — this is the one, specific gap
+        others_ok = all(r.status == "present" for r in results if r.name != "dod check workflow")
+        self.assertTrue(others_ok)
+
+    def test_workflow_scope_denial_is_reported_not_a_crash(self):
+        # A credential without `workflow` OAuth scope (every non-devops
+        # role, by ADR-0001) cannot write .github/workflows/dod-check.yml.
+        # That must surface as a clean, named result — not an unhandled
+        # exception that also takes down the other, unrelated file writes.
+        fake = FakeGitHub()
+
+        def put_file_denying_workflows(repo, path, content, message):
+            if path.startswith(".github/workflows/"):
+                raise RuntimeError(
+                    "PUT .github/workflows/dod-check.yml on acme/widgets failed: "
+                    "refusing to allow a Personal Access Token to create or update "
+                    "workflow `.github/workflows/dod-check.yml` without `workflow` scope"
+                )
+            fake.put_file(repo, path, content, message)
+
+        world = fake.install_world()
+        world["put_file"] = put_file_denying_workflows
+        results = B.do_install(REPO, "dod", **world)
+        self.assertFalse(B.is_ok(results))
+        workflow_result = next(r for r in results if r.name == "dod check workflow")
+        self.assertEqual(workflow_result.status, "blocked")
+        self.assertIn("workflow", workflow_result.detail)
+        # the other, unrelated items still installed
+        self.assertEqual(
+            set(fake.put_files), {"CONVENTIONS.md", ".github/CODEOWNERS", B.CANONICAL_PR_TEMPLATE}
+        )
+        self.assertEqual(fake.protection_puts, 1)
+
+
+class TestDodCheckWorkflow(unittest.TestCase):
+    def test_pins_a_sha_not_main(self):
+        content = B.dod_check_workflow("deadbeef" * 5, control_plane_repo="acme/control-plane")
+        self.assertIn("repository: acme/control-plane", content)
+        self.assertIn("ref: deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", content)
+        self.assertNotIn("ref: main", content)
+
+    def test_runs_the_fetched_script_against_the_product_pr(self):
+        content = B.dod_check_workflow("deadbeef" * 5)
+        self.assertIn("run: bash .dod-check-control-plane/scripts/dod-check.sh", content)
+        self.assertIn("GH_REPO: ${{ github.repository }}", content)
+
+    def test_pin_file_names_a_full_sha(self):
+        ref = B.load_dod_check_pin()
+        self.assertRegex(ref, r"^[0-9a-f]{40}$")
 
 
 # --------------------------------------------------------------------------

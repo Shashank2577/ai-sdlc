@@ -4,7 +4,7 @@
 `policies/products.yaml` can claim `bootstrapped: true` for a product; this
 is the thing that makes the claim true, and the thing that checks it against
 the live repo instead of trusting the flag. Per that policy's own
-`bootstrapped_is_verified` rule, five things must hold on the *target*
+`bootstrapped_is_verified` rule, six things must hold on the *target*
 repo, not on this file's say-so:
 
   1. `CONVENTIONS.md` at the repo root
@@ -22,6 +22,13 @@ repo, not on this file's say-so:
      half of that fix; the PR template below carries the advisory half —
      see `pull_request_template()`'s docstring for why it is advisory,
      not a second technical check.
+  6. `.github/workflows/dod-check.yml` — something that can actually
+     *produce* the `dod` check item 4 requires. #246: every product
+     bootstrapped before this item existed had branch protection requiring
+     a check that nothing in the repo could run, making every PR against it
+     permanently unmergeable. See `dod_check_workflow()` for the mechanism
+     (fetched from the control plane at a pinned ref, not copied) and
+     `policies/dod-check-pin.yaml` for why a SHA and how it is bumped.
 
     bootstrap-product.py --check <product>      # report state, change nothing
     bootstrap-product.py --install <product>     # install what's missing
@@ -65,6 +72,16 @@ PR_TEMPLATE_VARIANTS = (
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/PULL_REQUEST_TEMPLATE",  # a directory; existence is enough
 )
+
+# #246: branch protection requiring `dod` is only honest if something in
+# the product repo can produce it. That something is this workflow — a
+# thin dispatcher that fetches the real check from the control plane at a
+# pinned commit and runs it, rather than forking scripts/dod-check.sh into
+# every product. See policies/dod-check-pin.yaml for why a SHA, and the
+# bump mechanism.
+CONTROL_PLANE_REPO = "Shashank2577/ai-sdlc"
+DOD_CHECK_PIN_FILE = REPO_ROOT / "policies" / "dod-check-pin.yaml"
+DOD_CHECK_WORKFLOW_PATH = ".github/workflows/dod-check.yml"
 
 
 # --------------------------------------------------------------------------
@@ -161,10 +178,75 @@ REQ-
 """
 
 
+def dod_check_workflow(pin_ref: str, control_plane_repo: str = CONTROL_PLANE_REPO) -> str:
+    """The product-side DoD workflow — installed once, then the product's
+
+    own file to hand-edit, exactly like CONVENTIONS.md. It fetches
+    `scripts/dod-check.sh` from the control plane at `pin_ref` (never
+    `main` — see policies/dod-check-pin.yaml) into a side path that does
+    not disturb the product's own checkout, then runs it with the
+    product's own PR context. A product wanting different required
+    trailers sets `DOD_REQUIRED_TRAILERS` in the `env:` block below,
+    directly in its own copy of this file — not by forking the script.
+    """
+    return (
+        """name: DoD
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  dod:
+    name: dod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch the DoD check from the control plane (pinned — #246)
+        uses: actions/checkout@v4
+        with:
+          repository: __CONTROL_PLANE_REPO__
+          ref: __PIN_REF__
+          path: .dod-check-control-plane
+          sparse-checkout: |
+            scripts/dod-check.sh
+          sparse-checkout-cone-mode: false
+      - name: Run Definition of Done check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # DOD_REQUIRED_TRAILERS: Work-Item Requirement Agent-Role Harness
+        run: bash .dod-check-control-plane/scripts/dod-check.sh
+"""
+        .replace("__CONTROL_PLANE_REPO__", control_plane_repo)
+        .replace("__PIN_REF__", pin_ref)
+    )
+
+
+def load_dod_check_pin(path: Path = DOD_CHECK_PIN_FILE) -> str:
+    try:
+        import yaml
+    except ImportError:  # pragma: no cover
+        sys.exit("bootstrap-product: PyYAML is required")
+    if not path.is_file():
+        sys.exit(f"bootstrap-product: {path} not found — the DoD check pin is policy, not a default")
+    ref = (yaml.safe_load(path.read_text()) or {}).get("ref")
+    if not ref:
+        sys.exit(f"bootstrap-product: {path} has no `ref`")
+    return ref
+
+
 FILE_ITEMS: tuple[tuple[str, str, Callable[[str], str]], ...] = (
     ("CONVENTIONS.md", "CONVENTIONS.md", lambda repo: conventions_md()),
     (".github/CODEOWNERS", ".github/CODEOWNERS", lambda repo: codeowners(repo.split("/")[0])),
     ("PR template", CANONICAL_PR_TEMPLATE, lambda repo: pull_request_template()),
+    ("dod check workflow", DOD_CHECK_WORKFLOW_PATH, lambda repo: dod_check_workflow(load_dod_check_pin())),
 )
 
 
@@ -451,7 +533,25 @@ def do_install(
         else:
             plan = plan_file_install(name, get_file(repo, path), desired)
         if plan.status == "created":
-            put_file(repo, path, desired, f"bootstrap-product: install {name}")
+            try:
+                put_file(repo, path, desired, f"bootstrap-product: install {name}")
+            except RuntimeError as exc:
+                if not path.startswith(".github/workflows/"):
+                    raise
+                # A credential without `workflow` OAuth scope cannot create
+                # or update a file under .github/workflows/ — by design,
+                # the same boundary ADR-0001 draws for this repo's own
+                # workflows (role-packs/devops/skills/least-privilege-
+                # credentials.md). Report it, do not crash the rest of the
+                # install: the other items still install, and this one is
+                # handed to devops with the exact content already generated
+                # above.
+                plan = ItemResult(
+                    name, "blocked",
+                    f"could not write {path}: {exc} — likely the `workflow` OAuth scope boundary "
+                    "(only a devops credential may create or update a file under .github/workflows/); "
+                    "hand the generated content to devops rather than retrying with this credential",
+                )
         results.append(plan)
 
     meta = get_repo_meta(repo)
