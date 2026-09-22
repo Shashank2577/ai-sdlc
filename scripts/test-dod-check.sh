@@ -227,6 +227,30 @@ else
 fi
 git reset -q --hard "$BASE_TRAILER_SHA"
 
+# Case 4 (#246): a product that wants different required trailers overrides
+# via DOD_REQUIRED_TRAILERS in its own copy of the installed workflow —
+# never by forking this script. Same commit as case 3 (no Requirement
+# trailer) fails by default but passes once Requirement is dropped from the
+# required set, and the override must not silently accept anything — a
+# trailer still named in the override must still be enforced.
+setup; pr_body $'Closes #42\n\n- [x] done'
+git commit --allow-empty -q -F - <<'MSG'
+feat: missing trailer, but not a required one for this product
+
+Work-Item: Shashank2577/foundry-program#150
+Agent-Role: devops
+Harness: claude-code/2.1.259
+MSG
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" PR_NUMBER=1 \
+  DOD_REQUIRED_TRAILERS="Work-Item Agent-Role Harness" \
+  bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+check "DOD_REQUIRED_TRAILERS override drops Requirement from the required set" 0 $? "$WORK/out" "DoD check passed"
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" PR_NUMBER=1 \
+  DOD_REQUIRED_TRAILERS="Work-Item Agent-Role Harness Deploy-Target" \
+  bash "$REPO_ROOT/scripts/dod-check.sh" > "$WORK/out" 2>&1
+check "DOD_REQUIRED_TRAILERS override still enforces every trailer it names" 1 $? "$WORK/out" "is missing trailer \`Deploy-Target:\`"
+git reset -q --hard "$BASE_TRAILER_SHA"
+
 # ---------------------------------------------------------------------------
 echo
 echo "scripts/dod-check.sh — checklist_complete deferral (#173 policy, #180 check)"
