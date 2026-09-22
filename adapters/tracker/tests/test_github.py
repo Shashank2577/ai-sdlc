@@ -46,6 +46,12 @@ class FakeGh:
         ]
         self.items: dict[int, dict] = {}  # issue number -> item state
         self._next_item = 1
+        # Issue numbers whose items the board *query* does not list yet, even
+        # though the add mutation returned their id and the field mutation
+        # accepts it. GitHub Projects v2 reads are eventually consistent:
+        # PR #252's own sync run added #225, re-queried the board, and got a
+        # page without it. Set by a test; empty means a consistent board.
+        self.lagging: set[int] = set()
 
     # --- helpers ---------------------------------------------------------------
 
@@ -61,6 +67,8 @@ class FakeGh:
     def _board_json(self) -> dict:
         items = []
         for number, item in self.items.items():
+            if number in self.lagging:
+                continue
             field_nodes = []
             for name, value in item["fields"].items():
                 spec = next(f for f in self.fields if f["name"] == name)
@@ -166,6 +174,28 @@ class TestGitHubTrackerContract(TrackerContractTests, unittest.TestCase):
 
     def triggered(self):
         return self.fake.triggered
+
+    def test_set_board_field_right_after_add_survives_a_lagging_board_query(self):
+        """The failure PR #252's own sync run hit after the pagination fix:
+        `add_to_board(#225)` succeeded, `set_board_field` re-queried the
+        board, the just-added item was not on the page yet, and the sync
+        exited 1 with "issue #225 is not on this board". The add mutation
+        already returned the item's id; a field write straight after an add
+        must use it rather than depend on the read catching up."""
+        board = self.board_ref()
+        self.fake.lagging.add(1)
+        self.tracker.add_to_board(board, 1)
+        self.assertIsNone(self.tracker.board_item(board, 1),
+                          "fixture must model the lag: the query does not list #1 yet")
+        self.tracker.set_board_field(board, 1, "Status", "Todo")
+        self.fake.lagging.discard(1)
+        self.assertEqual(self.tracker.board_item(board, 1).field_values["Status"], "Todo")
+
+    def test_lookup_of_an_item_never_added_still_raises(self):
+        """The remembered id is a fallback for an add this adapter made, not
+        a way to invent items: an issue that was never added still fails."""
+        with self.assertRaises(KeyError):
+            self.tracker.set_board_field(self.board_ref(), 2, "Status", "Todo")
 
 
 if __name__ == "__main__":
