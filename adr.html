@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architecture decisions — Shashank2577/ai-sdlc</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+
+.status-h{font-size:.95rem;margin:1.5rem 0 .5rem}
+section{border:1px solid var(--line);border-radius:8px;padding:1rem 1.25rem;margin:1.25rem 0}
+section h3{margin-top:0}
+section h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+  margin:1.1rem 0 .4rem}
+section h5{font-size:.9rem;margin:.9rem 0 .2rem}
+section p{margin:.4rem 0}
+section ul{margin:.3rem 0;padding-left:1.4rem}
+</style>
+</head><body><main>
+<h1>Architecture decisions</h1>
+<p class="sub">
+  Every record in <code>adrs/</code> (PRD §14), computed — not hand-curated.
+  A record that fails to parse is listed with its parse error rather than
+  dropped. Requirement citations link to the
+  <a href="traceability.html">traceability matrix</a>; a citation naming a
+  requirement not in <code>requirements/index.md</code> is marked ⚠ rather
+  than silently linked.
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">10</div><div class="l">records</div></div>
+  <div class="tile"><div class="n" style="color:var(--green)">10</div><div class="l">accepted</div></div>
+  <div class="tile"><div class="n" style="color:var(--amber)">0</div><div class="l">proposed</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">superseded</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">parse errors</div></div>
+</div>
+
+<h2>By status</h2>
+<h3 class="status-h">Accepted (10)</h3>
+<div class="scroll"><table><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Date</th><th>Decided by</th><th>Work item</th><th>Requirements</th></tr></thead><tbody>
+      <tr>
+        <td class="req"><a href="#adr-0001">ADR-0001</a></td>
+        <td>Per-role credentials; only DevOps holds `workflow` scope</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #43's merge commit timestamp; not stated explicitly in the artefacts)</td>
+        <td>human (issue #42), implemented in PR #43</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/42">Shashank2577/foundry-program#42</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0002">ADR-0002</a></td>
+        <td>Cost is the enforced budget ceiling; tokens are a reported, non-breaching tripwire</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #24's merge commit timestamp)</td>
+        <td>human (issue #23), implemented in PR #24</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/23">Shashank2577/foundry-program#23</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0003">ADR-0003</a></td>
+        <td>The governance owner keeps `policies/**` but not other roles' packs</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-03</td>
+        <td>human operator, 2026-09-03 (per PR #102, &quot;Two governance decisions, both settled by the human operator on 2026-09-03&quot;)</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0004">ADR-0004</a></td>
+        <td>The approval gate scopes to write capability, not to path mentions</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-03</td>
+        <td>human operator, 2026-09-03 (PR #102, decision 2)</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0005">ADR-0005</a></td>
+        <td>`qa:rejected` returns a story to dispatch eligibility rather than excluding it</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #81's merge commit timestamp)</td>
+        <td>architect/developer session, implemented in PR #81, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/75">Shashank2577/foundry-program#75, #79</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0006">ADR-0006</a></td>
+        <td>Role packs are harness-neutral; the compiler writes rules it cannot express to `UNMAPPABLE.md` instead of dropping them</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #12's merge commit timestamp)</td>
+        <td>architect/developer session, implemented in PR #12, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/4">Shashank2577/foundry-program#4</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0007">ADR-0007</a></td>
+        <td>Approval is proven by the identity of who applied the label, never by the label's presence</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #46's merge commit timestamp, `4ed0c48`, in git log — not stated in the PR body itself)</td>
+        <td>architect/developer session, implemented in PR #46, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/45">Shashank2577/foundry-program#45</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0008">ADR-0008</a></td>
+        <td>Add security (veto) and operations (advisory) roles — scaffold proposed here, built by a developer story</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-22</td>
+        <td>Shashank2577 — accepted on the repository owner's instruction in an interactive Claude Code session (#223); both packs had already been built under a developer story (#238) and the veto's structural enforcement had landed (#237), so accepting records what is now true rather than proposing it</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/211">Shashank2577/ai-sdlc#211</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0009">ADR-0009</a></td>
+        <td>The learning loop detects recurring corrections with fixed mechanical matchers over tracker records, and promotion is always a human-approved proposal, never a write</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-22</td>
+        <td>Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/212">Shashank2577/ai-sdlc#212</a></td>
+        <td><a href="traceability.html#REQ-013">REQ-013</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0009">ADR-0009</a></td>
+        <td>A required check runs its enforcing script from `main`, never from the pull request's own merge ref</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-08</td>
+        <td>devops session, implemented in PR (this one), closing #225</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/225">Shashank2577/ai-sdlc#225</a></td>
+        <td><a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+</tbody></table></div>
+
+<h2>Chronological</h2>
+<div class="scroll"><table><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Date</th><th>Decided by</th><th>Work item</th><th>Requirements</th></tr></thead><tbody>
+      <tr>
+        <td class="req"><a href="#adr-0001">ADR-0001</a></td>
+        <td>Per-role credentials; only DevOps holds `workflow` scope</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #43's merge commit timestamp; not stated explicitly in the artefacts)</td>
+        <td>human (issue #42), implemented in PR #43</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/42">Shashank2577/foundry-program#42</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0002">ADR-0002</a></td>
+        <td>Cost is the enforced budget ceiling; tokens are a reported, non-breaching tripwire</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #24's merge commit timestamp)</td>
+        <td>human (issue #23), implemented in PR #24</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/23">Shashank2577/foundry-program#23</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0005">ADR-0005</a></td>
+        <td>`qa:rejected` returns a story to dispatch eligibility rather than excluding it</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #81's merge commit timestamp)</td>
+        <td>architect/developer session, implemented in PR #81, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/75">Shashank2577/foundry-program#75, #79</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0006">ADR-0006</a></td>
+        <td>Role packs are harness-neutral; the compiler writes rules it cannot express to `UNMAPPABLE.md` instead of dropping them</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #12's merge commit timestamp)</td>
+        <td>architect/developer session, implemented in PR #12, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/4">Shashank2577/foundry-program#4</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0007">ADR-0007</a></td>
+        <td>Approval is proven by the identity of who applied the label, never by the label's presence</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-02 (reconstructed from PR #46's merge commit timestamp, `4ed0c48`, in git log — not stated in the PR body itself)</td>
+        <td>architect/developer session, implemented in PR #46, closing</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/45">Shashank2577/foundry-program#45</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0003">ADR-0003</a></td>
+        <td>The governance owner keeps `policies/**` but not other roles' packs</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-03</td>
+        <td>human operator, 2026-09-03 (per PR #102, &quot;Two governance decisions, both settled by the human operator on 2026-09-03&quot;)</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0004">ADR-0004</a></td>
+        <td>The approval gate scopes to write capability, not to path mentions</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-03</td>
+        <td>human operator, 2026-09-03 (PR #102, decision 2)</td>
+        <td><a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a></td>
+        <td><a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0009">ADR-0009</a></td>
+        <td>A required check runs its enforcing script from `main`, never from the pull request's own merge ref</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-08</td>
+        <td>devops session, implemented in PR (this one), closing #225</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/225">Shashank2577/ai-sdlc#225</a></td>
+        <td><a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0008">ADR-0008</a></td>
+        <td>Add security (veto) and operations (advisory) roles — scaffold proposed here, built by a developer story</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-22</td>
+        <td>Shashank2577 — accepted on the repository owner's instruction in an interactive Claude Code session (#223); both packs had already been built under a developer story (#238) and the veto's structural enforcement had landed (#237), so accepting records what is now true rather than proposing it</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/211">Shashank2577/ai-sdlc#211</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0009">ADR-0009</a></td>
+        <td>The learning loop detects recurring corrections with fixed mechanical matchers over tracker records, and promotion is always a human-approved proposal, never a write</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-09-22</td>
+        <td>Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/212">Shashank2577/ai-sdlc#212</a></td>
+        <td><a href="traceability.html#REQ-013">REQ-013</a></td>
+      </tr>
+</tbody></table></div>
+
+
+
+<h2>Records</h2>
+    <section id="adr-0001">
+      <h3>ADR-0001: Per-role credentials; only DevOps holds `workflow` scope</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-02 (reconstructed from PR #43's merge commit timestamp; not stated explicitly in the artefacts)</span>
+        · decided by human (issue #42), implemented in PR #43
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/42">Shashank2577/foundry-program#42</a>
+        · requirements <a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>Issue #38 needed a push to `.github/workflows/**` and failed: the default `GITHUB_TOKEN` cannot write that path. The obvious fix — hand every dispatched session the one credential that can (`FOUNDRY_TOKEN`, carrying `repo` + `workflow` + `project`) — was rejected in #42 for two reasons: it widens every role's reach to unblock one, and it contradicts PRD §3, which names `.github/workflows/` and `infra/` as DevOps's write scope, not Developer's. At the time, `role-packs/developer/policy.yaml` allowed `.github/workflows/**` under the comment &quot;DevOps-adjacent; cross-reviewed&quot; — a rationalisation, not a boundary.</p>
+<h4>Options considered</h4>
+<h5>Option A: One shared credential, scoped to the union of all roles' needs</h5>
+<ul><li><strong>Cost:</strong> Zero new secrets to provision. But every dispatched session, regardless of role, carries `workflow` scope — a developer or QA session compromised or misdirected can rewrite the CI checks and dispatcher that govern it.</li><li><strong>Consequence:</strong> Least-privilege (REQ-012) is unenforceable; scope lives in prose comments, not in what the token can actually do.</li></ul>
+<h5>Option B: Per-role credentials, declared in each pack</h5>
+<ul><li><strong>Cost:</strong> Four secrets to provision instead of one (`FOUNDRY_DEV_TOKEN`, `FOUNDRY_DEVOPS_TOKEN`, `FOUNDRY_TOKEN`, `GITHUB_TOKEN` fallback); the dispatcher resolves `identity.token_secret` per pack instead of hardcoding one. Roles at the same privilege level share a secret, so this is not one secret per role.</li><li><strong>Consequence:</strong> A role's write scope is enforced by what its credential can push, not only by policy prose. `.github/workflows/**` and `infra/**` move to `role-packs/devops/`, the only pack whose token carries `workflow` scope and which cannot merge or approve a PR.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: the credential boundary is the only one a required check cannot be edited around, because the check is exactly what a wider credential could edit.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** human (issue #42), implemented in PR #43 **Date:** 2026-09-02 (reconstructed from PR #43's merge commit timestamp; not stated explicitly in the artefacts)</p>
+<p>`.github/workflows/**` and `infra/**` denied to the developer pack; `FOUNDRY_DEVOPS_TOKEN` (`repo` + `workflow`) given only to `role-packs/devops/`. The PR that implemented this also relabelled 21 prior commits' provenance: under the corrected model, every past commit touching `.github/workflows/` should have carried `Agent-Role: devops`, not `developer`.</p>
+<h4>Consequences</h4>
+<p>Adding a role never means widening an existing role's token — a new `pack.yaml` just declares `identity.token_secret`, and the dispatcher reads it with no role→secret table to edit. A pack whose declared secret is not configured falls back to `GITHUB_TOKEN` with a loud warning rather than a silent grant. Any future pack that needs `.github/workflows/` or `infra/` write access is a decision on the scale of this one, not a policy-file edit.</p>
+    </section>
+    <section id="adr-0002">
+      <h3>ADR-0002: Cost is the enforced budget ceiling; tokens are a reported, non-breaching tripwire</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-02 (reconstructed from PR #24's merge commit timestamp)</span>
+        · decided by human (issue #23), implemented in PR #24
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/23">Shashank2577/foundry-program#23</a>
+        · requirements <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>The repo's first live agent dispatch (run 33583977341, issue #22) cost $0.61 and was reported as a 1,414,300-token, 3.5x budget breach against a 400k-token ceiling. Of those tokens, 1,351,447 (96%) were cache reads — re-reads of context already paid for once. Fresh tokens were ~63k, well inside budget. The escalation ladder fired on an accounting artifact, not on overspend, and its own advice (&quot;read the transcript before spending again&quot;) was unfollowable: the transcript is written to `$RUNNER_TEMP` and destroyed with the runner, so the run had zero artifacts to read.</p>
+<h4>Options considered</h4>
+<h5>Option A: Keep tokens (including cache reads) as a hard breach line</h5>
+<ul><li><strong>Cost:</strong> Every cache-heavy session — which is most of them, since rehydrating a role pack and its charter on each turn is exactly what the harness caches — reads as a breach regardless of actual spend. The escalation ladder burns a retry on sessions that did nothing wrong.</li><li><strong>Consequence:</strong> The budget model measures context-window mechanics, not the thing the org actually pays for.</li></ul>
+<h5>Option B: Cost becomes the enforced ceiling; tokens are reported and flagged, never breach; cache reads excluded from the token count</h5>
+<ul><li><strong>Cost:</strong> Requires the dispatcher to plumb actual per-session cost (already available from the harness) into the spend report, and to separate cache reads from fresh tokens (input + output + cache writes) in the count that's reported.</li><li><strong>Consequence:</strong> A session is judged on what it actually cost the org. Tokens remain visible for diagnosing runaway context growth, but stop being a false-positive breach source.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: cost is the number that is actually scarce here (a fixed dollar ceiling per work item); a token count that's 96% cache reads tells a reviewer nothing about spend.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** human (issue #23), implemented in PR #24 **Date:** 2026-09-02 (reconstructed from PR #24's merge commit timestamp)</p>
+<p>Replaying the same session's real numbers under the new rules: $0.61 of $5.00, 31 of 60 turns, 63k of 400k fresh tokens — no breach, correctly. The developer turn budget was also raised 30 -&gt; 60 in the same change, on the evidence that 31 turns with no branch pushed was a session still reading code, not one looping.</p>
+<h4>Consequences</h4>
+<p>Every role pack's `policy.yaml` budget model (see `role-packs/architect/policy.yaml`) now states `cost_usd` as the breaching ceiling and `tokens` explicitly as a tripwire only (&quot;reported, never a breach&quot;). Any future budget dimension added to a pack should name, up front, whether it is enforced or advisory — this decision is the reason that distinction exists in the budget schema at all.</p>
+    </section>
+    <section id="adr-0003">
+      <h3>ADR-0003: The governance owner keeps `policies/**` but not other roles' packs</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-03</span>
+        · decided by human operator, 2026-09-03 (per PR #102, &quot;Two governance decisions, both settled by the human operator on 2026-09-03&quot;)
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a>
+        · requirements <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`role-packs/delivery-lead/policy.yaml` allowed `write_scope` on both `policies/**` and `role-packs/**`. The second grant meant the governance pack could rewrite any other role's (including its own) budget, tool denials and write scope — which made two of its own `forbidden` entries, `granting_itself_more_scope` and `change_widens_another_roles_permissions`, prose rather than enforced scope. This shipped unnoticed (`d04c52f`) because the CI job that tests it, `approval-gate.yml`, was path-filtered to exclude `role-packs/**` — the exact directory the bug is about (tracked separately as #100).</p>
+<h4>Options considered</h4>
+<h5>Option A: Keep `role-packs/**` as delivery-lead's write scope</h5>
+<ul><li><strong>Cost:</strong> None to build — this was already the state. The ongoing cost is that governance's own `forbidden` list cannot be trusted: a rule saying a pack &quot;must not grant itself more scope&quot; is unenforced if that same pack can edit the file the rule lives in.</li><li><strong>Consequence:</strong> No agent-writable boundary actually constrains the governance role. Every other role's scope is only as safe as this one pack's judgment, every session.</li></ul>
+<h5>Option B: Narrow to `role-packs/delivery-lead/**`; other packs change only via a human-merged PR</h5>
+<ul><li><strong>Cost:</strong> Governance changes to another role's pack become two-step — the delivery-lead session proposes, a human merges — instead of one agent-authored commit. Matches the scoping already used for `devops`.</li><li><strong>Consequence:</strong> A permission-widening change becomes visible as a PR a person reviews, which is where PRD §13's &quot;nothing an agent does unsupervised is irreversible&quot; says it should surface anyway.</li></ul>
+<h5>Option C: Remove `policies/**` from delivery-lead entirely</h5>
+<ul><li><strong>Cost:</strong> The gates (`policies/gates.yaml`, `policies/dod.yaml`) would have no agent owner and no way to be changed through the loop at all — every gate edit becomes a manual, off-loop human commit.</li><li><strong>Consequence:</strong> Safer in isolation, but reverses the reason a governance role pack exists (PRD §13: guardrails need an owner, not just a human editing YAML by hand forever).</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: it keeps governance's reason to exist (an agent owner for the gates) while removing the one grant that made its own self-scoping rules unenforceable. C is the safer static state but undoes the pack's purpose; A is the status quo the bug report exists to fix.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** human operator, 2026-09-03 (per PR #102, &quot;Two governance decisions, both settled by the human operator on 2026-09-03&quot;) **Date:** 2026-09-03</p>
+<p>`role-packs/delivery-lead/policy.yaml` write scope narrowed to `policies/**` and `role-packs/delivery-lead/**`, nothing wider — matching how `devops` is scoped to its own pack. The `policies/**` exception is kept deliberately, and is asserted safe under two conditions that are now tests rather than prose: every `role:delivery-lead` story is critical by its label alone (new `governance_role` gate rule, see ADR-0004), and the pack's `shell.allow` omits both merge and approve commands so it structurally cannot self-approve.</p>
+<h4>Consequences</h4>
+<p>Any future widening of `role-packs/delivery-lead/**` toward another pack's directory is, by this ADR, the kind of change that needs its own ADR and explicit human sign-off — not a policy tweak folded into an unrelated story. `scripts/test_gate_check.py` now asserts `test_no_pack_may_write_another_packs_directory` as the general form, so this specific failure mode cannot recur in a different pack without a test failing first. `approval-gate.yml`'s `pull_request.paths` filter was widened to include `role-packs/**` in the same change, so this class of bug running green and unnoticed cannot repeat undetected.</p>
+    </section>
+    <section id="adr-0004">
+      <h3>ADR-0004: The approval gate scopes to write capability, not to path mentions</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-03</span>
+        · decided by human operator, 2026-09-03 (PR #102, decision 2)
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/101">Shashank2577/foundry-program#101</a>
+        · requirements <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`policies/gates.yaml`'s critical-work rules (`touches_governance`, `changes_requirements`, etc.) matched on whether a story's text named a protected path, e.g. `.github/workflows/`. Measured across all 53 issues in the repo at the time, this held 41 (77%) for human approval. `touches_governance` alone fired on 50%, because this repo's stories routinely *name* `.github/workflows/` or `policies/` without proposing to change them — it is a workflow-and-policy repo, so those strings are everywhere. A `role:developer` story mentioning `.github/workflows/` was held even though the developer pack denies that path and its token lacks `workflow` scope (ADR-0001) — a gate on a change that cannot happen. The policy's own header had predicted this: &quot;a gate on everything is a gate nobody reads — and a gate nobody reads is worse than no gate, since it launders whatever passes through it.&quot;</p>
+<h4>Options considered</h4>
+<h5>Option A: Keep text/substring matching on protected path names</h5>
+<ul><li><strong>Cost:</strong> Ships as-is; no further work. Ongoing cost is the 77% hold rate — real approvals get lost in volume, and a human reviewing gate activity habituates to rubber-stamping because most of what they see is a story that could never have made the change in the first place.</li><li><strong>Consequence:</strong> The gate's signal-to-noise ratio stays bad indefinitely; PRD §7's &quot;few gates, all visual, each with an SLA&quot; is undermined by &quot;few&quot; not holding in practice.</li></ul>
+<h5>Option B: Scope each `guards_paths` rule to fire only when the story's role could actually write one of those paths, per that role's own `write_scope`</h5>
+<ul><li><strong>Cost:</strong> The gate check must resolve each role's `write_scope` at evaluation time and stay conservative on unknowns — no role label, an unrecognised role, two role labels, or an unreadable pack must all still count as capable, or the gate becomes bypassable by omitting a label. This shipped twice before it was right: the first attempt classified the entire backlog as critical (see PR #46's &quot;my first version...&quot;).</li><li><strong>Consequence:</strong> The gate holds only work that could actually touch a guarded path. Measured result: 41/53 (77%) -&gt; 34/53 (64%), leaving `pipeline_role` and `governance_role` (both meant to hold every time) as the largest categories.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: it keeps the gate meaningful without loosening what it actually protects — the residual holds are exactly the two roles (devops, delivery-lead) that PRD §13 says should always be held.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** human operator, 2026-09-03 (PR #102, decision 2) **Date:** 2026-09-03</p>
+<p>Rules carrying `guards_paths` now fire only when the story's role's own `write_scope` reaches one of those paths — the same boundary the credential model (ADR-0001) already uses, checked through the same code rather than a second, independently-drifting copy of it. Conservative-on-unknowns is explicit policy, not an incidental default: an unrefined or ambiguously labelled story is exactly when least is known, and scoping must not become a way past the gate for exactly that case.</p>
+<h4>Consequences</h4>
+<p>Any new `critical_when` rule added to `policies/gates.yaml` in future is expected to carry `guards_paths` and go through this same capability check, not a bare text match — a rule that skips it reintroduces the 77% noise problem this ADR exists to fix. `scripts/test_gate_check.py`'s `test_every_guarded_path_names_a_real_scope_pattern` and `test_a_pack_cannot_reach_its_own_gate_through_write_capability` are the enforcement; a change to `gates.yaml` that fails either is reverting this decision, not extending it.</p>
+    </section>
+    <section id="adr-0005">
+      <h3>ADR-0005: `qa:rejected` returns a story to dispatch eligibility rather than excluding it</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-02 (reconstructed from PR #81's merge commit timestamp)</span>
+        · decided by architect/developer session, implemented in PR #81, closing
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/75">Shashank2577/foundry-program#75, #79</a>
+        · requirements <a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`role-packs/orchestrator/policy.yaml` listed `qa:rejected` in `eligibility.exclude_labels`, so the loop would never dispatch a story carrying that label — a deadlock, since QA's own charter says &quot;do not fix the code, reject with specifics; a developer session fixes it,&quot; but nothing could dispatch that developer session while the rejecting label was still attached. Issue #75 names its own origin honestly: &quot;I wrote the exclusion and the comment justifying it... and never built the 'back through its author' half.&quot; Issue #52 was stuck in exactly this state: rejected, PR unmergeable, no path back through the loop. A second defect (#79) compounded it: even with `qa:rejected` removed from `exclude_labels`, QA dispatch itself used a fixed `eligibility.require_labels: [status:ready]` for every role, so QA — dispatchable from `status:in-review` per the dispatcher's own guard — could still never be *planned* by the loop, only run by hand.</p>
+<h4>Options considered</h4>
+<h5>Option A: Keep `qa:rejected` in `exclude_labels`; build a separate re-dispatch path for rejected work</h5>
+<ul><li><strong>Cost:</strong> A second dispatch mechanism to design, build and keep in sync with the primary one — eligibility rules would exist in two places for what is otherwise one state machine.</li><li><strong>Consequence:</strong> `qa:rejected` continues to double as both &quot;blocks closure&quot; (its real job, already enforced structurally by `scripts/qa-gate.sh` and `qa-verdict.sh close-guard`) and &quot;blocks dispatch&quot; (redundant with the first, and the thing actually causing the deadlock).</li></ul>
+<h5>Option B: Drop `qa:rejected` from `exclude_labels`; fix eligibility to read each role's own `dispatchable_from`</h5>
+<ul><li><strong>Cost:</strong> `scripts/assign.py` eligibility moves from one fixed `require_labels` to reading `role-packs/&lt;role&gt;/pack.yaml`'s `dispatchable_from` per role — more moving parts, but the same declaration the dispatcher's own guard already reads via the compiler, so no new source of truth is introduced.</li><li><strong>Consequence:</strong> A rejected story can be replanned once a human moves it back to `status:ready` (the state gate that actually governs redispatch — a rejected item cannot reach `status:ready` on its own). `qa:rejected` stops doing double duty; it blocks closure only, which is where it was already enforced structurally.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: the state gate (`status:ready`, human-applied per ADR-0004's approval model) already governs when a rejected story can be replanned; having the label do the same job too was redundant and, on top of it, the thing actually deadlocking #52.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** architect/developer session, implemented in PR #81, closing #79 **Date:** 2026-09-02 (reconstructed from PR #81's merge commit timestamp)</p>
+<p>PR #81 states this plainly as a judgment call beyond the issue's own Gherkin scenarios — none of which names `qa:rejected` directly: &quot;This is an interpretive call... but it's what made `scripts/test_assign.py: test_qa_rejected_blocks` need inverting per the issue's own note, and it's consistent with the issue's `#52 -&gt; missing status:ready` diagnostic (confirmed live, see Evidence).&quot;</p>
+<h4>Consequences</h4>
+<p>`qa:rejected` now means exactly one thing — the PR cannot merge and the issue cannot close — enforced in two places (`scripts/qa-gate.sh`, `scripts/qa-verdict.sh`), not three. Eligibility for dispatch is read per-role from `dispatchable_from` rather than one repo-wide `require_labels` default, which is the mechanism any future role with a non-standard dispatch state (like QA's `status:in-review`) is expected to use instead of adding another special case to `scripts/assign.py`.</p>
+    </section>
+    <section id="adr-0006">
+      <h3>ADR-0006: Role packs are harness-neutral; the compiler writes rules it cannot express to `UNMAPPABLE.md` instead of dropping them</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-02 (reconstructed from PR #12's merge commit timestamp)</span>
+        · decided by architect/developer session, implemented in PR #12, closing
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/4">Shashank2577/foundry-program#4</a>
+        · requirements <a href="traceability.html#REQ-002">REQ-002</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>PRD §3 requires role packs to be harness-neutral — one definition of a role's charter, skills, budget and tool scope, usable across whichever harness (claude-code, codex, deepseek, ...) actually runs a session. The first real pack (`role-packs/developer/`) needed something to turn that neutral definition into a harness's native config, and needed a stated answer for the case where a harness's config format cannot express a rule the neutral pack declares — most concretely, a tool-deny rule with an interior wildcard, which not every harness's allow/deny syntax supports.</p>
+<h4>Options considered</h4>
+<h5>Option A: Write each role pack directly in every supported harness's native format</h5>
+<ul><li><strong>Cost:</strong> N packs x M harnesses, hand-maintained in parallel. Every policy change (a new deny rule, a budget adjustment) is M edits instead of one, and nothing catches the day they drift apart.</li><li><strong>Consequence:</strong> &quot;Harness-neutral&quot; is a claim in the PRD, not a property of the repo — two harnesses running the &quot;same&quot; role pack can silently enforce different things.</li></ul>
+<h5>Option B: One neutral pack per role; a compiler renders it per harness, and a rule the target cannot express is written to `UNMAPPABLE.md`</h5>
+<ul><li><strong>Cost:</strong> Build and maintain `compiler/compile-pack.py` — validation for missing files, role/directory mismatches, incomplete budgets and dangling escalation templates, all failing loudly with the file named, plus the render logic itself per harness target.</li><li><strong>Consequence:</strong> One source of truth per role. A tool rule the compiler cannot map to the target harness's syntax is not silently dropped — it is written to `UNMAPPABLE.md` next to the compiled config, so an operator can see, per harness, exactly which controls did not make it through.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: a deny rule that silently fails to compile is worse than no rule at all, because the operator believes a control exists when it does not. `UNMAPPABLE.md` turns a silent gap into a visible one, at the cost of building and maintaining the compiler once, centrally, instead of drifting per-harness packs forever.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** architect/developer session, implemented in PR #12, closing #4 **Date:** 2026-09-02 (reconstructed from PR #12's merge commit timestamp)</p>
+<p>`compiler/compile-pack.py` renders a neutral pack for a target harness, rejecting a malformed one (missing required file, role/directory mismatch, unbudgeted role, dangling escalation template) rather than compiling it partially. A tool rule with, for example, an interior wildcard that the target harness's allow/deny syntax cannot express is written to `UNMAPPABLE.md` in the compiled output directory instead of being dropped.</p>
+<h4>Consequences</h4>
+<p>Every future harness target (codex's `compile_codex`, added later, is the first proof of this) is expected to plug into the same compiler and the same `UNMAPPABLE.md` convention rather than inventing its own silent-drop behaviour. Any pack change is validated once, centrally, by `compiler/test_compile_pack.py`'s `test_every_committed_pack_compiles`, so a pack that stops compiling for one harness fails CI before it reaches a dispatched session.</p>
+    </section>
+    <section id="adr-0007">
+      <h3>ADR-0007: Approval is proven by the identity of who applied the label, never by the label's presence</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-02 (reconstructed from PR #46's merge commit timestamp, `4ed0c48`, in git log — not stated in the PR body itself)</span>
+        · decided by architect/developer session, implemented in PR #46, closing
+        · work item <a href="https://github.com/Shashank2577/foundry-program/issues/45">Shashank2577/foundry-program#45</a>
+        · requirements <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`policies/gates.yaml`'s `dispatch_approval` gate needed a mechanical definition of &quot;approved to run unsupervised&quot; for critical work. A label alone (`status:ready`) is not proof of anything: any session with write access to issues can apply a label, including an agent session — so a gate that only checks for the label's presence is a gate an agent can satisfy for itself, which is not a gate.</p>
+<h4>Options considered</h4>
+<h5>Option A: Treat `status:ready` as approval whenever present, regardless of who applied it</h5>
+<ul><li><strong>Cost:</strong> None to build — labels are already read everywhere else in the loop this way.</li><li><strong>Consequence:</strong> Forgeable. Any agent session that can label an issue (which dispatch itself requires, for routine work) can self-apply the approval label on critical work too, defeating the gate it is supposed to pass through.</li></ul>
+<h5>Option B: Enforce via the `issues: labeled` event payload's sender — dispatch proceeds only when a human account applied the label; an agent-applied label on a critical rule reverts the story and posts `needs-human`</h5>
+<ul><li><strong>Cost:</strong> Requires a maintained `is_human()` classification — a deny-list of non-human actor patterns (`[bot]` suffixes, `github-actions`, `dependabot`, `copilot`), erring toward &quot;not a person&quot; on anything unrecognised, since erring the other way defeats the gate on exactly the case it exists for.</li><li><strong>Consequence:</strong> Approval is a fact about who took an action GitHub itself recorded (the event sender), not a marker a session can assert about itself. Same mechanism the dispatcher's `status:ready` prompt-injection guard already relies on, applied one level further in.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: it is the only option where &quot;approved&quot; is a fact the gate observes rather than a claim the gated thing can make about itself.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** architect/developer session, implemented in PR #46, closing #45 **Date:** 2026-09-02 (reconstructed from PR #46's merge commit timestamp, `4ed0c48`, in git log — not stated in the PR body itself)</p>
+<p>``` bot   + critical  -&gt; HELD — reverted to status:needs-refinement, needs-human, comment names every rule bot   + routine   -&gt; no action, no comment human + critical  -&gt; approved (a person applied it) ```</p>
+<p>`is_human()` is a deny-list, not an allow-list, and an empty actor is treated as non-human — both deliberate, since erring toward &quot;approved&quot; on an unrecognised actor would defeat the gate.</p>
+<h4>Consequences</h4>
+<p>Any future approval-shaped gate in this repo (this ADR's mechanism is reused, not just precedent, by ADR-0003's `governance_role` rule and ADR-0004's capability scoping) is expected to check actor identity from the event payload, not label presence, or it inherits this exact forgeability gap. `scripts/test_gate_check.py` is where that expectation is checked in code.</p>
+    </section>
+    <section id="adr-0008">
+      <h3>ADR-0008: Add security (veto) and operations (advisory) roles — scaffold proposed here, built by a developer story</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-22</span>
+        · decided by Shashank2577 — accepted on the repository owner's instruction in an interactive Claude Code session (#223); both packs had already been built under a developer story (#238) and the veto's structural enforcement had landed (#237), so accepting records what is now true rather than proposing it
+        · work item <a href="https://github.com/Shashank2577/ai-sdlc/issues/211">Shashank2577/ai-sdlc#211</a>
+        · requirements <a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-009">REQ-009</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>Eight role packs exist. Every merged PR is reviewed for correctness by QA and, for critical work, by a human governance gate. **Nothing reviews a change for security** — credential handling, injection surface, dependency risk, permission widening, secret exposure — even though this system holds credentials, mints tokens, runs arbitrary agent sessions on runners, and publishes a public site. Nothing owns what happens after a merge either: whether a deploy is safe to promote, whether a rollback plan is real, what a failure in `prod` means. `policies/environments.yaml` declares a rollback owner and a human-reviewer rule, but nobody's charter is to judge whether either is true for a specific change.</p>
+<p>`awslabs/aidlc-workflows` names fourteen roles for a human-gated 33-stage flow, including `aidlc-devsecops-agent`, `aidlc-compliance-agent`, `aidlc-operations-agent`, and `aidlc-pipeline-deploy-agent`. This ADR credits that roster as the prior art for &quot;security and operations should have named owners&quot; without adopting its scale — see Option B.</p>
+<p>This is a structural decision, not a code review: it sets a new role's credential tier, decides whether its write scope can be narrower than the roles it reviews, and — for security specifically — creates a verdict label the system is not yet wired to enforce. It also crosses the architect pack's own write scope: building the packs means writing `role-packs/security/**` and `role-packs/operations/**`, and registering them means writing `requirements/coverage.yaml`. `role-packs/architect/charter.md` is explicit that this pack does not write another role's pack, &quot;not even the scaffold for the thing you just decided&quot; — the scaffold belongs in this ADR's Consequences, built by a developer session dispatched against a work item that links back here. `role-packs/architect/pack.yaml` itself was built exactly that way, under `Agent-Role: developer` (commit 3fddd3e), as was `role-packs/delivery-lead/` (commit d04c52f, whose message states it followed the same pattern). This ADR follows that precedent rather than breaking it a third time.</p>
+<h4>Options considered</h4>
+<h5>Option A: Do nothing — leave the gap as prose in this ADR</h5>
+<ul><li><strong>Cost:</strong> Zero packs to build or maintain. But the gap this ADR exists to close is exactly the one #211 names: a vulnerability is caught by luck, not by a role whose job is to look for it. Every future PR keeps shipping with no security lens and no owner for deploy/rollback judgment.</li><li><strong>Consequence:</strong> REQ-002's role roster and REQ-009's veto model both stay incomplete on the one dimension this programme has explicitly flagged as a real hole rather than a missing box on a chart.</li></ul>
+<h5>Option B: Adopt `awslabs/aidlc-workflows`'s roster wholesale (14 roles, including 4 that split this ADR's two concerns further)</h5>
+<ul><li><strong>Cost:</strong> At minimum four new packs (`devsecops`, `compliance`, `operations`, `pipeline-deploy`) instead of two, each needing its own budget, write scope, credential-tier decision, and escalation ladder — roughly double the packs for the same two concerns this ADR addresses, plus the coordination overhead of deciding which of two-to-four overlapping charters a given finding belongs to.</li><li><strong>Consequence:</strong> This repo has already paid for this mistake once — `requirements/coverage.yaml`'s own `roles_built` check (#185) exists because unexercised capability reads as completeness. A 14-role roster sized for a human-gated 33-stage flow, most of it never dispatched here, repeats that pattern at four times the scale for these two concerns alone.</li></ul>
+<h5>Option C: Two new roles — `security` (binding veto, unenforced pending a devops story) and `operations` (advisory report, no gate) — recommended</h5>
+<ul><li><strong>Cost:</strong> Two packs to build and maintain (~55-turn, $4 budget each per the drafted `policy.yaml`, priced between QA's review budget and the developer's implementation budget). Security's veto label carries no structural enforcement until a separate devops story wires a `security-gate.sh`/`security-verdict.sh` pair the way QA's works — that is real, admitted cost, not hidden in this ADR. Both packs must declare a credential tier and a write scope narrower than what they review, which is itself a decision worth recording (see below).</li><li><strong>Consequence:</strong> The two concerns #211 names — nothing reviews for security, nothing owns post-merge deploy judgment — get a named owner each, at the minimum roster size that does it, with the enforcement gap stated rather than claimed.</li></ul>
+<p>Within Option C, two further decisions this ADR is recording:</p>
+<ul><li>**Security's credential tier is `FOUNDRY_DEV_TOKEN`, the same tier as developer/QA/PM/architect — not a wider one.** A role reviewing credential handling must not itself hold the widest credential in the system; that would invert the point of having it. The asymmetry this role needs is expressed in write scope, not token scope: security's `write_scope.allow` is `role-packs/security/**` only — narrower than every role it reviews, including QA's (which at least owns `tests/**`). Findings leave the system as labels, comments, and new bug issues — tracker writes, not file writes — because there is nothing this role needs to commit to prove a finding; a cited file:line is the evidence.</li><li>**Security gets a QA-shaped verdict label; operations gets a report, not a second unenforced gate.** #211 asks for a veto &quot;like QA's&quot; for security specifically, not for operations. Giving operations its own `ops:go`/`ops:no-go` label with no enforcement behind it either would be two unenforced gates instead of one honestly-stated one — the same completeness-by-appearance failure Option B commits at a different layer. Operations instead posts a readiness report (ready / not-ready-because-X / named gap) on the work item, which is a narrower claim it can actually back today.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend C: it closes both named gaps at the minimum roster size, prices the real cost of the unenforced veto instead of hiding it, and keeps security's own write scope narrower than the credentials and code it reviews — which the alternative of building it here, in a pack whose write scope already includes `role-packs/security/**`-adjacent reach, would have made harder to argue honestly.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option C — two roles, `security` (binding veto) and `operations` (advisory) **Decided by:** Shashank2577 — accepted on the repository owner's instruction in an interactive Claude Code session (#223); both packs had already been built under a developer story (#238) and the veto's structural enforcement had landed (#237), so accepting records what is now true rather than proposing it **Date:** 2026-09-22</p>
+<h4>Consequences</h4>
+<p>If Option C is accepted, two follow-up work items exist so the scaffold lands without this ADR's author writing outside its own pack:</p>
+<p>1. **A developer story** to create `role-packs/security/**` and `role-packs/operations/**` (`pack.yaml`, `charter.md`, `policy.yaml`, `tools.yaml`, `skills/`, `templates/`) and add both to `requirements/coverage.yaml`'s `policy.roles.expected`, so `roles_built` reports honestly against 10 roles instead of silently staying green at 8/8. A complete, compiler-validated draft of every file — verified against `compiler/compile-pack.py --check` for both `claude-code` and `codex`, matching the shape Option C commits to above — is attached as a patch on that story, ready to apply rather than re-derived from this ADR's prose. Link: Shashank2577/ai-sdlc#215. 2. **A devops story** to give `security:rejected` the same structural enforcement `qa:rejected` has (`security-gate.sh` as a required status check, a close-guard reopening a closure carrying `security:rejected`, the same pattern `scripts/qa-gate.sh` / `scripts/qa-verdict.sh` set). Until it lands, `security:rejected` is a documented, binding-by-convention recommendation a human merging the PR can see and can still override — the security pack's own `charter.md` and `policy.yaml` say so explicitly rather than claiming the veto exists. Link: Shashank2577/ai-sdlc#216.</p>
+<p>Neither follow-up widens an existing role's credential or write scope; each pack declares its own `token_secret` (`FOUNDRY_DEV_TOKEN`, this pack's tier) and the dispatcher resolves it with no role→secret table to edit, per ADR-0001.</p>
+    </section>
+    <section id="adr-0009">
+      <h3>ADR-0009: The learning loop detects recurring corrections with fixed mechanical matchers over tracker records, and promotion is always a human-approved proposal, never a write</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-22</span>
+        · decided by Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first
+        · work item <a href="https://github.com/Shashank2577/ai-sdlc/issues/212">Shashank2577/ai-sdlc#212</a>
+        · requirements <a href="traceability.html#REQ-013">REQ-013</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`scripts/memory.py` and `refs/notes/foundry` are the store half of REQ-013. This work item's own framing (&quot;it has never been used for it... none has ever been written at all&quot;) is out of date against the record: `requirements/coverage.yaml`'s REQ-013 entry shows the write path fired for real when dispatching #169 escalated and wrote a note to commit `773451c`, and a second dispatch of that same issue then read the note back out of its own assembled prompt — the store is built *and* exercised, not built and unexercised. Getting that distinction right is itself the discipline this ADR is about: asserting a state without checking the record is one of the three correction patterns #212 names. The gap that is real is the loop — turning a correction that keeps recurring into a rule the *next* session inherits without a person repeating it — has never been built. The cost of that gap is on the record, not hypothetical: the acceptance-criteria write-scope violation this ADR's own work item cites was corrected seven times (#52, #103, #114, #116, #121, #159, #173) before anyone encoded it as `scripts/check-story-scope.py` (#168/#172) — six of those seven correction comments, plus the retro/root-cause and coverage-drift patterns #212 also names, are sitting in issue and PR comments this repo already has.</p>
+<p>Prior art: `awslabs/aidlc-workflows` names this &quot;human corrections become persistent behavioural rules,&quot; running inside an interactive session where a human corrects an agent in the moment and the correction is captured immediately. This repo's loop cannot do that — it dispatches disposable sessions against a tracker, so a correction is never witnessed live; it can only be reconstructed after the fact from what the tracker already recorded. That is a different problem wearing the same name (the issue body is explicit about this), so this ADR takes the idea — repetition is the signal that promotes a correction to a rule — not the mechanism.</p>
+<p>The decision that cannot be deferred to whichever PR builds this first is **how a &quot;recurring correction&quot; gets identified from the record, and what happens once it is**. Get the first part wrong (a scheme that can't tell a coincidence from a pattern, or can't be pinned to a test) and the loop either misses the next #168 or manufactures superstition. Get the second part wrong (anything that writes a rule without a human approving it) and an agent has quietly rewritten its own instructions — the exact thing least-privilege (ADR-0001, ADR-0004) exists to prevent.</p>
+<h4>Options considered</h4>
+<h5>Option A: Fixed, per-pattern mechanical matchers over tracker records, counted and thresholded, output as a proposal issue</h5>
+<p>A script (developer-owned, `scripts/**`) reuses `retro.py`'s existing event collectors — closed-issue comments, escalation comments (`### Escalation`), QA-rejection labels, PR review comments, amended acceptance-criteria diffs — and runs a small, explicit set of matchers against them, one per known correction shape (write-scope-violation, root-cause-asserted-unverified, coverage-notes-drift, ...). Each matcher is a pure function: comment/label text in, a pattern key out, exactly like `check-story-scope.py`'s `analyze()` is a pure function from a story body to a verdict. Occurrences of the same pattern key are counted across the whole record (not just one retro window, since the seven write-scope occurrences span #52 through #173 — months, not one window). At or above threshold, the script opens a proposal — a new issue, not a commit — naming the pattern, linking every occurrence, and suggesting a landing artifact.</p>
+<ul><li><strong>Cost:</strong> One matcher per correction shape someone has already noticed and named, plus the collector plumbing (mostly reused from `retro.py`). Small, bounded build; no ongoing spend beyond retro's existing `gh` calls. Known-shape corrections not yet given a matcher are invisible to the loop until a person adds one — the same recall-for-precision trade `check-story-scope.py`'s own docstring already makes and defends.</li><li><strong>Consequence:</strong> The count is mechanically derived from the record, so it reproduces. Acceptance criterion #2 — reproduce the seven write-scope occurrences as a test case — becomes an ordinary fixed-input unit test (a list of seven comment bodies in, pattern key + count 7 out), the same shape as `scripts/test_check_story_scope.py`. New correction shapes need a person to notice one and write a matcher; that person is already the one who'd otherwise write the promoted rule by hand, so the marginal cost is small.</li></ul>
+<h5>Option B: An agent session reads all comments each retro window and semantically clusters similar corrections, proposing promotion for any cluster over a size threshold</h5>
+<ul><li><strong>Cost:</strong> Recurring LLM spend every retro window, growing with issue history since there is no cheap way to cluster only the new comments without re-reading old ones for context. Every clustering run needs a human skim to catch confident-sounding false groupings before they reach the threshold count.</li><li><strong>Consequence:</strong> Broader recall — it can notice a recurring correction nobody has named yet, which Option A structurally cannot. But &quot;is this the same correction as that one&quot; becomes a model's judgement call made fresh each run, which directly contradicts the acceptance criterion that the count come from the record rather than a judgement call, and a nondeterministic clustering cannot be pinned to the fixed seven-comment test case #2 requires — the test would assert on a similarity score, not a count.</li></ul>
+<h5>Option C: No dedicated detector — rely on the existing retro ceremony (`retro.py`) surfacing escalations and closed issues each window, and ask the human reviewing that issue to notice repeats by eye</h5>
+<ul><li><strong>Cost:</strong> Nothing to build.</li><li><strong>Consequence:</strong> This is the status quo the work item exists to fix, restated. `retro.py` already surfaces every escalation and closed issue per window, and a human read all seven write-scope escalations without the pattern becoming a rule until the eighth was one occurrence past seven — the record shows this option's failure mode, not a theory about it.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend A: it is the only option where the &quot;recurring&quot; count is a fact about the record — checkable, testable, and stable — rather than either a model's judgement (B) or a person's memory across windows (C, the failure already on the record).</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option A **Decided by:** Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first **Date:** 2026-09-22</p>
+<p>Threshold: **3 independent occurrences** (distinct issues or PRs), not 2. Two instances of the same correction can still be one correlated cause — the same author, the same planning session, hitting the same edge twice — and cannot yet be told apart from coincidence. Three requires the correction to have been independently re-applied across at least three separate review passes, which is the point the acceptance criteria themselves already treat as meaningful: the root-cause-asserted pattern is listed at three occurrences and named as worth a table row, while &quot;two occurrences is noise&quot; is stated outright. Three is the documented floor already in the record, not a round number picked for this ADR.</p>
+<p>Promotion is a **proposal**, structurally, not by convention: the detector opens a tracker issue (mirroring how `retro.py` opens one retro issue per window — same &quot;observe, don't act&quot; boundary its own docstring states) that names the pattern, links every occurrence, and suggests a landing artifact and location. It writes no file and opens no PR. Turning the proposal into a change still goes through an ordinary role session, a reviewed PR, and whatever CODEOWNERS routes that path to — the same human-approval path every other change in this repo takes, not a new gate invented for this one. This is the same shape ADR-0007 already established for approval: proven by what a person did (opened/merged a PR), never by the agent's own assertion that its output is fine to apply.</p>
+<p>Landing rule — where a promoted pattern goes, decided by what kind of correction it is, not by who is available to build it:</p>
+<p>| Correction is... | Lands in | Example already in the record | |---|---|---| | A mechanically checkable invariant (a path, a label, a required field) | a **check** (new script, or a rule added to an existing one like `check-story-scope.py`), wired into CI or dispatch | the seven write-scope occurrences → #168 | | Procedural judgement no script can evaluate (verify before asserting, a review habit) | a **skill** in the relevant role pack's `skills/` | the three root-cause occurrences | | A cross-role rule, budget, or gate definition | `policies/**`, delivery-lead's write scope | the five coverage-notes-drift occurrences, if promoted |</p>
+<p>A proposal that fits none of these three is not yet a rule — it stays an issue, not a document, because a rule with no enforcement point is prose nobody is bound by.</p>
+<h4>Consequences</h4>
+<p>This commits scripts/** (developer-owned, not this pack's write scope) to building the detector described above as a follow-up work item, including the fixed-input test that reproduces the seven write-scope occurrences (acceptance criterion #2) — that work is out of `adrs/**`/ `role-packs/architect/**`, so it is not done in this PR. `requirements/**` is product-manager's write scope, not architect's; the REQ-013 coverage notes should gain a line distinguishing &quot;the store, built and exercised on #165/#169&quot; from &quot;the loop, decided in ADR-0009, built in #263&quot; once that follow-up exists — also a separate work item, filed against product-manager.</p>
+<p>Any future correction-detection work inherits the same two constraints this ADR fixes in place: the count must come from a matcher over the record, not a model's or a person's judgement call in the moment, and nothing this loop produces may land as a write without going through the same reviewed-PR path every other change takes. A detector that instead opened its own PR and merged it, or wrote directly to a role pack's `skills/`, would need a new ADR superseding this one, not a quiet extension of it.</p>
+    </section>
+    <section id="adr-0009">
+      <h3>ADR-0009: A required check runs its enforcing script from `main`, never from the pull request's own merge ref</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-09-08</span>
+        · decided by devops session, implemented in PR (this one), closing #225
+        · work item <a href="https://github.com/Shashank2577/ai-sdlc/issues/225">Shashank2577/ai-sdlc#225</a>
+        · requirements <a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-007">REQ-007</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>`actions/checkout@v4` with no `ref:` on a `pull_request` trigger checks out the merge ref, which carries the PR's own changes. `dod-check.yml` and `qa-gate.yml` — the only two required status checks on `main` (`dod`, `qa-gate`, per branch protection) — ran `scripts/dod-check.sh` and `scripts/qa-gate.sh` straight off that checkout. A PR that weakened either script was graded by its own weakened copy: flagged P1 by `chatgpt-codex-connector` on #10 and #13 on day one, neither thread answered, and reproduced live on #189 (&quot;#189 modifies `dod-check.sh` itself, so it runs its own version&quot; — observed and not recognised as the same hole).</p>
+<p>`approval-gate.yml`'s actual enforcement (`gate`, `story-scope-check`) triggers on `issues: labeled`, which always runs from the default branch — it was never exposed to this. `unit-tests.yml` is not a required check (confirmed against live branch protection), so nothing it runs decides a merge; weakening a script and its own test together is an ordinary code review problem there, not this one. The hole is exactly the two required checks: they alone execute a PR-supplied script and use its exit code to decide whether that same PR can merge.</p>
+<h4>Options considered</h4>
+<h5>Option A: Check out `main` for the whole job, judge the PR's diff from the API instead of local git</h5>
+<ul><li><strong>Cost:</strong> `dod-check.sh` walks `BASE_SHA..HEAD_SHA` with `git log`/ `git rev-list` against local history for the trailer check — losing the merge-ref checkout means re-deriving that from `gh api` calls per commit, rewriting logic that already works.</li><li><strong>Consequence:</strong> Larger diff, more surface for the rewrite itself to be wrong, for a job that already has the commit range available in its history — fetch-depth 0 pulls every branch, `main` included.</li></ul>
+<h5>Option B: Keep the existing checkout (merge ref, `fetch-depth: 0`, so `BASE_SHA..HEAD_SHA` still resolves locally); before running the check, overwrite the working copy of the script with the version read from `origin/main`</h5>
+<ul><li><strong>Cost:</strong> One extra step per job: `git show origin/main:scripts/&lt;x&gt;.sh &gt; $RUNNER_TEMP/&lt;x&gt;.sh`, then run that path instead of the in-tree one. Both scripts already take everything else they need (PR number, SHAs) from env vars and the `gh` CLI, not from their own path, so nothing else moves.</li><li><strong>Consequence:</strong> The script that decides the merge is always the one a human already reviewed on `main`. A PR editing `scripts/dod-check.sh` or `scripts/qa-gate.sh` cannot change what judges it, no matter what it changes locally — only a merge to `main` can do that, which is exactly the review gate this system already relies on everywhere else.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend B: it isolates the fix to &quot;which copy of the script runs&quot; and leaves the parts of these jobs that already work — commit-range walking, `gh` calls, the required-check names branch protection already points at — untouched. Rewriting the diff-reading logic (Option A) to avoid a merge-ref checkout would touch more surface for no addition to the guarantee: the merge ref is safe to keep so long as the *script* on it is never trusted to grade itself.</p>
+<p>This is deliberately narrower than &quot;stop checking out the merge ref anywhere.&quot; `dod-check-tests` and `qa-enforcement-tests` — the jobs a PR changing these scripts uses to prove the change works — already run their own copy of the script from the merge ref, and already are not required checks: they are not contexts branch protection names, so they cannot decide a merge no matter what they report. That is already the split this issue asks for (&quot;tests of the check... in a job that does not decide the merge&quot;); it did not need building, only confirming.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option B **Decided by:** devops session, implemented in PR (this one), closing #225 **Date:** 2026-09-08</p>
+<p>`dod-check.yml`'s `dod` job and `qa-gate.yml`'s `qa-gate` job each gained one step, immediately after checkout, that reads their script from `origin/main` into `$RUNNER_TEMP` and runs that path instead of the in-tree copy. `approval-gate.yml`'s `gate` and `story-scope-check` jobs were not touched — they already run from `issues: labeled`, which checks out the default branch by construction, so there was no merge-ref exposure to close. `unit-tests.yml` was not touched — it is not a required check, so nothing it runs decides a merge; if it is ever made required, whatever script it uses to grade a PR against itself would need this same treatment, but that is a decision for whoever makes it required, not this one.</p>
+<p>`touches_governance` (`policies/gates.yaml`) was verified, not changed: `scripts/gate-check.py --classify --issue 225` returns `CRITICAL / touches_governance: mentions '.github/workflows/'` against this issue's own text, and `scoping: write_capability` (ADR-0004) still resolves `role:devops` as able to write `.github/workflows/**`, so the rule fires for exactly the role that can make this kind of change. `scripts/test_gate_check.py` already asserts both the match and the scoping in code; nothing here needed a new assertion.</p>
+<p>The hole was demonstrated closed on this PR: a throwaway commit weakened `scripts/dod-check.sh` to always exit 0 and paired it with a commit deliberately missing a required trailer. The `dod` check still failed — it read the unweakened script from `origin/main`, not the weakened one on the branch — before the demonstration commits were reverted. See the PR description for the run link.</p>
+<h4>Consequences</h4>
+<p>Any workflow that becomes a required status check in future and executes a script this repository's own history controls (not a third-party action) is expected to pin that script to `origin/main` the same way, or it reopens exactly this hole under a different file name. A reviewer adding a new required check should ask this ADR's question — &quot;does this job run a script the PR under review could have changed?&quot; — before merging the branch-protection change that makes it required.</p>
+<p>`dod-check.sh` and `qa-gate.sh` still read `BASE_SHA`/`HEAD_SHA`/`PR_NUMBER` from the environment and reach the PR's actual diff through `git log` against the merge ref's history and `gh pr view`/`gh issue view` — pinning the script's own source does not, and must not, change what it inspects, only what code does the inspecting.</p>
+    </section>
+
+<footer>
+  Generated 2026-09-22 00:50 UTC from
+  <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>.
+</footer>
+</main></body></html>

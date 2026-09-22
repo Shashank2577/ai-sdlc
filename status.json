@@ -1,0 +1,456 @@
+{
+  "meta": {
+    "repo": "Shashank2577/ai-sdlc",
+    "generated_at": "2026-09-22 00:52 UTC"
+  },
+  "facts": {
+    "roles_expected": [
+      "orchestrator",
+      "product-manager",
+      "architect",
+      "developer",
+      "qa",
+      "devops",
+      "techwriter",
+      "delivery-lead",
+      "security",
+      "operations"
+    ],
+    "roles_built": [
+      "orchestrator",
+      "product-manager",
+      "architect",
+      "developer",
+      "qa",
+      "devops",
+      "techwriter",
+      "delivery-lead",
+      "security",
+      "operations"
+    ],
+    "roles_unexpected": [],
+    "ceremonies_built": [
+      "refinement",
+      "planning",
+      "standup",
+      "review",
+      "retro"
+    ],
+    "dirs_present": [
+      "prds",
+      "requirements",
+      "adrs",
+      "role-packs",
+      "ceremonies",
+      "policies",
+      "adapters",
+      "dashboards",
+      "portal",
+      "compiler",
+      ".github/workflows"
+    ],
+    "agent_delivered_prs": 42,
+    "dispatch_runs": {
+      "failure": 29,
+      "success": 71
+    },
+    "merged_prs": 118,
+    "dispatched_issues": [
+      106,
+      115,
+      117,
+      120,
+      121,
+      122,
+      128,
+      129,
+      134,
+      140,
+      148,
+      150,
+      155,
+      157,
+      158,
+      159,
+      164,
+      165,
+      168,
+      169,
+      173,
+      174,
+      179,
+      180,
+      184,
+      185,
+      190,
+      191,
+      192,
+      193,
+      194,
+      202,
+      206,
+      208,
+      209,
+      210,
+      211,
+      212,
+      215,
+      216,
+      222,
+      224,
+      225,
+      226,
+      227,
+      231,
+      232,
+      233,
+      234,
+      235,
+      244,
+      245,
+      246
+    ]
+  },
+  "coverage": {
+    "REQ-001": {
+      "summary": "Coordination through the tracker; every action leaves an artifact",
+      "notes": "",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`gh issue comment` found in `.github/workflows/dispatch.yml`"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/project-sync.yml` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-002": {
+      "summary": "Harness-neutral role packs, with attribution by per-role credential tier and the Agent-Role trailer",
+      "notes": "8 of the 9 roles PRD \u00a73 names have packs. The ninth, Delivery Lead (governance: policies/, gates, budgets, escalation), was added later (#64) and is not the same role as Delivery Manager (client-facing: status reports, demo packages, the portal) \u2014 see role-packs/delivery-lead/charter.md's \"Do not conflate this with the Delivery Manager\" section. Delivery Manager has no pack; that is a real gap (REQ-008's client portal is also unbuilt), not a naming collision resolved by counting Delivery Lead twice (#184). Attribution is by credential tier and the Agent-Role trailer, not by signature \u2014 a decision, not a gap. Distinct per-role bot identities were considered and rejected for v0; see adrs/.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`compiler/compile-pack.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`role-packs/*/pack.yaml` >= 9 (found 10)"
+        },
+        {
+          "ok": true,
+          "text": "`FOUNDRY_DEVOPS_TOKEN` found in `role-packs/devops/pack.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-003": {
+      "summary": "Harness adapter \u2014 role packs compile for whichever harness a session runs under",
+      "notes": "These checks prove existence, not use \u2014 read a 100% here as \"three compile_* functions exist and are exercised by compiler/test_compile_pack.py\", never as \"three harnesses have run a session\". Only claude-code has: every merged PR this programme has produced carries a `Harness: claude-code/*` trailer (#210).\n#222 closed part of the \"compiles\" vs \"has run\" gap this note used to describe in full: every role pack has declared `harness_compat.codex.supported: true` since the packs were first written (#42) \u2014 that half of the old note was already stale, not newly fixed \u2014 and `.github/workflows/dispatch.yml` no longer hard-codes `--harness claude-code`; `harness` is now a dispatch input, gated by compile-pack.py's own harness_compat check, with its own codex agent step (installs `@openai/codex`, runs `codex exec --profile <role>` against the compiled `sandbox-policy.toml`) that preserves the same checkout/budget/session-start/session-end contract claude-code runs under. `scripts/test-diagnose-workflow-push-refusal.sh` now also proves, structurally, that which GitHub credential a role gets does not depend on which harness is driving it \u2014 every codex-eligible role compiles to the same `token-secret` under both harnesses.\nWhat is still true, and still the thing this note exists to say plainly: **no codex session has ever run.** The agent step's preflight fails closed without a `CODEX_API_KEY` repository secret, which no role pack can provision for itself \u2014 #241 is the live trial this needs, blocked on that secret, tracking exactly the \"has run a session, produced a merged PR\" bar this note has always meant. Until #241 closes, read a 100% here the same way as before: the dispatch path exists and is tested, not that it has been exercised. opencode (#210) compiles and passes compiler/test_compile_pack.py but has no dispatch.yml step at all yet \u2014 a separate, smaller version of the same gap. DeepSeek, Kiro, Cursor, and Copilot are not implemented; awslabs/aidlc-workflows' `harness/` tree is the reference for what each would need.",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_claude_code` found in `compiler/compile-pack.py`"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_codex` found in `compiler/compile-pack.py`"
+        },
+        {
+          "ok": true,
+          "text": "`def compile_opencode` found in `compiler/compile-pack.py`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-004": {
+      "summary": "Tracker adapter \u2014 GitHub Projects and Jira swappable",
+      "notes": "scripts/sync-project.py is now rewired through adapters/tracker/base.py (#192): every tracker call is an interface call, and which implementation backs a run is a single config read (`TRACKER_IMPL`, default `github`). A test drives the script's full sync algorithm against both adapters' stubs and gets the same result from each. That proves the seam is load-bearing, not merely present \u2014 but it is proof against stubs, not against a live Jira. adapters/tracker/jira has still never been run against a real Jira instance; there are no credentials or instance to run it against here. \"Seam proven against stubs\" and \"Jira integration works\" are different claims, and only the first one is made.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/sync-project.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/tracker/github` exists"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/tracker/jira` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-005": {
+      "summary": "Git-native traceability spine",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/dod-check.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/build.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`.github/CODEOWNERS` exists"
+        },
+        {
+          "ok": true,
+          "text": "`commit_trailers` found in `policies/dod.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-006": {
+      "summary": "All five ceremonies run autonomously and end in artifacts",
+      "notes": "All five ceremonies run \u2014 standup, refinement and retro, plus planning and review, which landed in #152.",
+      "passed": 6,
+      "total": 6,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/standup.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/refinement.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/retro.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/planning.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/review.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`ceremonies/*.yaml` >= 5 (found 5)"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-007": {
+      "summary": "Human-in-the-loop as decision gates, never free-text supervision",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`Options` found in `role-packs/*/templates/escalation-comment.md`"
+        },
+        {
+          "ok": true,
+          "text": "`needs-human` found in `.github/workflows/dispatch.yml`"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/spend-report.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`policies/gates.yaml` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-008": {
+      "summary": "Client layer \u2014 transcript to PRD, sign-offs, CRs, demos, portal",
+      "notes": "scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133,",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`portal` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/*transcript*` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`policies/signoff*.yaml` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-009": {
+      "summary": "QA veto, DoD as policy-as-code, published QA reports",
+      "notes": "The veto is enforced. QA reports are published as dashboards/qa.html via GitHub Pages (#110), not only comments.",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/qa-gate.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/qa-verdict.sh` exists"
+        },
+        {
+          "ok": true,
+          "text": "`policies/dod.yaml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/qa*.py` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-010": {
+      "summary": "Environment ladder preview to prod, human gate, rollback plans",
+      "notes": "The ladder is declared (policies/environments.yaml), four GitHub Environments are configured with a required-reviewer rule on prod, and a deploy workflow now walks it. The prod gate has been exercised for real, not just declared: run 33887826522 paused for 31 minutes waiting on @Shashank2577's approval, then proceeded and emitted its rollback plan. But no application is deployed by any of this \u2014 there is no application in this repository, so the deploy step is a documented no-op. The ladder, the gate and the rollback-plan mechanism are proven; deploying a real workload is not, and 3/3 here should not be read as \"this programme ships software\" (#184).",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/deploy*.yml` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`infra/**` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`policies/environments.yaml` exists"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-011": {
+      "summary": "Visibility \u2014 boards, generated dashboards, computed matrix",
+      "notes": "Traceability, standup, programme status, and burndown/velocity. One known inaccuracy on the status page as of #184: its role-pack tile counts against a literal list in dashboards/status.py that still names \"delivery-manager\" instead of the newly-distinguished Delivery Lead / Delivery Manager pair, so it undercounts by one until #185 derives that list from something reviewable instead of a Python literal. Tracked, not silently wrong.",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`dashboards/build.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/standup.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/status.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`dashboards/*burndown*.py` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-012": {
+      "summary": "Least privilege, per-item budgets, escalation ladder",
+      "notes": "",
+      "passed": 4,
+      "total": 4,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/read-budget.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`scripts/spend-report.py` exists"
+        },
+        {
+          "ok": true,
+          "text": "`cost_usd` found in `role-packs/*/policy.yaml`"
+        },
+        {
+          "ok": true,
+          "text": "`deny:` found in `role-packs/*/tools.yaml`"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-013": {
+      "summary": "Persistent engineering memory across ephemeral sessions",
+      "notes": "Store built (#119): write/read/search on refs/notes/foundry. Dispatcher reads and writes it (#120). Seam built (#158): adapters/memory/base.py + adapters/memory/git_notes/, mirroring the tracker seam (#135); scripts/memory.py itself still calls git notes directly, unrewired, by the same design as the tracker seam. No MCP/Seal-backed second implementation (PRD \u00a712's later phase) \u2014 that describes the code, not an event. #165 forced the first real exercise of the write path: it had shipped in #153 but every session since had succeeded, so it had never actually fired. Dispatching #169 against a devops session with an unmeetable ask made it escalate, and session end wrote and pushed a note to refs/notes/foundry on commit 773451c (run 33855463986). A second dispatch on the same issue then received that note in its assembled prompt \u2014 visible verbatim in its own run log (run 33855617391) and quoted back in its first comment \u2014 before escalating again. Read, search and write are now proven in production, not just wired and unit-tested.",
+      "passed": 2,
+      "total": 2,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`scripts/*memory*` matches something"
+        },
+        {
+          "ok": true,
+          "text": "`adapters/memory/**` matches something"
+        }
+      ],
+      "contradiction": null
+    },
+    "REQ-014": {
+      "summary": "Self-hosting \u2014 the system builds itself through itself",
+      "notes": "Demonstrated, not unproven: 46 merged pull requests have been produced by a dispatched agent session, out of 73 merged overall (measured by `collect_facts` in dashboards/status.py). The central claim holds.",
+      "passed": 3,
+      "total": 3,
+      "pct": 100,
+      "checks": [
+        {
+          "ok": true,
+          "text": "`.github/workflows/dispatch.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "`.github/workflows/orchestrate.yml` exists"
+        },
+        {
+          "ok": true,
+          "text": "1 PR(s) delivered by a dispatched session (found 42)"
+        }
+      ],
+      "contradiction": "unproven"
+    }
+  }
+}

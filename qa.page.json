@@ -1,0 +1,5 @@
+{
+  "href": "qa.html",
+  "title": "QA verdicts",
+  "description": "Pass/fail matrix by requirement, from qa:approved/qa:rejected"
+}

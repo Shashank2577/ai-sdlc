@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Standup digest — Shashank2577/ai-sdlc</title>
+<style>
+:root {
+  --bg:#fff; --fg:#1a1a1a; --muted:#616161; --line:#e3e3e3; --card:#fafafa;
+  --green:#1a7f37; --green-bg:#dafbe1; --amber:#9a6700; --amber-bg:#fff8c5;
+  --red:#cf222e; --red-bg:#ffebe9; --link:#0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+          --card:#161b22; --green:#3fb950; --green-bg:#12261e; --amber:#d29922;
+          --amber-bg:#272115; --red:#f85149; --red-bg:#25171c; --link:#4493f8; }
+}
+* { box-sizing:border-box }
+body { margin:0; padding:2rem 1.25rem 4rem; background:var(--bg); color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+main { max-width:1100px; margin:0 auto }
+h1 { font-size:1.6rem; margin:0 0 .25rem }
+.sub { color:var(--muted); margin:0 0 2rem; font-size:.9rem }
+.sub code { font-size:.85em }
+a { color:var(--link) }
+.tiles { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem }
+.tile { flex:1 1 130px; min-width:0; border:1px solid var(--line); border-radius:8px;
+  padding:.85rem 1rem; background:var(--card) }
+.tile .n { font-size:1.9rem; font-weight:650; line-height:1.1 }
+.tile .l { color:var(--muted); font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em }
+.scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px }
+table { border-collapse:collapse; width:100%; min-width:760px; font-size:.88rem }
+th { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+  background:var(--card); font-weight:600; white-space:nowrap }
+td { padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top }
+tr:last-child td { border-bottom:none }
+.req { font-weight:650; white-space:nowrap; font-variant-numeric:tabular-nums }
+.pill { display:inline-block; padding:.1rem .5rem; border-radius:99px;
+  font-size:.75rem; font-weight:600; white-space:nowrap }
+.green { color:var(--green); background:var(--green-bg) }
+.amber { color:var(--amber); background:var(--amber-bg) }
+.red   { color:var(--red);   background:var(--red-bg) }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em }
+.muted { color:var(--muted) }
+.legend { margin-top:1.5rem; font-size:.85rem; color:var(--muted) }
+.legend li { margin:.3rem 0 }
+ul.bare { list-style:none; padding:0; margin:0 }
+ul.bare li { margin:.15rem 0 }
+footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.82rem }
+</style>
+</head><body><main>
+<h1>Standup digest</h1>
+<p class="sub">
+  Last 24 hours, computed from commit trailers, pull request transitions,
+  workflow conclusions and label history. Nobody was asked what they did —
+  an agent that claims progress it did not make does not appear to have made it.
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">7</div><div class="l">commits</div></div>
+  <div class="tile"><div class="n">2</div><div class="l">PRs opened</div></div>
+  <div class="tile"><div class="n">7</div><div class="l">PRs merged</div></div>
+  <div class="tile"><div class="n" style="color:var(--red)">6</div><div class="l">check failures</div></div>
+  <div class="tile"><div class="n" style="color:var(--amber)">2</div><div class="l">blocked &gt;24h</div></div>
+</div>
+
+<h2 style="font-size:1.05rem;margin:0 0 .6rem">Per-role activity</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Role</th><th>Commits</th><th>Requirements</th><th>Harness</th><th>What landed</th></tr></thead>
+  <tbody>
+      <tr>
+        <td class="req">unknown</td>
+        <td>7</td>
+        <td class="mono">—</td>
+        <td class="mono muted">unknown</td>
+        <td><ul class="bare"><li><span class="mono">dc0a845</span> fix(dashboards): give pull-request builds their own concurre</li><li><span class="mono">d319f84</span> adr: accept ADR-0008 — security (veto) and operations (advis</li><li><span class="mono">58da5d2</span> adr: the learning loop detects recurring corrections mechani</li><li><span class="mono">da09c8d</span> fix(ci): pin the deciding checks to main, not the PR's own c</li><li><span class="mono">6d9f3f2</span> feat(products): implement check-products.py against policies</li></ul></td>
+      </tr>
+  </tbody>
+</table></div>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Needs a human decision</h2>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/245">#245</a> The published site silently stopped deploying three days ago</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be</li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Blocked beyond 24h</h2>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/194">#194</a> P3-9: Exercise the engineering memory round trip — no note has ever be — <strong>410.4h</strong> blocked · needs-human already applied</li><li><a href="https://github.com/Shashank2577/ai-sdlc/issues/224">#224</a> Register a second product and run one story against it — the two-repo  — <strong>365.7h</strong> blocked · needs-human already applied</li></ul>
+<p class="muted" style="font-size:.85rem">
+  Each of these gets <span class="mono">needs-human</span> applied automatically.
+  Blocked is a state with a deadline, not a resting place.
+</p>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Pull requests</h2>
+<p class="muted" style="font-size:.85rem">0 open right now.</p>
+<ul class="bare"><li><strong>Opened</strong></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/267">#267</a> fix(dashboards): pull-request builds get their own concurrency group, <span class="muted mono"> bug/FDY-265-pr-builds-cancel-main-deploy</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/266">#266</a> adr: accept ADR-0008 — security (veto) and operations (advisory) roles<span class="muted mono"> chore/FDY-223-accept-adr-0008</span></li></ul>
+<ul class="bare"><li><strong>Merged</strong></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/267">#267</a> fix(dashboards): pull-request builds get their own concurrency group, <span class="muted mono"> bug/FDY-265-pr-builds-cancel-main-deploy</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/266">#266</a> adr: accept ADR-0008 — security (veto) and operations (advisory) roles<span class="muted mono"> chore/FDY-223-accept-adr-0008</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/255">#255</a> fix(bootstrap): give a bootstrapped product repo something to produce <span class="muted mono"> bug/FDY-246-product-repo-dod-check</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/254">#254</a> feat(products): implement check-products.py against policies/products.<span class="muted mono"> story/FDY-206-check-products-py</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/253">#253</a> fix(ci): pin the deciding checks to main, not the PR's own copy<span class="muted mono"> story/FDY-225-trusted-ref-checks</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/252">#252</a> fix(tracker): follow pagination — the board grew past one page<span class="muted mono"> bug/FDY-251-paginate-board-query</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/pull/221">#221</a> ADR-0009: the learning loop detects recurring corrections mechanically<span class="muted mono"> story/FDY-212-learning-loop-recurring-corrections</span></li></ul>
+<ul class="bare"><li><strong>Closed unmerged</strong></li><li class="muted">none</li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Check failures</h2>
+<ul class="bare"><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673510130">Unit tests</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673481603">Unit tests</a> on <span class="mono">bug/FDY-265-pr-builds-cancel-main-deploy</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673467925">Unit tests</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673440497">Unit tests</a> on <span class="mono">chore/FDY-223-accept-adr-0008</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673432911">Unit tests</a> on <span class="mono">main</span></li><li><a href="https://github.com/Shashank2577/ai-sdlc/actions/runs/35673406319">Unit tests</a> on <span class="mono">story/FDY-212-learning-loop-recurring-corrections</span></li></ul>
+
+<h2 style="font-size:1.05rem;margin:2rem 0 .6rem">Board</h2>
+<ul class="bare"><li><span class="mono">(no status)</span> — 8</li><li><span class="mono">status:blocked</span> — 1</li><li><span class="mono">status:in-progress</span> — 5</li><li><span class="mono">status:in-review</span> — 3</li><li><span class="mono">status:needs-refinement</span> — 6</li><li><span class="mono">status:ready</span> — 3</li></ul>
+
+<footer>
+  Generated 2026-09-22 00:50 UTC from
+  <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>.
+  Event-derived (REQ-006) — no self-reported status appears on this page.
+</footer>
+</main></body></html>
