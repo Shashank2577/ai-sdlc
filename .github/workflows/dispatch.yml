@@ -988,6 +988,15 @@ jobs:
             --max-turns ${{ steps.budget.outputs.turns }}
             --permission-mode bypassPermissions
           settings: ${{ steps.pack.outputs.settings }}
+          # Every session since 2026-09-08 21:47 UTC has died in under a
+          # second with `is_error: true`, one turn, $0, and the action
+          # redacts the result's message by default — six sessions failed
+          # and nobody could read why. The prompt is issue text a
+          # maintainer already approved (the status:ready guard), so
+          # showing the run's output costs nothing it did not already
+          # publish. Leave this on: an agent failure the log cannot
+          # explain is the wrong kind of quiet.
+          show_full_output: true
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY == '' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
           # Per-role, from the pack. Least privilege per role (PRD §13):
