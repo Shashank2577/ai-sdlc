@@ -1,6 +1,6 @@
 # ADR-0008: Add security (veto) and operations (advisory) roles — scaffold proposed here, built by a developer story
 
-**Status:** proposed
+**Status:** accepted
 **Work item:** Shashank2577/ai-sdlc#211
 **Requirement:** REQ-002, REQ-009
 
@@ -115,10 +115,9 @@ made harder to argue honestly.
 
 ## Decision
 
-**Decided:** pending — this ADR proposes Option C; `adrs/` is
-CODEOWNERS-routed to a human architect, who decides on merge by editing
-this section (`Status: accepted`, `Decided by:`, `Date:`) rather than by
-prose elsewhere.
+**Decided:** Option C — two roles, `security` (binding veto) and `operations` (advisory)
+**Decided by:** Shashank2577 — accepted on the repository owner's instruction in an interactive Claude Code session (#223); both packs had already been built under a developer story (#238) and the veto's structural enforcement had landed (#237), so accepting records what is now true rather than proposing it
+**Date:** 2026-09-22
 
 ## Consequences
 
