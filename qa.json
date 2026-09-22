@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-22 00:51 UTC"
+    "generated_at": "2026-09-22 01:03 UTC"
   },
   "matrix": {
     "REQ-003": [
@@ -45,6 +45,12 @@
       {
         "number": 268,
         "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 269,
+        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
         "state": "OPEN",
         "verdict": "pending"
       }
@@ -251,6 +257,12 @@
       {
         "number": 268,
         "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 269,
+        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
         "state": "OPEN",
         "verdict": "pending"
       }

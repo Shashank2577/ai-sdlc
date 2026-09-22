@@ -1,15 +1,19 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-22T00:50:15.678566+00:00",
+  "generated_at": "2026-09-22T01:01:43.169661+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 7,
+      "commits": 8,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "4eda168",
+          "subject": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause (#270)"
+        },
         {
           "sha": "dc0a845",
           "subject": "fix(dashboards): give pull-request builds their own concurrency group so they stop cancelling the main deploy (#267)"
@@ -25,17 +29,19 @@
         {
           "sha": "da09c8d",
           "subject": "fix(ci): pin the deciding checks to main, not the PR's own copy (#253)"
-        },
-        {
-          "sha": "6d9f3f2",
-          "subject": "feat(products): implement check-products.py against policies/products.yaml (#254)"
         }
       ]
     }
   ],
-  "commits_total": 7,
+  "commits_total": 8,
   "pulls": {
     "opened": [
+      {
+        "number": 270,
+        "title": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/270",
+        "branch": "bug/FDY-269-surface-agent-error"
+      },
       {
         "number": 267,
         "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
@@ -50,6 +56,12 @@
       }
     ],
     "merged": [
+      {
+        "number": 270,
+        "title": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/270",
+        "branch": "bug/FDY-269-surface-agent-error"
+      },
       {
         "number": 267,
         "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
@@ -99,6 +111,42 @@
   "check_failures": [
     {
       "name": "Unit tests",
+      "branch": "bug/FDY-269-surface-agent-error",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35674218095",
+      "at": "2026-09-22T01:01:19Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673547650",
+      "at": "2026-09-22T00:50:01Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673546293",
+      "at": "2026-09-22T00:50:00Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673544881",
+      "at": "2026-09-22T00:49:59Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673543564",
+      "at": "2026-09-22T00:49:58Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673542383",
+      "at": "2026-09-22T00:49:56Z"
+    },
+    {
+      "name": "Unit tests",
       "branch": "main",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673510130",
       "at": "2026-09-22T00:49:26Z"
@@ -114,39 +162,46 @@
       "branch": "main",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673467925",
       "at": "2026-09-22T00:48:46Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "chore/FDY-223-accept-adr-0008",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673440497",
-      "at": "2026-09-22T00:48:21Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673432911",
-      "at": "2026-09-22T00:48:14Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "story/FDY-212-learning-loop-recurring-corrections",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673406319",
-      "at": "2026-09-22T00:47:48Z"
     }
   ],
   "board": {
-    "status:needs-refinement": 6,
+    "status:needs-refinement": 7,
     "(no status)": 8,
     "status:in-review": 3,
-    "status:ready": 3,
-    "status:in-progress": 5,
-    "status:blocked": 1
+    "status:ready": 7,
+    "status:blocked": 1,
+    "status:in-progress": 1
   },
   "needs_human": [
     {
       "number": 245,
       "title": "The published site silently stopped deploying three days ago",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/245"
+    },
+    {
+      "number": 235,
+      "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/235"
+    },
+    {
+      "number": 234,
+      "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/234"
+    },
+    {
+      "number": 233,
+      "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/233"
+    },
+    {
+      "number": 232,
+      "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/232"
+    },
+    {
+      "number": 231,
+      "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/231"
     },
     {
       "number": 194,
@@ -159,7 +214,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 410.4,
+      "hours": 410.6,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -167,7 +222,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 365.7,
+      "hours": 365.9,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
