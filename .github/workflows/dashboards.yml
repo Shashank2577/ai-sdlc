@@ -86,7 +86,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages
+  # One group per pull request, one shared group for main pushes and the
+  # schedule. It was a single `pages` group for every trigger, and this
+  # workflow also runs on pull requests (build only, no deploy) — so any
+  # push to a PR touching dashboards/, adrs/ or requirements/ cancelled
+  # whatever main deploy was in flight, including one sitting on the prod
+  # reviewer gate. Observed 2026-09-22: run 35672995711 (push to main)
+  # cancelled 54s in, the moment two ADR PRs' builds started (#265).
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.event.pull_request.number) || 'pages' }}
   # Was false, which wedged the group and left the site unpublished for
   # three days (#245): when the run holding it ended abnormally the group
   # was never released, and every later run sat `pending` with no jobs at
