@@ -1,181 +1,15 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-22T11:26:43.021071+00:00",
-  "roles": [
-    {
-      "role": "unknown",
-      "commits": 8,
-      "requirements": [],
-      "harnesses": [
-        "unknown"
-      ],
-      "subjects": [
-        {
-          "sha": "4eda168",
-          "subject": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause (#270)"
-        },
-        {
-          "sha": "dc0a845",
-          "subject": "fix(dashboards): give pull-request builds their own concurrency group so they stop cancelling the main deploy (#267)"
-        },
-        {
-          "sha": "d319f84",
-          "subject": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles (#266)"
-        },
-        {
-          "sha": "58da5d2",
-          "subject": "adr: the learning loop detects recurring corrections mechanically, promotes only as proposal (ADR-0009, accepted) (#221)"
-        },
-        {
-          "sha": "da09c8d",
-          "subject": "fix(ci): pin the deciding checks to main, not the PR's own copy (#253)"
-        }
-      ]
-    }
-  ],
-  "commits_total": 8,
+  "generated_at": "2026-09-23T11:24:18.011469+00:00",
+  "roles": [],
+  "commits_total": 0,
   "pulls": {
-    "opened": [
-      {
-        "number": 270,
-        "title": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/270",
-        "branch": "bug/FDY-269-surface-agent-error"
-      },
-      {
-        "number": 267,
-        "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/267",
-        "branch": "bug/FDY-265-pr-builds-cancel-main-deploy"
-      },
-      {
-        "number": 266,
-        "title": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/266",
-        "branch": "chore/FDY-223-accept-adr-0008"
-      }
-    ],
-    "merged": [
-      {
-        "number": 270,
-        "title": "fix(dispatch): show the agent's own output so a one-second failure has a readable cause",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/270",
-        "branch": "bug/FDY-269-surface-agent-error"
-      },
-      {
-        "number": 267,
-        "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/267",
-        "branch": "bug/FDY-265-pr-builds-cancel-main-deploy"
-      },
-      {
-        "number": 266,
-        "title": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/266",
-        "branch": "chore/FDY-223-accept-adr-0008"
-      },
-      {
-        "number": 255,
-        "title": "fix(bootstrap): give a bootstrapped product repo something to produce `dod`",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/255",
-        "branch": "bug/FDY-246-product-repo-dod-check"
-      },
-      {
-        "number": 254,
-        "title": "feat(products): implement check-products.py against policies/products.yaml",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/254",
-        "branch": "story/FDY-206-check-products-py"
-      },
-      {
-        "number": 253,
-        "title": "fix(ci): pin the deciding checks to main, not the PR's own copy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/253",
-        "branch": "story/FDY-225-trusted-ref-checks"
-      },
-      {
-        "number": 252,
-        "title": "fix(tracker): follow pagination \u2014 the board grew past one page",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/252",
-        "branch": "bug/FDY-251-paginate-board-query"
-      },
-      {
-        "number": 221,
-        "title": "ADR-0009: the learning loop detects recurring corrections mechanically, promotes only as proposal",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/221",
-        "branch": "story/FDY-212-learning-loop-recurring-corrections"
-      }
-    ],
+    "opened": [],
+    "merged": [],
     "closed_unmerged": [],
     "open_now": 0
   },
-  "check_failures": [
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35674245900",
-      "at": "2026-09-22T01:01:48Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35674233560",
-      "at": "2026-09-22T01:01:35Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "bug/FDY-269-surface-agent-error",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35674218095",
-      "at": "2026-09-22T01:01:19Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673547650",
-      "at": "2026-09-22T00:50:01Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673546293",
-      "at": "2026-09-22T00:50:00Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673544881",
-      "at": "2026-09-22T00:49:59Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673543564",
-      "at": "2026-09-22T00:49:58Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673542383",
-      "at": "2026-09-22T00:49:56Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673510130",
-      "at": "2026-09-22T00:49:26Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "bug/FDY-265-pr-builds-cancel-main-deploy",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673481603",
-      "at": "2026-09-22T00:49:00Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673467925",
-      "at": "2026-09-22T00:48:46Z"
-    }
-  ],
+  "check_failures": [],
   "board": {
     "status:needs-refinement": 7,
     "(no status)": 8,
@@ -226,7 +60,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 421.0,
+      "hours": 445.0,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -234,7 +68,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 376.3,
+      "hours": 400.3,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
