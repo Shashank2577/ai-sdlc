@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-25 11:43 UTC",
+    "generated_at": "2026-09-26 11:16 UTC",
     "sla_hours": 24
   },
   "waiting": [
@@ -18,7 +18,7 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 456.8,
+      "age_hours": 480.4,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -40,7 +40,7 @@
           "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
         }
       ],
-      "age_hours": 397.9,
+      "age_hours": 421.5,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -67,7 +67,7 @@
           "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
         }
       ],
-      "age_hours": 83.0,
+      "age_hours": 106.6,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -84,7 +84,7 @@
           "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
         }
       ],
-      "age_hours": 83.0,
+      "age_hours": 106.6,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -106,7 +106,7 @@
           "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
         }
       ],
-      "age_hours": 83.0,
+      "age_hours": 106.6,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -128,7 +128,7 @@
           "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
         }
       ],
-      "age_hours": 83.0,
+      "age_hours": 106.6,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -145,7 +145,7 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 82.9,
+      "age_hours": 106.5,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -156,7 +156,7 @@
       "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/235",
       "why": "unknown",
-      "age_hours": 82.9,
+      "age_hours": 106.4,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -167,7 +167,7 @@
       "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/234",
       "why": "unknown",
-      "age_hours": 82.9,
+      "age_hours": 106.4,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -178,7 +178,7 @@
       "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/233",
       "why": "unknown",
-      "age_hours": 82.9,
+      "age_hours": 106.4,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -200,7 +200,7 @@
           "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
         }
       ],
-      "age_hours": 82.9,
+      "age_hours": 106.4,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -222,7 +222,7 @@
           "because": "Credential scope is the one privilege a required check cannot claw back, because the check is what a wider credential can edit."
         }
       ],
-      "age_hours": 82.7,
+      "age_hours": 106.3,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -233,7 +233,7 @@
       "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/231",
       "why": "unknown",
-      "age_hours": 82.7,
+      "age_hours": 106.2,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true

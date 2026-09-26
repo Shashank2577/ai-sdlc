@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-25T11:42:42.367146+00:00",
+  "generated_at": "2026-09-26T11:15:52.435690+00:00",
   "roles": [],
   "commits_total": 0,
   "pulls": {
@@ -11,8 +11,8 @@
   },
   "check_failures": [],
   "board": {
+    "(no status)": 9,
     "status:needs-refinement": 7,
-    "(no status)": 8,
     "status:in-review": 3,
     "status:ready": 7,
     "status:blocked": 1,
@@ -60,7 +60,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 493.3,
+      "hours": 516.8,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -68,7 +68,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 448.6,
+      "hours": 472.1,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
