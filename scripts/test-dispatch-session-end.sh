@@ -328,12 +328,24 @@ assert "escalation blocker names the missing pull request" grep 'produced no bra
 # ---------------------------------------------------------------------------
 echo "session-end: clean success, no pull request, pack does not require one (PM tracker-only, #99)"
 # ---------------------------------------------------------------------------
-run_session_end 508 success 0.10 5.0 - status:in-progress false
+run_session_end 508 success 0.10 5.0 - status:in-review false
 assert "stays a success" grep 'result=success' "$WORK/comment.md"
 assert "not reclassified as no-output" "!grep" 'outcome=no-output' "$WORK/comment.md"
 assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
 assert "no escalation section" "!grep" 'Escalation — human decision required' "$WORK/comment.md"
-assert "no label mutation — the session owns its own labels" "!grep" 'gh issue edit' "$WORK/calls.log"
+assert "no label mutation — the session already moved its own labels" "!grep" 'gh issue edit' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: clean success, no pull request, session left it status:in-progress (#284)"
+# ---------------------------------------------------------------------------
+run_session_end 703 success 0.10 5.0 - status:in-progress false
+assert "stays a success" grep 'result=success' "$WORK/comment.md"
+assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
+assert "removes every status:* label" grep \
+  '--remove-label status:ready --remove-label status:in-progress --remove-label status:in-review --remove-label status:blocked --remove-label status:needs-refinement' \
+  "$WORK/calls.log"
+assert "moves to status:in-review, freeing the WIP slot" grep '--add-label status:in-review' "$WORK/calls.log"
+assert "is not left status:in-progress" "!grep" '--add-label status:in-progress' "$WORK/calls.log"
 
 # ---------------------------------------------------------------------------
 echo "session-end: asserted no-change, evidence-bearing reason (#129, would have caught #100)"
