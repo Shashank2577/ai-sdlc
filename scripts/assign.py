@@ -125,6 +125,31 @@ def ineligible_reason(issue: dict, policy: dict) -> str | None:
     return None
 
 
+REVIEW_ROLE = "qa"
+REVIEW_STATE = "status:in-review"
+
+
+def review_reason(issue: dict, policy: dict, with_open_pr: set[int]) -> str | None:
+    """None means the item is waiting for a QA review (#299).
+
+    Routing follows the item's own role label, which records its author, so
+    an author's finished work in review was never QA's to pick up: QA only
+    ran when a person dispatched it by hand. The author's label is left as
+    it is, because a rejection has to route back to that author.
+    """
+    names = labels_of(issue)
+    if issue.get("state") != "OPEN" or REVIEW_STATE not in names:
+        return f"not {REVIEW_STATE}"
+    blocking = [l for l in policy["eligibility"].get("exclude_labels", []) if l in names]
+    if blocking:
+        return f"carries {', '.join(blocking)}"
+    if "qa:approved" in names:
+        return "qa:approved — waiting on a person to merge"
+    if issue["number"] not in with_open_pr:
+        return "no open pull request to review"
+    return None
+
+
 def sort_key(issue: dict, with_open_pr: set[int]) -> tuple:
     # Finishing beats starting; then lowest number. Deterministic on purpose
     # — a clever order nobody can predict is worse than a dull one.
@@ -156,6 +181,30 @@ def plan(issues: list[dict], policy: dict, with_open_pr: set[int] | None = None)
     slots = max(wip["limit"] - len(in_flight), 0)
     per_role = wip.get("per_role") or {}
     dispatch, deferred = [], []
+
+    # Reviews first: finishing beats starting. In-flight QA sessions are
+    # counted under their item's author role (the label WIP reads), so the
+    # qa cap bounds reviews dispatched per run; an item under review sits at
+    # status:in-progress and cannot be picked twice.
+    eligible_numbers = {i["number"] for i in eligible}
+    reviewing = set()
+    if REVIEW_ROLE in routing.get("supported", []):
+        review_cap = per_role.get(REVIEW_ROLE)
+        for issue in sorted(issues, key=lambda i: i["number"]):
+            if issue["number"] in eligible_numbers or review_reason(issue, policy, with_open_pr):
+                continue
+            entry = {"number": issue["number"], "title": issue.get("title", ""),
+                     "role": REVIEW_ROLE, "url": issue.get("url", "")}
+            reviewing.add(issue["number"])
+            if len(dispatch) >= slots:
+                entry["reason"] = f"WIP limit {wip['limit']} reached"
+                deferred.append(entry)
+            elif review_cap is not None and in_flight_by_role.get(REVIEW_ROLE, 0) + len(dispatch) >= review_cap:
+                entry["reason"] = f"per-role cap for `{REVIEW_ROLE}` is {review_cap}"
+                deferred.append(entry)
+            else:
+                dispatch.append(entry)
+    skipped = [s for s in skipped if s["number"] not in reviewing]
 
     for issue in sorted(eligible, key=lambda i: sort_key(i, with_open_pr)):
         role = role_of(issue, routing)
