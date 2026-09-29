@@ -28,7 +28,11 @@ while read -r sha; do
   subject=$(git log -1 --format='%s' "$sha")
   body=$(git log -1 --format='%B' "$sha")
   for t in "${required[@]}"; do
-    if grep -qi "^${t}:" <<<"$trailers"; then
+    if grep -qEi "^${t}:[[:space:]]*[^[:space:]]" <<<"$trailers"; then
+      continue
+    fi
+    if grep -qi "^${t}:[[:space:]]*$" <<<"$trailers"; then
+      failures+=("commit \`${sha:0:7}\` (\"${subject}\") has trailer \`${t}:\` with no value — an empty trailer carries no traceability")
       continue
     fi
     if grep -qi "^${t}:" <<<"$body"; then
@@ -52,6 +56,21 @@ done < <(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA")
 #    rule, reused rather than rewritten, per #91/#92.
 body=$(gh pr view "$PR_NUMBER" --json body --jq '.body // ""')
 closing_ref=$(grep -Eoi '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' <<<"$body" || true)
+# The closing reference must resolve to a real, open issue — not a typo, a
+# closed item, or a pull request (gh issue view resolves PRs too; their URL
+# says /pull/).
+while read -r ref; do
+  [ -z "$ref" ] && continue
+  num=$(grep -Eo '[0-9]+$' <<<"$ref")
+  ref_json=$(gh issue view "$num" --json state,url 2>/dev/null || true)
+  if [ -z "$ref_json" ]; then
+    failures+=("PR body says \`${ref}\`, but #${num} does not exist")
+  elif [[ "$(jq -r '.url // ""' <<<"$ref_json")" == */pull/* ]]; then
+    failures+=("PR body says \`${ref}\`, but #${num} is a pull request, not an issue")
+  elif [ "$(jq -r '.state' <<<"$ref_json")" != "OPEN" ]; then
+    failures+=("PR body says \`${ref}\`, but #${num} is not open (state: $(jq -r '.state' <<<"$ref_json"))")
+  fi
+done <<<"$(sort -u <<<"$closing_ref")"
 opt_out=$(grep -E 'Relates to #[0-9]+ — it does not close it' <<<"$body" || true)
 if [ -z "$closing_ref" ] && [ -z "$opt_out" ]; then
   if grep -Eq '#[0-9]+' <<<"$body"; then
@@ -154,7 +173,14 @@ if [ "${#failures[@]}" -gt 0 ]; then
   } > /tmp/dod-report.md
   cat /tmp/dod-report.md >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
   cat /tmp/dod-report.md
-  gh pr comment "$PR_NUMBER" --body-file /tmp/dod-report.md || true
+  # Fork PRs get a read-only token, so the comment can fail. Emit each
+  # failure as an annotation too: those render on the check run and the PR
+  # without any write permission, so a fork contributor still sees why.
+  for f in "${failures[@]}"; do
+    echo "::error title=DoD check failed::${f//$'\n'/ }"
+  done
+  gh pr comment "$PR_NUMBER" --body-file /tmp/dod-report.md \
+    || echo "note: could not post the PR comment (read-only token, likely a fork PR); the failures above are also in the job summary and annotations."
   exit 1
 fi
 
