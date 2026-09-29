@@ -218,7 +218,19 @@ requirements:
       - {exists: portal}
       - {glob: "scripts/*transcript*"}
       - {glob: "policies/signoff*.yaml"}
-    notes: scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133, #139). The client portal does not.
+    notes: >-
+      scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133, #139),
+      and .github/workflows/signoff-gate.yml wires the gate (#193, #199). Exercised
+      live on main (#198): request-signoff fires when a qa:approved story closes —
+      signoff:requested applied, evidence comment read from policies/signoff.yaml,
+      portal link returns 200 (e.g. #299, run 36528826481). NOT exercised: the
+      identity-check rejection of a bot-applied signoff:approved, a person's
+      sign-off, and change-request reopening. The labels signoff:approved,
+      signoff:change-requested and type:change-request do not exist in the repo
+      (only signoff:requested does), so none of those steps can be triggered until
+      they are created. A person's sign-off is a real client decision and remains
+      pending. Only the pre-merge fixture tests cover identity. The client portal
+      page exists (portal/build.py) but no story is yet shown signed.
 
   REQ-009:
     summary: QA veto, DoD as policy-as-code, published QA reports
