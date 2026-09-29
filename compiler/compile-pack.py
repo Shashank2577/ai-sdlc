@@ -119,6 +119,22 @@ def read_pack(role: str) -> dict:
                 "an unbudgeted role cannot be dispatched"
             )
 
+    scope = policy.get("write_scope")
+    if scope is not None:
+        if not isinstance(scope, dict):
+            raise PackError(
+                f"role-packs/{role}/policy.yaml: write_scope must be a mapping "
+                "with `allow` and `deny` lists"
+            )
+        for key in ("allow", "deny"):
+            entries = scope.get(key, [])
+            if (not isinstance(entries, list)
+                    or not all(isinstance(e, str) and e.strip() for e in entries)):
+                raise PackError(
+                    f"role-packs/{role}/policy.yaml: write_scope.{key} must be "
+                    "a list of path-pattern strings"
+                )
+
     template = policy.get("escalation", {}).get("template")
     if template and not (REPO_ROOT / template).is_file():
         raise PackError(
@@ -156,6 +172,32 @@ def to_bash_rule(pattern: str) -> str | None:
     return f"Bash({body}:*)" if pattern.endswith("*") else f"Bash({body})"
 
 
+def render_write_scope(pack: dict) -> str:
+    """The paths this role may write, as prose the session reads.
+
+    dispatch.yml builds the session prompt from the compiled pack, so this
+    is the text that actually reaches the agent (#233). It states policy;
+    the controls that hold are branch protection, required checks and
+    check-story-scope.py.
+    """
+    scope = pack["policy"].get("write_scope") or {}
+    allow, deny = scope.get("allow") or [], scope.get("deny") or []
+    parts = [
+        "# Write scope",
+        "",
+        "Paths you may change in a pull request. A change outside `allow`, or",
+        "inside `deny`, is refused by review and the story-scope check; do not",
+        "make it, escalate instead. `deny` wins over `allow`.",
+        "",
+        "Allow:",
+        "",
+    ]
+    parts += [f"- `{p}`" for p in allow] or ["- _(none declared)_"]
+    parts += ["", "Deny:", ""]
+    parts += [f"- `{p}`" for p in deny] or ["- _(none declared)_"]
+    return "\n".join(parts) + "\n"
+
+
 def render_role_doc(pack: dict) -> str:
     """Render the harness-neutral core every target shares: charter, budget,
     forbidden actions, HITL triggers, then every skill. Claude Code calls
@@ -188,6 +230,7 @@ def render_role_doc(pack: dict) -> str:
     parts += [f"- {a}" for a in policy["forbidden"]]
     parts += ["", "# Escalate to a human when", ""]
     parts += [f"- {t}" for t in policy["hitl_triggers"]]
+    parts += ["", render_write_scope(pack).rstrip()]
 
     for name, body in pack["skills"]:
         parts += ["", "---", "", f"# Skill: {name}", "", body.strip()]
@@ -237,6 +280,7 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         "settings.json": json.dumps(settings, indent=2) + "\n",
         # The dispatcher reads this to pick the role's credential rather
         # than carrying a role->secret table of its own.
+        "write-scope.md": render_write_scope(pack),
         "token-secret": pack["token_secret"] + "\n",
         # Which status:* labels the guard accepts before dispatching this
         # role. One per line — the dispatcher reads this instead of
@@ -303,6 +347,7 @@ def compile_codex(pack: dict) -> dict[str, str]:
         # in particular is what the dispatcher's shipped-nothing gate reads
         # (#99, #113) — a target that omits it silently disables the gate
         # for every role, so it is not optional here.
+        "write-scope.md": render_write_scope(pack),
         "token-secret": pack["token_secret"] + "\n",
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
         "produces": "\n".join(pack["produces"]) + "\n",
@@ -360,6 +405,7 @@ def compile_opencode(pack: dict) -> dict[str, str]:
         "AGENTS.md": render_role_doc(pack),
         "opencode.json": json.dumps(settings, indent=2) + "\n",
         # Harness-agnostic; see compile_claude_code's identical comment.
+        "write-scope.md": render_write_scope(pack),
         "token-secret": pack["token_secret"] + "\n",
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
         "produces": "\n".join(pack["produces"]) + "\n",
@@ -382,7 +428,9 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check and not args.role:
-        roles = sorted(p.name for p in PACKS_DIR.iterdir() if (p / "pack.yaml").is_file())
+        # Every directory, not only those with a pack.yaml: a pack that lost
+        # its pack.yaml must fail here, not drop out of discovery (#233).
+        roles = sorted(p.name for p in PACKS_DIR.iterdir() if p.is_dir())
         if not roles:
             print("no role packs found — nothing to check")
             return 0

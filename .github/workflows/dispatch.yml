@@ -119,6 +119,7 @@ on:
       - scripts/test-dispatch-session-end.sh
       - scripts/test-dispatch-prompt-snapshot.sh
       - scripts/test-dispatch-review-prompt.sh
+      - scripts/test-dispatch-write-scope.sh
       - scripts/diagnose-workflow-push-refusal.sh
       - scripts/test-diagnose-workflow-push-refusal.sh
 
@@ -679,6 +680,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           REQUIRES_PR: ${{ steps.pack.outputs.requires_pr }}
           MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
+          PACK_DIR: ${{ steps.pack.outputs.pack_dir }}
         run: |
           set -euo pipefail
           P="${RUNNER_TEMP}/session-prompt.md"
@@ -899,6 +901,21 @@ jobs:
             echo "---"
             echo
           } > "$P"
+
+          # The role's write scope, from the pack the compile step already
+          # built (#233). Fails closed: a session told nothing about where
+          # it may write is the gap this closes.
+          scope_file="${PACK_DIR}/write-scope.md"
+          if [ ! -s "$scope_file" ]; then
+            echo "::error::Compiled pack has no write-scope.md at ${scope_file}; refusing to dispatch a session with no stated write scope."
+            exit 1
+          fi
+          {
+            echo "---"
+            echo
+            cat "$scope_file"
+            echo
+          } >> "$P"
 
           if [ -f "$charter_path" ]; then
             {
@@ -1656,6 +1673,12 @@ jobs:
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
           bash scripts/test-dispatch-review-prompt.sh
+
+      - name: Test the write scope reaches the session prompt
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          bash scripts/test-dispatch-write-scope.sh
 
       - name: Test the workflow-push-refusal diagnosis
         run: bash scripts/test-diagnose-workflow-push-refusal.sh

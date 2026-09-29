@@ -36,9 +36,10 @@ if [ "$1" = "issue" ] && [ "$2" = "view" ]; then
 fi
 STUB
 chmod +x "$WORK/bin/gh"
+mkdir -p "$WORK/pack"; echo "# Write scope" > "$WORK/pack/write-scope.md"
 export PATH="$WORK/bin:$PATH" STATE="$WORK/state" RUNNER_TEMP="$WORK/tmp" \
   GITHUB_REPOSITORY=o/r GITHUB_STEP_SUMMARY="$WORK/summary" GITHUB_OUTPUT="$WORK/out" \
-  ISSUE=1 ROLE=devops ACCEPTED=status:ready CP_DIR="$WORK/cp" PRODUCT_REPO=o/p \
+  ISSUE=1 ROLE=devops ACCEPTED=status:ready PACK_DIR="$WORK/pack" CP_DIR="$WORK/cp" PRODUCT_REPO=o/p \
   TURNS=1 COST_USD=1 TOKENS=1 WALL_CLOCK=1 BUDGET_SOURCE=t RUN_URL=u REQUIRES_PR=true
 : > "$WORK/summary"
 

@@ -43,9 +43,10 @@ chmod +x "$WORK/bin/gh"
 printf '{"number":7,"state":"OPEN","title":"T","body":"Build the thing.","updatedAt":"x","labels":[]}' \
   > "$WORK/tmp/issue.json"
 
+mkdir -p "$WORK/pack"; echo "# Write scope" > "$WORK/pack/write-scope.md"
 export PATH="$WORK/bin:$PATH" RUNNER_TEMP="$WORK/tmp" GITHUB_REPOSITORY=o/r \
   GITHUB_STEP_SUMMARY="$WORK/summary" GITHUB_OUTPUT="$WORK/out" ISSUE=7 \
-  CP_DIR="$WORK/cp" PRODUCT_REPO=o/p TURNS=1 COST_USD=1 TOKENS=1 WALL_CLOCK=1 \
+  PACK_DIR="$WORK/pack" CP_DIR="$WORK/cp" PRODUCT_REPO=o/p TURNS=1 COST_USD=1 TOKENS=1 WALL_CLOCK=1 \
   BUDGET_SOURCE=t RUN_URL=u REQUIRES_PR=true \
   PR_LIST='[{"number":12,"title":"fix: the thing","url":"https://x/pull/12","headRefName":"bug/FDY-7-the-thing","state":"OPEN"},
             {"number":13,"title":"other","url":"https://x/pull/13","headRefName":"bug/FDY-70-other","state":"OPEN"}]'

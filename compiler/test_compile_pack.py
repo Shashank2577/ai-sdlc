@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import shutil
 import sys
 import tempfile
@@ -254,6 +256,52 @@ class TestValidation(unittest.TestCase):
                 cp.read_pack("widget")
             self.assertIn("tools.yaml", str(ctx.exception))
             self.assertIn("invalid YAML", str(ctx.exception))
+
+
+class TestWriteScope(unittest.TestCase):
+    POLICY = MINIMAL_PACK["policy.yaml"]
+
+    def _with_scope(self, scope: str):
+        files = dict(MINIMAL_PACK)
+        files["policy.yaml"] = self.POLICY + scope
+        return PackFixture(files)
+
+    def test_scope_is_rendered_and_emitted(self):
+        with self._with_scope("write_scope:\n  allow: ['docs/**']\n  deny: ['src/**']\n"):
+            out = cp.compile_claude_code(cp.read_pack("widget"))
+        for name in ("write-scope.md", "system-prompt.md"):
+            self.assertIn("- `docs/**`", out[name])
+            self.assertIn("- `src/**`", out[name])
+
+    def test_malformed_scope_is_rejected(self):
+        for scope in ("write_scope: docs/**\n",
+                      "write_scope:\n  allow: docs/**\n",
+                      "write_scope:\n  deny: {a: b}\n"):
+            with self._with_scope(scope):
+                with self.assertRaises(cp.PackError, msg=scope) as ctx:
+                    cp.read_pack("widget")
+                self.assertIn("write_scope", str(ctx.exception))
+
+    def test_check_reports_pack_without_pack_yaml_and_continues(self):
+        files = dict(MINIMAL_PACK)
+        del files["pack.yaml"]
+        with PackFixture(files):
+            second = cp.PACKS_DIR / "gadget"
+            second.mkdir()
+            for name, body in MINIMAL_PACK.items():
+                (second / name).write_text(
+                    body.replace("widget", "gadget").replace("WIDGET", "GADGET"))
+            argv = sys.argv
+            sys.argv = ["compile-pack.py", "--check"]
+            try:
+                with contextlib.redirect_stderr(io.StringIO()) as err, \
+                        contextlib.redirect_stdout(io.StringIO()) as out:
+                    rc = cp.main()
+            finally:
+                sys.argv = argv
+        self.assertEqual(rc, 1)
+        self.assertIn("FAIL widget", err.getvalue())
+        self.assertIn("ok   gadget", out.getvalue())
 
 
 class TestBashRuleMapping(unittest.TestCase):
