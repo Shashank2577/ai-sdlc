@@ -157,6 +157,12 @@ PR_NUMBER=1 bash scripts/qa-gate.sh > "$WORK/out" 2>&1
 check "a repeated reference is reported once" 1 $? "$WORK/out" "#42 carries"
 assert_count "a repeated reference is deduplicated" 1 '^- #42 carries' "$WORK/out"
 
+setup; pr_body "Closes #42"   # no issue-42.json: the stub gh fails the lookup
+PR_NUMBER=1 bash scripts/qa-gate.sh > "$WORK/out" 2>&1
+check "a failed label lookup fails the gate" 1 $? "$WORK/out" "could not be evaluated"
+assert "a failed lookup is not reported as a pass" "!grep" "QA gate passed" "$WORK/out"
+assert "a failed lookup is visible in the job summary" grep "could not be evaluated" "$GITHUB_STEP_SUMMARY"
+
 # ---------------------------------------------------------------------------
 echo
 echo "scripts/qa-verdict.sh — close-guard"
