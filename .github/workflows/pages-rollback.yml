@@ -1,8 +1,9 @@
 # Rollback for the dashboards Pages publish (#191). `policies/environments.yaml`
-# says a rollback is a deploy and waits on the same reviewer as a forward
-# deploy — this workflow is that: it runs through `environment: prod`, so
-# the platform pauses it for @Shashank2577 exactly like `dashboards.yml`'s
-# `prod` job does. There is no fast path that skips the review.
+# says a rollback is a deploy and runs under the same rules as a forward
+# deploy — this workflow is that: it runs through `environment:
+# github-pages`, exactly like `dashboards.yml`'s `prod` job (#265), so it is
+# limited to `main` by the same branch policy and has no fast path the
+# forward deploy lacks.
 #
 # "Previous artifact" is not a description here: `pages-live` (written by
 # dashboards.yml's `prod` job, one commit per release) is real git history,
@@ -30,7 +31,7 @@ jobs:
     name: rollback
     runs-on: ubuntu-latest
     environment:
-      name: prod
+      name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     permissions:
       contents: write
