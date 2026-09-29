@@ -1557,6 +1557,26 @@ jobs:
               --remove-label "status:needs-refinement"
             gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
               --add-label "status:blocked"
+          elif [ "${MATCHED_LABEL:-}" = "status:in-review" ] \
+               && jq -e '[.labels[].name] | any(. == "qa:rejected")' \
+                    <<<"$(gh issue view "$ISSUE" --repo "$GITHUB_REPOSITORY" --json labels 2>/dev/null || echo '{"labels":[]}')" \
+                    >/dev/null 2>&1; then
+            # A review dispatch that ended in a rejection hands the item back
+            # to its author's role. qa-verdict.yml's return-to-ready fires on
+            # the label, but QA applies it mid-session, while this dispatch
+            # holds the item at status:in-progress, so it found nothing to
+            # move, and the branch below then put the item back in review.
+            # Every QA rejection stranded its item that way (#235, #191; #297).
+            # Review dispatches only: a developer reworking a rejected item
+            # still carries qa:rejected and must land in review, not loop.
+            gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+              --remove-label "status:ready" \
+              --remove-label "status:in-progress" \
+              --remove-label "status:in-review" \
+              --remove-label "status:blocked" \
+              --remove-label "status:needs-refinement"
+            gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+              --add-label "status:ready"
           elif [ "$has_pr" = "true" ]; then
             # A successful session with a PR open is trusted to have moved
             # itself to status:in-review — some sessions don't (#83). Check

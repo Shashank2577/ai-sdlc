@@ -243,7 +243,7 @@ print(json.dumps({'type': 'result', 'num_turns': 5, 'total_cost_usd': float(sys.
   CP_DIR="$REPO_ROOT" \
   PRODUCT_REPO=acme/widgets-product \
   PRODUCT_TOKEN=fake-product-token \
-  ISSUE="$issue" ROLE=devops \
+  ISSUE="$issue" ROLE=devops MATCHED_LABEL="${TEST_MATCHED_LABEL:-}" \
   TURNS=30 COST_USD="$budget_cost" TOKENS=400000 WALL_CLOCK=45 \
   MAX_RETRIES=2 BUDGET_SOURCE=policy PRIOR_FAILURES=0 \
   RUN_URL="https://example/run/1" \
@@ -346,6 +346,32 @@ assert "removes every status:* label" grep \
   "$WORK/calls.log"
 assert "moves to status:in-review, freeing the WIP slot" grep '--add-label status:in-review' "$WORK/calls.log"
 assert "is not left status:in-progress" "!grep" '--add-label status:in-progress' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: review dispatch that rejected returns the item to status:ready (#297)"
+# ---------------------------------------------------------------------------
+TEST_MATCHED_LABEL=status:in-review run_session_end 706 success 0.10 3.0 "bug/FDY-706-slug" "status:in-progress,qa:rejected"
+assert "stays a success" grep 'result=success' "$WORK/comment.md"
+assert "removes every status:* label" grep \
+  '--remove-label status:ready --remove-label status:in-progress --remove-label status:in-review --remove-label status:blocked --remove-label status:needs-refinement' \
+  "$WORK/calls.log"
+assert "moves to status:ready, dispatchable by the author's role again" grep '--add-label status:ready' "$WORK/calls.log"
+assert "is not put back in review" "!grep" '--add-label status:in-review' "$WORK/calls.log"
+assert "does not escalate" "!grep" 'needs-human' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: review dispatch that approved still lands in review (#297)"
+# ---------------------------------------------------------------------------
+TEST_MATCHED_LABEL=status:in-review run_session_end 707 success 0.10 3.0 "bug/FDY-707-slug" "status:in-progress,qa:approved"
+assert "moves to status:in-review" grep '--add-label status:in-review' "$WORK/calls.log"
+assert "is not sent back to ready" "!grep" '--add-label status:ready' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
+echo "session-end: developer reworking a rejected item lands in review, not a loop (#297)"
+# ---------------------------------------------------------------------------
+TEST_MATCHED_LABEL=status:ready run_session_end 708 success 0.10 5.0 "bug/FDY-708-slug" "status:in-progress,qa:rejected"
+assert "moves to status:in-review for QA to re-review" grep '--add-label status:in-review' "$WORK/calls.log"
+assert "is not sent back to ready" "!grep" '--add-label status:ready' "$WORK/calls.log"
 
 # ---------------------------------------------------------------------------
 echo "session-end: asserted no-change, evidence-bearing reason (#129, would have caught #100)"
