@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 05:36 UTC"
+    "generated_at": "2026-09-29 05:45 UTC"
   },
   "matrix": {
     "REQ-004": [
@@ -69,7 +69,7 @@
       {
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -239,7 +239,7 @@
       {
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -501,7 +501,7 @@
       {
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -871,7 +871,7 @@
       {
         "number": 231,
         "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -927,7 +927,7 @@
       {
         "number": 231,
         "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {

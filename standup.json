@@ -1,15 +1,27 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-29T05:34:59.746294+00:00",
+  "generated_at": "2026-09-29T05:43:48.345335+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 7,
+      "commits": 10,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "203ff3c",
+          "subject": "fix(products): give the pilot its own board, and let the checker see user boards (#291)"
+        },
+        {
+          "sha": "d3e243c",
+          "subject": "fix(dod-check): validate trailer values, closing issue, fork reporting (#281)"
+        },
+        {
+          "sha": "4f4cb53",
+          "subject": "fix(dashboards): publish the site through github-pages, not the prod reviewer (#289)"
+        },
         {
           "sha": "4d22d04",
           "subject": "fix(refine): count the ready queue the orchestrator could dispatch, not the label (#286)"
@@ -17,25 +29,31 @@
         {
           "sha": "0a82f7a",
           "subject": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings (#285)"
-        },
-        {
-          "sha": "761bcad",
-          "subject": "fix(dispatch): a successful session without a PR no longer leaves its item in progress (#287)"
-        },
-        {
-          "sha": "20e90cf",
-          "subject": "fix(dispatch): tell a review session to review the PR, not to open one (#293)"
-        },
-        {
-          "sha": "8762308",
-          "subject": "fix(dispatch): build the agent prompt from the guarded issue snapshot, not a second fetch (#278)"
         }
       ]
     }
   ],
-  "commits_total": 7,
+  "commits_total": 10,
   "pulls": {
     "opened": [
+      {
+        "number": 296,
+        "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
+        "branch": "story/FDY-198-reqs-008-signoff-note"
+      },
+      {
+        "number": 295,
+        "title": "Ceremonies close the record they supersede",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
+        "branch": "story/FDY-288-ceremonies-supersede"
+      },
+      {
+        "number": 294,
+        "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
+        "branch": "bug/FDY-233-write-scope-and-check"
+      },
       {
         "number": 293,
         "title": "fix(dispatch): tell a review session to review the PR, not to open one",
@@ -123,6 +141,18 @@
         "branch": "bug/FDY-292-review-prompt-names-the-pr"
       },
       {
+        "number": 291,
+        "title": "fix(products): give the pilot its own board, and let the checker see user boards",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/291",
+        "branch": "bug/FDY-262-pilot-own-board"
+      },
+      {
+        "number": 289,
+        "title": "fix(dashboards): publish the site through github-pages, not the prod reviewer",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/289",
+        "branch": "bug/FDY-265-site-own-environment"
+      },
+      {
         "number": 287,
         "title": "fix(dispatch): a successful session without a PR no longer leaves its item in progress",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/287",
@@ -139,6 +169,12 @@
         "title": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/285",
         "branch": "bug/FDY-282-no-harness-attribution"
+      },
+      {
+        "number": 281,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
+        "branch": "bug/FDY-231-dod-check-validation-v2"
       },
       {
         "number": 278,
@@ -169,12 +205,25 @@
     ],
     "open_now": 5
   },
-  "check_failures": [],
+  "check_failures": [
+    {
+      "name": "DoD",
+      "branch": "story/FDY-198-reqs-008-signoff-note",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36527063074",
+      "at": "2026-09-29T05:37:48Z"
+    },
+    {
+      "name": "QA gate",
+      "branch": "bug/FDY-233-write-scope-and-check",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36527036027",
+      "at": "2026-09-29T05:37:27Z"
+    }
+  ],
   "board": {
     "status:needs-refinement": 5,
-    "status:ready": 4,
+    "status:in-review": 6,
     "(no status)": 3,
-    "status:in-review": 5,
+    "status:ready": 1,
     "status:blocked": 1
   },
   "needs_human": [
@@ -189,7 +238,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 583.1,
+      "hours": 583.3,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -197,7 +246,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 538.4,
+      "hours": 538.6,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }

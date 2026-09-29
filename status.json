@@ -1,7 +1,7 @@
 {
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 05:37 UTC"
+    "generated_at": "2026-09-29 05:45 UTC"
   },
   "facts": {
     "roles_expected": [
@@ -49,13 +49,12 @@
       "compiler",
       ".github/workflows"
     ],
-    "agent_delivered_prs": 28,
+    "agent_delivered_prs": 31,
     "dispatch_runs": {
-      "in_progress": 3,
-      "success": 66,
+      "success": 69,
       "failure": 31
     },
-    "merged_prs": 126,
+    "merged_prs": 129,
     "dispatched_issues": [
       180,
       184,
@@ -432,7 +431,7 @@
         },
         {
           "ok": true,
-          "text": "1 PR(s) delivered by a dispatched session (found 28)"
+          "text": "1 PR(s) delivered by a dispatched session (found 31)"
         }
       ],
       "contradiction": "unproven"
