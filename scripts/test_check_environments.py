@@ -180,6 +180,45 @@ class TestPlatformMismatch(unittest.TestCase):
         self.assertEqual(C.validate_platform(policy["environments"], api), [])
 
 
+class TestOutsideTheLadder(unittest.TestCase):
+    """A deploy that skips the ladder is only acceptable while the control
+    replacing the reviewer is really configured (#265)."""
+
+    SITE = {"dashboards_site": {"github_environment": "github-pages", "main_only": True}}
+
+    def _api(self, branch_policy):
+        api = make_api()
+        api["github-pages"] = {"name": "github-pages", "protection_rules": [],
+                               "deployment_branch_policy": branch_policy}
+        return api
+
+    def test_an_environment_restricted_to_branches_is_clean(self):
+        api = self._api({"protected_branches": False, "custom_branch_policies": True})
+        self.assertEqual(C.validate_outside_the_ladder(self.SITE, api), [])
+
+    def test_main_only_without_a_branch_policy_is_reported(self):
+        # With no deployment branch policy, any branch can publish through it.
+        violations = C.validate_outside_the_ladder(self.SITE, self._api(None))
+        self.assertTrue(any("github-pages" in v and "any branch" in v for v in violations))
+
+    def test_a_missing_environment_is_reported(self):
+        violations = C.validate_outside_the_ladder(self.SITE, make_api())
+        self.assertTrue(any("github-pages" in v and "does not exist" in v for v in violations))
+
+    def test_an_entry_without_an_environment_is_reported(self):
+        violations = C.validate_outside_the_ladder({"x": {"main_only": True}}, make_api())
+        self.assertTrue(any("no github_environment" in v for v in violations))
+
+    def test_the_live_policy_declares_the_site_main_only(self):
+        import yaml
+
+        policy = yaml.safe_load((REPO_ROOT / "policies" / "environments.yaml").read_text())
+        site = policy["outside_the_ladder"]["dashboards_site"]
+        self.assertEqual(site["github_environment"], "github-pages")
+        self.assertTrue(site["main_only"])
+        self.assertFalse(site["human_reviewer_required"])
+
+
 class TestReportsEveryViolation(unittest.TestCase):
     def test_multiple_independent_problems_are_all_reported(self):
         policy = make_policy()

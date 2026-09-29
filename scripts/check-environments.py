@@ -146,6 +146,31 @@ def validate_platform(environments: dict, api_environments: dict) -> list[str]:
     return violations
 
 
+def validate_outside_the_ladder(entries: dict, api_environments: dict) -> list[str]:
+    """Deploys that skip the ladder (#265) are only acceptable while the
+    control that replaces the reviewer is really there: the environment
+    exists, and a `main_only` entry has a deployment branch policy, without
+    which any branch could publish through it."""
+    violations: list[str] = []
+    for key, entry in (entries or {}).items():
+        name = (entry or {}).get("github_environment")
+        if not name:
+            violations.append(f"outside_the_ladder.{key}: no github_environment")
+            continue
+        api_env = api_environments.get(name)
+        if api_env is None:
+            violations.append(
+                f"outside_the_ladder.{key}: environment `{name}` does not exist on the repo"
+            )
+            continue
+        if (entry or {}).get("main_only") and not api_env.get("deployment_branch_policy"):
+            violations.append(
+                f"outside_the_ladder.{key}: `{name}` has no deployment branch policy, "
+                f"so any branch can deploy through it — the policy says main only"
+            )
+    return violations
+
+
 # --------------------------------------------------------------------------
 # The world — gh api, isolated so tests never call it.
 # --------------------------------------------------------------------------
@@ -215,6 +240,7 @@ def main(
     repo = args.repo or default_repo()
     api_environments = fetch(repo)
     violations = validate_platform(policy.get("environments") or {}, api_environments)
+    violations += validate_outside_the_ladder(policy.get("outside_the_ladder") or {}, api_environments)
     if violations:
         for v in violations:
             print(f"FAIL: {v}", file=sys.stderr)

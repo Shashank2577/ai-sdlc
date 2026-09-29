@@ -16,14 +16,13 @@
 #              publish source -- it exists so a reviewer has a real URL
 #              (raw.githack.com, serving that branch) to look at before
 #              `prod` is asked to approve anything.
-#   prod    -- `environment: prod`, which carries a required-reviewer rule
-#              (policies/environments.yaml, verified live in #187/#191's
-#              evidence) -- the platform pauses this job for @Shashank2577
-#              regardless of what this file says. On approval, mirrors the
-#              same artifact onto `pages-live` (the rollback history --
-#              see .github/workflows/pages-rollback.yml) and only then
+#   prod    -- `environment: github-pages` (no reviewer; deployments
+#              restricted to `main` by the environment's branch policy --
+#              policies/environments.yaml `outside_the_ladder`, #265).
+#              Mirrors the same artifact onto `pages-live` (the rollback
+#              history -- see .github/workflows/pages-rollback.yml), then
 #              calls actions/deploy-pages, which is what actually goes
-#              live at https://shashank2577.github.io/foundry-program/.
+#              live at https://shashank2577.github.io/ai-sdlc/.
 #
 # On main: build, then walk the ladder. On a PR: build and run the tests,
 # publish nothing. The matrix changes with every merge, not only when
@@ -35,23 +34,26 @@
 # the control, not a ref check in this file. `push` only ever fires for
 # `main` (see the trigger above) and `schedule` always runs against the
 # default branch, so the only place this matters is `workflow_dispatch`,
-# which can target any ref -- and there, `prod`'s reviewer sees exactly
-# which ref/run they are approving before it goes live. A ref check here
-# would be a second lock on the same door prod's reviewer already guards,
-# and would also block dispatching this file, deliberately, from a branch
-# to prove the gate pauses before that branch is ever merged.
+# which can target any ref -- and there, `github-pages`' deployment branch
+# policy (`main` only) refuses the `prod` job for any other ref. That
+# policy, not a reviewer, is what stops a branch from publishing the site
+# (#265); `scripts/check-environments.py` verifies it is still set.
 #
 # One-time human setup: Settings -> Pages -> Source = "GitHub Actions".
 # Without it the `prod` job fails, loudly and on purpose -- a dashboard that
 # silently stops publishing is worse than one that visibly breaks.
 #
-# Trade-off, decided (see #191): gating `prod` means the client-visible page
-# can lag `main` for however long the reviewer takes. `dev` and `staging`
-# stay unsupervised (policy already says so) precisely to bound that lag to
-# the approval step alone -- nothing upstream of `prod` is ever stale. The
-# alternative, publishing ungated as before, means REQ-010's gate is real
-# everywhere except the one artifact a client actually looks at. Staleness
-# bounded by a human decision beats freshness with no gate.
+# Trade-off, decided twice. #191 gated this job behind the `prod` reviewer
+# so the site would walk the whole ladder. In practice nobody approves a
+# daily cron: every scheduled run from 2026-09-14 on was cancelled by the
+# next, and the site that exists so nobody has to read transcripts
+# (REQ-011) showed a week-old picture. #265 decided the site is not a
+# production deploy in REQ-010's sense -- nothing a client depends on,
+# nothing irreversible (the next run republishes it; pages-rollback.yml
+# restores an older one) -- which REQ-010's own coverage notes already
+# said ("publishing a dashboard is not shipping a product"). The `prod`
+# GitHub Environment keeps its reviewer for product deploys (deploy.yml);
+# it is shared, so the site moved off it rather than it losing the rule.
 name: Dashboards
 
 on:
@@ -281,11 +283,11 @@ jobs:
     needs: staging
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # The platform pauses here for prod's required reviewer
-    # (policies/environments.yaml; verified against the live repo, not
-    # assumed — see #191's evidence) before anything below runs.
+    # `github-pages`, not `prod` (#265): no reviewer, deployments limited
+    # to `main` by the environment's branch policy. `prod` is shared with
+    # product deploys (deploy.yml) and keeps its required reviewer.
     environment:
-      name: prod
+      name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     permissions:
       contents: write
