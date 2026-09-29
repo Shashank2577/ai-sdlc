@@ -222,6 +222,14 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
             "deny": deny,
             "defaultMode": "bypassPermissions",
         },
+        # No harness attribution (#282). Claude Code's default appends a
+        # `Co-Authored-By:` trailer after a blank line, which splits the
+        # trailer block so git reads the four Foundry trailers as body text
+        # and `dod` fails; the skill warning about it was not enough. The
+        # Agent-Role and Harness trailers already attribute the commit.
+        # Empty strings, not `false`: before 2.1.281 `false` is rejected and
+        # the whole settings file is skipped, deny list included.
+        "attribution": {"commit": "", "pr": ""},
     }
 
     out = {

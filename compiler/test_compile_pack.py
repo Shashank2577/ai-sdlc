@@ -287,6 +287,16 @@ class TestClaudeCodeOutput(unittest.TestCase):
         self.assertIn("UNMAPPABLE.md", out)
         self.assertIn("git push*--force*", out["UNMAPPABLE.md"])
 
+    def test_harness_attribution_is_off(self):
+        # A harness Co-Authored-By after a blank line splits the trailer
+        # block and fails dod (#282). Empty strings, never `false`: older
+        # Claude Code rejects `false` and drops the whole settings file.
+        import json
+
+        with PackFixture(MINIMAL_PACK):
+            settings = json.loads(cp.compile_claude_code(cp.read_pack("widget"))["settings.json"])
+        self.assertEqual(settings["attribution"], {"commit": "", "pr": ""})
+
     def test_prompt_contains_charter_budget_and_skills(self):
         with PackFixture(MINIMAL_PACK) as fx:
             fx.add_skill("do-things", "# Skill\n\nDistinctive skill body.\n")
