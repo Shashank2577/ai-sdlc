@@ -17,6 +17,7 @@ is not there when it says something real — same reasoning as
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import subprocess
@@ -26,6 +27,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POLICY_PATH = REPO_ROOT / "role-packs" / "orchestrator" / "policy.yaml"
 READY = "status:ready"
+
+# The orchestrator's own eligibility rule (#283). The queue this trigger
+# watches is the work `assign.py` could actually dispatch; a second copy of
+# that rule here would drift from it.
+_spec = importlib.util.spec_from_file_location("assign", Path(__file__).resolve().parent / "assign.py")
+assign = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(assign)
 
 # Used only if the pack is missing entirely. Conservative on purpose: a
 # broken policy read must not become a silent no-op nor an unbounded loop.
@@ -56,6 +64,19 @@ def load_refill_policy(path: Path = POLICY_PATH) -> tuple[dict, str]:
 # --------------------------------------------------------------------------
 # Decision — pure. Board in, plan out.
 # --------------------------------------------------------------------------
+
+def dispatchable_ready(issues: list[dict], orchestrator_policy: dict) -> list[int]:
+    """Pure. The `status:ready` items `assign.py` would actually dispatch.
+
+    A ready label on an item that also carries needs-human, is blocked, or
+    has no role is not supply. Counting those kept this trigger quiet on
+    2026-09-28 at "Ready queue: 7" while the orchestrator could run none of
+    them (#283).
+    """
+    return sorted(i["number"] for i in issues
+                  if READY in assign.labels_of(i)
+                  and assign.ineligible_reason(i, orchestrator_policy) is None)
+
 
 def should_refine(ready_count: int, floor: int) -> bool:
     """A floor, not a schedule: fire only once the queue is at or below it."""
@@ -88,7 +109,9 @@ def plan_refill(ready_count: int, floor: int, pm_issues: list[dict]) -> dict:
 
 
 def render_plan(p: dict, source: str) -> str:
-    header = (f"Ready queue: {p['ready_count']} (floor {p['floor']}). "
+    labelled = (f" dispatchable of {p['labelled']} labelled `{READY}`"
+                if "labelled" in p else "")
+    header = (f"Ready queue: {p['ready_count']}{labelled} (floor {p['floor']}). "
               f"Policy: {source}")
     body = {
         "quiet": "above the floor — nothing to do.",
@@ -110,10 +133,10 @@ def gh(args: list[str]) -> str:
                           capture_output=True, text=True).stdout
 
 
-def count_ready() -> int:
+def list_ready() -> list[dict]:
     out = gh(["issue", "list", "--state", "open", "--label", READY,
-              "--limit", "200", "--json", "number"])
-    return len(json.loads(out or "[]"))
+              "--limit", "200", "--json", "number,labels,state"])
+    return json.loads(out or "[]")
 
 
 def list_role_issues(role: str) -> list[dict]:
@@ -168,9 +191,11 @@ def main() -> int:
     policy, source = load_refill_policy()
     role = policy["role"]
 
-    ready_count = count_ready()
+    orchestrator_policy, _ = assign.load_policy()
+    labelled = list_ready()
+    ready_count = len(dispatchable_ready(labelled, orchestrator_policy))
     pm_issues = list_role_issues(role) if should_refine(ready_count, policy["ready_floor"]) else []
-    p = plan_refill(ready_count, policy["ready_floor"], pm_issues)
+    p = {**plan_refill(ready_count, policy["ready_floor"], pm_issues), "labelled": len(labelled)}
 
     report = render_plan(p, source)
     print(report)
