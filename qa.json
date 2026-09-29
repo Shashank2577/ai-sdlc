@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 03:43 UTC"
+    "generated_at": "2026-09-29 04:36 UTC"
   },
   "matrix": {
     "REQ-003": [
@@ -227,8 +227,8 @@
       {
         "number": 234,
         "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 241,
@@ -921,8 +921,8 @@
       {
         "number": 234,
         "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       }
     ],
     "REQ-002": [

@@ -1,15 +1,19 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-29T03:41:50.994137+00:00",
+  "generated_at": "2026-09-29T04:34:48.359747+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 1,
+      "commits": 2,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "aeb408c",
+          "subject": "fix(qa-gate): fail closed when the label lookup fails (#274)"
+        },
         {
           "sha": "e630c28",
           "subject": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red (#276)"
@@ -17,9 +21,39 @@
       ]
     }
   ],
-  "commits_total": 1,
+  "commits_total": 2,
   "pulls": {
     "opened": [
+      {
+        "number": 281,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
+        "branch": "bug/FDY-231-dod-check-validation-v2"
+      },
+      {
+        "number": 280,
+        "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
+        "branch": "bug/FDY-235-traceability-false-ambers"
+      },
+      {
+        "number": 279,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
+        "branch": "bug/FDY-231-dod-check-validation"
+      },
+      {
+        "number": 278,
+        "title": "fix(dispatch): build the agent prompt from the guarded issue snapshot (#232)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/278",
+        "branch": "bug/FDY-232-prompt-from-guarded-snapshot"
+      },
+      {
+        "number": 277,
+        "title": "fix(compiler): render write_scope; --check enumerates every pack dir",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/277",
+        "branch": "bug/FDY-233-compile-pack-write-scope"
+      },
       {
         "number": 276,
         "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
@@ -39,36 +73,67 @@
         "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/276",
         "branch": "bug/FDY-275-adr-0009-collision"
+      },
+      {
+        "number": 274,
+        "title": "fix(qa-gate): fail closed when the label lookup fails",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/274",
+        "branch": "bug/FDY-234-qa-gate-lookup-failure"
       }
     ],
-    "closed_unmerged": [],
-    "open_now": 1
+    "closed_unmerged": [
+      {
+        "number": 279,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
+        "branch": "bug/FDY-231-dod-check-validation"
+      }
+    ],
+    "open_now": 4
   },
   "check_failures": [
+    {
+      "name": "DoD",
+      "branch": "bug/FDY-235-traceability-false-ambers",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36518649455",
+      "at": "2026-09-29T03:46:46Z"
+    },
+    {
+      "name": "Dashboards",
+      "branch": "bug/FDY-235-traceability-false-ambers",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36518649441",
+      "at": "2026-09-29T03:46:46Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "bug/FDY-231-dod-check-validation",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36518636956",
+      "at": "2026-09-29T03:46:36Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "bug/FDY-232-prompt-from-guarded-snapshot",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36518622494",
+      "at": "2026-09-29T03:46:24Z"
+    },
+    {
+      "name": "DoD",
+      "branch": "bug/FDY-233-compile-pack-write-scope",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36518594108",
+      "at": "2026-09-29T03:46:01Z"
+    },
     {
       "name": "DoD",
       "branch": "bug/FDY-275-adr-0009-collision",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36517811673",
       "at": "2026-09-29T03:35:26Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "bug/FDY-234-qa-gate-lookup-failure",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36517519227",
-      "at": "2026-09-29T03:31:32Z"
-    },
-    {
-      "name": "DoD",
-      "branch": "bug/FDY-234-qa-gate-lookup-failure",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36517519133",
-      "at": "2026-09-29T03:31:32Z"
     }
   ],
   "board": {
     "(no status)": 11,
     "status:needs-refinement": 7,
-    "status:in-review": 4,
-    "status:ready": 6,
+    "status:in-review": 7,
+    "status:ready": 2,
     "status:blocked": 1,
     "status:in-progress": 1
   },
@@ -77,26 +142,6 @@
       "number": 245,
       "title": "The published site silently stopped deploying three days ago",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/245"
-    },
-    {
-      "number": 235,
-      "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/235"
-    },
-    {
-      "number": 233,
-      "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/233"
-    },
-    {
-      "number": 232,
-      "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/232"
-    },
-    {
-      "number": 231,
-      "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/231"
     },
     {
       "number": 194,
@@ -109,7 +154,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 581.3,
+      "hours": 582.1,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -117,7 +162,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 536.5,
+      "hours": 537.4,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }

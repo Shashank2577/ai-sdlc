@@ -3,9 +3,9 @@
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
     "ref": "HEAD",
-    "head": "e630c2820705ea7e6114249303bb022204868554",
-    "commits_scanned": 187,
-    "generated_at": "2026-09-29 03:46 UTC",
+    "head": "aeb408c09777b79359f0c7a0e7abebb06f24c94a",
+    "commits_scanned": 188,
+    "generated_at": "2026-09-29 04:40 UTC",
     "note": ""
   },
   "rows": [
@@ -332,6 +332,12 @@
           "url": "https://github.com/Shashank2577/ai-sdlc/pull/63"
         },
         {
+          "merged_at": "2026-09-02T09:48:57Z",
+          "number": 56,
+          "title": "P1-5: Tech Writer role pack v0",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/56"
+        },
+        {
           "merged_at": "2026-09-02T09:48:01Z",
           "number": 55,
           "title": "P1-4: Architect role pack v0",
@@ -604,6 +610,12 @@
           "number": 85,
           "title": "BUG: fail CI when a test file runs nowhere",
           "url": "https://github.com/Shashank2577/ai-sdlc/pull/85"
+        },
+        {
+          "merged_at": "2026-09-02T09:48:57Z",
+          "number": 56,
+          "title": "P1-5: Tech Writer role pack v0",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/56"
         },
         {
           "merged_at": "2026-09-02T00:59:43Z",
