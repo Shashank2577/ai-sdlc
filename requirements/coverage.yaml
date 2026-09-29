@@ -218,7 +218,22 @@ requirements:
       - {exists: portal}
       - {glob: "scripts/*transcript*"}
       - {glob: "policies/signoff*.yaml"}
-    notes: scripts/transcript-to-prd.py and policies/signoff.yaml both exist (#133, #139). The client portal does not.
+    notes: >-
+      scripts/transcript-to-prd.py and policies/signoff.yaml exist (#133,
+      #139), and .github/workflows/signoff-gate.yml has been live on main
+      since #199 (#193, #198). portal.html is published with the status
+      page and resolves (HTTP 200). Exercised live, against real stories:
+      request-signoff only — e.g. run 36526518943 on #292 closed with
+      qa:approved, applied signoff:requested, and commented the
+      policies/signoff.yaml evidence and portal link (same on #284, #283,
+      #282, #234, #232). Exists but NOT yet exercised live: identity-check
+      rejecting a bot-applied signoff:approved (no run has it; only
+      pre-merge fixtures in signoff-gate-tests), recording a person's
+      signoff:approved and the portal showing it signed (needs a real
+      client decision — waiting on the client, not a stall), and
+      change-request reopening a signed story per change_request.effect.
+      Not exercised by this session because its credential is a person's
+      account, which would count as a human sign-off, not a bot test.
 
   REQ-009:
     summary: QA veto, DoD as policy-as-code, published QA reports
