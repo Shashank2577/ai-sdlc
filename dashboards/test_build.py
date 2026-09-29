@@ -16,6 +16,7 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -228,6 +229,35 @@ class TestPageDiscovery(unittest.TestCase):
         pages, orphans = B.discover_pages(self.out)
         self.assertEqual(pages, [])
         self.assertEqual(orphans, [])
+
+
+class TestPullLookups(unittest.TestCase):
+    def _commit(self, trailers=None):
+        return B.Commit("a" * 40, "s", "2026-01-01", trailers or {})
+
+    def test_failed_lookup_is_reported_not_treated_as_no_pr(self):
+        err = B.subprocess.CalledProcessError(1, "gh", stderr="Resource not accessible")
+        with mock.patch.object(B, "run", side_effect=err):
+            pulls, failures = B.collect_pulls([self._commit({"Requirement": "REQ-005"})])
+        self.assertEqual(pulls, {})
+        self.assertEqual(len(failures), 1)
+        self.assertIn("Resource not accessible", failures[0])
+
+    def test_genuinely_no_pr_is_not_a_failure(self):
+        with mock.patch.object(B, "run", return_value="[]"):
+            pulls, failures = B.collect_pulls([self._commit({"Requirement": "REQ-005"})])
+        self.assertEqual((pulls, failures), ({}, []))
+
+    def test_multi_commit_squash_recovers_requirements_from_the_pr(self):
+        def fake(cmd):
+            if "/pulls/7/commits" in cmd[2]:
+                return json.dumps(["a\n\nRequirement: REQ-005\nAgent-Role: developer",
+                                   "b\n\nRequirement: REQ-011"])
+            return json.dumps([{"number": 7, "url": "u", "title": "t", "merged_at": "x"}])
+        with mock.patch.object(B, "run", side_effect=fake):
+            commits, failures = B.recover_squashed([self._commit()])
+        self.assertEqual(failures, [])
+        self.assertEqual(commits[0].requirements, ["REQ-005", "REQ-011"])
 
 
 class TestAgainstThisRepo(unittest.TestCase):

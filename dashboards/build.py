@@ -173,30 +173,92 @@ def collect_commits(ref: str) -> list[Commit]:
     return parse_commits(raw)
 
 
-def collect_pulls(commits: list[Commit]) -> dict[str, list[dict]]:
+def _gh_json(endpoint: str, jq: str):
+    return json.loads(run(["gh", "api", endpoint, "--jq", jq]) or "[]")
+
+
+def _pulls_for(sha: str) -> list[dict]:
+    return _gh_json(
+        f"repos/{{owner}}/{{repo}}/commits/{sha}/pulls",
+        "[.[] | select(.merged_at != null) | {number, url: .html_url, title, merged_at}]",
+    )
+
+
+def _trailers_of(message: str) -> dict[str, str]:
+    """Trailers from a full commit message — its last paragraph, `Key: value`."""
+    block = message.strip().split("\n\n")[-1]
+    return {k.strip(): v.strip() for k, _, v in
+            (ln.partition(":") for ln in block.splitlines() if ":" in ln)}
+
+
+def collect_pulls(commits: list[Commit]) -> tuple[dict[str, list[dict]], list[str]]:
     """Ask GitHub which merged PR carried each commit.
 
     Authoritative, and merge-strategy agnostic — squash, rebase and merge
     commits all answer this endpoint correctly, where parsing subjects for
-    `(#123)` does not. Failures degrade to 'no PR' (amber) rather than
-    aborting the build: a matrix that renders with a caveat beats no matrix.
+    `(#123)` does not.
+
+    Returns `(pulls, failures)`. A failed lookup (permissions, rate limit,
+    network) must not read as "genuinely no PR", so each failure is reported
+    as `"<sha7>: <reason>"` for the caller to surface. The build still
+    proceeds: a matrix that renders with a caveat beats no matrix.
     """
     out: dict[str, list[dict]] = {}
+    failures: list[str] = []
     for commit in commits:
         if not commit.requirements:
             continue
         try:
-            data = json.loads(run([
-                "gh", "api",
-                f"repos/{{owner}}/{{repo}}/commits/{commit.sha}/pulls",
-                "--jq", "[.[] | select(.merged_at != null) | "
-                        "{number, url: .html_url, title, merged_at}]",
-            ]) or "[]")
-        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            data = _pulls_for(commit.sha)
+        except subprocess.CalledProcessError as e:
+            failures.append(f"{commit.sha[:7]}: {(e.stderr or str(e)).strip()[:200]}")
+            continue
+        except json.JSONDecodeError as e:
+            failures.append(f"{commit.sha[:7]}: unparseable response ({e})")
             continue
         if data:
             out[commit.sha] = data
-    return out
+    return out, failures
+
+
+def recover_squashed(commits: list[Commit]) -> tuple[list[Commit], list[str]]:
+    """Restore trailers a squash merge dropped.
+
+    GitHub's default squash message for a multi-commit PR is the title plus
+    bullet subjects, so the per-commit trailers never reach `main`. For each
+    trailerless commit that came from a merged PR, read the PR's own commits
+    and attribute their requirements to the squash commit. Returns the
+    commits (recovered ones replaced) and lookup failures.
+    """
+    out: list[Commit] = []
+    failures: list[str] = []
+    for commit in commits:
+        if commit.requirements:
+            out.append(commit)
+            continue
+        try:
+            prs = _pulls_for(commit.sha)
+            reqs: list[str] = []
+            trailers: dict[str, str] = {}
+            for pr in prs:
+                msgs = _gh_json(f"repos/{{owner}}/{{repo}}/pulls/{pr['number']}/commits",
+                                "[.[].commit.message]")
+                for msg in msgs:
+                    t = _trailers_of(msg)
+                    for r in Commit("", "", "", t).requirements:
+                        if r not in reqs:
+                            reqs.append(r)
+                    trailers = {**t, **trailers}
+        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+            detail = getattr(e, "stderr", None) or str(e)
+            failures.append(f"{commit.sha[:7]}: {detail.strip()[:200]}")
+            out.append(commit)
+            continue
+        if reqs:
+            trailers["Requirement"] = ", ".join(reqs)
+            commit = Commit(commit.sha, commit.subject, commit.date, trailers)
+        out.append(commit)
+    return out, failures
 
 
 # --------------------------------------------------------------------------
@@ -432,7 +494,13 @@ def main() -> int:
     if args.no_github:
         pulls, note = {}, "PR lookup skipped (--no-github): no row can be green."
     else:
-        pulls = collect_pulls(commits)
+        commits, failures = recover_squashed(commits)
+        pulls, more = collect_pulls(commits)
+        failures += more
+        if failures:
+            note = (f"PR lookup failed for {len(failures)} commit(s) — amber rows "
+                    f"may be traced but unverified. First error: {failures[0]}")
+            print(f"build: WARNING {note}", file=sys.stderr)
 
     rows = build_matrix(requirements, commits, pulls)
     repo = args.repo or "Shashank2577/foundry-program"
