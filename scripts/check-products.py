@@ -303,9 +303,16 @@ def fetch_project(owner: str, number: int) -> dict | None:
             "-f", f"login={owner}",
             "-F", f"number={number}",
         ])
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
+        # The query asks for the login as a user and as an organization, and
+        # one half is always NOT_FOUND. gh exits 1 on that error but still
+        # prints the half that resolved; discarding it made every
+        # user-owned board "not resolve" (#262).
+        raw = exc.stdout or ""
+    try:
+        data = json.loads(raw).get("data") or {}
+    except (json.JSONDecodeError, AttributeError):
         return None
-    data = json.loads(raw).get("data") or {}
     user_project = (data.get("user") or {}).get("projectV2")
     if user_project:
         return user_project
