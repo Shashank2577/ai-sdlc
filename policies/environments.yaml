@@ -115,6 +115,27 @@ environments:
       github_environment: prod
       required_reviewers: [Shashank2577]
 
+# Deploys that do not walk the ladder, and why. Each is still a GitHub
+# Environment the platform enforces; `scripts/check-environments.py`
+# verifies it exists and, where `main_only` is set, that its deployment
+# branch policy is actually configured.
+outside_the_ladder:
+  dashboards_site:
+    github_environment: github-pages
+    human_reviewer_required: false
+    main_only: true
+    because: >-
+      Decided in #265. The dashboards site (dashboards.yml, rolled back by
+      pages-rollback.yml) is not a production deploy in REQ-010's sense:
+      nothing a client depends on, nothing irreversible — the next run
+      republishes it and pages-rollback.yml restores an older release.
+      Behind the `prod` reviewer, the daily run was cancelled by the next
+      one every day nobody clicked (2026-09-14 to 2026-09-28), so the site
+      REQ-011 relies on went stale. It deploys through `github-pages`, whose
+      branch policy admits `main` only, so a branch still cannot publish it.
+      `prod` is shared with product deploys (deploy.yml) and keeps its
+      reviewer; the site moved off it rather than it losing the rule.
+
 # What may never be deployed unsupervised, stated plainly rather than
 # left to be inferred from the table above.
 never_unsupervised:
