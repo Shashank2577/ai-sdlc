@@ -2,9 +2,259 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 04:36 UTC"
+    "generated_at": "2026-09-29 05:13 UTC"
   },
   "matrix": {
+    "REQ-004": [
+      {
+        "number": 18,
+        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 123,
+        "title": "P3-4: Tracker adapter \u2014 GitHub and Jira behind one contract",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 192,
+        "title": "P3-7: Rewire sync-project.py through the tracker seam \u2014 it still calls GitHub directly",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 202,
+        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 206,
+        "title": "Build scripts/check-products.py against policies/products.yaml",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 207,
+        "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 208,
+        "title": "P4-2: Dispatcher targets a product repo, not only itself",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 224,
+        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 251,
+        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 261,
+        "title": "Wire check-products.py as a required status check on policies/products.yaml",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 262,
+        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 290,
+        "title": "Work items carry their product, so the orchestrator and board sync route per product",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-011": [
+      {
+        "number": 6,
+        "title": "P0-5: Traceability matrix generator v0",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 7,
+        "title": "P0-6: Standup digest v0 \u2014 event-derived, never self-reported",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 18,
+        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 22,
+        "title": "P0-11: Project sync adds missing work items to the board",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 27,
+        "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 38,
+        "title": "P0-16: A closed work item carries a terminal status label",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 59,
+        "title": "P1-8: Document the approval gates and their SLA",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 96,
+        "title": "P1-10: Burndown & velocity dashboard",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 103,
+        "title": "P1-11: Architecture decision records \u2014 establish the format and backfill what has actually been decided",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 104,
+        "title": "P1-12: Decisions dashboard \u2014 what is waiting on a human, and what was decided",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 105,
+        "title": "P1-13: ADR dashboard \u2014 render the decision records as a page",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 106,
+        "title": "P1-14: Publish the decisions and ADR pages \u2014 dashboards workflow wiring",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 117,
+        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 126,
+        "title": "P1-15: ADR validator",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 127,
+        "title": "Three merges in a row conflicted on build.py's page registry",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 142,
+        "title": "BUG: main is red because a requirement was satisfied \u2014 status test pins literals",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 146,
+        "title": "REQ-006 read 100% while two of five ceremonies could not run",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 159,
+        "title": "Self-hosting verdict is hardcoded 'unproven' while the page prints 46 agent-delivered PRs beside it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 164,
+        "title": "P1-16: Compute the self-hosting verdict, and catch notes that contradict their checks",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 184,
+        "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 185,
+        "title": "P1-19: status.py hardcodes a role list that has never matched the packs",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 191,
+        "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
+        "state": "OPEN",
+        "verdict": "rejected"
+      },
+      {
+        "number": 203,
+        "title": "Repo renamed to ai-sdlc \u2014 update live defaults, keep historical citations",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 235,
+        "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 245,
+        "title": "The published site silently stopped deploying three days ago",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 251,
+        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 262,
+        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 265,
+        "title": "The daily dashboards deploy waits on the prod reviewer every day and is cancelled by the next run \u2014 the site has been stale since 2026-09-14",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 290,
+        "title": "Work items carry their product, so the orchestrator and board sync route per product",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
     "REQ-003": [
       {
         "number": 3,
@@ -51,7 +301,7 @@
       {
         "number": 269,
         "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       }
     ],
@@ -215,14 +465,14 @@
       {
         "number": 232,
         "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 234,
@@ -263,7 +513,7 @@
       {
         "number": 269,
         "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       }
     ],
@@ -376,182 +626,12 @@
         "number": 191,
         "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       },
       {
         "number": 207,
         "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
         "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 265,
-        "title": "The daily dashboards deploy waits on the prod reviewer every day and is cancelled by the next run \u2014 the site has been stale since 2026-09-14",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-011": [
-      {
-        "number": 6,
-        "title": "P0-5: Traceability matrix generator v0",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 7,
-        "title": "P0-6: Standup digest v0 \u2014 event-derived, never self-reported",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 18,
-        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 22,
-        "title": "P0-11: Project sync adds missing work items to the board",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 27,
-        "title": "P0-14: Programme status page \u2014 traced vs actually satisfied",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 38,
-        "title": "P0-16: A closed work item carries a terminal status label",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 59,
-        "title": "P1-8: Document the approval gates and their SLA",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 96,
-        "title": "P1-10: Burndown & velocity dashboard",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 103,
-        "title": "P1-11: Architecture decision records \u2014 establish the format and backfill what has actually been decided",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 104,
-        "title": "P1-12: Decisions dashboard \u2014 what is waiting on a human, and what was decided",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 105,
-        "title": "P1-13: ADR dashboard \u2014 render the decision records as a page",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 106,
-        "title": "P1-14: Publish the decisions and ADR pages \u2014 dashboards workflow wiring",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 117,
-        "title": "P2-5: Client portal \u2014 what was delivered and what needs signing",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 126,
-        "title": "P1-15: ADR validator",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 127,
-        "title": "Three merges in a row conflicted on build.py's page registry",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 142,
-        "title": "BUG: main is red because a requirement was satisfied \u2014 status test pins literals",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 146,
-        "title": "REQ-006 read 100% while two of five ceremonies could not run",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 159,
-        "title": "Self-hosting verdict is hardcoded 'unproven' while the page prints 46 agent-delivered PRs beside it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 164,
-        "title": "P1-16: Compute the self-hosting verdict, and catch notes that contradict their checks",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 184,
-        "title": "The PRD names the eighth role twice, so the page reports 7/8 forever",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 185,
-        "title": "P1-19: status.py hardcodes a role list that has never matched the packs",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 191,
-        "title": "P3-6: Promote the published site through the ladder \u2014 the only real deployable currently bypasses it",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 203,
-        "title": "Repo renamed to ai-sdlc \u2014 update live defaults, keep historical citations",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 235,
-        "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 245,
-        "title": "The published site silently stopped deploying three days ago",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 251,
-        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 262,
-        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "OPEN",
         "verdict": "pending"
       },
       {
@@ -641,74 +721,6 @@
         "verdict": "pending"
       }
     ],
-    "REQ-004": [
-      {
-        "number": 18,
-        "title": "P0-9: Generated tracker surfaces \u2014 project board sync + wiki publish",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 123,
-        "title": "P3-4: Tracker adapter \u2014 GitHub and Jira behind one contract",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 192,
-        "title": "P3-7: Rewire sync-project.py through the tracker seam \u2014 it still calls GitHub directly",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 202,
-        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 206,
-        "title": "Build scripts/check-products.py against policies/products.yaml",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 207,
-        "title": "PILOT: one story, one product repo, issue to deployed, nothing untracked",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 208,
-        "title": "P4-2: Dispatcher targets a product repo, not only itself",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 224,
-        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 251,
-        "title": "The board sync has been failing for two days \u2014 16 tickets never reached the board",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 261,
-        "title": "Wire check-products.py as a required status check on policies/products.yaml",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 262,
-        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
     "REQ-001": [
       {
         "number": 2,
@@ -749,8 +761,8 @@
       {
         "number": 232,
         "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 251,
@@ -860,7 +872,7 @@
         "number": 231,
         "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 235,
@@ -897,7 +909,7 @@
       {
         "number": 179,
         "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       },
       {
@@ -916,7 +928,7 @@
         "number": 231,
         "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 234,
@@ -1014,7 +1026,7 @@
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-007": [
@@ -1223,7 +1235,7 @@
       {
         "number": 179,
         "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "pending"
       }
     ]

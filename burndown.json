@@ -1,7 +1,7 @@
 {
   "window_days": 60,
-  "generated_at": "2026-09-29T04:35:27.823187+00:00",
-  "story_count": 63,
+  "generated_at": "2026-09-29T05:12:39.648038+00:00",
+  "story_count": 64,
   "burndown": [
     {
       "date": "2026-07-31",
@@ -245,7 +245,7 @@
     },
     {
       "date": "2026-09-29",
-      "open": 2
+      "open": 3
     }
   ],
   "velocity": [
