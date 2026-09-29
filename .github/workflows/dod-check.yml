@@ -4,6 +4,9 @@ on:
     types: [opened, synchronize, reopened, edited]
 permissions:
   contents: read
+  # dod-check.sh looks up every closing reference with `gh issue view` (#231);
+  # without this a private repo's token reads "does not exist" for real issues.
+  issues: read
   pull-requests: write
 jobs:
   dod:
