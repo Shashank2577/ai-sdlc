@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 05:13 UTC"
+    "generated_at": "2026-09-29 05:36 UTC"
   },
   "matrix": {
     "REQ-004": [
@@ -70,7 +70,7 @@
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 290,
@@ -222,7 +222,7 @@
         "number": 235,
         "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       },
       {
         "number": 245,
@@ -240,13 +240,13 @@
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 265,
         "title": "The daily dashboards deploy waits on the prod reviewer every day and is cancelled by the next run \u2014 the site has been stale since 2026-09-14",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 290,
@@ -472,7 +472,7 @@
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
         "state": "OPEN",
-        "verdict": "approved"
+        "verdict": "rejected"
       },
       {
         "number": 234,
@@ -502,7 +502,7 @@
         "number": 262,
         "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 268,
@@ -638,7 +638,7 @@
         "number": 265,
         "title": "The daily dashboards deploy waits on the prod reviewer every day and is cancelled by the next run \u2014 the site has been stale since 2026-09-14",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-013": [
@@ -878,7 +878,7 @@
         "number": 235,
         "title": "Traceability matrix: squash-merge trailers, failed PR lookups, and a build token missing pull-requests scope all render as false ambers",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       },
       {
         "number": 246,
@@ -1026,7 +1026,7 @@
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
         "state": "OPEN",
-        "verdict": "approved"
+        "verdict": "rejected"
       }
     ],
     "REQ-007": [
