@@ -186,6 +186,16 @@ def render_role_doc(pack: dict) -> str:
         "",
     ]
     parts += [f"- {a}" for a in policy["forbidden"]]
+    scope = policy.get("write_scope") or {}
+    if scope:
+        parts += ["", "# Write scope", "",
+                  "Paths you may write, and paths you may not. Anything outside "
+                  "the allow list needs a human or another role; deny wins over allow. "
+                  "Also enforced by tool deny rules, CODEOWNERS and branch protection.",
+                  "", "Allowed:"]
+        parts += [f"- `{g}`" for g in scope.get("allow") or []]
+        parts += ["", "Denied:"]
+        parts += [f"- `{g}`" for g in scope.get("deny") or []]
     parts += ["", "# Escalate to a human when", ""]
     parts += [f"- {t}" for t in policy["hitl_triggers"]]
 
@@ -374,7 +384,8 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check and not args.role:
-        roles = sorted(p.name for p in PACKS_DIR.iterdir() if (p / "pack.yaml").is_file())
+        roles = sorted(p.name for p in PACKS_DIR.iterdir()
+                       if p.is_dir() and not p.name.startswith("."))
         if not roles:
             print("no role packs found — nothing to check")
             return 0
