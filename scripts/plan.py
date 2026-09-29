@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -107,6 +108,27 @@ def existing_titles(repo: str) -> list[str]:
     return [i["title"] for i in gh_json(
         ["issue", "list", "--repo", repo, "--state", "all", "--limit", "500",
          "--json", "title"], [])]
+
+
+def issue_number(create_output: str) -> int | None:
+    """`gh issue create` prints the new issue's URL; its number is the tail."""
+    m = re.search(r"/issues/(\d+)\s*$", create_output.strip())
+    return int(m.group(1)) if m else None
+
+
+def supersede_prior(repo: str, prefix: str, new_number: int) -> list[int]:
+    """Close every other open issue whose title starts with `prefix` (this
+    ceremony's), as not planned, commenting "Superseded by #N". Never
+    touches `new_number` or an issue of another ceremony (#288)."""
+    closed = []
+    for i in gh_json(["issue", "list", "--repo", repo, "--state", "open",
+                      "--limit", "500", "--json", "number,title"], []):
+        if i["number"] == new_number or not i["title"].startswith(prefix):
+            continue
+        gh(["issue", "close", str(i["number"]), "--repo", repo,
+            "--reason", "not planned", "--comment", f"Superseded by #{new_number}"])
+        closed.append(i["number"])
+    return closed
 
 
 # --------------------------------------------------------------------------
@@ -232,9 +254,16 @@ def main() -> int:
         print(body)
         return 0
 
-    gh(["issue", "create", "--repo", args.repo, "--title", title,
-        "--body", body, "--label", "type:task"])
+    out = gh(["issue", "create", "--repo", args.repo, "--title", title,
+              "--body", body, "--label", "type:task"])
     print(f"plan: created '{title}'")
+    number = issue_number(out)
+    if number is None:
+        print(f"plan: could not read the new issue number from {out.strip()!r};"
+              f" superseded issues not closed", file=sys.stderr)
+        return 0
+    for n in supersede_prior(args.repo, 'Sprint Plan:', number):
+        print(f"plan: closed #{n} (superseded by #{number})")
     return 0
 
 
