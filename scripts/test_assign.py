@@ -50,6 +50,70 @@ def ready(number, role="developer", *extra):
     return issue(number, ENTRY_STATE.get(role, "status:ready"), f"role:{role}", *extra)
 
 
+class TestReviewLane(unittest.TestCase):
+    """An author's finished work in review gets a QA session (#299): nothing
+    ever labels an item role:qa, so without this lane QA only ran by hand."""
+
+    def in_review(self, number, *extra, role="developer"):
+        return issue(number, "status:in-review", f"role:{role}", *extra)
+
+    def test_in_review_with_an_open_pr_is_dispatched_as_qa(self):
+        p = A.plan([self.in_review(1)], POLICY, with_open_pr={1})
+        self.assertEqual([(d["number"], d["role"]) for d in p["dispatch"]], [(1, "qa")])
+        self.assertEqual(p["skipped"], [])
+
+    def test_no_open_pr_is_not_reviewed(self):
+        p = A.plan([self.in_review(1)], POLICY, with_open_pr=set())
+        self.assertEqual(p["dispatch"], [])
+
+    def test_already_approved_waits_for_a_person(self):
+        self.assertIn("waiting on a person",
+                      A.review_reason(self.in_review(1, "qa:approved"), POLICY, {1}))
+        self.assertEqual(A.plan([self.in_review(1, "qa:approved")], POLICY, {1})["dispatch"], [])
+
+    def test_escalated_or_blocked_is_not_reviewed(self):
+        for label in ("needs-human", "status:blocked"):
+            with self.subTest(label=label):
+                self.assertEqual(A.plan([self.in_review(1, label)], POLICY, {1})["dispatch"], [])
+
+    def test_reworked_item_carrying_qa_rejected_gets_its_re_review(self):
+        p = A.plan([self.in_review(1, "qa:rejected")], POLICY, with_open_pr={1})
+        self.assertEqual([d["role"] for d in p["dispatch"]], ["qa"])
+
+    def test_the_author_role_is_left_on_the_entry_not_rewritten(self):
+        # The dispatch is as qa; the item's own role:developer is untouched,
+        # so a rejection still routes back to the developer.
+        board = [self.in_review(1)]
+        A.plan(board, POLICY, with_open_pr={1})
+        self.assertEqual(A.role_of(board[0], POLICY["routing"]), "developer")
+
+    def test_an_item_already_dispatchable_as_qa_is_not_dispatched_twice(self):
+        p = A.plan([ready(1, "qa")], POLICY, with_open_pr={1})
+        self.assertEqual([d["number"] for d in p["dispatch"]], [1])
+
+    def test_at_most_the_qa_cap_is_dispatched_per_run(self):
+        board = [self.in_review(n) for n in (1, 2, 3)]
+        p = A.plan(board, POLICY, with_open_pr={1, 2, 3})
+        self.assertEqual([d["number"] for d in p["dispatch"]], [1, 2])
+        self.assertIn("per-role cap for `qa`", p["deferred"][0]["reason"])
+
+    def test_in_flight_qa_counts_against_the_cap(self):
+        board = [issue(9, "status:in-progress", "role:qa"), self.in_review(1), self.in_review(2)]
+        p = A.plan(board, POLICY, with_open_pr={1, 2})
+        self.assertEqual([d["number"] for d in p["dispatch"]], [1])
+
+    def test_reviews_go_ahead_of_new_work(self):
+        # Two free slots, one review and two ready items: the review first.
+        board = [issue(8, "status:in-progress", "role:developer"), ready(2), ready(3), self.in_review(5)]
+        p = A.plan(board, POLICY, with_open_pr={5})
+        self.assertEqual([(d["number"], d["role"]) for d in p["dispatch"]],
+                         [(5, "qa"), (2, "developer")])
+
+    def test_no_review_lane_when_qa_is_not_a_supported_role(self):
+        policy = {**POLICY, "routing": {**POLICY["routing"], "supported": ["developer"]}}
+        self.assertEqual(A.plan([self.in_review(1)], policy, {1})["dispatch"], [])
+
+
 class TestEligibility(unittest.TestCase):
     def eligible(self, iss):
         return A.ineligible_reason(iss, POLICY) is None
