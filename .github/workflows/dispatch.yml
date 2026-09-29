@@ -1577,6 +1577,28 @@ jobs:
               gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
                 --add-label "status:in-review"
             fi
+          else
+            # A successful tracker-only session (#99) owns its own labels,
+            # but one that leaves the item status:in-progress holds a WIP
+            # slot and its role's per-role cap until someone notices: #157
+            # sat there from 2026-09-04 and deferred every other
+            # product-manager item behind it (#284). Same check-don't-assume
+            # as #83: only an item still in progress moves, to
+            # status:in-review, where a person confirms the tracker output.
+            labels_json=$(gh issue view "$ISSUE" --repo "$GITHUB_REPOSITORY" --json labels 2>/dev/null || echo '{"labels":[]}')
+            still_in_progress=$(jq -r '
+              [.labels[].name] | any(. == "status:in-progress")
+            ' <<<"$labels_json" 2>/dev/null || echo false)
+            if [ "$still_in_progress" = "true" ]; then
+              gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+                --remove-label "status:ready" \
+                --remove-label "status:in-progress" \
+                --remove-label "status:in-review" \
+                --remove-label "status:blocked" \
+                --remove-label "status:needs-refinement"
+              gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+                --add-label "status:in-review"
+            fi
           fi
 
   # The session-end step above is theatre if nothing runs it — a bug can
