@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-22 00:50 UTC",
+    "generated_at": "2026-09-29 05:44 UTC",
     "sla_hours": 24
   },
   "waiting": [
@@ -18,64 +18,15 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 373.9,
+      "age_hours": 546.8,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
-    },
-    {
-      "kind": "issue",
-      "number": 245,
-      "title": "The published site silently stopped deploying three days ago",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/245",
-      "why": [
-        {
-          "rule": "pipeline_role",
-          "hit": "label `role:devops`",
-          "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
-        },
-        {
-          "rule": "production_or_release",
-          "hit": "mentions `deploy`",
-          "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
-        }
-      ],
-      "age_hours": 315.0,
-      "age_source": "since `needs-human` was applied",
-      "sla_hours": 24,
-      "past_sla": true
-    },
-    {
-      "kind": "issue",
-      "number": 265,
-      "title": "The daily dashboards deploy waits on the prod reviewer every day and is cancelled by the next run \u2014 the site has been stale since 2026-09-14",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/265",
-      "why": [
-        {
-          "rule": "governance_role",
-          "hit": "label `role:delivery-lead`",
-          "because": "Delivery Lead is the one role whose write scope includes `policies/**` \u2014 the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below."
-        },
-        {
-          "rule": "touches_governance",
-          "hit": "mentions `policies/`",
-          "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
-        },
-        {
-          "rule": "production_or_release",
-          "hit": "mentions `deploy`",
-          "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
-        }
-      ],
-      "age_hours": 0.1,
-      "age_source": "since `status:needs-refinement` was applied",
-      "sla_hours": 24,
-      "past_sla": false
     },
     {
       "kind": "issue",
       "number": 264,
-      "title": "REQ-013 coverage notes: distinguish the store (built, exercised) from the loop (decided in ADR-0009, not built)",
+      "title": "REQ-013 coverage notes: distinguish the store (built, exercised) from the loop (decided in ADR-0010, not built)",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/264",
       "why": [
         {
@@ -84,32 +35,10 @@
           "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
         }
       ],
-      "age_hours": 0.1,
+      "age_hours": 173.0,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
-      "past_sla": false
-    },
-    {
-      "kind": "issue",
-      "number": 262,
-      "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/262",
-      "why": [
-        {
-          "rule": "governance_role",
-          "hit": "label `role:delivery-lead`",
-          "because": "Delivery Lead is the one role whose write scope includes `policies/**` \u2014 the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below."
-        },
-        {
-          "rule": "touches_governance",
-          "hit": "mentions `policies/`",
-          "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
-        }
-      ],
-      "age_hours": 0.1,
-      "age_source": "since `status:needs-refinement` was applied",
-      "sla_hours": 24,
-      "past_sla": false
+      "past_sla": true
     },
     {
       "kind": "issue",
@@ -128,10 +57,10 @@
           "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
         }
       ],
-      "age_hours": 0.1,
+      "age_hours": 173.0,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
-      "past_sla": false
+      "past_sla": true
     },
     {
       "kind": "issue",
@@ -145,65 +74,90 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 0.0,
+      "age_hours": 172.9,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
-      "past_sla": false
+      "past_sla": true
     },
     {
-      "kind": "issue",
-      "number": 234,
-      "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/234",
-      "why": "unknown",
-      "age_hours": 0.0,
-      "age_source": "since `needs-human` was applied",
-      "sla_hours": 24,
-      "past_sla": false
-    },
-    {
-      "kind": "issue",
-      "number": 233,
-      "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/233",
-      "why": "unknown",
-      "age_hours": 0.0,
-      "age_source": "since `needs-human` was applied",
-      "sla_hours": 24,
-      "past_sla": false
-    },
-    {
-      "kind": "issue",
-      "number": 232,
-      "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/232",
+      "kind": "pr",
+      "number": 280,
+      "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
       "why": [
         {
-          "rule": "pipeline_role",
-          "hit": "label `role:devops`",
-          "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
-        },
-        {
-          "rule": "touches_governance",
-          "hit": "mentions `.github/workflows/`",
-          "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 0.0,
-      "age_source": "since `needs-human` was applied",
-      "sla_hours": 24,
-      "past_sla": false
+      "age_hours": 2.0,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
     },
     {
-      "kind": "issue",
-      "number": 231,
-      "title": "dod-check.sh: trailer values, issue existence, and fork-PR reporting are unvalidated",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/231",
-      "why": "unknown",
-      "age_hours": 0.0,
-      "age_source": "since `needs-human` was applied",
-      "sla_hours": 24,
-      "past_sla": false
+      "kind": "pr",
+      "number": 277,
+      "title": "fix(compiler): render write_scope; --check enumerates every pack dir",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/277",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 2.0,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "pr",
+      "number": 296,
+      "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 0.1,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "pr",
+      "number": 295,
+      "title": "Ceremonies close the record they supersede",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 0.1,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "pr",
+      "number": 294,
+      "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 0.1,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
     }
   ],
   "decided": [
@@ -221,6 +175,30 @@
       }
     },
     {
+      "number": 245,
+      "title": "The published site silently stopped deploying three days ago",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/245",
+      "decision": "Approved to proceed (`status:ready`)",
+      "by": "Shashank2577",
+      "when": "2026-09-07T01:05:45Z",
+      "why": [
+        {
+          "rule": "pipeline_role",
+          "hit": "label `role:devops`",
+          "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
+        },
+        {
+          "rule": "production_or_release",
+          "hit": "mentions `deploy`",
+          "because": "PRD \u00a79: production sits behind a human gate and nothing an agent does unsupervised is irreversible."
+        }
+      ],
+      "artefact": {
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/247",
+        "label": "PR #247"
+      }
+    },
+    {
       "number": 244,
       "title": "PILOT: show when the status page was generated",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/244",
@@ -231,25 +209,6 @@
       "artefact": {
         "url": "https://github.com/Shashank2577/ai-sdlc/issues/244",
         "label": "issue #244"
-      }
-    },
-    {
-      "number": 198,
-      "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/198",
-      "decision": "Approved to proceed (`status:ready`)",
-      "by": "Shashank2577",
-      "when": "2026-09-07T00:54:18Z",
-      "why": [
-        {
-          "rule": "changes_requirements",
-          "hit": "mentions `requirements/coverage.yaml`",
-          "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
-        }
-      ],
-      "artefact": {
-        "url": "https://github.com/Shashank2577/ai-sdlc/issues/198",
-        "label": "issue #198"
       }
     },
     {
@@ -769,6 +728,30 @@
       }
     },
     {
+      "number": 179,
+      "title": "46 of 47 closed stories had no QA verdict \u2014 the veto is fine, the rule was never written",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/179",
+      "decision": "Approved to proceed (`status:ready`)",
+      "by": "Shashank2577",
+      "when": "2026-09-04T13:36:23Z",
+      "why": [
+        {
+          "rule": "governance_role",
+          "hit": "label `role:delivery-lead`",
+          "because": "Delivery Lead is the one role whose write scope includes `policies/**` \u2014 the gates themselves. It exists because governance needs an agent owner, and it is safe to have one only while every one of its stories is approved by a person first. This rule is that condition, stated where it can be checked rather than left to the prose rules below."
+        },
+        {
+          "rule": "touches_governance",
+          "hit": "mentions `policies/`",
+          "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
+        }
+      ],
+      "artefact": {
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/187",
+        "label": "PR #187"
+      }
+    },
+    {
       "number": 174,
       "title": "check-test-wiring greps for strings, so discovered tests need a comment to satisfy it",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/174",
@@ -970,6 +953,25 @@
       "artefact": {
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/162",
         "label": "PR #162"
+      }
+    },
+    {
+      "number": 157,
+      "title": "Backlog refill \u2014 refine toward unsatisfied requirements",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/157",
+      "decision": "Approved to proceed (`status:ready`)",
+      "by": "Shashank2577",
+      "when": "2026-09-04T01:17:48Z",
+      "why": [
+        {
+          "rule": "changes_requirements",
+          "hit": "mentions `requirements/coverage.yaml`",
+          "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
+        }
+      ],
+      "artefact": {
+        "url": "https://github.com/Shashank2577/ai-sdlc/issues/157",
+        "label": "issue #157"
       }
     },
     {

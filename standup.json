@@ -1,153 +1,232 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-22T00:50:15.678566+00:00",
+  "generated_at": "2026-09-29T05:43:48.345335+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 7,
+      "commits": 10,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
         {
-          "sha": "dc0a845",
-          "subject": "fix(dashboards): give pull-request builds their own concurrency group so they stop cancelling the main deploy (#267)"
+          "sha": "203ff3c",
+          "subject": "fix(products): give the pilot its own board, and let the checker see user boards (#291)"
         },
         {
-          "sha": "d319f84",
-          "subject": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles (#266)"
+          "sha": "d3e243c",
+          "subject": "fix(dod-check): validate trailer values, closing issue, fork reporting (#281)"
         },
         {
-          "sha": "58da5d2",
-          "subject": "adr: the learning loop detects recurring corrections mechanically, promotes only as proposal (ADR-0009, accepted) (#221)"
+          "sha": "4f4cb53",
+          "subject": "fix(dashboards): publish the site through github-pages, not the prod reviewer (#289)"
         },
         {
-          "sha": "da09c8d",
-          "subject": "fix(ci): pin the deciding checks to main, not the PR's own copy (#253)"
+          "sha": "4d22d04",
+          "subject": "fix(refine): count the ready queue the orchestrator could dispatch, not the label (#286)"
         },
         {
-          "sha": "6d9f3f2",
-          "subject": "feat(products): implement check-products.py against policies/products.yaml (#254)"
+          "sha": "0a82f7a",
+          "subject": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings (#285)"
         }
       ]
     }
   ],
-  "commits_total": 7,
+  "commits_total": 10,
   "pulls": {
     "opened": [
       {
-        "number": 267,
-        "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/267",
-        "branch": "bug/FDY-265-pr-builds-cancel-main-deploy"
+        "number": 296,
+        "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
+        "branch": "story/FDY-198-reqs-008-signoff-note"
       },
       {
-        "number": 266,
-        "title": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/266",
-        "branch": "chore/FDY-223-accept-adr-0008"
+        "number": 295,
+        "title": "Ceremonies close the record they supersede",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
+        "branch": "story/FDY-288-ceremonies-supersede"
+      },
+      {
+        "number": 294,
+        "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
+        "branch": "bug/FDY-233-write-scope-and-check"
+      },
+      {
+        "number": 293,
+        "title": "fix(dispatch): tell a review session to review the PR, not to open one",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/293",
+        "branch": "bug/FDY-292-review-prompt-names-the-pr"
+      },
+      {
+        "number": 291,
+        "title": "fix(products): give the pilot its own board, and let the checker see user boards",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/291",
+        "branch": "bug/FDY-262-pilot-own-board"
+      },
+      {
+        "number": 289,
+        "title": "fix(dashboards): publish the site through github-pages, not the prod reviewer",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/289",
+        "branch": "bug/FDY-265-site-own-environment"
+      },
+      {
+        "number": 287,
+        "title": "fix(dispatch): a successful session without a PR no longer leaves its item in progress",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/287",
+        "branch": "bug/FDY-284-tracker-only-success-leaves-wip"
+      },
+      {
+        "number": 286,
+        "title": "fix(refine): count the ready queue the orchestrator could dispatch, not the label",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/286",
+        "branch": "bug/FDY-283-refine-counts-dispatchable"
+      },
+      {
+        "number": 285,
+        "title": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/285",
+        "branch": "bug/FDY-282-no-harness-attribution"
+      },
+      {
+        "number": 281,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
+        "branch": "bug/FDY-231-dod-check-validation-v2"
+      },
+      {
+        "number": 280,
+        "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
+        "branch": "bug/FDY-235-traceability-false-ambers"
+      },
+      {
+        "number": 279,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
+        "branch": "bug/FDY-231-dod-check-validation"
+      },
+      {
+        "number": 278,
+        "title": "fix(dispatch): build the agent prompt from the guarded issue snapshot (#232)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/278",
+        "branch": "bug/FDY-232-prompt-from-guarded-snapshot"
+      },
+      {
+        "number": 277,
+        "title": "fix(compiler): render write_scope; --check enumerates every pack dir",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/277",
+        "branch": "bug/FDY-233-compile-pack-write-scope"
+      },
+      {
+        "number": 276,
+        "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/276",
+        "branch": "bug/FDY-275-adr-0009-collision"
+      },
+      {
+        "number": 274,
+        "title": "fix(qa-gate): fail closed when the label lookup fails",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/274",
+        "branch": "bug/FDY-234-qa-gate-lookup-failure"
       }
     ],
     "merged": [
       {
-        "number": 267,
-        "title": "fix(dashboards): pull-request builds get their own concurrency group, stop cancelling the main deploy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/267",
-        "branch": "bug/FDY-265-pr-builds-cancel-main-deploy"
+        "number": 293,
+        "title": "fix(dispatch): tell a review session to review the PR, not to open one",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/293",
+        "branch": "bug/FDY-292-review-prompt-names-the-pr"
       },
       {
-        "number": 266,
-        "title": "adr: accept ADR-0008 \u2014 security (veto) and operations (advisory) roles",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/266",
-        "branch": "chore/FDY-223-accept-adr-0008"
+        "number": 291,
+        "title": "fix(products): give the pilot its own board, and let the checker see user boards",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/291",
+        "branch": "bug/FDY-262-pilot-own-board"
       },
       {
-        "number": 255,
-        "title": "fix(bootstrap): give a bootstrapped product repo something to produce `dod`",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/255",
-        "branch": "bug/FDY-246-product-repo-dod-check"
+        "number": 289,
+        "title": "fix(dashboards): publish the site through github-pages, not the prod reviewer",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/289",
+        "branch": "bug/FDY-265-site-own-environment"
       },
       {
-        "number": 254,
-        "title": "feat(products): implement check-products.py against policies/products.yaml",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/254",
-        "branch": "story/FDY-206-check-products-py"
+        "number": 287,
+        "title": "fix(dispatch): a successful session without a PR no longer leaves its item in progress",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/287",
+        "branch": "bug/FDY-284-tracker-only-success-leaves-wip"
       },
       {
-        "number": 253,
-        "title": "fix(ci): pin the deciding checks to main, not the PR's own copy",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/253",
-        "branch": "story/FDY-225-trusted-ref-checks"
+        "number": 286,
+        "title": "fix(refine): count the ready queue the orchestrator could dispatch, not the label",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/286",
+        "branch": "bug/FDY-283-refine-counts-dispatchable"
       },
       {
-        "number": 252,
-        "title": "fix(tracker): follow pagination \u2014 the board grew past one page",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/252",
-        "branch": "bug/FDY-251-paginate-board-query"
+        "number": 285,
+        "title": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/285",
+        "branch": "bug/FDY-282-no-harness-attribution"
       },
       {
-        "number": 221,
-        "title": "ADR-0009: the learning loop detects recurring corrections mechanically, promotes only as proposal",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/221",
-        "branch": "story/FDY-212-learning-loop-recurring-corrections"
+        "number": 281,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
+        "branch": "bug/FDY-231-dod-check-validation-v2"
+      },
+      {
+        "number": 278,
+        "title": "fix(dispatch): build the agent prompt from the guarded issue snapshot (#232)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/278",
+        "branch": "bug/FDY-232-prompt-from-guarded-snapshot"
+      },
+      {
+        "number": 276,
+        "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/276",
+        "branch": "bug/FDY-275-adr-0009-collision"
+      },
+      {
+        "number": 274,
+        "title": "fix(qa-gate): fail closed when the label lookup fails",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/274",
+        "branch": "bug/FDY-234-qa-gate-lookup-failure"
       }
     ],
-    "closed_unmerged": [],
-    "open_now": 0
+    "closed_unmerged": [
+      {
+        "number": 279,
+        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
+        "branch": "bug/FDY-231-dod-check-validation"
+      }
+    ],
+    "open_now": 5
   },
   "check_failures": [
     {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673510130",
-      "at": "2026-09-22T00:49:26Z"
+      "name": "DoD",
+      "branch": "story/FDY-198-reqs-008-signoff-note",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36527063074",
+      "at": "2026-09-29T05:37:48Z"
     },
     {
-      "name": "Unit tests",
-      "branch": "bug/FDY-265-pr-builds-cancel-main-deploy",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673481603",
-      "at": "2026-09-22T00:49:00Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673467925",
-      "at": "2026-09-22T00:48:46Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "chore/FDY-223-accept-adr-0008",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673440497",
-      "at": "2026-09-22T00:48:21Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673432911",
-      "at": "2026-09-22T00:48:14Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "story/FDY-212-learning-loop-recurring-corrections",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/35673406319",
-      "at": "2026-09-22T00:47:48Z"
+      "name": "QA gate",
+      "branch": "bug/FDY-233-write-scope-and-check",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36527036027",
+      "at": "2026-09-29T05:37:27Z"
     }
   ],
   "board": {
-    "status:needs-refinement": 6,
-    "(no status)": 8,
-    "status:in-review": 3,
-    "status:ready": 3,
-    "status:in-progress": 5,
+    "status:needs-refinement": 5,
+    "status:in-review": 6,
+    "(no status)": 3,
+    "status:ready": 1,
     "status:blocked": 1
   },
   "needs_human": [
-    {
-      "number": 245,
-      "title": "The published site silently stopped deploying three days ago",
-      "url": "https://github.com/Shashank2577/ai-sdlc/issues/245"
-    },
     {
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
@@ -159,7 +238,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 410.4,
+      "hours": 583.3,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -167,7 +246,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 365.7,
+      "hours": 538.6,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
