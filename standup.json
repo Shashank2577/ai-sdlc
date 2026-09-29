@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-29T06:00:20.238723+00:00",
+  "generated_at": "2026-09-29T12:40:42.652901+00:00",
   "roles": [
     {
       "role": "unknown",
@@ -36,6 +36,12 @@
   "commits_total": 12,
   "pulls": {
     "opened": [
+      {
+        "number": 301,
+        "title": "fix(dashboards): surface failed PR lookups; recover squash-merge trailers",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/301",
+        "branch": "bug/FDY-235-traceability-lookups"
+      },
       {
         "number": 300,
         "title": "feat(assign): dispatch QA for work waiting in review",
@@ -233,14 +239,33 @@
         "branch": "bug/FDY-233-compile-pack-write-scope"
       }
     ],
-    "open_now": 4
+    "open_now": 5
   },
-  "check_failures": [],
+  "check_failures": [
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36544731261",
+      "at": "2026-09-29T08:45:16Z"
+    },
+    {
+      "name": "Dashboards",
+      "branch": "bug/FDY-235-traceability-lookups",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36528996615",
+      "at": "2026-09-29T06:01:50Z"
+    },
+    {
+      "name": "QA gate",
+      "branch": "bug/FDY-235-traceability-lookups",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36528996556",
+      "at": "2026-09-29T06:01:50Z"
+    }
+  ],
   "board": {
     "status:needs-refinement": 5,
-    "status:in-review": 5,
+    "status:in-review": 4,
     "(no status)": 3,
-    "status:ready": 2,
+    "status:ready": 3,
     "status:blocked": 1
   },
   "needs_human": [
@@ -255,7 +280,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 583.6,
+      "hours": 590.2,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -263,7 +288,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 538.9,
+      "hours": 545.5,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
