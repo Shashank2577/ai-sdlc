@@ -85,12 +85,50 @@ class TestPlanRefill(unittest.TestCase):
         self.assertEqual(first, second)
 
 
+def board_issue(number, *labels, state="OPEN"):
+    # The shape `gh issue list --json number,labels,state` returns, which
+    # is what assign.py's eligibility rule reads.
+    return {"number": number, "state": state, "labels": [{"name": l} for l in labels]}
+
+
+class TestDispatchableReady(unittest.TestCase):
+    """The ready count is what the orchestrator could run, not the label
+    count (#283)."""
+
+    policy = R.assign.load_policy()[0]
+
+    def test_only_items_the_orchestrator_could_dispatch_count(self):
+        board = [
+            board_issue(1, "status:ready", "role:developer"),
+            board_issue(2, "status:ready", "role:developer", "needs-human"),
+            board_issue(3, "status:ready", "role:developer", "status:blocked"),
+            board_issue(4, "status:ready"),                                  # no role: unrefined
+            board_issue(5, "status:ready", "role:developer", "role:devops"),  # contradiction
+            board_issue(6, "status:in-progress", "role:developer"),          # not ready at all
+            board_issue(7, "status:ready", "role:developer", state="CLOSED"),
+        ]
+        self.assertEqual(R.dispatchable_ready(board, self.policy), [1])
+
+    def test_the_2026_09_28_board_refines_instead_of_staying_quiet(self):
+        # Seven labelled ready, none runnable: five escalated, one role-less.
+        board = [board_issue(n, "status:ready", "role:developer", "needs-human")
+                 for n in (231, 232, 233, 234, 235)]
+        board += [board_issue(241, "status:ready")]
+        ready = R.dispatchable_ready(board, self.policy)
+        self.assertEqual(ready, [])
+        self.assertNotEqual(R.plan_refill(len(ready), 1, [])["action"], "quiet")
+
+
 class TestReport(unittest.TestCase):
     def test_the_report_names_the_decision(self):
         p = R.plan_refill(0, 1, [])
         report = R.render_plan(p, "policy.yaml")
         self.assertIn("create", report)
         self.assertIn("floor 1", report)
+
+    def test_the_report_shows_dispatchable_of_labelled(self):
+        p = {**R.plan_refill(0, 1, []), "labelled": 7}
+        self.assertIn("Ready queue: 0 dispatchable of 7 labelled", R.render_plan(p, "policy.yaml"))
 
 
 class TestPolicyLoading(unittest.TestCase):
