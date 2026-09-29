@@ -158,7 +158,7 @@ def to_bash_rule(pattern: str) -> str | None:
 
 def render_role_doc(pack: dict) -> str:
     """Render the harness-neutral core every target shares: charter, budget,
-    forbidden actions, HITL triggers, then every skill. Claude Code calls
+    forbidden actions, write scope, HITL triggers, then every skill. Claude Code calls
     this system-prompt.md; Codex calls it AGENTS.md. Same content either
     way — only the filename and the tool-permission layer around it differ.
     """
@@ -186,6 +186,17 @@ def render_role_doc(pack: dict) -> str:
         "",
     ]
     parts += [f"- {a}" for a in policy["forbidden"]]
+    scope = policy.get("write_scope") or {}
+    if scope:
+        parts += ["", "# Write scope", "",
+                  "Write only to paths matched by `allow`. Paths matched by `deny` "
+                  "are off limits even if `allow` also matches. Anything else needs "
+                  "a human or another role. Scope is also checked at review time "
+                  "(scripts/check-story-scope.py), not only by this prompt.", ""]
+        for key in ("allow", "deny"):
+            if scope.get(key):
+                parts += [f"{key}:"] + [f"- `{g}`" for g in scope[key]] + [""]
+        parts.pop()
     parts += ["", "# Escalate to a human when", ""]
     parts += [f"- {t}" for t in policy["hitl_triggers"]]
 
@@ -382,7 +393,9 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check and not args.role:
-        roles = sorted(p.name for p in PACKS_DIR.iterdir() if (p / "pack.yaml").is_file())
+        # Every directory, so read_pack() reports a missing pack.yaml instead
+        # of the pack being filtered out and silently never checked.
+        roles = sorted(p.name for p in PACKS_DIR.iterdir() if p.is_dir())
         if not roles:
             print("no role packs found — nothing to check")
             return 0

@@ -256,6 +256,28 @@ class TestValidation(unittest.TestCase):
             self.assertIn("invalid YAML", str(ctx.exception))
 
 
+class TestWriteScopeAndCheck(unittest.TestCase):
+    def test_write_scope_is_rendered(self):
+        files = dict(MINIMAL_PACK)
+        files["policy.yaml"] += "write_scope:\n  allow:\n    - 'docs/**'\n  deny:\n    - 'prds/**'\n"
+        with PackFixture(files):
+            doc = cp.render_role_doc(cp.read_pack("widget"))
+        self.assertIn("# Write scope", doc)
+        self.assertIn("- `docs/**`", doc)
+        self.assertIn("- `prds/**`", doc)
+
+    def test_check_fails_on_pack_missing_pack_yaml(self):
+        files = dict(MINIMAL_PACK)
+        del files["pack.yaml"]
+        with PackFixture(files):
+            argv = sys.argv
+            sys.argv = ["compile-pack.py", "--check"]
+            try:
+                self.assertEqual(cp.main(), 1)
+            finally:
+                sys.argv = argv
+
+
 class TestBashRuleMapping(unittest.TestCase):
     def test_exact_command(self):
         self.assertEqual(cp.to_bash_rule("git status"), "Bash(git status)")
