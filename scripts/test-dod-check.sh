@@ -63,12 +63,15 @@ setup() {
   STATE_DIR="$WORK/state"; export STATE_DIR
   rm -rf "$STATE_DIR"; mkdir -p "$STATE_DIR"
   : > "$GITHUB_STEP_SUMMARY"
+  # Closing references used across these groups resolve to open issues.
+  issue 161 OPEN "" ; issue 42 OPEN ""
 }
 
 pr_body() { jq -Rs . <<<"$1" > "$STATE_DIR/pr-body.json"; }
 # issue <num> <state> <body>  — registers a stub issue for `gh issue view`.
 issue() {
-  jq -n --arg state "$2" --arg body "$3" '{state: $state, body: $body}' \
+  jq -n --arg state "$2" --arg body "$3" --arg url "https://github.com/o/r/${4:-issues}/$1" \
+    '{state: $state, body: $body, url: $url}' \
     > "$STATE_DIR/issue-$1.json"
 }
 
@@ -323,6 +326,46 @@ pr_body $'Closes #161\n\n- [x] verified by a real dispatch to prod pausing'
 run_defer
 check "all boxes ticked, no deferral needed, passes" 0 $? "$WORK/out" "DoD check passed"
 
+git reset -q --hard "$BASE_TRAILER_SHA"
+
+# ---------------------------------------------------------------------------
+echo
+echo "scripts/dod-check.sh — closing reference must resolve; empty trailers (#231)"
+run_ref() { bash "$REPO_ROOT/scripts/dod-check.sh" >"$WORK/out" 2>&1; }
+
+setup
+pr_body $'Closes #999999'
+run_ref
+check "a closing reference to a nonexistent issue fails" 1 $? "$WORK/out" "does not exist"
+
+setup
+issue 50 CLOSED ""
+pr_body $'Closes #50'
+run_ref
+check "a closing reference to a closed issue fails" 1 $? "$WORK/out" "is not open"
+
+setup
+issue 51 OPEN "" pull
+pr_body $'Closes #51'
+run_ref
+check "a closing reference to a pull request fails" 1 $? "$WORK/out" "is a pull request"
+
+setup
+pr_body $'Closes #161'
+run_ref
+check "a closing reference to an open issue passes" 0 $? "$WORK/out" "DoD check passed"
+
+setup
+pr_body $'Closes #999999'
+run_ref
+check "failures are emitted as annotations for fork PRs" 1 $? "$WORK/out" "::error title=DoD check failed::"
+
+setup
+pr_body $'Closes #161'
+git commit -q --allow-empty -m $'x\n\nWork-Item:\nRequirement: REQ-005\nAgent-Role: developer\nHarness: manual'
+BASE_SHA="$BASE_TRAILER_SHA" HEAD_SHA="$(git rev-parse HEAD)" \
+  bash "$REPO_ROOT/scripts/dod-check.sh" >"$WORK/out" 2>&1
+check "an empty trailer value fails" 1 $? "$WORK/out" "with no value"
 git reset -q --hard "$BASE_TRAILER_SHA"
 
 cd "$REPO_ROOT" || exit 1
