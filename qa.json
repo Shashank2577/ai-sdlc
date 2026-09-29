@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 05:45 UTC"
+    "generated_at": "2026-09-29 06:02 UTC"
   },
   "matrix": {
     "REQ-004": [
@@ -1118,7 +1118,7 @@
         "number": 198,
         "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       },
       {
         "number": 219,
@@ -1168,7 +1168,7 @@
         "number": 198,
         "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       }
     ],
     "REQ-006": [
