@@ -321,7 +321,7 @@ products:
 
   ai-sdlc-pilot:
     repo: Shashank2577/ai-sdlc-pilot
-    project: {owner: Shashank2577, number: 2}
+    project: {owner: Shashank2577, number: 3}
     environments:
       - {name: preview, human_reviewer_required: false}
       - {name: staging, human_reviewer_required: false}
@@ -353,3 +353,11 @@ products:
       That run is also the first time the bootstrap has bootstrapped
       anything — it existed and had never been used, like several other
       capabilities this registry describes.
+
+      Own board since 2026-09-29 (#262, option A): it shared board 2 with
+      the control plane, which `no_duplicate_projects` forbids because a
+      shared board silently merges two products' burndown. Projects #3
+      ("ai-sdlc-pilot Delivery") was copied from board 2's field schema and
+      linked to the pilot repo. It is empty until work items can name
+      their product — today every item lives in the control plane and the
+      sync hardcodes board 2; routing per product is #290.

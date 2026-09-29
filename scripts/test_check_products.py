@@ -199,6 +199,48 @@ class TestProjectResolves(unittest.TestCase):
         self.assertTrue(any("acme-widgets" in v and "does not resolve" in v for v in violations))
 
 
+class TestFetchProject(unittest.TestCase):
+    """`fetch_project` against gh's real partial-error shape (#262): the
+    query asks for the login as both a user and an organization, one half
+    is always NOT_FOUND, and gh exits 1 while still printing the half that
+    resolved."""
+
+    def _with_gh(self, fake):
+        original = C.gh
+        C.gh = fake
+        self.addCleanup(setattr, C, "gh", original)
+
+    @staticmethod
+    def _gh_exits_1_printing(stdout):
+        import subprocess
+
+        def fake(args):
+            raise subprocess.CalledProcessError(1, ["gh", *args], output=stdout, stderr="NOT_FOUND")
+        return fake
+
+    def test_a_user_board_resolves_despite_the_organization_half_erroring(self):
+        self._with_gh(self._gh_exits_1_printing(
+            '{"data":{"user":{"projectV2":{"id":"PVT_user"}},"organization":null},'
+            '"errors":[{"type":"NOT_FOUND","path":["organization"]}]}'))
+        self.assertEqual(C.fetch_project("Shashank2577", 3), {"id": "PVT_user"})
+
+    def test_an_organization_board_resolves_despite_the_user_half_erroring(self):
+        self._with_gh(self._gh_exits_1_printing(
+            '{"data":{"user":null,"organization":{"projectV2":{"id":"PVT_org"}}},'
+            '"errors":[{"type":"NOT_FOUND","path":["user"]}]}'))
+        self.assertEqual(C.fetch_project("acme", 1), {"id": "PVT_org"})
+
+    def test_a_board_that_exists_nowhere_does_not_resolve(self):
+        self._with_gh(self._gh_exits_1_printing(
+            '{"data":{"user":{"projectV2":null},"organization":null},'
+            '"errors":[{"type":"NOT_FOUND","path":["organization"]}]}'))
+        self.assertIsNone(C.fetch_project("Shashank2577", 99))
+
+    def test_unparseable_output_does_not_resolve(self):
+        self._with_gh(self._gh_exits_1_printing("HTTP 502"))
+        self.assertIsNone(C.fetch_project("Shashank2577", 3))
+
+
 class TestBootstrappedIsVerified(unittest.TestCase):
     def _fetchers(self, *, present: set | None = None, contexts=("dod",)):
         present = present if present is not None else {
@@ -297,17 +339,11 @@ class TestReportsEveryViolation(unittest.TestCase):
 class TestLivePolicyStructure(unittest.TestCase):
     """The real policies/products.yaml, structurally — no network.
 
-    `no_duplicate_projects` is deliberately not folded into a single
-    "the whole file is clean" assertion here: as of this writing the live
-    registry itself fails that one rule (`ai-sdlc-pilot` and
-    `foundry-program` both resolve to `{Shashank2577, 2}` — see the PR this
-    test suite shipped in). That is a real, pre-existing defect in a file
-    outside this role's write scope (`policies/**` is delivery-lead's, not
-    developer's), not a bug in the checker. A blanket cleanliness
-    assertion here would fail every future PR's CI — unrelated to whatever
-    that PR touches — until someone else fixes the registry. Each rule
-    that the live file does satisfy today is still checked individually,
-    so a regression in any of *those* is still caught.
+    `no_duplicate_projects` was left out of this at first, because the live
+    registry failed it (`ai-sdlc-pilot` and `foundry-program` both on
+    `{Shashank2577, 2}`). #262 gave the pilot its own board, so every
+    structural rule is asserted against the live file now, and a second
+    product sharing a board fails CI.
     """
 
     def _load(self):
@@ -326,6 +362,7 @@ class TestLivePolicyStructure(unittest.TestCase):
         violations += C.validate_environments_not_weakened(products, ladder_environments)
         violations += C.validate_roles_have_packs(products, names)
         violations += C.validate_budget_overrides(products, budgets)
+        violations += C.validate_no_duplicate_projects(products)
         self.assertEqual(violations, [])
 
     def test_product_template_is_not_iterated(self):
