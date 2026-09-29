@@ -26,8 +26,13 @@ fi
 
 blocked=()
 checked=()
+unverified=()
 for issue in $linked; do
-  labels=$(gh issue view "$issue" --json labels --jq '[.labels[].name] | join(" ")' 2>/dev/null || echo "")
+  # A failed lookup is not "no labels": fail closed, never read it as not rejected.
+  if ! labels=$(gh issue view "$issue" --json labels --jq '[.labels[].name] | join(" ")' 2>&1); then
+    unverified+=("$issue")
+    continue
+  fi
   checked+=("#${issue}")
   case " $labels " in
     *" qa:rejected "*) blocked+=("$issue") ;;
@@ -35,6 +40,20 @@ for issue in $linked; do
 done
 
 report="${RUNNER_TEMP:-/tmp}/qa-gate.md"
+
+if [ "${#unverified[@]}" -gt 0 ]; then
+  {
+    echo "## QA gate could not be evaluated"
+    echo
+    echo "The label lookup failed for: $(printf '#%s ' "${unverified[@]}")"
+    echo "This is an API, rate-limit or authorization failure, not a pass. The gate"
+    echo "fails closed because it cannot tell whether QA rejected these items."
+    echo "Re-run the job once GitHub is reachable."
+  } > "$report"
+  cat "$report"
+  cat "$report" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+  exit 1
+fi
 
 if [ "${#blocked[@]}" -eq 0 ]; then
   msg="QA gate passed: ${checked[*]} carry no qa:rejected verdict."
