@@ -1,4 +1,4 @@
-# ADR-0009: The learning loop detects recurring corrections with fixed mechanical matchers over tracker records, and promotion is always a human-approved proposal, never a write
+# ADR-0010: The learning loop detects recurring corrections with fixed mechanical matchers over tracker records, and promotion is always a human-approved proposal, never a write
 
 **Status:** accepted
 **Work item:** Shashank2577/ai-sdlc#212
@@ -115,7 +115,7 @@ already on the record).
 ## Decision
 
 **Decided:** Option A
-**Decided by:** Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first
+**Decided by:** Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first, then to ADR-0010 (#275) because ADR-0009 (required checks run from `main`) had landed first too
 **Date:** 2026-09-22
 
 Threshold: **3 independent occurrences** (distinct issues or PRs), not 2.
@@ -163,7 +163,7 @@ the fixed-input test that reproduces the seven write-scope occurrences
 `role-packs/architect/**`, so it is not done in this PR. `requirements/**`
 is product-manager's write scope, not architect's; the REQ-013 coverage
 notes should gain a line distinguishing "the store, built and exercised on
-#165/#169" from "the loop, decided in ADR-0009, built in #263" once that follow-up exists — also a separate work item, filed
+#165/#169" from "the loop, decided in ADR-0010, built in #263" once that follow-up exists — also a separate work item, filed
 against product-manager.
 
 Any future correction-detection work inherits the same two constraints
