@@ -777,6 +777,39 @@ jobs:
               echo "acceptance criteria. Do not build the work item again. If no pull"
               echo "request exists, that is your finding: say so on the work item."
               echo
+            else
+              # Rework continues on the item's open PR (#309). Sessions that
+              # branched afresh opened a second and third PR for one item
+              # (#233: #294, #302, #304), and every review split across them.
+              if open_json=$(gh pr list --repo "$PRODUCT_REPO" --state open --limit 100 \
+                    --json number,title,url,headRefName,state 2>"${RUNNER_TEMP}/pr-open.err"); then
+                open_prs=$(jq -r --arg re "^(story|bug)/FDY-${ISSUE}-" \
+                  '[.[] | select(.state == "OPEN" and (.headRefName | test($re)))]
+                   | sort_by(.number) | reverse | .[]
+                   | "- #\(.number) \(.title) — \(.url) — branch `\(.headRefName)`"' <<<"$open_json")
+                if [ -n "$open_prs" ]; then
+                  echo "---"
+                  echo
+                  echo "## This work item already has an open pull request"
+                  echo
+                  echo "$open_prs"
+                  echo
+                  echo "Continue on it (the first one listed, if there are several): check out"
+                  echo "its branch, commit and push there, and update its body. Do not branch"
+                  echo "afresh or open a new pull request; a second PR for the same item splits"
+                  echo "the review and is closed as superseded. Read the latest QA verdict on"
+                  echo "the work item first (\`gh issue view ${ISSUE} --repo ${GITHUB_REPOSITORY} --comments\`);"
+                  echo "it says what is still unmet."
+                  echo
+                fi
+              else
+                echo "---"
+                echo
+                echo "_Could not check for an existing pull request ($(tr '\n' ' ' < "${RUNNER_TEMP}/pr-open.err"))."
+                echo "Before opening one, run \`gh pr list --repo ${PRODUCT_REPO} --state open\` and continue"
+                echo "on any \`FDY-${ISSUE}-\` branch you find instead of opening another._"
+                echo
+              fi
             fi
 
             if [ -n "$notes_output" ]; then

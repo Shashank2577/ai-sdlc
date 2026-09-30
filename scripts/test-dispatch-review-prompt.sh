@@ -81,4 +81,29 @@ has "commit, push and open your pull request here"; ok "keeps the implementation
 has "land a correct, small change and open the PR"; ok "keeps the budget advice" $?
 ! has "## Pull request under review"; ok "has no review section" $?
 
+echo "rework dispatch, item already has an open PR (#309)"
+ROLE=developer MATCHED_LABEL=status:ready \
+  PR_LIST='[{"number":12,"title":"fix: the thing","url":"https://x/pull/12","headRefName":"bug/FDY-7-the-thing","state":"OPEN"},
+            {"number":11,"title":"old try","url":"https://x/pull/11","headRefName":"bug/FDY-7-old","state":"CLOSED"}]' \
+  bash "$WORK/prompt.sh" >/dev/null 2>&1; ok "prompt builds" $?
+has "## This work item already has an open pull request"; ok "says there is an open PR" $?
+has "https://x/pull/12"; ok "lists the open PR" $?
+! has "https://x/pull/11"; ok "does not list a closed PR as open" $?
+has "Do not branch"; ok "says not to branch afresh" $?
+has "gh issue view 7"; ok "points at the latest QA verdict" $?
+
+echo "fresh dispatch, only closed PRs (#309)"
+ROLE=developer MATCHED_LABEL=status:ready \
+  PR_LIST='[{"number":11,"title":"old try","url":"https://x/pull/11","headRefName":"bug/FDY-7-old","state":"CLOSED"}]' \
+  bash "$WORK/prompt.sh" >/dev/null 2>&1; ok "prompt builds" $?
+! has "already has an open pull request"; ok "no open-PR section" $?
+
+echo "rework dispatch, PR lookup fails (#309)"
+ROLE=developer MATCHED_LABEL=status:ready PR_LIST_FAIL=1 bash "$WORK/prompt.sh" >/dev/null 2>&1; ok "prompt builds" $?
+has "Could not check for an existing pull request"; ok "says the check failed" $?
+
+echo "review dispatch gets no open-PR section (#309)"
+ROLE=qa MATCHED_LABEL=status:in-review bash "$WORK/prompt.sh" >/dev/null 2>&1; ok "prompt builds" $?
+! has "already has an open pull request"; ok "review prompt has no rework section" $?
+
 [ "$FAIL" = 0 ] && echo "all passed" || { echo "FAILED"; exit 1; }
