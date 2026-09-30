@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -213,6 +214,43 @@ class TestTitleAndIdempotency(unittest.TestCase):
         # A different window's title must not collide.
         other = R.retro_title(start - timedelta(days=7), NOW - timedelta(days=7))
         self.assertNotEqual(title, other)
+
+
+class TestSupersedePrior(unittest.TestCase):
+    """#288: opening a ceremony issue closes the earlier ones of that ceremony."""
+
+    def run_supersede(self, open_issues, new=300):
+        calls = []
+        with mock.patch.object(R, "gh_json", return_value=open_issues), \
+                mock.patch.object(R, "gh", side_effect=lambda a: calls.append(a) or ""):
+            closed = R.supersede_prior("o/r", 'Retro:', new)
+        return closed, calls
+
+    def test_closes_same_ceremony_as_not_planned_with_comment(self):
+        closed, calls = self.run_supersede([
+            {"number": 10, "title": 'Retro:' + " old"},
+            {"number": 11, "title": 'Retro:' + " older"}])
+        self.assertEqual(closed, [10, 11])
+        self.assertEqual(calls[0], ["issue", "close", "10", "--repo", "o/r",
+                                    "--reason", "not planned",
+                                    "--comment", "Superseded by #300"])
+        self.assertEqual(len(calls), 2)
+
+    def test_never_closes_the_new_issue_or_another_ceremony(self):
+        closed, calls = self.run_supersede([
+            {"number": 300, "title": 'Retro:' + " new"},
+            {"number": 12, "title": 'Sprint Review: x'},
+            {"number": 13, "title": "Story: unrelated"}])
+        self.assertEqual(closed, [])
+        self.assertEqual(calls, [])
+
+    def test_nothing_open_closes_nothing(self):
+        closed, calls = self.run_supersede([])
+        self.assertEqual((closed, calls), ([], []))
+
+    def test_issue_number_from_create_output(self):
+        self.assertEqual(R.issue_number("https://github.com/o/r/issues/42\n"), 42)
+        self.assertIsNone(R.issue_number("garbage"))
 
 
 if __name__ == "__main__":

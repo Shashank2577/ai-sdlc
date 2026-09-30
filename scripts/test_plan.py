@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -111,6 +112,43 @@ class TestLoadCeremonyRole(unittest.TestCase):
         # silently hardcoding a role that has drifted from it.
         role = P.load_ceremony_role()
         self.assertEqual(role, "orchestrator")
+
+
+class TestSupersedePrior(unittest.TestCase):
+    """#288: opening a ceremony issue closes the earlier ones of that ceremony."""
+
+    def run_supersede(self, open_issues, new=300):
+        calls = []
+        with mock.patch.object(P, "gh_json", return_value=open_issues), \
+                mock.patch.object(P, "gh", side_effect=lambda a: calls.append(a) or ""):
+            closed = P.supersede_prior("o/r", 'Sprint Plan:', new)
+        return closed, calls
+
+    def test_closes_same_ceremony_as_not_planned_with_comment(self):
+        closed, calls = self.run_supersede([
+            {"number": 10, "title": 'Sprint Plan:' + " old"},
+            {"number": 11, "title": 'Sprint Plan:' + " older"}])
+        self.assertEqual(closed, [10, 11])
+        self.assertEqual(calls[0], ["issue", "close", "10", "--repo", "o/r",
+                                    "--reason", "not planned",
+                                    "--comment", "Superseded by #300"])
+        self.assertEqual(len(calls), 2)
+
+    def test_never_closes_the_new_issue_or_another_ceremony(self):
+        closed, calls = self.run_supersede([
+            {"number": 300, "title": 'Sprint Plan:' + " new"},
+            {"number": 12, "title": 'Retro: x'},
+            {"number": 13, "title": "Story: unrelated"}])
+        self.assertEqual(closed, [])
+        self.assertEqual(calls, [])
+
+    def test_nothing_open_closes_nothing(self):
+        closed, calls = self.run_supersede([])
+        self.assertEqual((closed, calls), ([], []))
+
+    def test_issue_number_from_create_output(self):
+        self.assertEqual(P.issue_number("https://github.com/o/r/issues/42\n"), 42)
+        self.assertIsNone(P.issue_number("garbage"))
 
 
 if __name__ == "__main__":
