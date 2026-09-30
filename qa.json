@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 12:42 UTC"
+    "generated_at": "2026-09-30 01:48 UTC"
   },
   "matrix": {
     "REQ-004": [
@@ -471,8 +471,8 @@
       {
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
-        "state": "OPEN",
-        "verdict": "rejected"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 234,
@@ -1025,8 +1025,8 @@
       {
         "number": 233,
         "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
-        "state": "OPEN",
-        "verdict": "rejected"
+        "state": "CLOSED",
+        "verdict": "approved"
       }
     ],
     "REQ-007": [

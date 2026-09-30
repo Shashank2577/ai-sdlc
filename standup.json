@@ -1,15 +1,23 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-29T12:40:42.652901+00:00",
+  "generated_at": "2026-09-30T01:47:03.310573+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 12,
+      "commits": 14,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "5dc765b",
+          "subject": "fix(dispatch): the dispatched prompt carries the role's write scope; --check sees every pack dir (#302)"
+        },
+        {
+          "sha": "dec84d9",
+          "subject": "feat(ceremonies): close the records a new ceremony issue supersedes (#295)"
+        },
         {
           "sha": "3a48aae",
           "subject": "feat(assign): dispatch QA for work waiting in review (#300)"
@@ -21,21 +29,37 @@
         {
           "sha": "203ff3c",
           "subject": "fix(products): give the pilot its own board, and let the checker see user boards (#291)"
-        },
-        {
-          "sha": "d3e243c",
-          "subject": "fix(dod-check): validate trailer values, closing issue, fork reporting (#281)"
-        },
-        {
-          "sha": "4f4cb53",
-          "subject": "fix(dashboards): publish the site through github-pages, not the prod reviewer (#289)"
         }
       ]
     }
   ],
-  "commits_total": 12,
+  "commits_total": 14,
   "pulls": {
     "opened": [
+      {
+        "number": 306,
+        "title": "fix(dispatch): don't send an approved item back to rework",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/306",
+        "branch": "bug/FDY-305-approved-not-sent-to-rework"
+      },
+      {
+        "number": 304,
+        "title": "fix(compiler,dispatch): write scope reaches the session prompt (#233)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/304",
+        "branch": "story/FDY-233-write-scope-in-prompt"
+      },
+      {
+        "number": 303,
+        "title": "docs(requirements): REQ-008 note \u2014 sign-off gate exercised vs. merely existing",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/303",
+        "branch": "story/FDY-198-req008-note"
+      },
+      {
+        "number": 302,
+        "title": "fix(dispatch): dispatched prompt carries the role's write scope (#233)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/302",
+        "branch": "story/FDY-233-write-scope-prompt"
+      },
       {
         "number": 301,
         "title": "fix(dashboards): surface failed PR lookups; recover squash-merge trailers",
@@ -153,6 +177,12 @@
     ],
     "merged": [
       {
+        "number": 302,
+        "title": "fix(dispatch): dispatched prompt carries the role's write scope (#233)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/302",
+        "branch": "story/FDY-233-write-scope-prompt"
+      },
+      {
         "number": 300,
         "title": "feat(assign): dispatch QA for work waiting in review",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/300",
@@ -163,6 +193,12 @@
         "title": "fix(dispatch): a review that rejects hands the item back to ready",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/298",
         "branch": "bug/FDY-297-rejection-returns-to-ready"
+      },
+      {
+        "number": 295,
+        "title": "Ceremonies close the record they supersede",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
+        "branch": "story/FDY-288-ceremonies-supersede"
       },
       {
         "number": 293,
@@ -227,6 +263,30 @@
     ],
     "closed_unmerged": [
       {
+        "number": 304,
+        "title": "fix(compiler,dispatch): write scope reaches the session prompt (#233)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/304",
+        "branch": "story/FDY-233-write-scope-in-prompt"
+      },
+      {
+        "number": 296,
+        "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
+        "branch": "story/FDY-198-reqs-008-signoff-note"
+      },
+      {
+        "number": 294,
+        "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
+        "branch": "bug/FDY-233-write-scope-and-check"
+      },
+      {
+        "number": 280,
+        "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
+        "branch": "bug/FDY-235-traceability-false-ambers"
+      },
+      {
         "number": 279,
         "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
@@ -239,36 +299,29 @@
         "branch": "bug/FDY-233-compile-pack-write-scope"
       }
     ],
-    "open_now": 5
+    "open_now": 3
   },
   "check_failures": [
     {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36544731261",
-      "at": "2026-09-29T08:45:16Z"
-    },
-    {
-      "name": "Dashboards",
-      "branch": "bug/FDY-235-traceability-lookups",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36528996615",
-      "at": "2026-09-29T06:01:50Z"
-    },
-    {
       "name": "QA gate",
-      "branch": "bug/FDY-235-traceability-lookups",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36528996556",
-      "at": "2026-09-29T06:01:50Z"
+      "branch": "story/FDY-233-write-scope-in-prompt",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36642557438",
+      "at": "2026-09-29T22:57:30Z"
     }
   ],
   "board": {
-    "status:needs-refinement": 5,
     "status:in-review": 4,
+    "status:needs-refinement": 5,
     "(no status)": 3,
-    "status:ready": 3,
+    "status:ready": 2,
     "status:blocked": 1
   },
   "needs_human": [
+    {
+      "number": 198,
+      "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/198"
+    },
     {
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
@@ -280,7 +333,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 590.2,
+      "hours": 603.3,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -288,7 +341,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 545.5,
+      "hours": 558.6,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }

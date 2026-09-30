@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-09-29 12:41 UTC",
+    "generated_at": "2026-09-30 01:47 UTC",
     "sla_hours": 24
   },
   "waiting": [
@@ -18,7 +18,7 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 553.8,
+      "age_hours": 566.9,
       "age_source": "since `needs-human` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -35,7 +35,7 @@
           "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
         }
       ],
-      "age_hours": 180.0,
+      "age_hours": 193.1,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -57,7 +57,7 @@
           "because": "These are the controls. A story proposing to change one needs a person to agree it should be changed, before a session spends a budget on it."
         }
       ],
-      "age_hours": 180.0,
+      "age_hours": 193.1,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
@@ -74,74 +74,10 @@
           "because": "DevOps is the only role that can edit the checks, budgets and dispatcher that constrain every other role. A pipeline change approved by the thing it governs is not a gate."
         }
       ],
-      "age_hours": 179.9,
+      "age_hours": 193.0,
       "age_source": "since `status:needs-refinement` was applied",
       "sla_hours": 24,
       "past_sla": true
-    },
-    {
-      "kind": "pr",
-      "number": 280,
-      "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
-      "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
-      "why": [
-        {
-          "rule": "awaiting_review",
-          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
-        }
-      ],
-      "age_hours": 8.9,
-      "age_source": "since the pull request was opened",
-      "sla_hours": null,
-      "past_sla": null
-    },
-    {
-      "kind": "pr",
-      "number": 296,
-      "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
-      "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
-      "why": [
-        {
-          "rule": "awaiting_review",
-          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
-        }
-      ],
-      "age_hours": 7.1,
-      "age_source": "since the pull request was opened",
-      "sla_hours": null,
-      "past_sla": null
-    },
-    {
-      "kind": "pr",
-      "number": 295,
-      "title": "Ceremonies close the record they supersede",
-      "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
-      "why": [
-        {
-          "rule": "awaiting_review",
-          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
-        }
-      ],
-      "age_hours": 7.1,
-      "age_source": "since the pull request was opened",
-      "sla_hours": null,
-      "past_sla": null
-    },
-    {
-      "kind": "pr",
-      "number": 294,
-      "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
-      "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
-      "why": [
-        {
-          "rule": "awaiting_review",
-          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
-        }
-      ],
-      "age_hours": 7.1,
-      "age_source": "since the pull request was opened",
-      "sla_hours": null,
-      "past_sla": null
     },
     {
       "kind": "pr",
@@ -154,13 +90,75 @@
           "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
         }
       ],
-      "age_hours": 6.7,
+      "age_hours": 19.8,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "issue",
+      "number": 198,
+      "title": "Exercise the sign-off gate live and record REQ-008's note (post-merge of #193)",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/198",
+      "why": [
+        {
+          "rule": "changes_requirements",
+          "hit": "mentions `requirements/coverage.yaml`",
+          "because": "A REQ is a commitment. An agent proposing one is useful; an agent committing to one on the org's behalf is not its call."
+        }
+      ],
+      "age_hours": 13.1,
+      "age_source": "since `needs-human` was applied",
+      "sla_hours": 24,
+      "past_sla": false
+    },
+    {
+      "kind": "pr",
+      "number": 303,
+      "title": "docs(requirements): REQ-008 note \u2014 sign-off gate exercised vs. merely existing",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/303",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 13.1,
+      "age_source": "since the pull request was opened",
+      "sla_hours": null,
+      "past_sla": null
+    },
+    {
+      "kind": "pr",
+      "number": 306,
+      "title": "fix(dispatch): don't send an approved item back to rework",
+      "url": "https://github.com/Shashank2577/ai-sdlc/pull/306",
+      "why": [
+        {
+          "rule": "awaiting_review",
+          "because": "The `merge` gate (policies/gates.yaml) is owner: human \u2014 an open pull request waits on a person to review and merge it."
+        }
+      ],
+      "age_hours": 0.0,
       "age_source": "since the pull request was opened",
       "sla_hours": null,
       "past_sla": null
     }
   ],
   "decided": [
+    {
+      "number": 288,
+      "title": "Ceremonies close the record they supersede",
+      "url": "https://github.com/Shashank2577/ai-sdlc/issues/288",
+      "decision": "Approved to proceed (`status:ready`)",
+      "by": "Shashank2577",
+      "when": "2026-09-29T04:46:22Z",
+      "why": "unknown",
+      "artefact": {
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
+        "label": "PR #295"
+      }
+    },
     {
       "number": 246,
       "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
