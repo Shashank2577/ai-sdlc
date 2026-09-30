@@ -246,5 +246,35 @@ assert "made no gh calls" '!grep' "gh " "$STATE_DIR/calls.log"
 
 # ---------------------------------------------------------------------------
 echo
+echo "scripts/qa-verdict.sh — one-verdict (#307)"
+# ---------------------------------------------------------------------------
+
+setup
+LABELS_JSON="$(labels_json status:in-review qa:rejected qa:approved)" LABEL=qa:approved \
+  MODE=one-verdict ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "an approval replaces the earlier rejection" 0 $? "$WORK/out" "qa:approved replaced the earlier qa:rejected"
+assert "removed qa:rejected" grep "gh issue edit 42 --remove-label qa:rejected" "$STATE_DIR/calls.log"
+assert "did not touch qa:approved" '!grep' "remove-label qa:approved" "$STATE_DIR/calls.log"
+
+setup
+LABELS_JSON="$(labels_json status:in-review qa:approved qa:rejected)" LABEL=qa:rejected \
+  MODE=one-verdict ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "a rejection replaces the earlier approval" 0 $? "$WORK/out" "qa:rejected replaced the earlier qa:approved"
+assert "removed qa:approved" grep "gh issue edit 42 --remove-label qa:approved" "$STATE_DIR/calls.log"
+
+setup
+LABELS_JSON="$(labels_json status:in-review qa:approved)" LABEL=qa:approved \
+  MODE=one-verdict ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "a lone verdict has nothing to replace" 0 $? "$WORK/out" "Nothing to do"
+assert "made no gh calls" '!grep' "gh " "$STATE_DIR/calls.log"
+
+setup
+LABELS_JSON="$(labels_json status:in-review qa:rejected)" LABEL=status:in-review \
+  MODE=one-verdict ISSUE=42 bash scripts/qa-verdict.sh > "$WORK/out" 2>&1
+check "a non-verdict label is ignored" 0 $? "$WORK/out" "is not a verdict"
+assert "made no gh calls" '!grep' "gh " "$STATE_DIR/calls.log"
+
+# ---------------------------------------------------------------------------
+echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
