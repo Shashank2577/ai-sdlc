@@ -52,11 +52,18 @@ jobs:
   # status API merges both by context/name — without re-running the whole
   # qa-gate.yml workflow against a ref it would have to be taught to accept
   # out-of-band.
+  #
+  # After one-verdict (#307): a label that job removes with GITHUB_TOKEN
+  # fires no workflow of its own, so the approval that lifted a rejection
+  # is re-checked here, in the same run, once the rejection is gone.
   recheck-prs:
     name: recheck-prs
+    needs: one-verdict
     if: |
-      (github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
-      github.event.label.name == 'qa:rejected'
+      !cancelled() && needs.one-verdict.result != 'failure' && (
+        ((github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+         github.event.label.name == 'qa:rejected') ||
+        (github.event.action == 'labeled' && github.event.label.name == 'qa:approved'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -101,6 +108,26 @@ jobs:
           if [ "$found" -eq 0 ]; then
             echo "No open PR closes #${ISSUE}; nothing to re-evaluate."
           fi
+
+  # Exactly one verdict on an item (#307). A later QA verdict replaces the
+  # earlier one: a re-review that approves was left carrying the rejection
+  # it reversed, and qa-gate kept failing the PR QA had approved (#302).
+  one-verdict:
+    name: one-verdict
+    if: |
+      github.event.action == 'labeled' &&
+      (github.event.label.name == 'qa:approved' || github.event.label.name == 'qa:rejected')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace the earlier verdict
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: one-verdict
+          ISSUE: ${{ github.event.issue.number }}
+          LABEL: ${{ github.event.label.name }}
+          LABELS_JSON: ${{ toJSON(github.event.issue.labels) }}
+        run: bash scripts/qa-verdict.sh
 
   ladder:
     name: rejection-ladder

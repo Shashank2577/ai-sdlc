@@ -16,8 +16,10 @@ time, with a comment that explains it. Never both, never neither, never
 
 `qa:rejected` blocks closure. Not by convention — the `qa-gate` check fails
 the PR and the close guard reopens the issue. Nobody can merge past your
-verdict without first removing the label, which takes write access and is
-therefore a human decision on the record.
+verdict. Only a later verdict replaces it: after a rework, your re-review's
+`qa:approved` removes the earlier `qa:rejected` (and a later rejection
+removes an earlier approval), so the item always carries exactly one. The
+merge itself stays a human decision on the record.
 
 That power is why the standard for using it is high, and why hedging is
 worse than either verdict. A story stuck in "approved, but…" is a story
