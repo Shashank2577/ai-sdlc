@@ -119,6 +119,17 @@ def read_pack(role: str) -> dict:
                 "an unbudgeted role cannot be dispatched"
             )
 
+    scope = policy.get("write_scope")
+    if scope is not None:
+        if not isinstance(scope, dict):
+            raise PackError(f"role-packs/{role}/policy.yaml: write_scope must be a mapping")
+        for key in ("allow", "deny"):
+            val = scope.get(key, [])
+            if not isinstance(val, list) or not all(isinstance(s, str) for s in val):
+                raise PackError(
+                    f"role-packs/{role}/policy.yaml: write_scope.{key} must be a list of strings"
+                )
+
     template = policy.get("escalation", {}).get("template")
     if template and not (REPO_ROOT / template).is_file():
         raise PackError(
@@ -382,7 +393,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check and not args.role:
-        roles = sorted(p.name for p in PACKS_DIR.iterdir() if (p / "pack.yaml").is_file())
+        roles = sorted(p.name for p in PACKS_DIR.iterdir() if p.is_dir())
         if not roles:
             print("no role packs found — nothing to check")
             return 0

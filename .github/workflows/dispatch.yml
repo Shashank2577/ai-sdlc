@@ -119,6 +119,7 @@ on:
       - scripts/test-dispatch-session-end.sh
       - scripts/test-dispatch-prompt-snapshot.sh
       - scripts/test-dispatch-review-prompt.sh
+      - scripts/test-dispatch-write-scope-prompt.sh
       - scripts/diagnose-workflow-push-refusal.sh
       - scripts/test-diagnose-workflow-push-refusal.sh
 
@@ -962,6 +963,36 @@ jobs:
 
           echo >> "$P"
 
+          # The role's write scope (#233). The compiled system-prompt.md
+          # carried it but nothing reads that file; this prompt is what a
+          # session receives. Rendered from the same policy.yaml the
+          # scope checks read. A malformed scope fails the step rather
+          # than ship a prompt that silently omits it.
+          policy_path="${CP_DIR}/role-packs/${ROLE}/policy.yaml"
+          if [ -f "$policy_path" ]; then
+            python3 - "$policy_path" >> "$P" <<'PY'
+          import sys, yaml
+          scope = (yaml.safe_load(open(sys.argv[1])) or {}).get("write_scope")
+          if scope is None:
+              print("## Write scope\n\n_This role's policy declares no `write_scope`._\n")
+              sys.exit(0)
+          if (not isinstance(scope, dict)
+                  or not all(isinstance(scope.get(k, []), list) for k in ("allow", "deny"))):
+              sys.exit("write_scope must be a mapping with list allow/deny")
+          print("## Write scope\n")
+          print("Paths this role may write, from `policy.yaml`. Anything outside `allow`,")
+          print("or matching `deny`, is out of scope: do not edit it. Say so on the work")
+          print("item instead.\n")
+          for key in ("allow", "deny"):
+              print(f"**{key}:**")
+              for pat in scope.get(key) or []:
+                  print(f"- `{pat}`")
+              if not scope.get(key):
+                  print("- _(none)_")
+              print()
+          PY
+          fi
+
           # Multiline step output. The delimiter is random so that nothing in
           # the issue body can close it early and inject workflow output.
           delim="PROMPT_EOF_$(openssl rand -hex 16)"
@@ -1656,6 +1687,12 @@ jobs:
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
           bash scripts/test-dispatch-review-prompt.sh
+
+      - name: Test the session prompt carries the write scope
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          bash scripts/test-dispatch-write-scope-prompt.sh
 
       - name: Test the workflow-push-refusal diagnosis
         run: bash scripts/test-diagnose-workflow-push-refusal.sh
