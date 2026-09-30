@@ -1,10 +1,10 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-30T01:56:04.139651+00:00",
+  "generated_at": "2026-09-30T12:25:57.585772+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 17,
+      "commits": 5,
       "requirements": [],
       "harnesses": [
         "unknown"
@@ -33,7 +33,7 @@
       ]
     }
   ],
-  "commits_total": 17,
+  "commits_total": 5,
   "pulls": {
     "opened": [
       {
@@ -71,120 +71,6 @@
         "title": "fix(dispatch): dispatched prompt carries the role's write scope (#233)",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/302",
         "branch": "story/FDY-233-write-scope-prompt"
-      },
-      {
-        "number": 301,
-        "title": "fix(dashboards): surface failed PR lookups; recover squash-merge trailers",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/301",
-        "branch": "bug/FDY-235-traceability-lookups"
-      },
-      {
-        "number": 300,
-        "title": "feat(assign): dispatch QA for work waiting in review",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/300",
-        "branch": "bug/FDY-299-orchestrator-dispatches-qa"
-      },
-      {
-        "number": 298,
-        "title": "fix(dispatch): a review that rejects hands the item back to ready",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/298",
-        "branch": "bug/FDY-297-rejection-returns-to-ready"
-      },
-      {
-        "number": 296,
-        "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
-        "branch": "story/FDY-198-reqs-008-signoff-note"
-      },
-      {
-        "number": 295,
-        "title": "Ceremonies close the record they supersede",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
-        "branch": "story/FDY-288-ceremonies-supersede"
-      },
-      {
-        "number": 294,
-        "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
-        "branch": "bug/FDY-233-write-scope-and-check"
-      },
-      {
-        "number": 293,
-        "title": "fix(dispatch): tell a review session to review the PR, not to open one",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/293",
-        "branch": "bug/FDY-292-review-prompt-names-the-pr"
-      },
-      {
-        "number": 291,
-        "title": "fix(products): give the pilot its own board, and let the checker see user boards",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/291",
-        "branch": "bug/FDY-262-pilot-own-board"
-      },
-      {
-        "number": 289,
-        "title": "fix(dashboards): publish the site through github-pages, not the prod reviewer",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/289",
-        "branch": "bug/FDY-265-site-own-environment"
-      },
-      {
-        "number": 287,
-        "title": "fix(dispatch): a successful session without a PR no longer leaves its item in progress",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/287",
-        "branch": "bug/FDY-284-tracker-only-success-leaves-wip"
-      },
-      {
-        "number": 286,
-        "title": "fix(refine): count the ready queue the orchestrator could dispatch, not the label",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/286",
-        "branch": "bug/FDY-283-refine-counts-dispatchable"
-      },
-      {
-        "number": 285,
-        "title": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/285",
-        "branch": "bug/FDY-282-no-harness-attribution"
-      },
-      {
-        "number": 281,
-        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
-        "branch": "bug/FDY-231-dod-check-validation-v2"
-      },
-      {
-        "number": 280,
-        "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
-        "branch": "bug/FDY-235-traceability-false-ambers"
-      },
-      {
-        "number": 279,
-        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
-        "branch": "bug/FDY-231-dod-check-validation"
-      },
-      {
-        "number": 278,
-        "title": "fix(dispatch): build the agent prompt from the guarded issue snapshot (#232)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/278",
-        "branch": "bug/FDY-232-prompt-from-guarded-snapshot"
-      },
-      {
-        "number": 277,
-        "title": "fix(compiler): render write_scope; --check enumerates every pack dir",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/277",
-        "branch": "bug/FDY-233-compile-pack-write-scope"
-      },
-      {
-        "number": 276,
-        "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/276",
-        "branch": "bug/FDY-275-adr-0009-collision"
-      },
-      {
-        "number": 274,
-        "title": "fix(qa-gate): fail closed when the label lookup fails",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/274",
-        "branch": "bug/FDY-234-qa-gate-lookup-failure"
       }
     ],
     "merged": [
@@ -213,82 +99,10 @@
         "branch": "story/FDY-233-write-scope-prompt"
       },
       {
-        "number": 300,
-        "title": "feat(assign): dispatch QA for work waiting in review",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/300",
-        "branch": "bug/FDY-299-orchestrator-dispatches-qa"
-      },
-      {
-        "number": 298,
-        "title": "fix(dispatch): a review that rejects hands the item back to ready",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/298",
-        "branch": "bug/FDY-297-rejection-returns-to-ready"
-      },
-      {
         "number": 295,
         "title": "Ceremonies close the record they supersede",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
         "branch": "story/FDY-288-ceremonies-supersede"
-      },
-      {
-        "number": 293,
-        "title": "fix(dispatch): tell a review session to review the PR, not to open one",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/293",
-        "branch": "bug/FDY-292-review-prompt-names-the-pr"
-      },
-      {
-        "number": 291,
-        "title": "fix(products): give the pilot its own board, and let the checker see user boards",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/291",
-        "branch": "bug/FDY-262-pilot-own-board"
-      },
-      {
-        "number": 289,
-        "title": "fix(dashboards): publish the site through github-pages, not the prod reviewer",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/289",
-        "branch": "bug/FDY-265-site-own-environment"
-      },
-      {
-        "number": 287,
-        "title": "fix(dispatch): a successful session without a PR no longer leaves its item in progress",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/287",
-        "branch": "bug/FDY-284-tracker-only-success-leaves-wip"
-      },
-      {
-        "number": 286,
-        "title": "fix(refine): count the ready queue the orchestrator could dispatch, not the label",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/286",
-        "branch": "bug/FDY-283-refine-counts-dispatchable"
-      },
-      {
-        "number": 285,
-        "title": "fix(compiler): turn off Claude Code's own commit attribution in compiled settings",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/285",
-        "branch": "bug/FDY-282-no-harness-attribution"
-      },
-      {
-        "number": 281,
-        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/281",
-        "branch": "bug/FDY-231-dod-check-validation-v2"
-      },
-      {
-        "number": 278,
-        "title": "fix(dispatch): build the agent prompt from the guarded issue snapshot (#232)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/278",
-        "branch": "bug/FDY-232-prompt-from-guarded-snapshot"
-      },
-      {
-        "number": 276,
-        "title": "adr: renumber the learning-loop ADR to 0010 \u2014 two ADRs claimed 0009 and main's unit tests went red",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/276",
-        "branch": "bug/FDY-275-adr-0009-collision"
-      },
-      {
-        "number": 274,
-        "title": "fix(qa-gate): fail closed when the label lookup fails",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/274",
-        "branch": "bug/FDY-234-qa-gate-lookup-failure"
       }
     ],
     "closed_unmerged": [
@@ -315,28 +129,29 @@
         "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
         "branch": "bug/FDY-235-traceability-false-ambers"
-      },
-      {
-        "number": 279,
-        "title": "fix(dod-check): validate trailer values, closing issue, fork reporting",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/279",
-        "branch": "bug/FDY-231-dod-check-validation"
-      },
-      {
-        "number": 277,
-        "title": "fix(compiler): render write_scope; --check enumerates every pack dir",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/277",
-        "branch": "bug/FDY-233-compile-pack-write-scope"
       }
     ],
     "open_now": 2
   },
-  "check_failures": [],
+  "check_failures": [
+    {
+      "name": "QA gate",
+      "branch": "bug/FDY-235-traceability-lookups",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36657996675",
+      "at": "2026-09-30T02:02:58Z"
+    },
+    {
+      "name": "QA gate",
+      "branch": "bug/FDY-235-traceability-lookups",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36657988012",
+      "at": "2026-09-30T02:02:52Z"
+    }
+  ],
   "board": {
     "status:needs-refinement": 5,
     "(no status)": 3,
-    "status:in-review": 3,
-    "status:ready": 2,
+    "status:in-review": 4,
+    "status:ready": 1,
     "status:blocked": 1
   },
   "needs_human": [
@@ -356,7 +171,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 603.5,
+      "hours": 614.0,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -364,7 +179,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 558.8,
+      "hours": 569.3,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
