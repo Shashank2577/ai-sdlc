@@ -233,17 +233,17 @@ def expand_squash_trailers(commits: list[Commit]) -> list[str]:
     return failed
 
 
-def collect_pulls(commits: list[Commit]) -> tuple[dict[str, list[dict]], list[str]]:
+def collect_pulls(commits: list[Commit],
+                  failed: list[str] | None = None) -> dict[str, list[dict]]:
     """Ask GitHub which merged PR carried each commit.
 
     Authoritative, and merge-strategy agnostic — squash, rebase and merge
     commits all answer this endpoint correctly, where parsing subjects for
     `(#123)` does not. A failed call does not abort the build, but it is
-    returned, never folded into "no PR": the caller must caveat the matrix.
-    Returns (pulls by sha, shas whose lookup failed).
+    appended to `failed` (when given), never folded into "no PR": the caller
+    must caveat the matrix.
     """
     out: dict[str, list[dict]] = {}
-    failed: list[str] = []
     for commit in commits:
         if not commit.requirements:
             continue
@@ -255,11 +255,12 @@ def collect_pulls(commits: list[Commit]) -> tuple[dict[str, list[dict]], list[st
                         "{number, url: .html_url, title, merged_at}]",
             ]) or "[]")
         except (subprocess.CalledProcessError, json.JSONDecodeError):
-            failed.append(commit.sha)
+            if failed is not None:
+                failed.append(commit.sha)
             continue
         if data:
             out[commit.sha] = data
-    return out, failed
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -498,7 +499,7 @@ def main() -> int:
         pulls, note = {}, "PR lookup skipped (--no-github): no row can be green."
     else:
         squash_failed = expand_squash_trailers(commits)
-        pulls, failed = collect_pulls(commits)
+        pulls = collect_pulls(commits, failed)
         if squash_failed or failed:
             note = (f"⚠ GitHub lookups failed ({len(failed)} PR lookups, "
                     f"{len(squash_failed)} squash-trailer lookups): amber rows may "
