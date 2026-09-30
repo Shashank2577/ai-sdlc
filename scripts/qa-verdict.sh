@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# QA verdict enforcement — issue side. Three modes, driven by the event that
+# QA verdict enforcement — issue side. Four modes, driven by the event that
 # fired the workflow.
 #
 #   close-guard      a rejected work item that gets closed is reopened
 #   ladder           the third qa:rejected on one item escalates to a human
 #   return-to-ready  qa:rejected on an in-review story hands it back to
 #                     status:ready, so the author's role is dispatchable
-#                     again (#82) — qa:rejected itself is never removed,
-#                     it stays as the merge veto (#52's qa-gate failure)
+#                     again (#82) — qa:rejected itself stays, as the merge
+#                     veto (#52's qa-gate failure)
+#   one-verdict      a verdict just applied replaces the other one (#307):
+#                     the veto is lifted only by a later QA verdict, never
+#                     left standing beside the approval that reversed it
 #
 # Rejection counts come from the tracker's own `labeled` timeline events,
 # never from anything an agent reports. Event-derived, per REQ-006.
@@ -146,8 +149,27 @@ case "$MODE" in
     echo "Issue #${ISSUE}: qa:rejected returned it to status:ready — the author's role is dispatchable again."
     ;;
 
+  one-verdict)
+    # Exactly one verdict on an item (role-packs/qa/charter.md). Reads the
+    # event payload, so an item carrying only the new verdict makes zero
+    # gh calls.
+    : "${LABEL:?}"
+    case "$LABEL" in
+      qa:approved) other="qa:rejected" ;;
+      qa:rejected) other="qa:approved" ;;
+      *) echo "Issue #${ISSUE}: ${LABEL} is not a verdict. Nothing to do."; exit 0 ;;
+    esac
+    LABELS_JSON="${LABELS_JSON:-[]}"
+    if ! jq -e --arg o "$other" '[.[].name] | index($o)' <<<"$LABELS_JSON" >/dev/null; then
+      echo "Issue #${ISSUE}: no ${other} to replace. Nothing to do."
+      exit 0
+    fi
+    gh issue edit "$ISSUE" --remove-label "$other"
+    echo "Issue #${ISSUE}: ${LABEL} replaced the earlier ${other}."
+    ;;
+
   *)
-    echo "qa-verdict: unknown MODE '${MODE}' (expected close-guard, ladder, or return-to-ready)" >&2
+    echo "qa-verdict: unknown MODE '${MODE}' (expected close-guard, ladder, return-to-ready or one-verdict)" >&2
     exit 2
     ;;
 esac
