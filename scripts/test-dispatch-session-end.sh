@@ -367,6 +367,13 @@ assert "moves to status:in-review" grep '--add-label status:in-review' "$WORK/ca
 assert "is not sent back to ready" "!grep" '--add-label status:ready' "$WORK/calls.log"
 
 # ---------------------------------------------------------------------------
+echo "session-end: re-review that approves, older qa:rejected still present, lands in review (#305)"
+# ---------------------------------------------------------------------------
+TEST_MATCHED_LABEL=status:in-review run_session_end 709 success 0.10 3.0 "bug/FDY-709-slug" "status:in-progress,qa:rejected,qa:approved"
+assert "moves to status:in-review" grep '--add-label status:in-review' "$WORK/calls.log"
+assert "is not sent back to rework" "!grep" '--add-label status:ready' "$WORK/calls.log"
+
+# ---------------------------------------------------------------------------
 echo "session-end: developer reworking a rejected item lands in review, not a loop (#297)"
 # ---------------------------------------------------------------------------
 TEST_MATCHED_LABEL=status:ready run_session_end 708 success 0.10 5.0 "bug/FDY-708-slug" "status:in-progress,qa:rejected"
