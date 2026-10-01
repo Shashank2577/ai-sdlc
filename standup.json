@@ -1,152 +1,15 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-09-30T12:25:57.585772+00:00",
-  "roles": [
-    {
-      "role": "unknown",
-      "commits": 5,
-      "requirements": [],
-      "harnesses": [
-        "unknown"
-      ],
-      "subjects": [
-        {
-          "sha": "f4413ec",
-          "subject": "fix(qa): a later QA verdict replaces the earlier one (#308)"
-        },
-        {
-          "sha": "99d327e",
-          "subject": "fix(dispatch): rework continues the item's open PR instead of opening another (#310)"
-        },
-        {
-          "sha": "3ca9d83",
-          "subject": "fix(dispatch): don't send an approved item back to rework (#306)"
-        },
-        {
-          "sha": "5dc765b",
-          "subject": "fix(dispatch): the dispatched prompt carries the role's write scope; --check sees every pack dir (#302)"
-        },
-        {
-          "sha": "dec84d9",
-          "subject": "feat(ceremonies): close the records a new ceremony issue supersedes (#295)"
-        }
-      ]
-    }
-  ],
-  "commits_total": 5,
+  "generated_at": "2026-10-01T13:01:44.004665+00:00",
+  "roles": [],
+  "commits_total": 0,
   "pulls": {
-    "opened": [
-      {
-        "number": 310,
-        "title": "fix(dispatch): rework continues the item's open PR instead of opening another",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/310",
-        "branch": "bug/FDY-309-rework-continues-the-pr"
-      },
-      {
-        "number": 308,
-        "title": "fix(qa): a later QA verdict replaces the earlier one",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/308",
-        "branch": "bug/FDY-307-one-verdict"
-      },
-      {
-        "number": 306,
-        "title": "fix(dispatch): don't send an approved item back to rework",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/306",
-        "branch": "bug/FDY-305-approved-not-sent-to-rework"
-      },
-      {
-        "number": 304,
-        "title": "fix(compiler,dispatch): write scope reaches the session prompt (#233)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/304",
-        "branch": "story/FDY-233-write-scope-in-prompt"
-      },
-      {
-        "number": 303,
-        "title": "docs(requirements): REQ-008 note \u2014 sign-off gate exercised vs. merely existing",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/303",
-        "branch": "story/FDY-198-req008-note"
-      },
-      {
-        "number": 302,
-        "title": "fix(dispatch): dispatched prompt carries the role's write scope (#233)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/302",
-        "branch": "story/FDY-233-write-scope-prompt"
-      }
-    ],
-    "merged": [
-      {
-        "number": 310,
-        "title": "fix(dispatch): rework continues the item's open PR instead of opening another",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/310",
-        "branch": "bug/FDY-309-rework-continues-the-pr"
-      },
-      {
-        "number": 308,
-        "title": "fix(qa): a later QA verdict replaces the earlier one",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/308",
-        "branch": "bug/FDY-307-one-verdict"
-      },
-      {
-        "number": 306,
-        "title": "fix(dispatch): don't send an approved item back to rework",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/306",
-        "branch": "bug/FDY-305-approved-not-sent-to-rework"
-      },
-      {
-        "number": 302,
-        "title": "fix(dispatch): dispatched prompt carries the role's write scope (#233)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/302",
-        "branch": "story/FDY-233-write-scope-prompt"
-      },
-      {
-        "number": 295,
-        "title": "Ceremonies close the record they supersede",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/295",
-        "branch": "story/FDY-288-ceremonies-supersede"
-      }
-    ],
-    "closed_unmerged": [
-      {
-        "number": 304,
-        "title": "fix(compiler,dispatch): write scope reaches the session prompt (#233)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/304",
-        "branch": "story/FDY-233-write-scope-in-prompt"
-      },
-      {
-        "number": 296,
-        "title": "REQ-008 note: record which sign-off gate steps were exercised live (#198)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/296",
-        "branch": "story/FDY-198-reqs-008-signoff-note"
-      },
-      {
-        "number": 294,
-        "title": "fix(compiler): render write_scope; --check no longer skips packs missing pack.yaml",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/294",
-        "branch": "bug/FDY-233-write-scope-and-check"
-      },
-      {
-        "number": 280,
-        "title": "fix(dashboards): failed PR lookups and squash-merge trailers no longer render false ambers",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/280",
-        "branch": "bug/FDY-235-traceability-false-ambers"
-      }
-    ],
+    "opened": [],
+    "merged": [],
+    "closed_unmerged": [],
     "open_now": 2
   },
-  "check_failures": [
-    {
-      "name": "QA gate",
-      "branch": "bug/FDY-235-traceability-lookups",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36657996675",
-      "at": "2026-09-30T02:02:58Z"
-    },
-    {
-      "name": "QA gate",
-      "branch": "bug/FDY-235-traceability-lookups",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36657988012",
-      "at": "2026-09-30T02:02:52Z"
-    }
-  ],
+  "check_failures": [],
   "board": {
     "status:needs-refinement": 5,
     "(no status)": 3,
@@ -171,7 +34,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 614.0,
+      "hours": 638.6,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -179,7 +42,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 569.3,
+      "hours": 593.9,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
