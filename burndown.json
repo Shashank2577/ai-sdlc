@@ -1,12 +1,8 @@
 {
   "window_days": 60,
-  "generated_at": "2026-10-02T12:23:27.418635+00:00",
+  "generated_at": "2026-10-03T11:33:40.608773+00:00",
   "story_count": 64,
   "burndown": [
-    {
-      "date": "2026-08-03",
-      "open": 0
-    },
     {
       "date": "2026-08-04",
       "open": 0
@@ -125,7 +121,7 @@
     },
     {
       "date": "2026-09-02",
-      "open": 4
+      "open": 3
     },
     {
       "date": "2026-09-03",
@@ -246,52 +242,56 @@
     {
       "date": "2026-10-02",
       "open": 3
+    },
+    {
+      "date": "2026-10-03",
+      "open": 3
     }
   ],
   "velocity": [
     {
-      "week_start": "2026-08-03",
-      "week_end": "2026-08-10",
+      "week_start": "2026-08-04",
+      "week_end": "2026-08-11",
       "closed": 0
     },
     {
-      "week_start": "2026-08-10",
-      "week_end": "2026-08-17",
+      "week_start": "2026-08-11",
+      "week_end": "2026-08-18",
       "closed": 0
     },
     {
-      "week_start": "2026-08-17",
-      "week_end": "2026-08-24",
+      "week_start": "2026-08-18",
+      "week_end": "2026-08-25",
       "closed": 0
     },
     {
-      "week_start": "2026-08-24",
-      "week_end": "2026-08-31",
+      "week_start": "2026-08-25",
+      "week_end": "2026-09-01",
       "closed": 0
     },
     {
-      "week_start": "2026-08-31",
-      "week_end": "2026-09-07",
+      "week_start": "2026-09-01",
+      "week_end": "2026-09-08",
       "closed": 58
     },
     {
-      "week_start": "2026-09-07",
-      "week_end": "2026-09-14",
+      "week_start": "2026-09-08",
+      "week_end": "2026-09-15",
       "closed": 0
     },
     {
-      "week_start": "2026-09-14",
-      "week_end": "2026-09-21",
-      "closed": 0
-    },
-    {
-      "week_start": "2026-09-21",
-      "week_end": "2026-09-28",
+      "week_start": "2026-09-15",
+      "week_end": "2026-09-22",
       "closed": 3
     },
     {
-      "week_start": "2026-09-28",
-      "week_end": "2026-10-02",
+      "week_start": "2026-09-22",
+      "week_end": "2026-09-29",
+      "closed": 0
+    },
+    {
+      "week_start": "2026-09-29",
+      "week_end": "2026-10-03",
       "closed": 0
     }
   ]
