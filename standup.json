@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-02T12:22:55.120312+00:00",
+  "generated_at": "2026-10-03T11:33:05.073088+00:00",
   "roles": [],
   "commits_total": 0,
   "pulls": {
@@ -13,25 +13,91 @@
     {
       "name": "Refinement trigger",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36978732190",
-      "at": "2026-10-02T07:28:23Z"
-    },
-    {
-      "name": "Orchestrate",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36976040899",
-      "at": "2026-10-02T06:57:05Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37109964241",
+      "at": "2026-10-03T08:30:59Z"
     },
     {
       "name": "Project sync",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/36971102348",
-      "at": "2026-10-02T05:55:14Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37109397294",
+      "at": "2026-10-03T08:20:59Z"
+    },
+    {
+      "name": "Orchestrate",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37098877605",
+      "at": "2026-10-03T05:08:51Z"
+    },
+    {
+      "name": "Refinement trigger",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37089232293",
+      "at": "2026-10-03T02:16:36Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37088689955",
+      "at": "2026-10-03T02:07:34Z"
+    },
+    {
+      "name": "Orchestrate",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37078895288",
+      "at": "2026-10-02T23:43:15Z"
+    },
+    {
+      "name": "Refinement trigger",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37076440963",
+      "at": "2026-10-02T23:12:22Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37075904407",
+      "at": "2026-10-02T23:05:50Z"
+    },
+    {
+      "name": "Refinement trigger",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37054382276",
+      "at": "2026-10-02T19:28:53Z"
+    },
+    {
+      "name": "Orchestrate",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37052514311",
+      "at": "2026-10-02T19:11:50Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37048210899",
+      "at": "2026-10-02T18:33:12Z"
+    },
+    {
+      "name": "Refinement trigger",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37017342633",
+      "at": "2026-10-02T14:04:39Z"
+    },
+    {
+      "name": "Orchestrate",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37015383772",
+      "at": "2026-10-02T13:47:46Z"
+    },
+    {
+      "name": "Project sync",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/37009557144",
+      "at": "2026-10-02T12:54:35Z"
     }
   ],
   "board": {
-    "status:needs-refinement": 5,
     "(no status)": 3,
+    "status:needs-refinement": 5,
     "status:in-review": 4,
     "status:ready": 1,
     "status:blocked": 1
@@ -53,7 +119,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 661.9,
+      "hours": 685.1,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -61,7 +127,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 617.2,
+      "hours": 640.4,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
