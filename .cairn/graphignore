@@ -1,0 +1,16 @@
+# cairn: agent hook folders
+.codex/
+.opencode/
+.github/hooks/
+# cairn: tool folders are not part of the system
+.claude/
+.cursor/
+.gemini/
+# cairn: generated and vendored code
+*.min.js
+*.min.css
+*.bundle.js
+*.map
+vendor/
+node_modules/
+dist/

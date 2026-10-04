@@ -1,0 +1,26 @@
+# devops/templates/escalation-comment.md
+
+> 2 nodes
+
+## Key Concepts
+
+- **devops/templates/escalation-comment.md** (1 connections) — `role-packs/devops/templates/escalation-comment.md`
+- **Escalation — human decision required** (1 connections) — `role-packs/devops/templates/escalation-comment.md`
+
+## Relationships
+
+- No strong cross-community connections detected
+
+## Source Files
+
+- `role-packs/devops/templates/escalation-comment.md`
+
+## Audit Trail
+
+- EXTRACTED: 1 (100%)
+- INFERRED: 0 (0%)
+- AMBIGUOUS: 0 (0%)
+
+---
+
+*Part of the Cairn knowledge wiki. See [index](index.md) to navigate.*

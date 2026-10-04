@@ -1,0 +1,1394 @@
+{
+  "adapters/memory/__init__.py": {
+    "mtime": 1790589506.2455165,
+    "seen": 1790613117.450281,
+    "ast_hash": "05c284554614980172de91d0673d83b8",
+    "semantic_hash": ""
+  },
+  "adapters/memory/base.py": {
+    "mtime": 1790589506.2456195,
+    "seen": 1790613117.450287,
+    "ast_hash": "3d3a08bac22a31ba0aeaa990af354f92",
+    "semantic_hash": ""
+  },
+  "adapters/memory/git_notes/__init__.py": {
+    "mtime": 1790589506.248492,
+    "seen": 1790613117.45029,
+    "ast_hash": "18ccc673f66d09bfc1714f66a6b97101",
+    "semantic_hash": ""
+  },
+  "adapters/memory/git_notes/store.py": {
+    "mtime": 1790589506.2486153,
+    "seen": 1790613117.450291,
+    "ast_hash": "485b27afc733eaf207cc3a5d166b0efc",
+    "semantic_hash": ""
+  },
+  "adapters/memory/tests/__init__.py": {
+    "mtime": 1790589506.2487166,
+    "seen": 1790613117.450293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "adapters/memory/tests/contract.py": {
+    "mtime": 1790589506.2522118,
+    "seen": 1790613117.450295,
+    "ast_hash": "f6c7403fbc0368ff3fe140d7db1afbd0",
+    "semantic_hash": ""
+  },
+  "adapters/memory/tests/test_git_notes.py": {
+    "mtime": 1790589506.2523365,
+    "seen": 1790613117.450297,
+    "ast_hash": "568d1ed6de6484cc767b200f7a261565",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/__init__.py": {
+    "mtime": 1790589506.2541993,
+    "seen": 1790613117.450298,
+    "ast_hash": "16514f552abe38feb29faaf28d9e7c0e",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/base.py": {
+    "mtime": 1790589506.2576423,
+    "seen": 1790613117.4502988,
+    "ast_hash": "59429f9ec635e2c8bad46fd4b9255b24",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/github/__init__.py": {
+    "mtime": 1790589506.267158,
+    "seen": 1790613117.450301,
+    "ast_hash": "52962374cea4b5149c84626d4bacbce0",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/github/client.py": {
+    "mtime": 1790589506.2694848,
+    "seen": 1790613117.450302,
+    "ast_hash": "d9f12479c692730b7a576ba918e4df79",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/jira/__init__.py": {
+    "mtime": 1790589506.2726543,
+    "seen": 1790613117.450304,
+    "ast_hash": "dae35de1677fa0ecab203bae8d67aa0d",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/jira/client.py": {
+    "mtime": 1790589506.3017786,
+    "seen": 1790613117.450305,
+    "ast_hash": "a404c6aa604e8f8294f5e95927925386",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/tests/__init__.py": {
+    "mtime": 1790589506.3019016,
+    "seen": 1790613117.450306,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/tests/contract.py": {
+    "mtime": 1790589506.3083332,
+    "seen": 1790613117.450308,
+    "ast_hash": "5431566b57a07d0ac0b3d68af1ea34f8",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/tests/test_github.py": {
+    "mtime": 1790589506.354333,
+    "seen": 1790613117.450309,
+    "ast_hash": "2b4c0d28eb56eda4bf1d735d0873781a",
+    "semantic_hash": ""
+  },
+  "adapters/tracker/tests/test_jira.py": {
+    "mtime": 1790589506.3553007,
+    "seen": 1790613117.450311,
+    "ast_hash": "90e8781e4bf75c96b5740c365f56f5d0",
+    "semantic_hash": ""
+  },
+  "compiler/compile-pack.py": {
+    "mtime": 1790589506.3891315,
+    "seen": 1790613117.450312,
+    "ast_hash": "ef0775463695fb22db7ecc84ae4def45",
+    "semantic_hash": ""
+  },
+  "compiler/test_compile_pack.py": {
+    "mtime": 1790589506.3908043,
+    "seen": 1790613117.4503129,
+    "ast_hash": "7ea2b63e64f5b5c19afed6ea7a2c19e3",
+    "semantic_hash": ""
+  },
+  "dashboards/adr.py": {
+    "mtime": 1790589506.4022532,
+    "seen": 1790613117.450315,
+    "ast_hash": "7a8d3e9f08b57aedbd74f9dd24eac998",
+    "semantic_hash": ""
+  },
+  "dashboards/build.py": {
+    "mtime": 1790589506.436542,
+    "seen": 1790613117.450316,
+    "ast_hash": "0ffb0c4abe823fdbf87763eb957e142c",
+    "semantic_hash": ""
+  },
+  "dashboards/burndown.py": {
+    "mtime": 1790589506.4370563,
+    "seen": 1790613117.450318,
+    "ast_hash": "a667dcb57b0c6f5222af973cb77d8a84",
+    "semantic_hash": ""
+  },
+  "dashboards/decisions.py": {
+    "mtime": 1790589506.4383273,
+    "seen": 1790613117.450319,
+    "ast_hash": "17146ddb5ee8242a73b835a1e05d65f2",
+    "semantic_hash": ""
+  },
+  "dashboards/qa.py": {
+    "mtime": 1790589506.4479785,
+    "seen": 1790613117.450321,
+    "ast_hash": "bd53c7b6ed83c51a5dafe6cdda5347dc",
+    "semantic_hash": ""
+  },
+  "dashboards/standup.py": {
+    "mtime": 1790589506.4487944,
+    "seen": 1790613117.450322,
+    "ast_hash": "a460104de0ba2e59fdad816a2039e571",
+    "semantic_hash": ""
+  },
+  "dashboards/status.py": {
+    "mtime": 1790589506.454481,
+    "seen": 1790613117.4503229,
+    "ast_hash": "efd551eb990c7ae13ab2eee5c19dd5f2",
+    "semantic_hash": ""
+  },
+  "dashboards/test_adr.py": {
+    "mtime": 1790589506.4636252,
+    "seen": 1790613117.450324,
+    "ast_hash": "0850ebd0859f42c5be786a00a57d30ed",
+    "semantic_hash": ""
+  },
+  "dashboards/test_build.py": {
+    "mtime": 1790589506.4657078,
+    "seen": 1790613117.450326,
+    "ast_hash": "ce300291cc23c535300713b531370b16",
+    "semantic_hash": ""
+  },
+  "dashboards/test_burndown.py": {
+    "mtime": 1790589506.4661183,
+    "seen": 1790613117.4503272,
+    "ast_hash": "14894337710149e74e3974b0c7fd8386",
+    "semantic_hash": ""
+  },
+  "dashboards/test_decisions.py": {
+    "mtime": 1790589506.4689028,
+    "seen": 1790613117.450329,
+    "ast_hash": "c6ebadc3fba3a30f52bbfd44ad0afce4",
+    "semantic_hash": ""
+  },
+  "dashboards/test_qa.py": {
+    "mtime": 1790589506.4693615,
+    "seen": 1790613117.45033,
+    "ast_hash": "decd5b5ef4b82d5c1150bc8fc2264cc4",
+    "semantic_hash": ""
+  },
+  "dashboards/test_standup.py": {
+    "mtime": 1790589506.4739487,
+    "seen": 1790613117.450331,
+    "ast_hash": "11747f35a2e81d080fd12f065c2f85e5",
+    "semantic_hash": ""
+  },
+  "dashboards/test_status.py": {
+    "mtime": 1790589506.4782047,
+    "seen": 1790613117.4503329,
+    "ast_hash": "4293a0f1a3544bf8f52aa26c16091bd5",
+    "semantic_hash": ""
+  },
+  "portal/build.py": {
+    "mtime": 1790589506.5060973,
+    "seen": 1790613117.4503338,
+    "ast_hash": "7c495433b5269bf7bed544e67c492c41",
+    "semantic_hash": ""
+  },
+  "portal/test_build.py": {
+    "mtime": 1790589506.506596,
+    "seen": 1790613117.450336,
+    "ast_hash": "05670971a56244dc68c12c5064e90ae1",
+    "semantic_hash": ""
+  },
+  "scripts/assign.py": {
+    "mtime": 1790589506.5872226,
+    "seen": 1790613117.450337,
+    "ast_hash": "ee72e81606b6ce793faa2eb9c7234451",
+    "semantic_hash": ""
+  },
+  "scripts/bootstrap-product.py": {
+    "mtime": 1790589506.587383,
+    "seen": 1790613117.4503381,
+    "ast_hash": "7f340224bb30c5b5eb26090a7f90e0cd",
+    "semantic_hash": ""
+  },
+  "scripts/build-wiki.py": {
+    "mtime": 1790589506.5882952,
+    "seen": 1790613117.45034,
+    "ast_hash": "a6ae963c890eb4968f22d8d754e8bd4a",
+    "semantic_hash": ""
+  },
+  "scripts/check-adr.py": {
+    "mtime": 1790589506.5912821,
+    "seen": 1790613117.4503412,
+    "ast_hash": "56e66c95e76f0a80d29c97324254851b",
+    "semantic_hash": ""
+  },
+  "scripts/check-ceremonies.py": {
+    "mtime": 1790589506.5945451,
+    "seen": 1790613117.450342,
+    "ast_hash": "2999f5dc550051d43eff7638890fa4de",
+    "semantic_hash": ""
+  },
+  "scripts/check-environments.py": {
+    "mtime": 1790589506.5946815,
+    "seen": 1790613117.4503438,
+    "ast_hash": "0dbc63f00c2fe0a8dd6804334cd75139",
+    "semantic_hash": ""
+  },
+  "scripts/check-pack-coverage.py": {
+    "mtime": 1790589506.594855,
+    "seen": 1790613117.450346,
+    "ast_hash": "357f65a15ad3396d0f69be8dc89de774",
+    "semantic_hash": ""
+  },
+  "scripts/check-products.py": {
+    "mtime": 1790589506.5951974,
+    "seen": 1790613117.450347,
+    "ast_hash": "a3715188eebceec8b3a0e9fda4f67f62",
+    "semantic_hash": ""
+  },
+  "scripts/check-story-scope.py": {
+    "mtime": 1790589506.5953357,
+    "seen": 1790613117.450349,
+    "ast_hash": "131b8dd8b8a9fc3f4a0fdc85421ceb9b",
+    "semantic_hash": ""
+  },
+  "scripts/check-test-wiring.sh": {
+    "mtime": 1790589506.5955203,
+    "seen": 1790613117.45035,
+    "ast_hash": "85bcf7b4cb15504172e87e89ee236c17",
+    "semantic_hash": ""
+  },
+  "scripts/deploy-pages.py": {
+    "mtime": 1790589506.5958562,
+    "seen": 1790613117.4503522,
+    "ast_hash": "c0ad044d8a6c7ad2bc58c5d07e4a1916",
+    "semantic_hash": ""
+  },
+  "scripts/deploy-plan.py": {
+    "mtime": 1790589506.5962095,
+    "seen": 1790613117.450353,
+    "ast_hash": "a82d5323c366d364687855bba280078f",
+    "semantic_hash": ""
+  },
+  "scripts/diagnose-workflow-push-refusal.sh": {
+    "mtime": 1790589506.5963266,
+    "seen": 1790613117.4503539,
+    "ast_hash": "b5fb1294ee6990bc659920dfc7a0cb63",
+    "semantic_hash": ""
+  },
+  "scripts/dod-check.sh": {
+    "mtime": 1790589506.5964637,
+    "seen": 1790613117.450356,
+    "ast_hash": "729b5cc25dd07bdf1e03af1071e4c19f",
+    "semantic_hash": ""
+  },
+  "scripts/gate-check.py": {
+    "mtime": 1790589506.5978367,
+    "seen": 1790613117.450357,
+    "ast_hash": "6fd2fff0e2af639a7ffd5b8d0d60d876",
+    "semantic_hash": ""
+  },
+  "scripts/gate-sla.sh": {
+    "mtime": 1790589506.598185,
+    "seen": 1790613117.450358,
+    "ast_hash": "488db2573c4ffaf6c6a2114ee1ebc77d",
+    "semantic_hash": ""
+  },
+  "scripts/list-python-tests.sh": {
+    "mtime": 1790589506.5982769,
+    "seen": 1790613117.45036,
+    "ast_hash": "2ded0ceca0e75b04efe31cc24c6b9bbb",
+    "semantic_hash": ""
+  },
+  "scripts/memory.py": {
+    "mtime": 1790589506.5991402,
+    "seen": 1790613117.450361,
+    "ast_hash": "c3bb8f59d983055db34775da17457b48",
+    "semantic_hash": ""
+  },
+  "scripts/plan.py": {
+    "mtime": 1790589506.6003718,
+    "seen": 1790613117.450363,
+    "ast_hash": "31b81f77102df9c1dac43b0c73031658",
+    "semantic_hash": ""
+  },
+  "scripts/qa-gate.sh": {
+    "mtime": 1790589506.6006947,
+    "seen": 1790613117.4503639,
+    "ast_hash": "0703bf53ef61b45cdeee0cbcd6493f93",
+    "semantic_hash": ""
+  },
+  "scripts/qa-verdict.sh": {
+    "mtime": 1790589506.601057,
+    "seen": 1790613117.4503648,
+    "ast_hash": "fb4edca520cda48c0a8feb0816a8d751",
+    "semantic_hash": ""
+  },
+  "scripts/read-budget.py": {
+    "mtime": 1790589506.601458,
+    "seen": 1790613117.450367,
+    "ast_hash": "07826fe259f042195c95940aed88d782",
+    "semantic_hash": ""
+  },
+  "scripts/refine.py": {
+    "mtime": 1790589506.6046464,
+    "seen": 1790613117.450368,
+    "ast_hash": "7040d6b2b7461f6a771537cb7c55afb3",
+    "semantic_hash": ""
+  },
+  "scripts/retro.py": {
+    "mtime": 1790589506.60512,
+    "seen": 1790613117.45037,
+    "ast_hash": "d9ac8ee16a412db04e93063b8f3a5b4e",
+    "semantic_hash": ""
+  },
+  "scripts/review.py": {
+    "mtime": 1790589506.6059802,
+    "seen": 1790613117.450371,
+    "ast_hash": "4fafdb73fe30a3140ca7414a48a190b1",
+    "semantic_hash": ""
+  },
+  "scripts/security-gate.sh": {
+    "mtime": 1790589506.606119,
+    "seen": 1790613117.450372,
+    "ast_hash": "51ce90978aea8c6affea8e2547e31ead",
+    "semantic_hash": ""
+  },
+  "scripts/security-verdict.sh": {
+    "mtime": 1790589506.6063216,
+    "seen": 1790613117.450374,
+    "ast_hash": "25bbafe32bfe1213c98880c2a85a91f7",
+    "semantic_hash": ""
+  },
+  "scripts/signoff-check.py": {
+    "mtime": 1790589506.6064515,
+    "seen": 1790613117.4503748,
+    "ast_hash": "7793c422201eff4305e502d6bc0d216d",
+    "semantic_hash": ""
+  },
+  "scripts/spend-report.py": {
+    "mtime": 1790589506.6069572,
+    "seen": 1790613117.450376,
+    "ast_hash": "0d50f392147cf5229f839c580c201ec4",
+    "semantic_hash": ""
+  },
+  "scripts/standup-escalate.sh": {
+    "mtime": 1790589506.6079607,
+    "seen": 1790613117.450378,
+    "ast_hash": "ff97153cf4e2513070b20799e7bd363f",
+    "semantic_hash": ""
+  },
+  "scripts/sync-project.py": {
+    "mtime": 1790589506.6201081,
+    "seen": 1790613117.450379,
+    "ast_hash": "ac0d8d030763d883fb956b7ad18fd594",
+    "semantic_hash": ""
+  },
+  "scripts/terminal-label.sh": {
+    "mtime": 1790589506.621199,
+    "seen": 1790613117.450381,
+    "ast_hash": "b20323a8437b1ab6eff050770e094065",
+    "semantic_hash": ""
+  },
+  "scripts/test-check-test-wiring.sh": {
+    "mtime": 1790589506.6214218,
+    "seen": 1790613117.450382,
+    "ast_hash": "ef1c57cc667cd88fee78e6354f22f6dd",
+    "semantic_hash": ""
+  },
+  "scripts/test-diagnose-workflow-push-refusal.sh": {
+    "mtime": 1790589506.6216147,
+    "seen": 1790613117.450384,
+    "ast_hash": "04bde44c94df677477d54ad1c070ed2a",
+    "semantic_hash": ""
+  },
+  "scripts/test-dispatch-session-end.sh": {
+    "mtime": 1790589506.6217535,
+    "seen": 1790613117.4503849,
+    "ast_hash": "c3de3e6e319ae6a230e2a9c243526c0e",
+    "semantic_hash": ""
+  },
+  "scripts/test-dod-check.sh": {
+    "mtime": 1790589506.625897,
+    "seen": 1790613117.4503858,
+    "ast_hash": "ba8292972c045c7af00f09af46df53ea",
+    "semantic_hash": ""
+  },
+  "scripts/test-gate-sla.sh": {
+    "mtime": 1790589506.6263552,
+    "seen": 1790613117.450388,
+    "ast_hash": "1a56ddb4c36accedd8e7a7401870db33",
+    "semantic_hash": ""
+  },
+  "scripts/test-qa-enforcement.sh": {
+    "mtime": 1790589506.6266766,
+    "seen": 1790613117.450389,
+    "ast_hash": "50774fb698572b4574a7981a56873be6",
+    "semantic_hash": ""
+  },
+  "scripts/test-security-enforcement.sh": {
+    "mtime": 1790589506.6280887,
+    "seen": 1790613117.45039,
+    "ast_hash": "d089e49aa89fa94ba731450f8002f07a",
+    "semantic_hash": ""
+  },
+  "scripts/test-standup-escalate.sh": {
+    "mtime": 1790589506.6303923,
+    "seen": 1790613117.450392,
+    "ast_hash": "badd8075c4d7fb10689cb088c1359341",
+    "semantic_hash": ""
+  },
+  "scripts/test-terminal-label.sh": {
+    "mtime": 1790589506.6311035,
+    "seen": 1790613117.4503932,
+    "ast_hash": "f5d19d0558776de53d7fa631dab3ac3e",
+    "semantic_hash": ""
+  },
+  "scripts/test_assign.py": {
+    "mtime": 1790589506.631925,
+    "seen": 1790613117.4503942,
+    "ast_hash": "2e23e46f03d9237a30465a0c3b6b0a5d",
+    "semantic_hash": ""
+  },
+  "scripts/test_bootstrap_product.py": {
+    "mtime": 1790589506.6320906,
+    "seen": 1790613117.4503958,
+    "ast_hash": "a6634ab8260f24fa5f9b152eabb89091",
+    "semantic_hash": ""
+  },
+  "scripts/test_budgets.py": {
+    "mtime": 1790589506.633717,
+    "seen": 1790613117.450398,
+    "ast_hash": "ecbf62efe2d6d2a1a5919ec9224b4be1",
+    "semantic_hash": ""
+  },
+  "scripts/test_build_wiki.py": {
+    "mtime": 1790589506.6344051,
+    "seen": 1790613117.450399,
+    "ast_hash": "b09dbdc57c8bc67dd0a80cf0d7b53e83",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_adr.py": {
+    "mtime": 1790589506.6347194,
+    "seen": 1790613117.4504,
+    "ast_hash": "33a3b97b699c3d7b03f275d67de1449f",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_ceremonies.py": {
+    "mtime": 1790589506.6350257,
+    "seen": 1790613117.450402,
+    "ast_hash": "6e3f8b65ccf44eeb21042aeff377bc8c",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_environments.py": {
+    "mtime": 1790589506.635306,
+    "seen": 1790613117.450403,
+    "ast_hash": "af840db8cc06c21f67445414800a3057",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_pack_coverage.py": {
+    "mtime": 1790589506.6357067,
+    "seen": 1790613117.4504051,
+    "ast_hash": "7399edb643a3e4b2a1ed2812bc9a64fe",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_products.py": {
+    "mtime": 1790589506.6358817,
+    "seen": 1790613117.4504058,
+    "ast_hash": "c091cffbffa93a2f18962bb31c3c3fcc",
+    "semantic_hash": ""
+  },
+  "scripts/test_check_story_scope.py": {
+    "mtime": 1790589506.6361485,
+    "seen": 1790613117.450407,
+    "ast_hash": "6afb59c5b5134eb31bcee3c70c0bc961",
+    "semantic_hash": ""
+  },
+  "scripts/test_gate_check.py": {
+    "mtime": 1790589506.636705,
+    "seen": 1790613117.450409,
+    "ast_hash": "a0f23430ac76d694533efe627f89e277",
+    "semantic_hash": ""
+  },
+  "scripts/test_memory.py": {
+    "mtime": 1790589506.6370192,
+    "seen": 1790613117.450411,
+    "ast_hash": "7e100712f5c4e84802ae9306456d71f8",
+    "semantic_hash": ""
+  },
+  "scripts/test_plan.py": {
+    "mtime": 1790589506.6372137,
+    "seen": 1790613117.450412,
+    "ast_hash": "4695704d2fe4e69b84827f14620366c3",
+    "semantic_hash": ""
+  },
+  "scripts/test_refine.py": {
+    "mtime": 1790589506.6374817,
+    "seen": 1790613117.450413,
+    "ast_hash": "b39481f20beabb258f9f49df2da762b8",
+    "semantic_hash": ""
+  },
+  "scripts/test_retro.py": {
+    "mtime": 1790589506.6382523,
+    "seen": 1790613117.4504151,
+    "ast_hash": "5c7390d0e5aaa0bb22f2982489f8bd90",
+    "semantic_hash": ""
+  },
+  "scripts/test_review.py": {
+    "mtime": 1790589506.6384702,
+    "seen": 1790613117.450416,
+    "ast_hash": "b8c59e9186781510a02a3c8d49e3230d",
+    "semantic_hash": ""
+  },
+  "scripts/test_signoff_check.py": {
+    "mtime": 1790589506.6385965,
+    "seen": 1790613117.450418,
+    "ast_hash": "bf898dfc172e1e9cb98b4179455c5f90",
+    "semantic_hash": ""
+  },
+  "scripts/test_sync_project.py": {
+    "mtime": 1790589506.63878,
+    "seen": 1790613117.450419,
+    "ast_hash": "02d083a1e676d7a3196239dc4990d1e3",
+    "semantic_hash": ""
+  },
+  "scripts/test_transcript_to_prd.py": {
+    "mtime": 1790589506.640543,
+    "seen": 1790613117.45042,
+    "ast_hash": "9166d70bede1468a7c1e8fd7c9746cdf",
+    "semantic_hash": ""
+  },
+  "scripts/transcript-to-prd.py": {
+    "mtime": 1790589506.6420834,
+    "seen": 1790613117.450422,
+    "ast_hash": "a0bbb9fb6de4a76c44462665525baaad",
+    "semantic_hash": ""
+  },
+  ".github/pull_request_template.md": {
+    "mtime": 1790589506.0599506,
+    "seen": 1790613117.450423,
+    "ast_hash": "b31081c1e65c44dd0be63486422f49b1",
+    "semantic_hash": ""
+  },
+  ".github/workflows/approval-gate.yml": {
+    "mtime": 1790589506.0651765,
+    "seen": 1790613117.450424,
+    "ast_hash": "85a87df0094d5d581bf1cabefea2eee8",
+    "semantic_hash": ""
+  },
+  ".github/workflows/budgets.yml": {
+    "mtime": 1790589506.0704129,
+    "seen": 1790613117.450426,
+    "ast_hash": "f8b9e0b0be14e166458d97023e4c248a",
+    "semantic_hash": ""
+  },
+  ".github/workflows/dashboards.yml": {
+    "mtime": 1790589506.0724373,
+    "seen": 1790613117.450428,
+    "ast_hash": "ed5b0b7fc1e6ca69db03d67e67e84b1b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/deploy.yml": {
+    "mtime": 1790589506.072568,
+    "seen": 1790613117.450429,
+    "ast_hash": "53d723d49b0a18df3d7c770d96ddbcc1",
+    "semantic_hash": ""
+  },
+  ".github/workflows/dispatch.yml": {
+    "mtime": 1790589506.144622,
+    "seen": 1790613117.45043,
+    "ast_hash": "6876e7e54dca0a0aef412feb950dabf4",
+    "semantic_hash": ""
+  },
+  ".github/workflows/dod-check.yml": {
+    "mtime": 1790589506.145719,
+    "seen": 1790613117.450432,
+    "ast_hash": "c250e21126828f342c9daa98e643dce7",
+    "semantic_hash": ""
+  },
+  ".github/workflows/memory.yml": {
+    "mtime": 1790589506.174086,
+    "seen": 1790613117.450433,
+    "ast_hash": "b8cc555c454d9caad8b24fe2aacb3bfc",
+    "semantic_hash": ""
+  },
+  ".github/workflows/orchestrate.yml": {
+    "mtime": 1790589506.1752567,
+    "seen": 1790613117.4504352,
+    "ast_hash": "93cbffbc6bda262691e9e67fc0bb5c95",
+    "semantic_hash": ""
+  },
+  ".github/workflows/packs.yml": {
+    "mtime": 1790589506.1790092,
+    "seen": 1790613117.450436,
+    "ast_hash": "4533234d7bd55eca808e5081d34b47f1",
+    "semantic_hash": ""
+  },
+  ".github/workflows/pages-rollback.yml": {
+    "mtime": 1790589506.1804454,
+    "seen": 1790613117.450437,
+    "ast_hash": "646d88f719834a2889df7438862843c5",
+    "semantic_hash": ""
+  },
+  ".github/workflows/planning.yml": {
+    "mtime": 1790589506.1806808,
+    "seen": 1790613117.450439,
+    "ast_hash": "7556fc7ada9533c4f66a162b61d0d62b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/project-sync.yml": {
+    "mtime": 1790589506.2038972,
+    "seen": 1790613117.45044,
+    "ast_hash": "3442951bd01152633a96fdbc8c9e1598",
+    "semantic_hash": ""
+  },
+  ".github/workflows/qa-gate.yml": {
+    "mtime": 1790589506.204035,
+    "seen": 1790613117.450441,
+    "ast_hash": "ee31f364ae1519f0b40dac6a574dae94",
+    "semantic_hash": ""
+  },
+  ".github/workflows/qa-verdict.yml": {
+    "mtime": 1790589506.205357,
+    "seen": 1790613117.450443,
+    "ast_hash": "2e05c77279dc830f815e522caf43499b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/refinement.yml": {
+    "mtime": 1790589506.2090898,
+    "seen": 1790613117.450444,
+    "ast_hash": "20b7f14e7a4da2f036f892629d536d1b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/requirements-intake.yml": {
+    "mtime": 1790589506.211376,
+    "seen": 1790613117.4504461,
+    "ast_hash": "550cd9cc21e74b7c01f071e378897aff",
+    "semantic_hash": ""
+  },
+  ".github/workflows/retro.yml": {
+    "mtime": 1790589506.214155,
+    "seen": 1790613117.450447,
+    "ast_hash": "83fb43671e64715e2fceffedd341f4e6",
+    "semantic_hash": ""
+  },
+  ".github/workflows/review.yml": {
+    "mtime": 1790589506.2142951,
+    "seen": 1790613117.4504478,
+    "ast_hash": "f13764daef0aedc17f35416fe0551afe",
+    "semantic_hash": ""
+  },
+  ".github/workflows/security-gate.yml": {
+    "mtime": 1790589506.214404,
+    "seen": 1790613117.450449,
+    "ast_hash": "c0d0ef6f016423989ed6291c8a7611ac",
+    "semantic_hash": ""
+  },
+  ".github/workflows/security-verdict.yml": {
+    "mtime": 1790589506.214585,
+    "seen": 1790613117.450451,
+    "ast_hash": "8f35f92c453be2cae5d1db4122e69f91",
+    "semantic_hash": ""
+  },
+  ".github/workflows/signoff-gate.yml": {
+    "mtime": 1790589506.2147183,
+    "seen": 1790613117.4504519,
+    "ast_hash": "4e6bb98459278c0351ae7512c79a17b6",
+    "semantic_hash": ""
+  },
+  ".github/workflows/standup.yml": {
+    "mtime": 1790589506.220071,
+    "seen": 1790613117.450453,
+    "ast_hash": "c8cde51aeb8260541151991c98132c57",
+    "semantic_hash": ""
+  },
+  ".github/workflows/terminal-label.yml": {
+    "mtime": 1790589506.2228765,
+    "seen": 1790613117.450455,
+    "ast_hash": "0288081f195e3198d10194b9beb65988",
+    "semantic_hash": ""
+  },
+  ".github/workflows/test-wiring.yml": {
+    "mtime": 1790589506.226985,
+    "seen": 1790613117.4504561,
+    "ast_hash": "4a9b3f6e4714f866ef0d68e231a0ba1c",
+    "semantic_hash": ""
+  },
+  ".github/workflows/unit-tests.yml": {
+    "mtime": 1790589506.2291245,
+    "seen": 1790613117.450457,
+    "ast_hash": "259c133a9016ea177d44b03f353160e3",
+    "semantic_hash": ""
+  },
+  ".github/workflows/wiki.yml": {
+    "mtime": 1790589506.231502,
+    "seen": 1790613117.4504588,
+    "ast_hash": "0ace30c69ae57320ef5d9f5e07d5555f",
+    "semantic_hash": ""
+  },
+  "CONVENTIONS.md": {
+    "mtime": 1790589506.245067,
+    "seen": 1790613117.45046,
+    "ast_hash": "19e3adc7b1bf82e14f25bf0ff8e276ce",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1790589506.2453191,
+    "seen": 1790613117.450461,
+    "ast_hash": "dcac0fc96b58af2d7dfcf318ba40cc84",
+    "semantic_hash": ""
+  },
+  "adrs/0001-per-role-credentials-devops-only-holds-workflow-scope.md": {
+    "mtime": 1790589506.3568246,
+    "seen": 1790613117.450463,
+    "ast_hash": "07e1d169865db5041b8d7be01c4ac5c8",
+    "semantic_hash": ""
+  },
+  "adrs/0002-cost-is-the-enforced-ceiling-tokens-are-a-tripwire.md": {
+    "mtime": 1790589506.3575892,
+    "seen": 1790613117.450464,
+    "ast_hash": "0feaa66ca987526e5cfd6661010f05a7",
+    "semantic_hash": ""
+  },
+  "adrs/0003-governance-owner-keeps-policies-not-other-role-packs.md": {
+    "mtime": 1790589506.364732,
+    "seen": 1790613117.450465,
+    "ast_hash": "2f9f95cbd00e8eea1d4dc1e7bbf3756f",
+    "semantic_hash": ""
+  },
+  "adrs/0004-approval-gate-scopes-to-write-capability.md": {
+    "mtime": 1790589506.3650043,
+    "seen": 1790613117.450467,
+    "ast_hash": "2d07fdf001377f112dd876a6ce422a44",
+    "semantic_hash": ""
+  },
+  "adrs/0005-qa-rejected-returns-story-to-ready-not-excluded.md": {
+    "mtime": 1790589506.365274,
+    "seen": 1790613117.450468,
+    "ast_hash": "453199f853580b18dd1ad584ff5a167b",
+    "semantic_hash": ""
+  },
+  "adrs/0006-harness-neutral-packs-compiled-with-unmappable-tool-rules.md": {
+    "mtime": 1790589506.3654528,
+    "seen": 1790613117.45047,
+    "ast_hash": "9473cd0d474b84e3a420cb4090977abc",
+    "semantic_hash": ""
+  },
+  "adrs/0007-approval-proven-by-labeler-identity-not-label-presence.md": {
+    "mtime": 1790589506.3656402,
+    "seen": 1790613117.450471,
+    "ast_hash": "729ff0d0c6c8ee1d4cb22602f1b8d7a9",
+    "semantic_hash": ""
+  },
+  "adrs/0008-security-and-operations-roles-scaffold-proposed-not-built.md": {
+    "mtime": 1790589506.372799,
+    "seen": 1790613117.4504719,
+    "ast_hash": "d3a72e99a597b2f51a54f22644e64946",
+    "semantic_hash": ""
+  },
+  "adrs/0009-learning-loop-detects-mechanically-promotes-only-as-proposal.md": {
+    "mtime": 1790589506.3757288,
+    "seen": 1790613117.450474,
+    "ast_hash": "cc8c21088435b16c70205452c400e2ae",
+    "semantic_hash": ""
+  },
+  "adrs/0009-required-checks-run-from-main-not-the-merge-ref.md": {
+    "mtime": 1790589506.375908,
+    "seen": 1790613117.450475,
+    "ast_hash": "bbfd79d32632f134f3e15535ea3f6a4a",
+    "semantic_hash": ""
+  },
+  "adrs/README.md": {
+    "mtime": 1790589506.3760962,
+    "seen": 1790613117.450476,
+    "ast_hash": "fb96d94f01366196f27bbc60d759851c",
+    "semantic_hash": ""
+  },
+  "ceremonies/README.md": {
+    "mtime": 1790589506.3784957,
+    "seen": 1790613117.450478,
+    "ast_hash": "5dee34d51d40b2e79363cc9b3aba6f07",
+    "semantic_hash": ""
+  },
+  "ceremonies/planning.yaml": {
+    "mtime": 1790589506.3807714,
+    "seen": 1790613117.450479,
+    "ast_hash": "24e0e0e895a3ed4c009cbddddfc902a3",
+    "semantic_hash": ""
+  },
+  "ceremonies/refinement.yaml": {
+    "mtime": 1790589506.3834913,
+    "seen": 1790613117.4504802,
+    "ast_hash": "483150ebd566efd21208e57b5d114884",
+    "semantic_hash": ""
+  },
+  "ceremonies/retro.yaml": {
+    "mtime": 1790589506.3839347,
+    "seen": 1790613117.450482,
+    "ast_hash": "895dd0c88aabae5cee610fa5e69ab16f",
+    "semantic_hash": ""
+  },
+  "ceremonies/review.yaml": {
+    "mtime": 1790589506.38615,
+    "seen": 1790613117.4504828,
+    "ast_hash": "138bd626d365e3b1b8d67d8bed68397d",
+    "semantic_hash": ""
+  },
+  "ceremonies/standup.yaml": {
+    "mtime": 1790589506.3874247,
+    "seen": 1790613117.450485,
+    "ast_hash": "fcf360c34052ea42c802c29ad0627525",
+    "semantic_hash": ""
+  },
+  "compiler/README.md": {
+    "mtime": 1790589506.3889008,
+    "seen": 1790613117.450486,
+    "ast_hash": "f81512c979532f859478044732b82c0f",
+    "semantic_hash": ""
+  },
+  "dashboards/README.md": {
+    "mtime": 1790589506.3942845,
+    "seen": 1790613117.4504871,
+    "ast_hash": "6c51e9c72470e067fb2d05134e11825b",
+    "semantic_hash": ""
+  },
+  "infra/promotion-manifest.yaml": {
+    "mtime": 1790589506.4794273,
+    "seen": 1790613117.450489,
+    "ast_hash": "59a70fb63496653bae841dd0cabe66f2",
+    "semantic_hash": ""
+  },
+  "policies/dod-check-pin.yaml": {
+    "mtime": 1790589506.4795818,
+    "seen": 1790613117.45049,
+    "ast_hash": "24caae92acb4d1a835de9518fbc89c0a",
+    "semantic_hash": ""
+  },
+  "policies/dod.yaml": {
+    "mtime": 1790589506.4797513,
+    "seen": 1790613117.450492,
+    "ast_hash": "36d3819e82fdd906b4b69f7134b12647",
+    "semantic_hash": ""
+  },
+  "policies/environments.yaml": {
+    "mtime": 1790589506.4890842,
+    "seen": 1790613117.4504929,
+    "ast_hash": "2eb28b24cf37a91c7cf959c7613814c2",
+    "semantic_hash": ""
+  },
+  "policies/gates.yaml": {
+    "mtime": 1790589506.4900286,
+    "seen": 1790613117.450495,
+    "ast_hash": "0e71e19fb4473e1c35c70bde15738991",
+    "semantic_hash": ""
+  },
+  "policies/products.yaml": {
+    "mtime": 1790589506.4913306,
+    "seen": 1790613117.450496,
+    "ast_hash": "d882234c8bbf9870ba08a657325dd211",
+    "semantic_hash": ""
+  },
+  "policies/signoff.yaml": {
+    "mtime": 1790589506.5043366,
+    "seen": 1790613117.450497,
+    "ast_hash": "e1564ad961ece31b4da75c1048da8ecd",
+    "semantic_hash": ""
+  },
+  "prds/ai-native-sdlc-blueprint.md": {
+    "mtime": 1790589506.50686,
+    "seen": 1790613117.450498,
+    "ast_hash": "174b088ec045be61962c4eff43c03fd2",
+    "semantic_hash": ""
+  },
+  "requirements/coverage.yaml": {
+    "mtime": 1790589506.5140977,
+    "seen": 1790613117.4505,
+    "ast_hash": "1e422b5abe419815889c0c7d29f517d3",
+    "semantic_hash": ""
+  },
+  "requirements/index.md": {
+    "mtime": 1790589506.5150402,
+    "seen": 1790613117.4505012,
+    "ast_hash": "16bc8b16a2ea72bf873a9e65cbeb1b2f",
+    "semantic_hash": ""
+  },
+  "role-packs/README.md": {
+    "mtime": 1790589506.5182903,
+    "seen": 1790613117.4505029,
+    "ast_hash": "e709bad9af2e106086ee6538d54a557c",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/charter.md": {
+    "mtime": 1790589506.5189912,
+    "seen": 1790613117.4505038,
+    "ast_hash": "31caf3d2c15f66523a77223db364381c",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/pack.yaml": {
+    "mtime": 1790589506.523912,
+    "seen": 1790613117.450505,
+    "ast_hash": "932389178c840cdd48105bdaf558be40",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/policy.yaml": {
+    "mtime": 1790589506.5241165,
+    "seen": 1790613117.450507,
+    "ast_hash": "77faea538f53372ba341b6dd492aa602",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/skills/costed-options.md": {
+    "mtime": 1790589506.5244105,
+    "seen": 1790613117.450508,
+    "ast_hash": "64cc321dfad9afd52f68a501bab0d1b4",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/skills/when-not-to-write-an-adr.md": {
+    "mtime": 1790589506.5246224,
+    "seen": 1790613117.450509,
+    "ast_hash": "f029511be313dd9225e3b593f642919a",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/templates/adr.md": {
+    "mtime": 1790589506.5261834,
+    "seen": 1790613117.4505112,
+    "ast_hash": "77e9877937d7ed5ebc6b8c77a1571119",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/templates/escalation-comment.md": {
+    "mtime": 1790589506.5281603,
+    "seen": 1790613117.450512,
+    "ast_hash": "edcdf89f70056fc8f1a8070549d1c730",
+    "semantic_hash": ""
+  },
+  "role-packs/architect/tools.yaml": {
+    "mtime": 1790589506.528342,
+    "seen": 1790613117.4505138,
+    "ast_hash": "8e889daf5537af706065f16467ecb447",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/charter.md": {
+    "mtime": 1790589506.5317116,
+    "seen": 1790613117.450515,
+    "ast_hash": "5c02d5dbc6a0544f63e21b4ff045c13d",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/pack.yaml": {
+    "mtime": 1790589506.5323792,
+    "seen": 1790613117.450517,
+    "ast_hash": "78695e086891eff3ac4abeb3e5c6c534",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/policy.yaml": {
+    "mtime": 1790589506.5351949,
+    "seen": 1790613117.4505181,
+    "ast_hash": "c40b45d7d9a49e7c86e6d2d3d1aeefbe",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/skills/widening-a-permission.md": {
+    "mtime": 1790589506.5388596,
+    "seen": 1790613117.450519,
+    "ast_hash": "3b033ad1b7a4fd69c9b413907852aad8",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/templates/escalation-comment.md": {
+    "mtime": 1790589506.5431302,
+    "seen": 1790613117.450521,
+    "ast_hash": "ae337e65caa5a0a6e99ae6271d811e9c",
+    "semantic_hash": ""
+  },
+  "role-packs/delivery-lead/tools.yaml": {
+    "mtime": 1790589506.5452402,
+    "seen": 1790613117.4505222,
+    "ast_hash": "d8179d1de6aa14653e171198c4045863",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/charter.md": {
+    "mtime": 1790589506.5470567,
+    "seen": 1790613117.450523,
+    "ast_hash": "3dd123f8579922541a9245efb4d18856",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/pack.yaml": {
+    "mtime": 1790589506.547768,
+    "seen": 1790613117.450525,
+    "ast_hash": "fccd07162a3a82c1c52776f0651373fc",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/policy.yaml": {
+    "mtime": 1790589506.5479927,
+    "seen": 1790613117.450529,
+    "ast_hash": "4aab9ae64be9c5bb2b2d1f6e5370259d",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/skills/branch-and-commit-hygiene.md": {
+    "mtime": 1790589506.548295,
+    "seen": 1790613117.45053,
+    "ast_hash": "1bc97cda0a6d1e5453f7f2f2b6fe2afa",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/skills/escalating-instead-of-thrashing.md": {
+    "mtime": 1790589506.548572,
+    "seen": 1790613117.450531,
+    "ast_hash": "1b9568407055e17c0e14951f2d07b492",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/skills/pull-request-authoring.md": {
+    "mtime": 1790589506.5487971,
+    "seen": 1790613117.4505332,
+    "ast_hash": "979e6f7176c754f2734e1fe5fb1cde38",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/templates/escalation-comment.md": {
+    "mtime": 1790589506.549144,
+    "seen": 1790613117.4505339,
+    "ast_hash": "ca0f02c1318c0767f24e0f3af968fb66",
+    "semantic_hash": ""
+  },
+  "role-packs/developer/tools.yaml": {
+    "mtime": 1790589506.5494113,
+    "seen": 1790613117.450536,
+    "ast_hash": "bc3002b2ff472e72713244dbcb2757e5",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/charter.md": {
+    "mtime": 1790589506.550023,
+    "seen": 1790613117.450537,
+    "ast_hash": "af37568f6079e62be07b0cf005756b84",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/pack.yaml": {
+    "mtime": 1790589506.5503738,
+    "seen": 1790613117.450538,
+    "ast_hash": "a5dae23b0dfafddc9e24ee4422e974a4",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/policy.yaml": {
+    "mtime": 1790589506.5506446,
+    "seen": 1790613117.45054,
+    "ast_hash": "5222fb7dc7898bb1ac57a8ec4a3857f3",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/skills/changing-a-gate.md": {
+    "mtime": 1790589506.5508943,
+    "seen": 1790613117.450541,
+    "ast_hash": "f68aaac06c564ee6156e3dfc12d07532",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/skills/least-privilege-credentials.md": {
+    "mtime": 1790589506.5510788,
+    "seen": 1790613117.450542,
+    "ast_hash": "84c22d427194a537c87928247a0f0ced",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/templates/escalation-comment.md": {
+    "mtime": 1790589506.5514205,
+    "seen": 1790613117.4505432,
+    "ast_hash": "a0107b73697bb5e78ebe554097ed15ca",
+    "semantic_hash": ""
+  },
+  "role-packs/devops/tools.yaml": {
+    "mtime": 1790589506.5515938,
+    "seen": 1790613117.4505448,
+    "ast_hash": "174a9910318b3fd9890b7a3a261c5bbb",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/charter.md": {
+    "mtime": 1790589506.5518193,
+    "seen": 1790613117.450546,
+    "ast_hash": "bdf9977efa7ab254b58981799e2c9cc3",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/pack.yaml": {
+    "mtime": 1790589506.5519097,
+    "seen": 1790613117.450547,
+    "ast_hash": "eabda2d71adc587d7aeef9414847ff54",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/policy.yaml": {
+    "mtime": 1790589506.5519958,
+    "seen": 1790613117.450549,
+    "ast_hash": "c35d96958ff29d88c800e8f3bf542b19",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/skills/judging-deploy-readiness.md": {
+    "mtime": 1790589506.552131,
+    "seen": 1790613117.45055,
+    "ast_hash": "dbfc9758115e5cce54b741a86d2f83ce",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/templates/escalation-comment.md": {
+    "mtime": 1790589506.5522807,
+    "seen": 1790613117.450551,
+    "ast_hash": "2e6540def469cb944c98f8a3aa3f09f3",
+    "semantic_hash": ""
+  },
+  "role-packs/operations/tools.yaml": {
+    "mtime": 1790589506.5523827,
+    "seen": 1790613117.450552,
+    "ast_hash": "c6e25bb027585d288ac536e4785d9cc1",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/charter.md": {
+    "mtime": 1790589506.5537865,
+    "seen": 1790613117.4505541,
+    "ast_hash": "416625559d451af20246471f808dd1f6",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/pack.yaml": {
+    "mtime": 1790589506.5539832,
+    "seen": 1790613117.4505548,
+    "ast_hash": "52500b8996cfb112448bae5a9aa6af15",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/policy.yaml": {
+    "mtime": 1790589506.5541725,
+    "seen": 1790613117.450557,
+    "ast_hash": "a8455274df954be7ecca951e0762b39b",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/skills/running-a-quiet-loop.md": {
+    "mtime": 1790589506.5544882,
+    "seen": 1790613117.450558,
+    "ast_hash": "fdb998a542d91029186c47acaae75ec7",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/skills/wip-and-assignment.md": {
+    "mtime": 1790589506.5548005,
+    "seen": 1790613117.450559,
+    "ast_hash": "474679e132473040ced3eae5dd94ec5d",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/templates/escalation-comment.md": {
+    "mtime": 1790589506.5551705,
+    "seen": 1790613117.450561,
+    "ast_hash": "b2a90d8e5f7736775f69e6cb05a4a3c4",
+    "semantic_hash": ""
+  },
+  "role-packs/orchestrator/tools.yaml": {
+    "mtime": 1790589506.5555274,
+    "seen": 1790613117.450562,
+    "ast_hash": "517fdd55724f54ad70d9975fcde37351",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/charter.md": {
+    "mtime": 1790589506.5559368,
+    "seen": 1790613117.450563,
+    "ast_hash": "12d99857a55f49fcd3bb37b62143278d",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/pack.yaml": {
+    "mtime": 1790589506.5561264,
+    "seen": 1790613117.450565,
+    "ast_hash": "3892e829cb8db350513cdb1f22b66f49",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/policy.yaml": {
+    "mtime": 1790589506.5564175,
+    "seen": 1790613117.4505658,
+    "ast_hash": "c0caa5ae32f381f63db5ace1599bef44",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/skills/sizing-and-splitting-a-story.md": {
+    "mtime": 1790589506.5567796,
+    "seen": 1790613117.450567,
+    "ast_hash": "f0cb06f0f130fbf3403c2fa4956782ab",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/skills/writing-gherkin-acceptance-criteria.md": {
+    "mtime": 1790589506.557363,
+    "seen": 1790613117.450569,
+    "ast_hash": "81fad02c85401c3274335e00a1ba33a4",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/templates/escalation-comment.md": {
+    "mtime": 1790589506.5577893,
+    "seen": 1790613117.4505699,
+    "ast_hash": "876e94c130dad4d5c18c768370944b9b",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/templates/story-template.md": {
+    "mtime": 1790589506.5580976,
+    "seen": 1790613117.450571,
+    "ast_hash": "cea8337feb22cc578b97af61ebce3bee",
+    "semantic_hash": ""
+  },
+  "role-packs/product-manager/tools.yaml": {
+    "mtime": 1790589506.5584607,
+    "seen": 1790613117.450573,
+    "ast_hash": "e3cc6a10e7e03fb192dec09e58c1d1dc",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/charter.md": {
+    "mtime": 1790589506.5592809,
+    "seen": 1790613117.4505742,
+    "ast_hash": "5dddeb070f6476f0bba2909c40fae754",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/pack.yaml": {
+    "mtime": 1790589506.559635,
+    "seen": 1790613117.450575,
+    "ast_hash": "fee53d8ec1a510a2ab50392a91bb560e",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/policy.yaml": {
+    "mtime": 1790589506.5600176,
+    "seen": 1790613117.4505768,
+    "ast_hash": "336ac4b2d76ba63479ad79d43bd53661",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/skills/issuing-a-verdict.md": {
+    "mtime": 1790589506.5604012,
+    "seen": 1790613117.450578,
+    "ast_hash": "dc7700055311640a2df80dda379d577a",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/skills/reading-acceptance-criteria.md": {
+    "mtime": 1790589506.5618308,
+    "seen": 1790613117.450579,
+    "ast_hash": "6cbb93a3c1530d7db9bd4bdec41dabcb",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/templates/escalation-comment.md": {
+    "mtime": 1790589506.562664,
+    "seen": 1790613117.450581,
+    "ast_hash": "f5f77515f67fcaa12b587212d90314de",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/templates/verdict-comment.md": {
+    "mtime": 1790589506.5629783,
+    "seen": 1790613117.450582,
+    "ast_hash": "181d41c177d5644c477fa21c5a7f40fd",
+    "semantic_hash": ""
+  },
+  "role-packs/qa/tools.yaml": {
+    "mtime": 1790589506.5633037,
+    "seen": 1790613117.450583,
+    "ast_hash": "49c527bfd29c6b59dce842e51e44c8cd",
+    "semantic_hash": ""
+  },
+  "role-packs/security/charter.md": {
+    "mtime": 1790589506.5636158,
+    "seen": 1790613117.4505851,
+    "ast_hash": "99eb4559aa734119b8c8f96ac0d13b0f",
+    "semantic_hash": ""
+  },
+  "role-packs/security/pack.yaml": {
+    "mtime": 1790589506.5641286,
+    "seen": 1790613117.450586,
+    "ast_hash": "ed50b58784390f11d04198b10a0b125b",
+    "semantic_hash": ""
+  },
+  "role-packs/security/policy.yaml": {
+    "mtime": 1790589506.5642695,
+    "seen": 1790613117.450588,
+    "ast_hash": "ec828ee71f8c1c3cb9cdca08f960895b",
+    "semantic_hash": ""
+  },
+  "role-packs/security/skills/issuing-a-security-verdict.md": {
+    "mtime": 1790589506.5644584,
+    "seen": 1790613117.450589,
+    "ast_hash": "ba2dfc332865936fb075830c1c59bde4",
+    "semantic_hash": ""
+  },
+  "role-packs/security/skills/reviewing-for-security.md": {
+    "mtime": 1790589506.5645888,
+    "seen": 1790613117.45059,
+    "ast_hash": "3b01a5963dd7c91dc7b042e6a650fee2",
+    "semantic_hash": ""
+  },
+  "role-packs/security/templates/escalation-comment.md": {
+    "mtime": 1790589506.56559,
+    "seen": 1790613117.450592,
+    "ast_hash": "8152708cc9101f74129497d8ff5225ca",
+    "semantic_hash": ""
+  },
+  "role-packs/security/tools.yaml": {
+    "mtime": 1790589506.56591,
+    "seen": 1790613117.450593,
+    "ast_hash": "c4b208f208930c4a426cd4f89b8d44c2",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/charter.md": {
+    "mtime": 1790589506.5666456,
+    "seen": 1790613117.450594,
+    "ast_hash": "1a73b510cca53c2c57f8a22e35c53030",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/pack.yaml": {
+    "mtime": 1790589506.5679133,
+    "seen": 1790613117.450596,
+    "ast_hash": "af52277db146090c5c941f6967de4d6f",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/policy.yaml": {
+    "mtime": 1790589506.569976,
+    "seen": 1790613117.450597,
+    "ast_hash": "4002dfdcd6385d7c015df9cdb01d699d",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/skills/deriving-release-notes-from-trailers.md": {
+    "mtime": 1790589506.5764828,
+    "seen": 1790613117.450598,
+    "ast_hash": "8ef4a6184ceda001d0f1e50fd233b0da",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/skills/docs-that-dont-drift.md": {
+    "mtime": 1790589506.5857081,
+    "seen": 1790613117.4506,
+    "ast_hash": "adcfbdd842dfcb447aa1dbd89b679538",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/templates/escalation-comment.md": {
+    "mtime": 1790589506.5862327,
+    "seen": 1790613117.4506009,
+    "ast_hash": "178c741a08826f959ce5996afed67e52",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/templates/release-notes-template.md": {
+    "mtime": 1790589506.5866287,
+    "seen": 1790613117.450603,
+    "ast_hash": "324778b1b1ebecd5fc33f1e903d3bfc5",
+    "semantic_hash": ""
+  },
+  "role-packs/techwriter/tools.yaml": {
+    "mtime": 1790589506.5869894,
+    "seen": 1790613117.450604,
+    "ast_hash": "4e11c4911f9056dc60d3231896f9aa03",
+    "semantic_hash": ""
+  },
+  "scripts/test-wiring-allowlist.txt": {
+    "mtime": 1790589506.6314259,
+    "seen": 1790613117.4506052,
+    "ast_hash": "0fdb021ee175e04623e44166eab9efde",
+    "semantic_hash": ""
+  },
+  "wiki/Conventions.md": {
+    "mtime": 1790589506.6425695,
+    "seen": 1790613117.450607,
+    "ast_hash": "d8b6a80834f6425fd8a118ddd007a2dc",
+    "semantic_hash": ""
+  },
+  "wiki/Home.md": {
+    "mtime": 1790589506.6432216,
+    "seen": 1790613117.450608,
+    "ast_hash": "13e9c66012fd6e4b4d9cce978e8f8554",
+    "semantic_hash": ""
+  },
+  "wiki/Operating-the-System.md": {
+    "mtime": 1790589506.6435356,
+    "seen": 1790613117.450609,
+    "ast_hash": "eba77789500b5359301f3ddd98383088",
+    "semantic_hash": ""
+  }
+}
