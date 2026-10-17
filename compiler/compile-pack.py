@@ -250,10 +250,11 @@ def render_role_doc(pack: dict) -> str:
 
 
 def render_skill_md(skill: dict) -> str:
-    """One skill as a Claude Code SKILL.md: name and description frontmatter,
-    then the body. The dispatcher installs these where the session loads
-    skills from, so each reaches the session on demand rather than as
-    prompt bytes every session pays for (#320)."""
+    """One skill as a SKILL.md: name and description frontmatter, then the
+    body. Claude Code and Codex read the same format. The dispatcher
+    installs these where the session loads skills from, so each reaches the
+    session on demand rather than as prompt bytes every session pays for
+    (#320, #332)."""
     front = yaml.safe_dump({"name": skill["name"], "description": skill["description"]},
                            sort_keys=False, width=1000, allow_unicode=True)
     return f"---\n{front}---\n\n{skill['body']}"
@@ -329,7 +330,8 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
 
 
 def compile_codex(pack: dict) -> dict[str, str]:
-    """Render a pack as a Codex AGENTS.md plus a sandbox-policy fragment.
+    """Render a pack as a Codex AGENTS.md, a sandbox-policy fragment and one
+    skills/<name>/SKILL.md per skill.
 
     Codex's sandbox is a coarse filesystem-access mode (read-only /
     workspace-write / danger-full-access) plus an approval_policy
@@ -374,6 +376,10 @@ def compile_codex(pack: dict) -> dict[str, str]:
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
         "produces": "\n".join(pack["produces"]) + "\n",
     }
+    # Codex 0.153.4 loads skills on demand from $HOME/.agents/skills, in the
+    # same SKILL.md format Claude Code reads (#332).
+    for skill in pack["skills"]:
+        out[f"skills/{skill['name']}/SKILL.md"] = render_skill_md(skill)
     if unmappable:
         out["UNMAPPABLE.md"] = (
             "# Rules this harness cannot express\n\n"

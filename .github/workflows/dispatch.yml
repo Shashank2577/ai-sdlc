@@ -684,6 +684,7 @@ jobs:
           REQUIRES_PR: ${{ steps.pack.outputs.requires_pr }}
           MATCHED_LABEL: ${{ steps.guard.outputs.matched_label }}
           PACK_DIR: ${{ steps.pack.outputs.pack_dir }}
+          HARNESS: ${{ inputs.harness }}
         run: |
           set -euo pipefail
           P="${RUNNER_TEMP}/session-prompt.md"
@@ -1058,23 +1059,27 @@ jobs:
           PY
           fi
 
-          # The role's skills (#320). They are not in this prompt: the
-          # install step below puts each one where Claude Code loads skills
+          # The role's skills (#320, #332). They are not in this prompt: the
+          # install step below puts each one where the harness loads skills
           # from, and the session reads a skill's body only when its task
           # matches the description. Listing them here as well makes sure
-          # the session knows they exist. Only the claude-code target
-          # compiles skills/, so other harnesses get no list.
+          # the session knows they exist. A target that compiles no
+          # skills/ (opencode) gets no list.
           skills_dir="${PACK_DIR:-}/skills"
           if [ -n "${PACK_DIR:-}" ] && [ -d "$skills_dir" ]; then
-            python3 - "$skills_dir" >> "$P" <<'PY'
+            python3 - "$skills_dir" "${HARNESS:-claude-code}" >> "$P" <<'PY'
           import sys, yaml
           from pathlib import Path
           files = sorted(Path(sys.argv[1]).glob("*/SKILL.md"))
+          how = {
+              "claude-code": "load it with the Skill tool",
+              "codex": "open its SKILL.md (listed with your skills) and read it",
+          }.get(sys.argv[2], "read its SKILL.md")
           if files:
               print("## Your role's skills\n")
-              print("Installed for this session as Claude Code skills. Each body loads only")
-              print("when you invoke it, so the body is not in this prompt. Before the step a")
-              print("skill describes, load it with the Skill tool and follow it.\n")
+              print("Installed for this session as skills. Each body loads only when you")
+              print("use it, so the body is not in this prompt. Before the step a skill")
+              print(f"describes, {how}, then follow it.\n")
               for f in files:
                   meta = yaml.safe_load(f.read_text().split("---\n")[1])
                   print(f"- `{meta['name']}`: {meta['description']}")
@@ -1136,20 +1141,29 @@ jobs:
             echo "> it at all — the product checkout above would already have failed."
           } >> "$GITHUB_STEP_SUMMARY"
       # The role's skills reach the session on demand, not as prompt text
-      # (#320). claude-code-action runs Claude Code with the `user`,
-      # `project` and `local` setting sources and the runner's home
-      # directory, so a skill under ~/.claude/skills/<name>/SKILL.md is
-      # listed by its description and loaded when the task matches. The
-      # home directory, not the work tree: a skill written into the
+      # (#320, #332). Each harness lists a skill under its user skill
+      # directory by its description and loads it when the task matches:
+      # - claude-code: claude-code-action runs Claude Code with the `user`,
+      #   `project` and `local` setting sources and the runner's home
+      #   directory, so ~/.claude/skills/<name>/SKILL.md.
+      # - codex: 0.153.4 reads user skills from ~/.agents/skills
+      #   (codex-rs/ext/skills/src/host_roots.rs). $CODEX_HOME/skills is
+      #   the deprecated location, and the codex step points CODEX_HOME at
+      #   a fresh directory anyway.
+      # The home directory, not the work tree: a skill written into the
       # product checkout could be committed into it.
       - name: Install the role's skills for the session
-        if: inputs.harness == 'claude-code'
         env:
           PACK_DIR: ${{ steps.pack.outputs.pack_dir }}
+          HARNESS: ${{ inputs.harness }}
         run: |
           set -euo pipefail
+          case "${HARNESS}" in
+            claude-code) dest="${HOME}/.claude/skills" ;;
+            codex) dest="${HOME}/.agents/skills" ;;
+            *) echo "::error::No skill directory is known for harness '${HARNESS}'."; exit 1 ;;
+          esac
           src="${PACK_DIR}/skills"
-          dest="${HOME}/.claude/skills"
           mkdir -p "$dest"
           installed=()
           if [ -d "$src" ]; then
@@ -1166,7 +1180,7 @@ jobs:
             done
           fi
           {
-            echo "## Skills installed (${#installed[@]})"
+            echo "## Skills installed for ${HARNESS} (${#installed[@]})"
             echo
             for name in ${installed[@]+"${installed[@]}"}; do echo "- \`${name}\` -> \`${dest}/${name}/SKILL.md\`"; done
           } >> "$GITHUB_STEP_SUMMARY"
