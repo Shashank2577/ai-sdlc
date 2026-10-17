@@ -35,7 +35,7 @@ FALLBACK_POLICY = {
     "routing": {"prefix": "role:", "supported": ["developer"], "default": None},
     "eligibility": {
         "require_labels": ["status:ready"],
-        "exclude_labels": ["needs-human", "status:blocked", "qa:rejected"],
+        "exclude_labels": ["needs-human", "status:blocked", "qa:rejected", "awaiting:answer"],
         "require_open": True,
     },
 }

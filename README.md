@@ -41,7 +41,9 @@ Two things have to be true first, and the workflow fails loudly rather than quie
 
 The session announces itself on the issue, moves it to `status:in-progress`, and reports back either way. On failure, cancellation or a budget breach it hands the item back as `status:ready` + `needs-human` with a structured note — goal, attempts, blocker, costed options A/B/C — so the human gets a decision, not a transcript.
 
-Three human decisions gate this system — dispatch approval, merge, the QA verdict — declared with an owner and an SLA in `policies/gates.yaml`. The one worth knowing here: `status:ready` on a critical story (role:devops, anything touching policies or credentials, large estimates — the full list is in the policy) only counts as approval when a *person* applied it, because the gate reads who applied the label, not the label itself. Full explanation on the wiki under [Operating the System](https://github.com/Shashank2577/foundry-program/wiki/Operating-the-System#the-approval-gates).
+When a session needs a fact only a person has, it asks instead of guessing (`shared-skills/asking-a-human.md`, in every role's prompt). It posts up to five numbered questions, each multiple choice or a short answer, with a recommended answer and why it matters. It then ends, and the item waits with `awaiting:answer`; this burns no retry. Reply below the dispatcher's session-end comment (`Q1: B`). `.github/workflows/answers.yml` then re-dispatches the role that asked, with the questions and your answers in its prompt. If nobody replies within the `answer_questions` SLA, the questions expire and the role proceeds on its recommendations, stating each as an assumption.
+
+Four decisions gate this system — dispatch approval, merge, the QA verdict, and the answer to an agent's question — declared with an owner and an SLA in `policies/gates.yaml`. The one worth knowing here: `status:ready` on a critical story (role:devops, anything touching policies or credentials, large estimates — the full list is in the policy) only counts as approval when a *person* applied it, because the gate reads who applied the label, not the label itself. Full explanation on the wiki under [Operating the System](https://github.com/Shashank2577/foundry-program/wiki/Operating-the-System#the-approval-gates).
 
 ### Budgets
 
@@ -76,7 +78,7 @@ routing:
   supported: [developer, qa]
 ```
 
-An item is dispatched when it is open, carries exactly one supported `role:*` label, is labelled one of *that role's own* `dispatchable_from` states from its pack (`status:ready` for a developer, `status:in-review` for QA — same declaration `dispatch.yml`'s guard reads), and is not `needs-human` or `status:blocked`. Anything else is skipped with a reason in the run log. An item with no role label is never guessed at — that is an unfinished refinement, not a developer story.
+An item is dispatched when it is open, carries exactly one supported `role:*` label, is labelled one of *that role's own* `dispatchable_from` states from its pack (`status:ready` for a developer, `status:in-review` for QA — same declaration `dispatch.yml`'s guard reads), and is not `needs-human`, `status:blocked` or `awaiting:answer`. Anything else is skipped with a reason in the run log. An item with no role label is never guessed at — that is an unfinished refinement, not a developer story.
 
 Three is deliberately low. The bottleneck here is review, not agents: every extra branch in flight ages against `main`, competes for the same reviewer, and raises the odds two sessions touch the same file. Agents being idle costs nothing.
 

@@ -1,0 +1,224 @@
+# The answer path (#321). A session asks a person instead of guessing
+# (shared-skills/asking-a-human.md), the dispatcher records it as waiting,
+# and the item carries `awaiting:answer`. This wakes the role that asked:
+#
+#   - on an answer: a reply on the item from a non-bot person with write
+#     access, posted after the asking session's session-end comment. The
+#     whole definition is scripts/questions.jq, shared with the dispatcher
+#     so the prompt shows exactly the replies that woke it;
+#   - on expiry: no answer within `policies/gates.yaml`'s
+#     answer_questions.sla_hours. The questions carry recommended answers,
+#     and the woken session proceeds on them, stating each as an
+#     assumption (PRD §7: every gate has an SLA and a default).
+#
+# Waking is `gh workflow run dispatch.yml` with the role and product the
+# question comment's marker records, so the dispatcher's own guard, budget
+# and retry ceiling apply to the woken session like any other.
+#
+# The hourly sweep also catches an answer whose event this workflow missed,
+# such as one posted while the asking session was still finishing.
+#
+# Auth: tracker writes use GITHUB_TOKEN, so this workflow's own comments
+# are a bot's and can never read as an answer. Starting dispatch.yml uses
+# FOUNDRY_TOKEN or ORCHESTRATOR_TOKEN when set, the same credential as
+# orchestrate.yml. GITHUB_TOKEN with `actions: write` can also start a
+# workflow_dispatch run, so a missing one doesn't stall the loop.
+name: Answers
+
+on:
+  issue_comment:
+    types: [created]
+  schedule:
+    # Hourly at :50, offset from orchestrate.yml's :05 and refinement's :35.
+    - cron: "50 * * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/answers.yml
+      - scripts/questions.jq
+      - scripts/test-answers-wake.sh
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+jobs:
+  tests:
+    name: answers-tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test the wake on an answer and on expiry
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+          bash scripts/test-answers-wake.sh
+
+  wake:
+    name: wake-on-answer
+    # Cheap pre-filters only. The step re-checks everything from the API,
+    # because the event payload is a snapshot and the sweep has none.
+    if: >-
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+       contains(github.event.issue.labels.*.name, 'awaiting:answer') &&
+       github.event.comment.user.type != 'Bot' &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # One wake at a time, event and sweep alike. Each run re-reads the item
+    # and takes awaiting:answer off before dispatching, so the second of
+    # two runs on one answer finds nothing to wake. A per-item group would
+    # let the sweep and an event run side by side and dispatch twice. A
+    # run that GitHub drops while another is queued is the sweep's to
+    # catch, within the hour.
+    concurrency:
+      group: answers-wake
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet pyyaml
+
+      - name: Wake answered items, expire stale ones
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISPATCH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          # Empty on the sweep, which checks every waiting item instead.
+          EVENT_ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          sla_hours=$(python3 -c 'import yaml; print(int(yaml.safe_load(open("policies/gates.yaml"))["gates"]["answer_questions"]["sla_hours"]))')
+          # NOW_EPOCH exists for the tests; the workflow never sets it.
+          now=${NOW_EPOCH:-$(date -u +%s)}
+
+          if [ -n "${EVENT_ISSUE:-}" ]; then
+            items="$EVENT_ISSUE"
+          else
+            items=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+              --label "awaiting:answer" --limit 200 --json number --jq '.[].number')
+          fi
+
+          # A question nothing can wake: say why, hand it to a person, and
+          # take the label off so the item isn't held forever.
+          orphan() {  # orphan <issue> <reason>
+            local f="${RUNNER_TEMP}/orphan-$1.md"
+            {
+              echo "<!-- foundry:answer-wake reason=orphaned -->"
+              echo "### Questions can't wake anyone"
+              echo
+              echo "This item carries \`awaiting:answer\`, but $2. Nothing knows which"
+              echo "role to wake, so \`awaiting:answer\` was removed and \`needs-human\` added."
+              echo "Dispatch the right role by hand once the questions are settled."
+              echo
+              echo "Run: ${RUN_URL}"
+            } > "$f"
+            gh issue comment "$1" --repo "$GITHUB_REPOSITORY" --body-file "$f"
+            gh issue edit "$1" --repo "$GITHUB_REPOSITORY" \
+              --remove-label "awaiting:answer" --add-label "needs-human"
+          }
+
+          wake_or_expire() {  # wake_or_expire <issue>
+            local n=$1 meta qa role product ended reason who age_h f
+            if ! meta=$(gh issue view "$n" --repo "$GITHUB_REPOSITORY" --json state,labels); then
+              echo "::error::#${n}: could not read the item."; return 1
+            fi
+            if ! jq -e '.state == "OPEN" and ([.labels[].name] | any(. == "awaiting:answer"))' \
+                <<<"$meta" >/dev/null; then
+              echo "#${n}: not open and awaiting an answer; nothing to do."; return 0
+            fi
+            # A running session's own end decides what it is waiting on.
+            if jq -e '[.labels[].name] | any(. == "status:in-progress")' <<<"$meta" >/dev/null; then
+              echo "#${n}: a session is running; leaving it to that session's end."; return 0
+            fi
+            if ! qa=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${n}/comments?per_page=100" \
+                  | jq -s 'add // []' | jq -f scripts/questions.jq); then
+              echo "::error::#${n}: could not read the item's comments."; return 1
+            fi
+            if jq -e '.questions == null' <<<"$qa" >/dev/null; then
+              orphan "$n" "no \`foundry:questions\` comment from someone with write access is on it"
+              return
+            fi
+            role=$(jq -r '.questions.role' <<<"$qa")
+            product=$(jq -r '.questions.product' <<<"$qa")
+            if [ ! -f "role-packs/${role}/pack.yaml" ]; then
+              orphan "$n" "its question names the role \`${role}\`, which has no role pack"
+              return
+            fi
+            # No session-end comment and no session running means the
+            # asking run died before it could report (cancelled, timed
+            # out). No reply can be told from the agent's own comments
+            # then, so only expiry can wake it, timed from the question.
+            ended=$(jq -r '.ended_at // .questions.created_at' <<<"$qa")
+
+            if [ "$(jq '.answers | length' <<<"$qa")" -gt 0 ]; then
+              reason=answered
+              who=$(jq -r '[.answers[].author] | unique | map("@" + .) | join(", ")' <<<"$qa")
+            else
+              age_h=$(jq -r --argjson now "$now" --arg t "$ended" '(($now - ($t | fromdateiso8601)) / 3600) | floor' <<<"$qa")
+              if ! [[ "$age_h" =~ ^-?[0-9]+$ ]]; then
+                echo "::error::#${n}: could not compute the question's age from '${ended}'."; return 1
+              fi
+              if [ "$age_h" -lt "$sla_hours" ]; then
+                echo "#${n}: waiting on an answer (${age_h}h of ${sla_hours}h)."; return 0
+              fi
+              reason=expired
+              who="nobody, within ${sla_hours}h"
+            fi
+
+            # Label off before dispatching, so a sweep racing an answer
+            # finds nothing left to wake. Back on if the dispatch fails, so
+            # the next run retries instead of the item going silent.
+            if ! gh issue edit "$n" --repo "$GITHUB_REPOSITORY" --remove-label "awaiting:answer"; then
+              echo "::error::#${n}: could not remove awaiting:answer; not dispatching."; return 1
+            fi
+            if ! GH_TOKEN="$DISPATCH_TOKEN" gh workflow run dispatch.yml --repo "$GITHUB_REPOSITORY" \
+                -f issue="$n" -f role="$role" -f product="$product"; then
+              gh issue edit "$n" --repo "$GITHUB_REPOSITORY" --add-label "awaiting:answer" || true
+              echo "::error::#${n}: could not start dispatch.yml for \`${role}\`; awaiting:answer restored."
+              return 1
+            fi
+
+            f="${RUNNER_TEMP}/wake-${n}.md"
+            {
+              echo "<!-- foundry:answer-wake reason=${reason} -->"
+              if [ "$reason" = answered ]; then
+                echo "### Answer received: waking \`${role}\`"
+              else
+                echo "### Questions expired: waking \`${role}\` on the recommended answers"
+              fi
+              echo
+              echo "| | |"
+              echo "|---|---|"
+              echo "| Questions | $(jq -r '.questions.url' <<<"$qa") |"
+              echo "| Answered by | ${who} |"
+              echo "| Role | \`${role}\` |"
+              echo "| Product | \`${product}\` |"
+              echo "| Run | ${RUN_URL} |"
+              echo
+              echo "The session gets the questions and every answer below the asking"
+              echo "session's end in its prompt. Unanswered questions take their"
+              echo "recommended answer, stated as an assumption."
+            } > "$f"
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body-file "$f"
+            echo "#${n}: ${reason}; dispatched \`${role}\` on \`${product}\`." | tee -a "$GITHUB_STEP_SUMMARY"
+          }
+
+          failed=0
+          for n in $items; do
+            wake_or_expire "$n" || failed=1
+          done
+          exit "$failed"
