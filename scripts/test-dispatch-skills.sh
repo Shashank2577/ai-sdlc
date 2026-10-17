@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # A role's skills, forbidden actions and HITL triggers must reach the
-# session (#320). compile-pack.py rendered all of them into a
-# system-prompt.md that nothing read, so every skill was inert.
+# session (#320), under every harness dispatch runs (#332). compile-pack.py
+# rendered all of them into a system-prompt.md that nothing read, so every
+# skill was inert.
 #
 # Extracts the real "Install the role's skills" and "Assemble the session
 # prompt" steps from dispatch.yml, compiles every committed role pack with
-# the real compiler, and runs both steps against it: each role's skills
-# must be installed as SKILL.md files where Claude Code loads them, listed
-# by description in the prompt and not pasted into it, and the prompt must
-# carry the pack's forbidden list and HITL triggers.
+# the real compiler for each harness, and runs both steps against it: each
+# role's skills must be installed as SKILL.md files where that harness
+# loads them, listed by description in the prompt and not pasted into it,
+# and the prompt must carry the pack's forbidden list and HITL triggers.
 #
 #   bash scripts/test-dispatch-skills.sh
 set -uo pipefail
@@ -33,20 +34,29 @@ def ok(msg, cond):
     global fail
     print(("  ok    " if cond else "  FAIL  ") + msg)
     fail |= not cond
-install, prompt, agent = (by.get(n) for n in (
+install, prompt, agent, codex = (by.get(n) for n in (
     "Install the role's skills for the session",
     "Assemble the session prompt",
-    "Run agent session (claude-code)"))
+    "Run agent session (claude-code)",
+    "Run agent session (codex)"))
 ok("has an install-skills step", install is not None)
 ok("has a prompt step", prompt is not None)
 ok("has a claude-code agent step", agent is not None)
-if not (install and prompt and agent):
+ok("has a codex agent step", codex is not None)
+if not (install and prompt and agent and codex):
     sys.exit(1)
-ok("skills are installed before the claude-code session starts",
-   names.index(install["name"]) < names.index(agent["name"]))
-ok("install runs for the claude-code harness", install.get("if") == "inputs.harness == 'claude-code'")
-ok("install reads the compiled pack", install["env"].get("PACK_DIR") == "${{ steps.pack.outputs.pack_dir }}")
-ok("prompt step reads the compiled pack", prompt["env"].get("PACK_DIR") == "${{ steps.pack.outputs.pack_dir }}")
+for step in (agent, codex):
+    ok(f"skills are installed before `{step['name']}`",
+       names.index(install["name"]) < names.index(step["name"]))
+ok("install runs for every harness", "if" not in install)
+for step in (install, prompt):
+    ok(f"`{step['name']}` reads the compiled pack",
+       step["env"].get("PACK_DIR") == "${{ steps.pack.outputs.pack_dir }}")
+    ok(f"`{step['name']}` knows the harness", step["env"].get("HARNESS") == "${{ inputs.harness }}")
+# Codex reads user skills from $HOME/.agents/skills: a codex step that
+# moves HOME would lose them.
+ok("codex step keeps the runner's HOME", "HOME" not in (codex.get("env") or {})
+   and "HOME=" not in codex["run"].replace("CODEX_HOME=", ""))
 # Skills load from the `user` setting source. An agent step that narrows
 # the sources without it, or denies the Skill tool, silently drops them.
 args = agent["with"].get("claude_args", "")
@@ -79,21 +89,28 @@ P="$WORK/tmp/session-prompt.md"
 roles=$(cd "$REPO_ROOT/role-packs" && for d in */; do [ -f "$d/pack.yaml" ] && echo "${d%/}"; done)
 [ -n "$roles" ]; ok "found committed role packs" $?
 
+# Where each harness loads user skills from, and how the prompt says to load one.
+skills_dir() { case "$1" in claude-code) echo ".claude/skills" ;; codex) echo ".agents/skills" ;; esac; }
+how_to_load() { case "$1" in claude-code) echo "load it with the Skill tool" ;; codex) echo "open its SKILL.md" ;; esac; }
+
+for harness in claude-code codex; do
 for role in $roles; do
-  echo "$role"
-  home="$WORK/home-$role"
+  echo "$role ($harness)"
+  home="$WORK/home-$harness-$role"
   mkdir -p "$home"
-  python3 "$REPO_ROOT/compiler/compile-pack.py" --role "$role" --harness claude-code \
+  python3 "$REPO_ROOT/compiler/compile-pack.py" --role "$role" --harness "$harness" \
     --out "$WORK/pack" >/dev/null 2>"$WORK/err"; ok "pack compiles" $?
-  pack_dir="$WORK/pack/$role/claude-code"
-  (cd "$WORK" && HOME="$home" PACK_DIR="$pack_dir" bash "$WORK/install.sh") >/dev/null 2>"$WORK/err"
-  ok "skills install" $?
-  (cd "$WORK" && ROLE="$role" CP_DIR="$REPO_ROOT" PACK_DIR="$pack_dir" bash "$WORK/prompt.sh") \
-    >/dev/null 2>"$WORK/err"; ok "prompt builds" $?
-  python3 - "$REPO_ROOT/role-packs/$role" "$home/.claude/skills" "$P" <<'PY'
+  pack_dir="$WORK/pack/$role/$harness"
+  (cd "$WORK" && HOME="$home" PACK_DIR="$pack_dir" HARNESS="$harness" bash "$WORK/install.sh") \
+    >/dev/null 2>"$WORK/err"; ok "skills install" $?
+  (cd "$WORK" && ROLE="$role" CP_DIR="$REPO_ROOT" PACK_DIR="$pack_dir" HARNESS="$harness" \
+    bash "$WORK/prompt.sh") >/dev/null 2>"$WORK/err"; ok "prompt builds" $?
+  python3 - "$REPO_ROOT/role-packs/$role" "$home/$(skills_dir "$harness")" "$P" \
+    "$(how_to_load "$harness")" "$home" <<'PY'
 import re, sys, yaml
 from pathlib import Path
 src, installed, prompt = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]).read_text()
+how, home = sys.argv[4], Path(sys.argv[5])
 fail = 0
 def ok(msg, cond):
     global fail
@@ -104,8 +121,11 @@ def front(text):
     return (yaml.safe_load(m.group(1)), text[m.end():]) if m else ({}, text)
 sources = sorted((src / "skills").glob("*.md"))
 ok(f"pack has skills ({len(sources)})", bool(sources))
-ok("installs exactly the pack's skills",
-   sorted(p.name for p in installed.iterdir()) == sorted(p.stem for p in sources))
+ok(f"installs exactly the pack's skills into ~/{installed.relative_to(home)}",
+   installed.is_dir() and sorted(p.name for p in installed.iterdir()) == sorted(p.stem for p in sources))
+ok("installs nowhere else under HOME",
+   sorted(str(p.relative_to(home)) for p in home.iterdir()) == [installed.relative_to(home).parts[0]])
+ok("prompt says how this harness loads a skill", how in prompt)
 for s in sources:
     meta, body = front(s.read_text())
     want = " ".join(meta["description"].split())
@@ -127,6 +147,7 @@ sys.exit(fail)
 PY
   [ $? = 0 ] || FAIL=1
 done
+done
 
 # Fake control plane for the failure cases.
 mkdir -p "$WORK/cp/role-packs/r" "$WORK/fakepack/skills/x"
@@ -143,7 +164,7 @@ echo "malformed HITL triggers"
 printf 'forbidden: [push_to_main]\nhitl_triggers: [{a: b}]\n' > "$WORK/cp/role-packs/r/policy.yaml"
 run_prompt; [ $? -ne 0 ]; ok "step fails rather than omit them" $?
 
-echo "a harness with no compiled skills (codex)"
+echo "a target with no compiled skills (opencode)"
 printf 'forbidden: [push_to_main]\nhitl_triggers: [budget_breach]\n' > "$WORK/cp/role-packs/r/policy.yaml"
 run_prompt "$WORK/nopack"; ok "prompt builds" $?
 ! has "## Your role's skills"; ok "lists no skills" $?
@@ -151,7 +172,13 @@ has '- `push_to_main`'; ok "still carries the forbidden list" $?
 has "add the \`needs-human\` label"; ok "defaults the escalation label" $?
 
 echo "a compiled skill with no SKILL.md"
-(cd "$WORK" && HOME="$WORK/home-broken" PACK_DIR="$WORK/fakepack" bash "$WORK/install.sh") >/dev/null 2>&1
+(cd "$WORK" && HOME="$WORK/home-broken" PACK_DIR="$WORK/fakepack" HARNESS=claude-code \
+  bash "$WORK/install.sh") >/dev/null 2>&1
 [ $? -ne 0 ]; ok "install fails rather than ship it half-installed" $?
+
+echo "a harness the install step does not know"
+(cd "$WORK" && HOME="$WORK/home-unknown" PACK_DIR="$WORK/pack/qa/codex" HARNESS=deepseek \
+  bash "$WORK/install.sh") >/dev/null 2>&1
+[ $? -ne 0 ]; ok "install fails rather than guess a directory" $?
 
 [ "$FAIL" = 0 ] && echo "all passed" || { echo "FAILED"; exit 1; }

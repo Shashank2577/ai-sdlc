@@ -367,14 +367,19 @@ class TestSkills(unittest.TestCase):
                 with self.assertRaisesRegex(cp.PackError, "must be lowercase words"):
                     self.compile_skill("description: Use it.\n", name=name)
 
-    def test_other_harnesses_get_no_skill_files(self):
+    def test_codex_gets_the_same_skill_files(self):
+        # Codex reads the same SKILL.md format from $HOME/.agents/skills (#332).
         with PackFixture(MINIMAL_PACK) as fx:
             fx.add_skill("do-things", "# Skill\n\nBody text.\n")
             pack = cp.read_pack("widget")
-            for harness in ("codex", "opencode"):
-                with self.subTest(harness=harness):
-                    out = cp.HARNESSES[harness](pack)
-                    self.assertFalse([k for k in out if k.startswith("skills/")])
+            claude, codex = cp.compile_claude_code(pack), cp.compile_codex(pack)
+        self.assertEqual(codex["skills/do-things/SKILL.md"], claude["skills/do-things/SKILL.md"])
+
+    def test_opencode_gets_no_skill_files(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            out = cp.compile_opencode(cp.read_pack("widget"))
+        self.assertFalse([k for k in out if k.startswith("skills/")])
 
     def test_main_writes_skill_files_into_their_directories(self):
         with PackFixture(MINIMAL_PACK) as fx:
@@ -522,6 +527,8 @@ class TestRealPacksInThisRepo(unittest.TestCase):
                 # would catch it.
                 codex_out = cp.compile_codex(pack)
                 self.assertTrue(codex_out["AGENTS.md"].strip())
+                for skill in pack["skills"]:
+                    self.assertIn(f"skills/{skill['name']}/SKILL.md", codex_out)
 
                 opencode_out = cp.compile_opencode(pack)
                 self.assertTrue(opencode_out["AGENTS.md"].strip())
