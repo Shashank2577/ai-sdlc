@@ -164,45 +164,35 @@ gh secret set CLAUDE_CODE_OAUTH_TOKEN # paste it
 If you would rather bill an API key, set `ANTHROPIC_API_KEY` instead; when both
 are present the API key wins.
 
-### 2. The GitHub credential
+### 2. The GitHub credential: the Foundry GitHub App
 
-One classic PAT covers everything the system does. Create it at
-**Settings → Developer settings → Personal access tokens → Tokens (classic)**
-with these scopes:
+One GitHub App replaces the personal access tokens (ADR-0011). Its design
+is in `infra/github-app/README.md`. `scripts/foundry-init.py --create-app`
+creates it from `infra/github-app/manifest.json` with one click, stores
+`FOUNDRY_APP_CLIENT_ID` (a variable) and `FOUNDRY_APP_PRIVATE_KEY` (a
+secret), and opens the page where you install it on your repos.
 
-| Scope | Needed for |
-|---|---|
-| `repo` | branches, commits, PRs, issue labels and comments |
-| `workflow` | the orchestrator starting the dispatcher |
-| `project` | the board sync writing to Projects v2 |
+Each dispatch then mints a token for one hour, carrying only the
+permissions in that role's `pack.yaml:identity.github_permissions`. Only
+devops can push `.github/workflows/**`, and the `scope` required check holds
+every role to its `write_scope`. Agent actions show up as `<app>[bot]`, not
+as you, so the human-only gates (ADR-0007) mean a person again.
+
+**One PAT remains, for user-owned boards only.** A GitHub App cannot write a
+Projects v2 board owned by a user account; no App permission covers one. If
+your board is user-owned, create a classic PAT with only the `project` scope:
 
 ```sh
-gh secret set FOUNDRY_TOKEN
+gh secret set FOUNDRY_PROJECT_TOKEN
 ```
 
-`ORCHESTRATOR_TOKEN` and `PROJECT_TOKEN` still work if you prefer to scope them
-separately, but one token is enough.
+An organization-owned board needs no PAT.
 
-### Why a PAT and not a GitHub App
-
-Two independent reasons, both platform limits rather than preferences:
-
-- **Starting a workflow from a workflow.** GitHub does not let a run
-  authenticated with `GITHUB_TOKEN` trigger another workflow — the rule that
-  stops loops triggering themselves forever. The documented workarounds are a
-  GitHub App installation token or a PAT.
-- **User-owned Projects v2.** A GitHub App can be granted *organization*
-  Projects permissions; there is no equivalent for a project owned by a user
-  account, and fine-grained PATs have the same gap. `Foundry Delivery` is
-  user-owned, so a classic PAT with `project` scope is the only thing that can
-  write to it. Moving the project into an organisation is what would unlock the
-  GitHub App route.
-
-A PAT has a second, useful property here: a workflow it triggers reports
-`actor = <you>, type = User`. That is what satisfies the dispatcher's
-human-actor check, so orchestrator-triggered sessions run without any further
-configuration. A GitHub App token would report a bot and need `allowed_bots` on
-`anthropics/claude-code-action` instead.
+**Before the App:** `FOUNDRY_TOKEN` (classic PAT, `repo` + `workflow` +
+`project`), `FOUNDRY_DEV_TOKEN` and `FOUNDRY_DEVOPS_TOKEN` still work as
+fallbacks while `FOUNDRY_APP_CLIENT_ID` is unset. A workflow a PAT starts
+reports you as its actor, so these also make every agent action look like
+yours. That is the main reason to move.
 
 ### 3. One click for the wiki
 

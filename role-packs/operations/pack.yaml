@@ -34,6 +34,17 @@ identity:
   # which owns the pipeline and infra/**; operations judges what the
   # pipeline is about to do, and does not need to edit it to do that.
   token_secret: FOUNDRY_DEV_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  # Reads and reports; commits nothing.
+  github_permissions:
+    contents: read
+    pull-requests: read
+    issues: write
+    actions: read
+    checks: read
+    statuses: read
   signing: gpg
   provisioned: false
 
