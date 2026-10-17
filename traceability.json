@@ -3,9 +3,9 @@
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
     "ref": "HEAD",
-    "head": "f4413eccaaa7a2dd3b1b54ae05f2f8188e6b87cf",
-    "commits_scanned": 203,
-    "generated_at": "2026-10-17 10:37 UTC",
+    "head": "6368875bc55a5226f249f73e2b4c5463f55870a6",
+    "commits_scanned": 204,
+    "generated_at": "2026-10-17 17:20 UTC",
     "note": ""
   },
   "rows": [
@@ -432,6 +432,14 @@
       "status": "green",
       "commits": [
         {
+          "sha": "6368875",
+          "full_sha": "6368875bc55a5226f249f73e2b4c5463f55870a6",
+          "subject": "chore(products): register foundry-trial (Shashank2577/foundry-trial) (#334)",
+          "date": "2026-10-17T22:46:00+05:30",
+          "role": "human",
+          "harness": "foundry-init"
+        },
+        {
           "sha": "fd606f9",
           "full_sha": "fd606f9f4f54166c3d5c13f91d5e66f438829ccd",
           "subject": "feat(products): register ai-sdlc-pilot, the first product that is not us (#243)",
@@ -450,6 +458,12 @@
       ],
       "pulls": [
         {
+          "merged_at": "2026-10-17T17:16:01Z",
+          "number": 334,
+          "title": "chore(products): register foundry-trial",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/334"
+        },
+        {
           "merged_at": "2026-09-07T01:00:55Z",
           "number": 243,
           "title": "feat(products): register ai-sdlc-pilot, the first product that is not us",
@@ -463,6 +477,7 @@
         }
       ],
       "roles": [
+        "human",
         "devops",
         "developer"
       ]

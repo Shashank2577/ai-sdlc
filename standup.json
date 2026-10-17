@@ -1,10 +1,75 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-17T10:32:16.462819+00:00",
-  "roles": [],
-  "commits_total": 0,
+  "generated_at": "2026-10-17T17:16:11.263611+00:00",
+  "roles": [
+    {
+      "role": "human",
+      "commits": 1,
+      "requirements": [
+        "REQ-004"
+      ],
+      "harnesses": [
+        "foundry-init"
+      ],
+      "subjects": [
+        {
+          "sha": "6368875",
+          "subject": "chore(products): register foundry-trial (Shashank2577/foundry-trial) (#334)"
+        }
+      ]
+    }
+  ],
+  "commits_total": 1,
   "pulls": {
     "opened": [
+      {
+        "number": 334,
+        "title": "chore(products): register foundry-trial",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/334",
+        "branch": "foundry-init/foundry-trial"
+      },
+      {
+        "number": 333,
+        "title": "feat(dispatch): codex sessions get the role's skills too, on demand",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/333",
+        "branch": "story/FDY-332-codex-gets-skills"
+      },
+      {
+        "number": 330,
+        "title": "chore(config): the control plane's owner and repo live in foundry.yaml",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/330",
+        "branch": "chore/FDY-324-one-config"
+      },
+      {
+        "number": 329,
+        "title": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/329",
+        "branch": "story/FDY-323-foundry-init"
+      },
+      {
+        "number": 328,
+        "title": "feat(dispatch): agents ask a person and hear the answer (#321)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/328",
+        "branch": "story/FDY-321-ask-and-hear-the-answer"
+      },
+      {
+        "number": 327,
+        "title": "feat(security): one GitHub App with per-role tokens, and a required scope check (ADR-0011)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/327",
+        "branch": "story/FDY-322-github-app-and-scope-check"
+      },
+      {
+        "number": 326,
+        "title": "Work items carry their product; orchestrator and board sync route per product (#290)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/326",
+        "branch": "story/FDY-290-product-routing"
+      },
+      {
+        "number": 325,
+        "title": "feat(dispatch): role-pack skills reach the session, on demand",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/325",
+        "branch": "story/FDY-320-skills-reach-sessions"
+      },
       {
         "number": 319,
         "title": "feat(developer): test, fix red checks and slice before opening the PR",
@@ -12,21 +77,40 @@
         "branch": "story/FDY-318-developer-proves-before-pr"
       }
     ],
-    "merged": [],
+    "merged": [
+      {
+        "number": 334,
+        "title": "chore(products): register foundry-trial",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/334",
+        "branch": "foundry-init/foundry-trial"
+      }
+    ],
     "closed_unmerged": [],
-    "open_now": 3
+    "open_now": 10
   },
   "check_failures": [
     {
+      "name": "Unit tests",
+      "branch": "chore/FDY-324-one-config",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39052086708",
+      "at": "2026-10-17T17:03:31Z"
+    },
+    {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39020319790",
-      "at": "2026-10-17T09:13:44Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39052077685",
+      "at": "2026-10-17T17:03:23Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39052075846",
+      "at": "2026-10-17T17:03:22Z"
     }
   ],
   "board": {
-    "status:in-review": 5,
-    "(no status)": 3,
+    "status:in-review": 8,
+    "(no status)": 7,
     "status:needs-refinement": 5,
     "status:ready": 1,
     "status:blocked": 1
@@ -48,7 +132,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1020.1,
+      "hours": 1026.8,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -56,7 +140,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 975.4,
+      "hours": 982.1,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
