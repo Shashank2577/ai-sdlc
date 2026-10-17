@@ -53,6 +53,14 @@ DEFAULT_DISPATCHABLE_FROM = ["status:ready"]
 # their own pack.yaml:produces (#99).
 DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
 
+# The installation-token permissions a pack may declare (ADR-0011), and the
+# levels each may take. Closed on purpose: dispatch.yml has to name every
+# `permission-*` input literally, so a key outside this set would be
+# silently dropped there rather than granted. Better to refuse it here.
+GITHUB_PERMISSIONS = ("contents", "pull-requests", "issues", "workflows", "actions",
+                      "checks", "statuses")
+GITHUB_PERMISSION_LEVELS = ("read", "write")
+
 
 class PackError(Exception):
     """A pack is malformed. Always fatal — a half-valid pack is worse."""
@@ -87,6 +95,16 @@ def read_pack(role: str) -> dict:
             f"role-packs/{role}/pack.yaml: identity.token_secret is missing — "
             "a role nobody can authenticate is not dispatchable"
         )
+    github_permissions = (pack.get("identity") or {}).get("github_permissions") or {}
+    if not isinstance(github_permissions, dict):
+        raise PackError(f"role-packs/{role}/pack.yaml: identity.github_permissions must be a mapping")
+    for key, level in github_permissions.items():
+        if key not in GITHUB_PERMISSIONS or level not in GITHUB_PERMISSION_LEVELS:
+            raise PackError(
+                f"role-packs/{role}/pack.yaml: identity.github_permissions has `{key}: {level}`; "
+                f"keys are {', '.join(GITHUB_PERMISSIONS)} and levels are "
+                f"{' or '.join(GITHUB_PERMISSION_LEVELS)}"
+            )
     if pack.get("role") != role:
         raise PackError(
             f"role-packs/{role}/pack.yaml: role is `{pack.get('role')}`, "
@@ -145,11 +163,16 @@ def read_pack(role: str) -> dict:
         "policy": policy,
         "tools": tools,
         "token_secret": pack["identity"]["token_secret"],
+        "github_permissions": github_permissions,
         "dispatchable_from": dispatchable_from,
         "produces": produces,
         "charter": (root / "charter.md").read_text(),
         "skills": [(p.stem, p.read_text()) for p in skills],
     }
+
+
+def render_github_permissions(pack: dict) -> str:
+    return "".join(f"{k}={v}\n" for k, v in pack["github_permissions"].items())
 
 
 def to_bash_rule(pattern: str) -> str | None:
@@ -249,6 +272,11 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         # The dispatcher reads this to pick the role's credential rather
         # than carrying a role->secret table of its own.
         "token-secret": pack["token_secret"] + "\n",
+        "github-permissions": render_github_permissions(pack),
+        # The App token's permissions, one `key=level` per line (ADR-0011).
+        # Empty when the pack declares none; the dispatcher then refuses to
+        # mint an App token rather than inherit the installation's full set.
+        "github-permissions": render_github_permissions(pack),
         # Which status:* labels the guard accepts before dispatching this
         # role. One per line — the dispatcher reads this instead of
         # carrying a role->state table of its own (same pattern as
@@ -315,6 +343,7 @@ def compile_codex(pack: dict) -> dict[str, str]:
         # (#99, #113) — a target that omits it silently disables the gate
         # for every role, so it is not optional here.
         "token-secret": pack["token_secret"] + "\n",
+        "github-permissions": render_github_permissions(pack),
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
         "produces": "\n".join(pack["produces"]) + "\n",
     }
@@ -372,6 +401,7 @@ def compile_opencode(pack: dict) -> dict[str, str]:
         "opencode.json": json.dumps(settings, indent=2) + "\n",
         # Harness-agnostic; see compile_claude_code's identical comment.
         "token-secret": pack["token_secret"] + "\n",
+        "github-permissions": render_github_permissions(pack),
         "dispatchable-from": "\n".join(pack["dispatchable_from"]) + "\n",
         "produces": "\n".join(pack["produces"]) + "\n",
     }

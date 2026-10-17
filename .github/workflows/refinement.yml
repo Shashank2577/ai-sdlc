@@ -84,18 +84,35 @@ jobs:
       - name: Install PyYAML
         run: python -m pip install --quiet pyyaml
 
+      # ADR-0011: with the Foundry GitHub App configured, its token arms
+      # the loop in place of the PAT. Owner-wide, because a product item's
+      # pull request lives in the product's repo, not this one. The
+      # permissions mirror role-packs/orchestrator/pack.yaml's.
+      - name: Mint the orchestrator's GitHub App token
+        id: app_token
+        if: vars.FOUNDRY_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.FOUNDRY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.FOUNDRY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-actions: write
+          permission-issues: write
+          permission-contents: read
+          permission-pull-requests: read
+
       - name: Decide whether the loop is armed
         id: mode
         env:
-          FOUNDRY_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
+          FOUNDRY_TOKEN: ${{ steps.app_token.outputs.token || secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           if [ -z "${FOUNDRY_TOKEN}" ]; then
             echo "armed=false" >> "$GITHUB_OUTPUT"
             {
-              echo "> **Loop is not armed.** Neither \`FOUNDRY_TOKEN\` nor"
-              echo "> \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
+              echo "> **Loop is not armed.** No Foundry GitHub App (\`FOUNDRY_APP_CLIENT_ID\`),"
+              echo "> \`FOUNDRY_TOKEN\` or \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
               echo "> dispatches nothing. GITHUB_TOKEN cannot start another workflow by"
               echo "> design. See the wiki: Operating the System -> Arming the system."
             } >> "$GITHUB_STEP_SUMMARY"
@@ -110,7 +127,7 @@ jobs:
         env:
           # The PAT when there is one; otherwise the workflow token, which is
           # enough to read the board and, in dry-run mode, nothing else.
-          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token || secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail

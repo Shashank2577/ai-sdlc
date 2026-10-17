@@ -1,0 +1,23 @@
+{
+  "name": "foundry",
+  "url": "https://github.com/Shashank2577/ai-sdlc",
+  "description": "Foundry agent sessions. Each dispatch mints a token scoped to its role's pack (ADR-0011).",
+  "public": false,
+  "hook_attributes": {
+    "url": "https://example.invalid/foundry-has-no-webhook",
+    "active": false
+  },
+  "redirect_url": "http://127.0.0.1:8765/created",
+  "default_permissions": {
+    "metadata": "read",
+    "contents": "write",
+    "pull_requests": "write",
+    "issues": "write",
+    "workflows": "write",
+    "actions": "write",
+    "checks": "read",
+    "statuses": "read",
+    "organization_projects": "write"
+  },
+  "default_events": []
+}
