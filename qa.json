@@ -2,9 +2,283 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-16 11:15 UTC"
+    "generated_at": "2026-10-17 10:33 UTC"
   },
   "matrix": {
+    "REQ-003": [
+      {
+        "number": 3,
+        "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 97,
+        "title": "P0-18: Codex compiler target \u2014 compile_codex",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 113,
+        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 210,
+        "title": "P4-4: More harness targets \u2014 one works, the criteria claim two",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 222,
+        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 241,
+        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 268,
+        "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 269,
+        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 318,
+        "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
+    "REQ-012": [
+      {
+        "number": 4,
+        "title": "P0-3: Developer role pack v0",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 8,
+        "title": "P0-7: Budgets + escalation ladder v0",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 20,
+        "title": "P0-10: One GitHub credential + correct setup steps",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 23,
+        "title": "P0-12: Budgets measure cost; sessions report what they did",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 25,
+        "title": "P0-13: A session is judged on what it shipped, not its exit code",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 29,
+        "title": "P0-15: Dispatcher grants the permissions it compiled, and counts retries it can see",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 42,
+        "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 45,
+        "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 64,
+        "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 100,
+        "title": "BUG: approval-gate tests are path-filtered away from the files they assert about \u2014 main is red and CI cannot see it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 101,
+        "title": "Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 113,
+        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 128,
+        "title": "The test-wiring handoff has blocked four PRs \u2014 remove it or queue it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 134,
+        "title": "BUG: a by-design workflow-scope refusal is indistinguishable from a broken credential",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 168,
+        "title": "P1-17: Check at refinement that a story's criteria fit the assigned role's write scope",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 174,
+        "title": "check-test-wiring greps for strings, so discovered tests need a comment to satisfy it",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 190,
+        "title": "portal/ and adapters/ are in no role's write scope, so the new story-scope check will cry wolf",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 202,
+        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 206,
+        "title": "Build scripts/check-products.py against policies/products.yaml",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 208,
+        "title": "P4-2: Dispatcher targets a product repo, not only itself",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 209,
+        "title": "P4-3: Bootstrap a product repo \u2014 and verify it, rather than trusting the flag",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 222,
+        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 224,
+        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 225,
+        "title": "SECURITY: every required check runs the pull request's own code",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 227,
+        "title": "Every new product repo would start with the same unread-review hole",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 228,
+        "title": "CRITICAL: the product checkout deletes the control plane \u2014 every dispatch has failed since #218",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 232,
+        "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 233,
+        "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 234,
+        "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 241,
+        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 246,
+        "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 261,
+        "title": "Wire check-products.py as a required status check on policies/products.yaml",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 262,
+        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
+        "state": "CLOSED",
+        "verdict": "approved"
+      },
+      {
+        "number": 268,
+        "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
+        "state": "OPEN",
+        "verdict": "pending"
+      },
+      {
+        "number": 269,
+        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
+        "state": "CLOSED",
+        "verdict": "pending"
+      },
+      {
+        "number": 318,
+        "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
+        "state": "OPEN",
+        "verdict": "pending"
+      }
+    ],
     "REQ-004": [
       {
         "number": 18,
@@ -252,268 +526,6 @@
         "number": 290,
         "title": "Work items carry their product, so the orchestrator and board sync route per product",
         "state": "OPEN",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-003": [
-      {
-        "number": 3,
-        "title": "P0-2: Dispatcher v0 \u2014 work item \u2192 headless agent session",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 97,
-        "title": "P0-18: Codex compiler target \u2014 compile_codex",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 113,
-        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 210,
-        "title": "P4-4: More harness targets \u2014 one works, the criteria claim two",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 222,
-        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 241,
-        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 268,
-        "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 269,
-        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
-        "state": "CLOSED",
-        "verdict": "pending"
-      }
-    ],
-    "REQ-012": [
-      {
-        "number": 4,
-        "title": "P0-3: Developer role pack v0",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 8,
-        "title": "P0-7: Budgets + escalation ladder v0",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 20,
-        "title": "P0-10: One GitHub credential + correct setup steps",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 23,
-        "title": "P0-12: Budgets measure cost; sessions report what they did",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 25,
-        "title": "P0-13: A session is judged on what it shipped, not its exit code",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 29,
-        "title": "P0-15: Dispatcher grants the permissions it compiled, and counts retries it can see",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 42,
-        "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 45,
-        "title": "P1-3: Approval gates as policy \u2014 critical work waits for a person",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 64,
-        "title": "P1-9: Delivery Lead role pack \u2014 governance gets an owner",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 100,
-        "title": "BUG: approval-gate tests are path-filtered away from the files they assert about \u2014 main is red and CI cannot see it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 101,
-        "title": "Governance: narrow the delivery-lead write scope, and scope the approval gate to write capability",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 113,
-        "title": "BUG: shipped-nothing gate fails open when a compiled pack has no produces file",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 128,
-        "title": "The test-wiring handoff has blocked four PRs \u2014 remove it or queue it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 134,
-        "title": "BUG: a by-design workflow-scope refusal is indistinguishable from a broken credential",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 168,
-        "title": "P1-17: Check at refinement that a story's criteria fit the assigned role's write scope",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 174,
-        "title": "check-test-wiring greps for strings, so discovered tests need a comment to satisfy it",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 190,
-        "title": "portal/ and adapters/ are in no role's write scope, so the new story-scope check will cry wolf",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 202,
-        "title": "P4-1: Declare the product registry \u2014 one place every product is defined",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 206,
-        "title": "Build scripts/check-products.py against policies/products.yaml",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 208,
-        "title": "P4-2: Dispatcher targets a product repo, not only itself",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 209,
-        "title": "P4-3: Bootstrap a product repo \u2014 and verify it, rather than trusting the flag",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 222,
-        "title": "P4-7: Dispatch under a second harness \u2014 the compiler has two targets, the dispatcher has one",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 224,
-        "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 225,
-        "title": "SECURITY: every required check runs the pull request's own code",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 227,
-        "title": "Every new product repo would start with the same unread-review hole",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 228,
-        "title": "CRITICAL: the product checkout deletes the control plane \u2014 every dispatch has failed since #218",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 232,
-        "title": "Dispatcher builds the agent prompt from the issue's current content, not the content a maintainer approved",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 233,
-        "title": "compile-pack.py: write_scope never reaches the agent prompt, and --check skips packs missing pack.yaml",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 234,
-        "title": "qa-gate.sh treats a failed label lookup as an empty (non-rejected) label set",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 241,
-        "title": "P4-7 follow-up: run the live codex trial dispatch.yml now supports",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 246,
-        "title": "CRITICAL: bootstrap requires a dod check the product repo cannot produce \u2014 every product is unmergeable",
-        "state": "CLOSED",
-        "verdict": "pending"
-      },
-      {
-        "number": 261,
-        "title": "Wire check-products.py as a required status check on policies/products.yaml",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 262,
-        "title": "products.yaml: foundry-program and ai-sdlc-pilot share project board 2, which no_duplicate_projects forbids",
-        "state": "CLOSED",
-        "verdict": "approved"
-      },
-      {
-        "number": 268,
-        "title": "Two-repo dispatch: the product checkout's origin pointed at the control plane, not the product",
-        "state": "OPEN",
-        "verdict": "pending"
-      },
-      {
-        "number": 269,
-        "title": "Every claude-code session since 2026-09-08 21:47 UTC dies in under a second with is_error and a redacted message",
-        "state": "CLOSED",
         "verdict": "pending"
       }
     ],
