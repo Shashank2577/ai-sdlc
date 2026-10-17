@@ -76,6 +76,12 @@ APP_VAR, APP_SECRET, APP_SLUG_VAR = "FOUNDRY_APP_CLIENT_ID", "FOUNDRY_APP_PRIVAT
 INTERVIEW_TITLE = "Interview me about {key}"
 REGISTRY_BRANCH = "foundry-init/{key}"
 MANIFEST_PORT = 8765
+# What GitHub answers when the account's plan cannot protect a private
+# repo's branch or put a required reviewer on its environment.
+PLAN_LIMITED = ("Upgrade to GitHub Pro", "billing plan supports")
+PLAN_FIX = ("GitHub Free cannot do this on a private repo: make it public "
+            "(`gh repo edit {repo} --visibility public --accept-visibility-change-consequences`) "
+            "or move to GitHub Pro/Team")
 
 
 # --------------------------------------------------------------------------
@@ -346,22 +352,36 @@ def plan(w, ctx: Ctx) -> list[Step]:
                           f"set to `{cp}` so the scope check reads the packs from there",
                           lambda: (w.set_variable(repo, "FOUNDRY_CONTROL_PLANE", cp), "set")[1]))
 
+    protection = None if meta["empty"] else w.protection(repo, meta["default_branch"])
+    limited = bool((protection or {}).get("unavailable"))
+
     # --- product: environments ----------------------------------------
     products = w.registry(cp)
     entry = (products.get("products") or {}).get(key)
     envs = desired_environments(entry, load_yaml(ENVIRONMENTS_PATH))
     have_envs = w.environments(repo)
+    # On a plan that cannot add a required reviewer, a reviewer-less
+    # environment is as far as this can go; the gap is reported, not retried.
     todo_envs = [e for e in envs if e["name"] not in have_envs
-                 or (e["human_reviewer_required"] and not have_envs[e["name"]])]
+                 or (e["human_reviewer_required"] and not have_envs[e["name"]] and not limited)]
+    unreviewed = [e["name"] for e in envs if e["human_reviewer_required"] and e["name"] in have_envs
+                  and not have_envs[e["name"]] and limited]
+
     def make_environments():
+        notes = []
         for e in todo_envs:
-            w.put_environment(repo, e["name"], [ctx.login] if e["human_reviewer_required"] else [])
-        return f"configured {len(todo_envs)}"
-    steps.append(Step(repo, "environments", "todo" if todo_envs else "ok",
-                      ("create or fix: " + ", ".join(
-                          e["name"] + (f" (reviewer: {ctx.login})" if e["human_reviewer_required"] else "")
-                          for e in todo_envs)) if todo_envs else ", ".join(e["name"] for e in envs),
-                      make_environments if todo_envs else None))
+            notes.append(w.put_environment(repo, e["name"],
+                                           [ctx.login] if e["human_reviewer_required"] else []))
+        return f"configured {len(todo_envs)}" + "".join(f"; {n}" for n in notes if n)
+    if unreviewed and not todo_envs:
+        steps.append(Step(repo, "environments", "manual",
+                          f"{', '.join(unreviewed)} has no required reviewer. " + PLAN_FIX.format(repo=repo)))
+    else:
+        steps.append(Step(repo, "environments", "todo" if todo_envs else "ok",
+                          ("create or fix: " + ", ".join(
+                              e["name"] + (f" (reviewer: {ctx.login})" if e["human_reviewer_required"] else "")
+                              for e in todo_envs)) if todo_envs else ", ".join(e["name"] for e in envs),
+                          make_environments if todo_envs else None))
 
     # --- product: security --------------------------------------------
     if w.vulnerability_alerts(repo):
@@ -372,17 +392,22 @@ def plan(w, ctx: Ctx) -> list[Step]:
     codeql = w.codeql_state(repo)
     if codeql == "configured":
         steps.append(Step(repo, "CodeQL", "ok", "default setup configured"))
+    elif limited and meta["private"]:
+        steps.append(Step(repo, "CodeQL", "manual",
+                          "code scanning on a private repo needs GitHub Advanced Security. " + PLAN_FIX.format(repo=repo)))
     else:
         steps.append(Step(repo, "CodeQL", "todo", "enable default setup (once the repo has code; "
                           "the workflows above count)", lambda: w.enable_codeql(repo)))
 
     # --- product: branch protection -----------------------------------
-    protection = None if meta["empty"] else w.protection(repo, meta["default_branch"])
     contexts = set(((protection or {}).get("required_status_checks") or {}).get("contexts") or [])
     enforce = (protection or {}).get("enforce_admins")
     enforced = bool(enforce.get("enabled")) if isinstance(enforce, dict) else bool(enforce)
     conv = bool(((protection or {}).get("required_conversation_resolution") or {}).get("enabled"))
-    if protection and set(REQUIRED_CHECKS) <= contexts and enforced and conv:
+    if limited:
+        steps.append(Step(repo, "branch protection", "manual",
+                          f"`{', '.join(REQUIRED_CHECKS)}` run but cannot be required. " + PLAN_FIX.format(repo=repo)))
+    elif protection and set(REQUIRED_CHECKS) <= contexts and enforced and conv:
         steps.append(Step(repo, "branch protection", "ok", f"requires {', '.join(REQUIRED_CHECKS)}; admins enforced"))
     else:
         steps.append(Step(repo, "branch protection", "todo",
@@ -555,10 +580,21 @@ class GitHub:
             out[env["name"]] = reviewers
         return out
 
-    def put_environment(self, repo: str, name: str, reviewer_logins: list[str]) -> None:
-        body = {"reviewers": [{"type": "User", "id": int(gh(["api", f"users/{l}", "--jq", ".id"]).stdout)}
-                              for l in reviewer_logins] or None}
-        gh(["api", "-X", "PUT", f"repos/{repo}/environments/{name}", "--input", "-"], stdin=json.dumps(body))
+    def put_environment(self, repo: str, name: str, reviewer_logins: list[str]) -> str:
+        """Returns a note when the plan refused the reviewer. `reviewers: null`
+        counts as a protection rule to GitHub, so no reviewers means no key."""
+        body = {}
+        if reviewer_logins:
+            body["reviewers"] = [{"type": "User", "id": int(gh(["api", f"users/{l}", "--jq", ".id"]).stdout)}
+                                 for l in reviewer_logins]
+        proc = gh(["api", "-X", "PUT", f"repos/{repo}/environments/{name}", "--input", "-"],
+                  stdin=json.dumps(body), check=False)
+        if proc.returncode == 0:
+            return ""
+        if body and any(m in proc.stderr for m in PLAN_LIMITED):
+            gh(["api", "-X", "PUT", f"repos/{repo}/environments/{name}", "--input", "-"], stdin="{}")
+            return f"{name} created without its required reviewer (plan limit)"
+        raise RuntimeError(f"PUT environment {name} on {repo} failed: {proc.stderr.strip()}")
 
     def vulnerability_alerts(self, repo: str) -> bool:
         return gh(["api", f"repos/{repo}/vulnerability-alerts"], check=False).returncode == 0
@@ -579,7 +615,12 @@ class GitHub:
         return f"deferred: {proc.stderr.strip()[:160]} (rerun once the repo has code)"
 
     def protection(self, repo: str, branch: str) -> Optional[dict]:
-        return bootstrap.api_get_protection(repo, branch)
+        try:
+            return bootstrap.api_get_protection(repo, branch)
+        except RuntimeError as exc:
+            if any(m in str(exc) for m in PLAN_LIMITED):
+                return {"unavailable": str(exc)}
+            raise
 
     def put_protection(self, repo: str, contexts: list[str]) -> str:
         meta = self.repo(repo)
