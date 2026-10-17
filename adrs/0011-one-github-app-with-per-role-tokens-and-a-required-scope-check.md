@@ -1,6 +1,6 @@
 # ADR-0011: One GitHub App with per-role tokens replaces the three PATs, and a required check enforces who may write what
 
-**Status:** proposed
+**Status:** accepted
 **Work item:** Shashank2577/ai-sdlc#322
 **Requirement:** REQ-012, REQ-002, REQ-005
 
@@ -97,9 +97,13 @@ user-owned board, is a platform limit that every option shares.
 
 ## Decision
 
-**Decided:** pending (the human architect decides; see CODEOWNERS)
-**Decided by:** pending
-**Date:** pending
+**Decided:** Option C: one App, per-role tokens, and the `scope` check
+**Decided by:** Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose "Full: App + merge #327" for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.
+**Date:** 2026-10-17
+
+Costs favoured C because it is the only option that cuts the credentials to
+two while adding the `write_scope` boundary instead of trading away
+ADR-0001's.
 
 ## Consequences
 
