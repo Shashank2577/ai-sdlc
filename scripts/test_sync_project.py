@@ -144,6 +144,92 @@ class TestPlanAdditions(unittest.TestCase):
                          [3, 9])
 
 
+# Two products with their own boards, mirrored from policies/products.yaml's
+# shape rather than read from it, so the filter stays a pure function of
+# fixtures.
+REGISTRY = {
+    "default": "foundry-program",
+    "products": {
+        "foundry-program": {"repo": "o/control-plane", "project": {"owner": "o", "number": 2}},
+        "ai-sdlc-pilot": {"repo": "o/pilot", "project": {"owner": "o", "number": 3}},
+    },
+}
+
+
+class TestBoardPerProduct(unittest.TestCase):
+    """Every work item lives in the control plane, but each product has its
+    own board (#290). A board gets its own product's items and nothing else;
+    an item whose product cannot be resolved goes on no board."""
+
+    def board(self):
+        return {
+            1: issue(number=1),                                       # unlabelled
+            2: issue("product:ai-sdlc-pilot", number=2),
+            3: issue("product:foundry-program", number=3),
+            4: issue("product:nope", number=4),                       # unknown
+            5: issue("product:ai-sdlc-pilot", "product:foundry-program", number=5),
+        }
+
+    def test_each_board_gets_only_its_own_products_items(self):
+        issues = self.board()
+        self.assertEqual(sorted(S.issues_for_product(issues, "foundry-program", REGISTRY)), [1, 3])
+        self.assertEqual(sorted(S.issues_for_product(issues, "ai-sdlc-pilot", REGISTRY)), [2])
+
+    def test_an_unlabelled_item_belongs_to_the_control_planes_board(self):
+        self.assertIn(1, S.issues_for_product(self.board(), "foundry-program", REGISTRY))
+        self.assertNotIn(1, S.issues_for_product(self.board(), "ai-sdlc-pilot", REGISTRY))
+
+    def test_an_unresolvable_product_is_reported_and_on_no_board(self):
+        issues = self.board()
+        reported = dict(S.unroutable(issues, REGISTRY))
+        self.assertEqual(sorted(reported), [4, 5])
+        self.assertIn("not in policies/products.yaml", reported[4])
+        self.assertIn("several product labels", reported[5])
+        for key in REGISTRY["products"]:
+            with self.subTest(product=key):
+                self.assertFalse({4, 5} & set(S.issues_for_product(issues, key, REGISTRY)))
+
+    def test_each_products_board_comes_from_its_own_registry_entry(self):
+        from adapters.tracker.base import BoardRef
+        self.assertEqual(S.board_of(REGISTRY["products"]["ai-sdlc-pilot"]),
+                         BoardRef(owner="o", number=3))
+        self.assertEqual(S.board_of(REGISTRY["products"]["foundry-program"]),
+                         BoardRef(owner="o", number=2))
+
+    def test_an_entry_without_a_usable_project_has_no_board(self):
+        for entry in ({}, {"project": None}, {"project": {"owner": "o"}},
+                      {"project": {"owner": "o", "number": 0}},
+                      {"project": {"owner": "", "number": 2}}):
+            with self.subTest(entry=entry):
+                self.assertIsNone(S.board_of(entry))
+
+    def test_the_committed_registry_gives_every_product_its_own_board(self):
+        products = S.assign.load_products()
+        boards = {key: S.board_of(entry) for key, entry in products.items()}
+        self.assertNotIn(None, boards.values(), boards)
+        self.assertEqual(len(set(boards.values())), len(boards),
+                         "two products share a board")
+
+    def test_sync_adds_only_this_products_items_to_its_board(self):
+        from adapters.tracker.base import BoardRef
+        from adapters.tracker.github import GitHubTracker
+        from adapters.tracker.tests.test_github import FakeGh
+
+        fake = FakeGh()
+        fake.issues[1]["labels"] = ["status:in-progress", "product:ai-sdlc-pilot"]
+        fake.issues[3] = {"number": 3, "id": "I_3", "title": "Control plane work", "body": "",
+                          "state": "OPEN", "labels": ["status:in-progress"],
+                          "url": "https://github.com/o/r/issues/3"}
+        tracker = GitHubTracker(run=fake)
+        issues = {i.number: S._issue_dict(i) for i in tracker.list_issues()}
+
+        code, _ = S.run_sync(tracker, BoardRef(owner="o", number=3), dry_run=False,
+                             issues=S.issues_for_product(issues, "ai-sdlc-pilot", REGISTRY))
+
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(fake.items), [1])
+
+
 class TestRunSyncAgainstTrackerStubs(unittest.TestCase):
     """P3-7: `run_sync` is the whole algorithm main() drives, written once
     against `adapters.tracker.base.Tracker` — not against `gh`. Running it

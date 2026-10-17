@@ -109,6 +109,17 @@ class TestDispatchableReady(unittest.TestCase):
         ]
         self.assertEqual(R.dispatchable_ready(board, self.policy), [1])
 
+    def test_supply_counts_every_registered_product_and_no_unknown_one(self):
+        # A pilot item is work the orchestrator can run (#290); a typo'd
+        # product label is not.
+        registry = {"default": "foundry-program",
+                    "products": {"foundry-program": {}, "ai-sdlc-pilot": {}}}
+        board = [
+            board_issue(1, "status:ready", "role:developer", "product:ai-sdlc-pilot"),
+            board_issue(2, "status:ready", "role:developer", "product:nope"),
+        ]
+        self.assertEqual(R.dispatchable_ready(board, self.policy, registry), [1])
+
     def test_the_2026_09_28_board_refines_instead_of_staying_quiet(self):
         # Seven labelled ready, none runnable: five escalated, one role-less.
         board = [board_issue(n, "status:ready", "role:developer", "needs-human")

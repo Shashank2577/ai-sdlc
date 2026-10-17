@@ -51,6 +51,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Each product's board is read from policies/products.yaml (#290).
+      - run: python -m pip install --quiet pyyaml
+
       - name: Mapping tests
         run: python3 scripts/test_sync_project.py
 
@@ -61,7 +64,9 @@ jobs:
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          args=(--project 2 --owner Shashank2577)
+          # No board here: sync-project.py syncs each product's items to
+          # that product's own `project` in policies/products.yaml (#290).
+          args=()
           if [ "${HAS_TOKEN}" != "true" ]; then
             args+=(--dry-run)
             {
