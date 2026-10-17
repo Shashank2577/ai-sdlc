@@ -1,3 +1,9 @@
+---
+description: Reading a work item's acceptance criteria before the diff, splitting
+  each Then/And into separate checks, and classing each as met, not met or
+  cannot be verified. Use at the start of every review.
+---
+
 # Skill — reading acceptance criteria
 
 ## Criteria first, diff second

@@ -1,3 +1,10 @@
+---
+description: 'Recording a QA verdict: exactly one of qa:approved or qa:rejected,
+  comment first and label second, a criteria table with evidence, specific
+  actionable rejections, and filing out-of-scope bugs instead of blocking.
+  Use whenever you are about to approve or reject a change.'
+---
+
 # Skill — issuing a verdict
 
 ## Exactly one label, always

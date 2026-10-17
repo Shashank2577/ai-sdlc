@@ -1,3 +1,9 @@
+---
+description: Whether a story is small and concrete enough for one dispatched
+  session, and how to split an epic. Use when refining or writing a work item,
+  or when a story names an outcome instead of the thing to change.
+---
+
 # Sizing and splitting a story
 
 This is the skill that decides whether the story you write actually gets

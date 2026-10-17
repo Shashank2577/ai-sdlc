@@ -1,3 +1,10 @@
+---
+description: The three questions every workflow or required-check change answers
+  in its PR, never weakening a gate to unblock a story, and testing workflow
+  logic you cannot trigger. Use when editing anything under .github/workflows
+  or a script a required check runs.
+---
+
 # Skill — changing a gate
 
 ## The three questions

@@ -1,3 +1,10 @@
+---
+description: Cutting the story/bug branch from origin/main before the first
+  edit, and writing commit messages whose four Foundry trailers (Work-Item,
+  Requirement, Agent-Role, Harness) sit in one contiguous block the DoD check
+  can read. Use before your first edit and before every commit.
+---
+
 # Skill — branch and commit hygiene
 
 ## Cut the branch first

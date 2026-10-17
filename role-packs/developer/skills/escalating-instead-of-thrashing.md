@@ -1,3 +1,11 @@
+---
+description: 'When to stop retrying and escalate instead: the stop conditions,
+  watching the turn budget, and what a needs-human escalation comment must
+  contain (goal, attempts, blocker, costed options). Use when an approach
+  has failed twice, a blocker is outside your control, or a quarter of the
+  budget is left with no PR.'
+---
+
 # Skill — escalating instead of thrashing
 
 ## The failure mode this prevents

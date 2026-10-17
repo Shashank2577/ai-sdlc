@@ -77,10 +77,12 @@ class PackFixture:
         cp.REPO_ROOT = self.tmp
         cp.PACKS_DIR = self.tmp / "role-packs"
 
-    def add_skill(self, name: str, body: str) -> None:
+    def add_skill(self, name: str, body: str,
+                  frontmatter: str | None = "description: Use when doing widget things.\n") -> None:
         d = cp.PACKS_DIR / self.role / "skills"
         d.mkdir(exist_ok=True)
-        (d / f"{name}.md").write_text(body)
+        head = "" if frontmatter is None else f"---\n{frontmatter}---\n\n"
+        (d / f"{name}.md").write_text(head + body)
 
     def __enter__(self):
         return self
@@ -346,6 +348,85 @@ class TestClaudeCodeOutput(unittest.TestCase):
         self.assertIn("Distinctive skill body.", prompt)    # skills
 
 
+class TestSkills(unittest.TestCase):
+    """Skills reach a claude-code session as SKILL.md files it loads on
+    demand by description (#320), so the description is load-bearing."""
+
+    def compile_skill(self, frontmatter, name="do-things", body="# Skill\n\nBody text.\n"):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill(name, body, frontmatter)
+            return cp.compile_claude_code(cp.read_pack("widget"))
+
+    def test_each_skill_compiles_to_a_skill_md(self):
+        out = self.compile_skill("description: Use when doing widget things.\n",
+                                 body="# Skill\n\nDistinctive skill body.\n")
+        skill_md = out["skills/do-things/SKILL.md"]
+        self.assertTrue(skill_md.startswith("---\n"))
+        import yaml
+        front, body = skill_md[4:].split("\n---\n", 1)
+        self.assertEqual(yaml.safe_load(front),
+                         {"name": "do-things", "description": "Use when doing widget things."})
+        self.assertIn("Distinctive skill body.", body)
+
+    def test_frontmatter_stays_out_of_the_role_doc(self):
+        out = self.compile_skill("description: Use when doing widget things.\n",
+                                 body="# Skill\n\nDistinctive skill body.\n")
+        self.assertIn("Distinctive skill body.", out["system-prompt.md"])
+        self.assertNotIn("description:", out["system-prompt.md"])
+
+    def test_a_folded_description_is_one_line(self):
+        out = self.compile_skill("description: >-\n  Use when doing\n  widget things.\n")
+        self.assertIn("description: Use when doing widget things.\n",
+                      out["skills/do-things/SKILL.md"])
+
+    def test_a_skill_without_frontmatter_is_rejected(self):
+        with self.assertRaisesRegex(cp.PackError, r"do-things\.md: no frontmatter"):
+            self.compile_skill(None)
+
+    def test_a_skill_without_a_description_is_rejected(self):
+        for fm in ("title: Widget\n", "description: ''\n", "description: [a, b]\n"):
+            with self.subTest(frontmatter=fm):
+                with self.assertRaisesRegex(cp.PackError, "has no `description`"):
+                    self.compile_skill(fm)
+
+    def test_an_overlong_description_is_rejected(self):
+        with self.assertRaisesRegex(cp.PackError, "1025 characters; the limit is 1024"):
+            self.compile_skill(f"description: {'x' * 1025}\n")
+
+    def test_invalid_frontmatter_names_the_file(self):
+        with self.assertRaisesRegex(cp.PackError, r"do-things\.md: invalid frontmatter"):
+            self.compile_skill("description: [unclosed\n")
+
+    def test_a_skill_name_must_be_hyphenated_lowercase(self):
+        for name in ("Do-Things", "do_things", "-do", "do--things"):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(cp.PackError, "must be lowercase words"):
+                    self.compile_skill("description: Use it.\n", name=name)
+
+    def test_other_harnesses_get_no_skill_files(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            pack = cp.read_pack("widget")
+            for harness in ("codex", "opencode"):
+                with self.subTest(harness=harness):
+                    out = cp.HARNESSES[harness](pack)
+                    self.assertFalse([k for k in out if k.startswith("skills/")])
+
+    def test_main_writes_skill_files_into_their_directories(self):
+        with PackFixture(MINIMAL_PACK) as fx:
+            fx.add_skill("do-things", "# Skill\n\nBody text.\n")
+            out_dir = fx.tmp / "out"
+            argv = sys.argv
+            sys.argv = ["compile-pack.py", "--role", "widget", "--out", str(out_dir)]
+            try:
+                import contextlib, io
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(cp.main(), 0)
+            finally:
+                sys.argv = argv
+            self.assertTrue((out_dir / "widget/claude-code/skills/do-things/SKILL.md").is_file())
+
+
 class TestCodexOutput(unittest.TestCase):
     def test_artifacts_and_permission_mapping(self):
         with PackFixture(MINIMAL_PACK) as fx:
@@ -469,6 +550,8 @@ class TestRealPacksInThisRepo(unittest.TestCase):
                 out = cp.compile_claude_code(pack)
                 self.assertTrue(out["system-prompt.md"].strip())
                 self.assertTrue(pack["skills"], f"{role} has no skills/")
+                for skill in pack["skills"]:
+                    self.assertIn(f"skills/{skill['name']}/SKILL.md", out)
 
                 # A pack that compiles for one harness and not the others is
                 # exactly the gap REQ-003 flags: this is the check that

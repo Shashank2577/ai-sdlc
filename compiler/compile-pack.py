@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -53,6 +54,7 @@ DEFAULT_DISPATCHABLE_FROM = ["status:ready"]
 # their own pack.yaml:produces (#99).
 DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
 
+<<<<<<< HEAD
 # The installation-token permissions a pack may declare (ADR-0011), and the
 # levels each may take. Closed on purpose: dispatch.yml has to name every
 # `permission-*` input literally, so a key outside this set would be
@@ -60,6 +62,16 @@ DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
 GITHUB_PERMISSIONS = ("contents", "pull-requests", "issues", "workflows", "actions",
                       "checks", "statuses")
 GITHUB_PERMISSION_LEVELS = ("read", "write")
+=======
+# A skill is loaded on demand (#320): the harness lists each skill by its
+# description and reads the body only when the task matches it. A skill
+# with no description never loads, so it is refused rather than shipped
+# inert. The name rule and the 1024-character cap are the Agent Skills
+# format's; Claude Code itself is looser, and the tighter rule keeps a
+# skill portable to the next harness that adopts the format.
+SKILL_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+SKILL_DESCRIPTION_MAX = 1024
+>>>>>>> eb1125f (feat(dispatch): role-pack skills reach the session, on demand)
 
 
 class PackError(Exception):
@@ -71,6 +83,39 @@ def load(path: Path):
         return yaml.safe_load(path.read_text())
     except yaml.YAMLError as exc:
         raise PackError(f"{path.relative_to(REPO_ROOT)}: invalid YAML — {exc}")
+
+
+def read_skill(path: Path) -> dict:
+    """Split one skill file into its name, description and body.
+
+    The file opens with YAML frontmatter carrying `description` — what the
+    skill covers and when to use it. That line is all a session sees until
+    it loads the skill, so it is required and checked here.
+    """
+    rel = path.relative_to(REPO_ROOT)
+    name = path.stem
+    if len(name) > 64 or not SKILL_NAME.match(name):
+        raise PackError(f"{rel}: skill name `{name}` must be lowercase words "
+                        "joined by hyphens, at most 64 characters")
+    text = path.read_text()
+    match = re.match(r"---\n(.*?)\n---\n", text, re.DOTALL)
+    if not match:
+        raise PackError(f"{rel}: no frontmatter — a skill opens with `---`, "
+                        "a `description:` line, and `---`")
+    try:
+        meta = yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError as exc:
+        raise PackError(f"{rel}: invalid frontmatter — {exc}")
+    description = meta.get("description") if isinstance(meta, dict) else None
+    if not isinstance(description, str) or not description.strip():
+        raise PackError(f"{rel}: frontmatter has no `description` — a skill "
+                        "without one is never loaded")
+    description = " ".join(description.split())
+    if len(description) > SKILL_DESCRIPTION_MAX:
+        raise PackError(f"{rel}: description is {len(description)} characters; "
+                        f"the limit is {SKILL_DESCRIPTION_MAX}")
+    return {"name": name, "description": description,
+            "body": text[match.end():].strip() + "\n"}
 
 
 def read_pack(role: str) -> dict:
@@ -167,7 +212,7 @@ def read_pack(role: str) -> dict:
         "dispatchable_from": dispatchable_from,
         "produces": produces,
         "charter": (root / "charter.md").read_text(),
-        "skills": [(p.stem, p.read_text()) for p in skills],
+        "skills": [read_skill(p) for p in skills],
     }
 
 
@@ -223,14 +268,25 @@ def render_role_doc(pack: dict) -> str:
     parts += ["", "# Escalate to a human when", ""]
     parts += [f"- {t}" for t in policy["hitl_triggers"]]
 
-    for name, body in pack["skills"]:
-        parts += ["", "---", "", f"# Skill: {name}", "", body.strip()]
+    for skill in pack["skills"]:
+        parts += ["", "---", "", f"# Skill: {skill['name']}", "", skill["body"].strip()]
 
     return "\n".join(parts).rstrip() + "\n"
 
 
+def render_skill_md(skill: dict) -> str:
+    """One skill as a Claude Code SKILL.md: name and description frontmatter,
+    then the body. The dispatcher installs these where the session loads
+    skills from, so each reaches the session on demand rather than as
+    prompt bytes every session pays for (#320)."""
+    front = yaml.safe_dump({"name": skill["name"], "description": skill["description"]},
+                           sort_keys=False, width=1000, allow_unicode=True)
+    return f"---\n{front}---\n\n{skill['body']}"
+
+
 def compile_claude_code(pack: dict) -> dict[str, str]:
-    """Render a pack as a Claude Code system prompt plus settings.json."""
+    """Render a pack as a Claude Code system prompt, settings.json and one
+    skills/<name>/SKILL.md per skill."""
     tools = pack["tools"]
 
     allow, deny, unmappable = [], [], []
@@ -288,6 +344,8 @@ def compile_claude_code(pack: dict) -> dict[str, str]:
         # or did exactly the tracker-only job it was dispatched for (#99).
         "produces": "\n".join(pack["produces"]) + "\n",
     }
+    for skill in pack["skills"]:
+        out[f"skills/{skill['name']}/SKILL.md"] = render_skill_md(skill)
     if unmappable:
         out["UNMAPPABLE.md"] = (
             "# Rules this harness cannot express\n\n"
@@ -461,6 +519,7 @@ def main() -> int:
         dest = (args.out or REPO_ROOT / "build" / "packs") / role / args.harness
         dest.mkdir(parents=True, exist_ok=True)
         for name, content in artifacts.items():
+            (dest / name).parent.mkdir(parents=True, exist_ok=True)
             (dest / name).write_text(content)
         print(f"compiled {role} -> {dest} ({', '.join(sorted(artifacts))})")
 

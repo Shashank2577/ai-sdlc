@@ -1,3 +1,10 @@
+---
+description: 'How a scheduled loop stays quiet: post only what a human needs
+  to act on, say it once (check for an open escalation first), and stay idempotent
+  across overlapping runs. Use on every orchestrator run before posting a
+  comment or escalation.'
+---
+
 # Skill — running a quiet loop
 
 ## Silence is a feature
