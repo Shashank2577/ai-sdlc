@@ -27,6 +27,8 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import control_plane  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -324,7 +326,7 @@ def render_issue_body(retro: dict, meta: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
+    ap.add_argument("--repo", default=control_plane())
     ap.add_argument("--window-days", type=int, default=7)
     ap.add_argument("--now", default="", help="ISO timestamp; for reproducible runs")
     ap.add_argument("--dry-run", action="store_true",

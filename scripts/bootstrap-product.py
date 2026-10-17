@@ -61,6 +61,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Callable, NamedTuple, Optional
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import control_plane  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS_POLICY = REPO_ROOT / "policies" / "products.yaml"
@@ -79,7 +81,7 @@ PR_TEMPLATE_VARIANTS = (
 # pinned commit and runs it, rather than forking scripts/dod-check.sh into
 # every product. See policies/dod-check-pin.yaml for why a SHA, and the
 # bump mechanism.
-CONTROL_PLANE_REPO = "Shashank2577/ai-sdlc"
+CONTROL_PLANE_REPO = control_plane()
 DOD_CHECK_PIN_FILE = REPO_ROOT / "policies" / "dod-check-pin.yaml"
 DOD_CHECK_WORKFLOW_PATH = ".github/workflows/dod-check.yml"
 
