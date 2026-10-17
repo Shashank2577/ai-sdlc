@@ -1,7 +1,7 @@
 """The control plane's identity, read from `foundry.yaml` (#324).
 
     from foundry_config import control_plane
-    control_plane()          # "Shashank2577/ai-sdlc"
+    control_plane()          # control_plane.repo from foundry.yaml, e.g. "owner/repo"
 
 Every default that used to be a literal owner/repo reads from here, so a
 fork edits one file. Parsed without PyYAML when it is missing: several
