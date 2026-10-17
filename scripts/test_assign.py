@@ -50,6 +50,113 @@ def ready(number, role="developer", *extra):
     return issue(number, ENTRY_STATE.get(role, "status:ready"), f"role:{role}", *extra)
 
 
+# Two products, mirrored from policies/products.yaml's shape rather than
+# read from it, for the same reason ENTRY_STATE is: plan() is a pure
+# function of its fixtures.
+REGISTRY = {
+    "default": "foundry-program",
+    "products": {
+        "foundry-program": {"repo": "o/control-plane"},
+        "ai-sdlc-pilot": {"repo": "o/pilot"},
+    },
+}
+
+
+class TestProductRouting(unittest.TestCase):
+    """Every work item lives in the control plane whatever product it
+    targets, so the item has to say which one (#290). Before this, every
+    dispatch went to the control plane's own product and pilot work only
+    ever ran when a person dispatched it by hand."""
+
+    def test_each_item_is_dispatched_to_its_own_product(self):
+        board = [ready(1), ready(2, "developer", "product:ai-sdlc-pilot"),
+                 ready(3, "developer", "product:foundry-program")]
+        p = A.plan(board, POLICY, registry=REGISTRY)
+        self.assertEqual([(d["number"], d["product"]) for d in p["dispatch"]],
+                         [(1, "foundry-program"), (2, "ai-sdlc-pilot"), (3, "foundry-program")])
+
+    def test_no_product_label_is_the_control_planes_own_product(self):
+        self.assertEqual(A.product_of(ready(1), REGISTRY), "foundry-program")
+        self.assertIsNone(A.ineligible_reason(ready(1), POLICY, REGISTRY))
+
+    def test_the_default_follows_the_registry_not_a_hardcoded_name(self):
+        products = {"control": {"repo": "o/control-plane"}, "pilot": {"repo": "o/pilot"}}
+        self.assertEqual(A.default_product(products, "o/control-plane"), "control")
+        # Unmatched or unknown repo: the historical name, never another product.
+        self.assertEqual(A.default_product(products, "o/elsewhere"), A.FALLBACK_PRODUCT)
+        self.assertEqual(A.default_product(products, ""), A.FALLBACK_PRODUCT)
+
+    def test_an_unknown_product_is_reported_not_guessed(self):
+        iss = ready(1, "developer", "product:ai-sdlc-pliot")
+        reason = A.ineligible_reason(iss, POLICY, REGISTRY)
+        self.assertIn("`ai-sdlc-pliot` is not in policies/products.yaml", reason)
+        self.assertIn("ai-sdlc-pilot, foundry-program", reason)
+        self.assertIsNone(A.product_of(iss, REGISTRY))
+        p = A.plan([iss], POLICY, registry=REGISTRY)
+        self.assertEqual(p["dispatch"], [])
+        self.assertEqual([s["number"] for s in p["skipped"]], [1])
+
+    def test_two_product_labels_is_a_contradiction_not_a_choice(self):
+        iss = ready(1, "developer", "product:ai-sdlc-pilot", "product:foundry-program")
+        reason = A.ineligible_reason(iss, POLICY, REGISTRY)
+        self.assertIn("several product labels", reason)
+        self.assertIsNone(A.product_of(iss, REGISTRY))
+        self.assertEqual(A.plan([iss], POLICY, registry=REGISTRY)["dispatch"], [])
+
+    def test_without_a_registry_only_the_control_plane_is_routable(self):
+        # A missing products.yaml must not turn a product label into a guess.
+        self.assertEqual(A.plan([ready(1)], POLICY)["dispatch"][0]["product"],
+                         A.FALLBACK_PRODUCT)
+        self.assertIn("not in policies/products.yaml",
+                      A.ineligible_reason(ready(1, "developer", "product:ai-sdlc-pilot"), POLICY))
+
+    def test_the_review_lane_routes_by_product_too(self):
+        pilot = issue(1, "status:in-review", "role:developer", "product:ai-sdlc-pilot")
+        p = A.plan([pilot], POLICY, with_open_pr={1}, registry=REGISTRY)
+        self.assertEqual([(d["role"], d["product"]) for d in p["dispatch"]],
+                         [("qa", "ai-sdlc-pilot")])
+
+    def test_the_review_lane_reports_an_unknown_product(self):
+        bad = issue(1, "status:in-review", "role:developer", "product:nope")
+        self.assertIn("not in policies/products.yaml", A.review_reason(bad, POLICY, {1}, REGISTRY))
+        p = A.plan([bad], POLICY, with_open_pr={1}, registry=REGISTRY)
+        self.assertEqual(p["dispatch"], [])
+        self.assertIn("not in policies/products.yaml", p["skipped"][0]["reason"])
+
+    def test_the_report_names_the_product(self):
+        p = A.plan([ready(2, "developer", "product:ai-sdlc-pilot")], POLICY, registry=REGISTRY)
+        self.assertIn("dispatch #2 as developer on ai-sdlc-pilot", A.render_plan(p, "policy.yaml"))
+
+
+class TestOpenPrsPerProductRepo(unittest.TestCase):
+    """A product item's PR lives in its product's repo, not the control
+    plane, and the branch carries the control plane's issue number — so the
+    same number can name unrelated branches in two repos (#290)."""
+
+    def test_a_pilot_items_pr_in_the_pilot_repo_counts(self):
+        board = [ready(7, "developer", "product:ai-sdlc-pilot")]
+        self.assertEqual(A.open_pr_numbers(board, {"o/pilot": {7}}, REGISTRY), {7})
+
+    def test_a_pilot_items_number_in_the_control_plane_does_not_count(self):
+        board = [ready(7, "developer", "product:ai-sdlc-pilot")]
+        self.assertEqual(A.open_pr_numbers(board, {"o/control-plane": {7}}, REGISTRY), set())
+
+    def test_a_control_plane_items_number_in_the_pilot_does_not_count(self):
+        self.assertEqual(A.open_pr_numbers([ready(7)], {"o/pilot": {7}}, REGISTRY), set())
+        self.assertEqual(A.open_pr_numbers([ready(7)], {"o/control-plane": {7}}, REGISTRY), {7})
+
+    def test_an_unroutable_item_has_no_open_pr_anywhere(self):
+        board = [ready(7, "developer", "product:nope")]
+        self.assertEqual(A.open_pr_numbers(board, {"o/pilot": {7}, "o/control-plane": {7}},
+                                           REGISTRY), set())
+
+    def test_a_pilot_review_is_dispatched_only_from_its_own_repos_pr(self):
+        pilot = issue(4, "status:in-review", "role:developer", "product:ai-sdlc-pilot")
+        prs = {"o/control-plane": {4}, "o/pilot": set()}
+        p = A.plan([pilot], POLICY, A.open_pr_numbers([pilot], prs, REGISTRY), REGISTRY)
+        self.assertEqual(p["dispatch"], [])
+
+
 class TestReviewLane(unittest.TestCase):
     """An author's finished work in review gets a QA session (#299): nothing
     ever labels an item role:qa, so without this lane QA only ran by hand."""
@@ -350,6 +457,12 @@ class TestPolicyLoading(unittest.TestCase):
         self.assertLessEqual(policy["wip"]["limit"], 10,
                              "a WIP limit above 10 is a review queue, not a limit")
         self.assertIn("developer", policy["routing"]["supported"])
+
+    def test_the_committed_registry_routes_both_products(self):
+        products = A.load_products()
+        self.assertIn("ai-sdlc-pilot", products)
+        self.assertEqual(A.default_product(products, products["foundry-program"]["repo"]),
+                         "foundry-program")
 
     def test_a_missing_policy_falls_back_to_something_conservative(self):
         policy, source = A.load_policy(Path("/nonexistent/policy.yaml"))
