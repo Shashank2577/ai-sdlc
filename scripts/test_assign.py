@@ -464,6 +464,17 @@ class TestPolicyLoading(unittest.TestCase):
         self.assertEqual(A.default_product(products, products["foundry-program"]["repo"]),
                          "foundry-program")
 
+    def test_an_item_awaiting_an_answer_is_left_for_the_wake(self):
+        # answers.yml re-dispatches the role that asked (#321); the loop
+        # picking it up first would run it without the answer.
+        policy, _ = A.load_policy()
+        for fixture in (policy, A.FALLBACK_POLICY):
+            with self.subTest(policy="committed" if fixture is policy else "fallback"):
+                self.assertIn("awaiting:answer",
+                              A.ineligible_reason(ready(1, "developer", "awaiting:answer"), fixture))
+        review = issue(2, "status:in-review", "role:developer", "awaiting:answer")
+        self.assertEqual(A.plan([review], policy, with_open_pr={2})["dispatch"], [])
+
     def test_a_missing_policy_falls_back_to_something_conservative(self):
         policy, source = A.load_policy(Path("/nonexistent/policy.yaml"))
         self.assertIn("fallback", source)

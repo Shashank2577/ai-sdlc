@@ -186,6 +186,23 @@ gates:
       status: enabled
       verified: 2026-09-06
 
+  # An agent's question to a person (#321). The format is
+  # shared-skills/asking-a-human/SKILL.md; answers.yml wakes the role that asked.
+  answer_questions:
+    question: "The session's numbered questions, each with a recommended answer"
+    owner: human                    # no agent role may answer its own question
+    granted_by: >-
+      a reply from a non-bot author with write access, posted below the
+      dispatcher's session-end comment for the session that asked
+      (scripts/questions.jq)
+    # PRD §7: a silent gate cannot stall work forever. Each question
+    # carries a recommended answer, and that recommendation is the default.
+    default_if_unanswered: >-
+      the questions expire, and the role is woken to proceed on the
+      recommended answers, stating each one as an assumption
+    sla_hours: 72
+    enforced_by: [answers_workflow]
+
   qa_verdict:
     question: "Does this meet its acceptance criteria?"
     owner: qa                       # an agent role may satisfy this one
