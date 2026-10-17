@@ -1,3 +1,9 @@
+---
+description: Writing acceptance criteria as Given/When/Then scenarios that
+  QA can check directly, with the REQ marker. Use whenever you write or rewrite
+  the acceptance criteria on a work item.
+---
+
 # Writing acceptance criteria in Gherkin
 
 Your acceptance criteria and QA's test plan are one artifact with two

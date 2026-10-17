@@ -1,3 +1,10 @@
+---
+description: 'Recording a security verdict: exactly one of security:approved
+  or security:rejected, comment first, the enforcement gap stated every time,
+  and rejections that cite a file and line. Use whenever you approve or reject
+  a change on security grounds.'
+---
+
 # Skill — issuing a security verdict
 
 ## Exactly one label, always

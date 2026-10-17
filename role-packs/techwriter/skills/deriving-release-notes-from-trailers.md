@@ -1,3 +1,10 @@
+---
+description: Writing release notes from the commit trailers that actually
+  landed on main, never from memory, and saying so when a trailer is missing
+  or malformed. Use when writing release notes or a changelog for a range
+  of commits.
+---
+
 # Skill — deriving release notes from trailers
 
 ## The rule

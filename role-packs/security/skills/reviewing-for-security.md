@@ -1,3 +1,9 @@
+---
+description: 'Reviewing a diff for attack surface rather than intent: the
+  five checks in cost order, and evidence that cites file, line and quoted
+  text. Use when reviewing any change for security.'
+---
+
 # Skill — reviewing for security
 
 ## Read the diff for attack surface, not for intent

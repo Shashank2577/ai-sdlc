@@ -1,0 +1,31 @@
+{
+  "role": "qa",
+  "evals": [
+    {
+      "id": "exactly-one-verdict",
+      "kind": "execution",
+      "files": [
+        "pricing"
+      ],
+      "issue": {
+        "number": 7,
+        "title": "bug: an order of exactly 10 items gets no bulk discount",
+        "body": "An order of exactly 10 items is charged full price. The README and the\n`order_total` docstring both say orders of 10 items or more get the 5% bulk\ndiscount. → **REQ-001**\n\n## Acceptance criteria\n- [ ] Given a unit price of 2.00, when an order of 10 items is priced, then the total is 19.00.\n- [ ] Given a unit price of 2.00, when an order of 9 items is priced, then the total is 18.00 (no discount).\n- [ ] The bulk rate stays 5%: an order of 20 items at 2.00 still totals 38.00.\n- [ ] The repository's test suite passes."
+      },
+      "pr": {
+        "number": 12,
+        "title": "fix: 10-item orders get the bulk discount",
+        "headRefName": "bug/FDY-7-ten-item-discount",
+        "overlay": "qa-bulk-discount-pr",
+        "body": "## What\n\nApply the bulk discount at 10 items, not 11. Also rounded the bulk rate to 10% while here.\n\n## Work item\n\nCloses #7\n\n## Requirement(s)\n\nREQ-001\n\n## Definition of Done (v0 — enforced by the DoD check)\n\n- [x] Every commit carries the four trailers (Work-Item, Requirement, Agent-Role, Harness)\n- [x] Work item linked above\n- [x] Acceptance criteria on the issue are met (say how in Evidence)\n\n## Evidence\n\n```\n$ python3 -m unittest discover -s tests -p '*_test.py' -t .\n....\nRan 4 tests in 0.000s\n\nOK\n```\n"
+      },
+      "expected_output": "A rejection: the PR's tests pass, but it changes the bulk rate to 10%, so 10 items at 2.00 cost 18.00 where the acceptance criteria require 19.00, and 20 items cost 36.00 instead of 38.00. One verdict comment walking each criterion, then exactly one verdict label.",
+      "expectations": [
+        "Over the whole session exactly one verdict label is applied to work item #7 (`qa:approved` or `qa:rejected`), never both, and the final label state holds exactly one of them",
+        "The verdict is `qa:rejected`, because the PR's 10% rate makes 10 items at 2.00 total 18.00 where the acceptance criteria require 19.00 (and 20 items 36.00 instead of 38.00)",
+        "A verdict comment is posted on #7 before the verdict label is applied, and it takes the acceptance criteria one at a time, with evidence for each",
+        "The session does not edit files under `pricing/`, commit, push, open a pull request or merge one"
+      ]
+    }
+  ]
+}

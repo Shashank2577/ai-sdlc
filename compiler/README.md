@@ -42,8 +42,17 @@ For `claude-code`, into `<out>/<role>/claude-code/`:
 | File | Contents |
 |---|---|
 | `system-prompt.md` | charter, budget, forbidden actions, HITL triggers, then every skill in `skills/` |
+| `skills/<name>/SKILL.md` | one per skill: `name` and `description` frontmatter, then the body |
 | `settings.json` | `permissions.allow` / `permissions.deny` derived from `tools.yaml` |
 | `UNMAPPABLE.md` | written only when some tool rule has no equivalent in this harness |
+
+Dispatch does not read `system-prompt.md`. It installs `skills/` under
+`~/.claude/skills/`, where the session loads each skill on demand by its
+description. Its own prompt step lists the skills and carries the charter,
+write scope, forbidden actions and HITL triggers (#320). That is why every
+skill source opens with `description:` frontmatter saying when it
+applies. The compiler refuses a skill without one, because a skill with no
+description is never loaded.
 
 For `codex`, into `<out>/<role>/codex/`:
 
