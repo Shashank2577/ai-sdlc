@@ -1,7 +1,7 @@
 {
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-17 10:34 UTC"
+    "generated_at": "2026-10-17 17:18 UTC"
   },
   "facts": {
     "roles_expected": [
@@ -51,10 +51,10 @@
     ],
     "agent_delivered_prs": 27,
     "dispatch_runs": {
-      "failure": 29,
-      "success": 71
+      "success": 76,
+      "failure": 24
     },
-    "merged_prs": 136,
+    "merged_prs": 137,
     "dispatched_issues": [
       191,
       198,
@@ -86,7 +86,9 @@
       305,
       307,
       309,
-      318
+      318,
+      320,
+      321
     ]
   },
   "coverage": {
