@@ -361,3 +361,22 @@ products:
       linked to the pilot repo. It is empty until work items can name
       their product — today every item lives in the control plane and the
       sync hardcodes board 2; routing per product is #290.
+
+  foundry-trial:
+    repo: Shashank2577/foundry-trial
+    project: {owner: Shashank2577, number: 4}
+    environments:
+      - {name: preview, human_reviewer_required: false}
+      - {name: dev, human_reviewer_required: false}
+      - {name: staging, human_reviewer_required: false}
+      - {name: prod, human_reviewer_required: true}
+    roles: [product-manager, architect, developer, qa, devops, techwriter, security]
+    # ADR-0011: products lay out differently from the control plane. A
+    # developer may write root-level files (package.json, README.md, ...)
+    # here; a pack's own deny list still wins, so .github/ stays devops's.
+    write_scope_extra:
+      developer: ["*"]
+    bootstrapped: true
+    notes: >-
+      Registered by scripts/foundry-init.py on 2026-10-17. `bootstrapped` was
+      verified by bootstrap-product.py's floor at that time.
