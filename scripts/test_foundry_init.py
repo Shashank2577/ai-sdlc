@@ -39,7 +39,8 @@ SEVEN = {"role:security", "role:operations", "security:approved", "security:reje
 class FakeGitHub:
     """Just enough GitHub. Every write changes what later reads return."""
 
-    def __init__(self, product_exists=True, admin=True):
+    def __init__(self, product_exists=True, admin=True, free_private=False):
+        self.free_private = free_private
         self.repos = {CP: {"admin": True, "owner_type": "User"}}
         if product_exists:
             self.repos[PRODUCT] = {"admin": admin, "owner_type": "User"}
@@ -94,7 +95,11 @@ class FakeGitHub:
 
     def put_environment(self, repo, name, reviewers):
         self.writes.append(("environment", repo, name))
+        if reviewers and self.free_private:
+            self.envs.setdefault(repo, {})[name] = []
+            return f"{name} created without its required reviewer (plan limit)"
         self.envs.setdefault(repo, {})[name] = list(reviewers)
+        return ""
 
     def vulnerability_alerts(self, repo):
         return repo in self.alerts
@@ -112,10 +117,14 @@ class FakeGitHub:
         return "default setup configured"
 
     def protection(self, repo, branch):
+        if self.free_private:
+            return {"unavailable": "gh: Upgrade to GitHub Pro or make this repository public"}
         return self.protections.get(repo)
 
     def put_protection(self, repo, contexts):
         self.writes.append(("protection", repo))
+        if self.free_private:
+            raise RuntimeError("gh: Upgrade to GitHub Pro or make this repository public (HTTP 403)")
         self.protections[repo] = {"required_status_checks": {"contexts": list(contexts)},
                                   "enforce_admins": {"enabled": True},
                                   "required_conversation_resolution": {"enabled": True}}
@@ -184,10 +193,14 @@ def ctx():
 
 
 def apply_all(w, c):
+    """Like main(): a failed step is reported and the rest still run."""
     steps = F.plan(w, c)
     for s in steps:
         if s.status == "todo":
-            s.apply()
+            try:
+                s.apply()
+            except RuntimeError:
+                pass
     return F.plan(w, c)
 
 
@@ -325,6 +338,24 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(w.dispatches, [400])
         self.assertEqual(todo(steps), [])
         self.assertNotIn(("pr", CP, KEY), w.writes)
+
+
+    def test_a_free_private_repo_reports_the_plan_limit_instead_of_retrying(self):
+        # GitHub Free: no branch protection and no required reviewers on a
+        # private repo. Found on the first live run (#323), where it crashed.
+        w = FakeGitHub(free_private=True)
+        steps = apply_all(w, ctx())
+        by = {s.title: s for s in steps}
+        self.assertEqual(by["branch protection"].status, "manual")
+        self.assertIn("--visibility public", by["branch protection"].detail)
+        self.assertEqual(by["environments"].status, "manual")
+        self.assertIn("prod", by["environments"].detail)
+        self.assertEqual(todo(steps), [])
+        # Tried once on the empty repo (the limit only shows once a branch
+        # exists), never again.
+        tries = w.writes.count(("protection", PRODUCT))
+        apply_all(w, ctx())
+        self.assertEqual(w.writes.count(("protection", PRODUCT)), tries)
 
 
 class TestPieces(unittest.TestCase):
