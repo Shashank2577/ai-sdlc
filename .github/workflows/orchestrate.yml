@@ -6,16 +6,17 @@
 # another workflow — without that rule, a loop like this one could trigger
 # itself forever.
 #
-# Use FOUNDRY_TOKEN (one PAT for the whole system); ORCHESTRATOR_TOKEN still
-# works if you would rather scope this loop separately. Without either, the
-# loop still runs and still publishes its plan, in dry-run mode, and says why.
-# A loop that fails silently every hour is worse than one that is visibly not
-# armed.
+# Use the Foundry GitHub App (ADR-0011: `vars.FOUNDRY_APP_CLIENT_ID` and
+# `secrets.FOUNDRY_APP_PRIVATE_KEY`). FOUNDRY_TOKEN or ORCHESTRATOR_TOKEN
+# (a PAT) still works until the App is set up. Without any of them, the
+# loop still runs and still publishes its plan, in dry-run mode, and says
+# why. A loop that fails silently every hour is worse than one that is
+# visibly not armed.
 #
-# A PAT belonging to a person also makes the dispatched run report
-# `actor = <that person>, type = User`, which is what satisfies the
-# dispatcher's human-actor check. A GitHub App token would report a bot and
-# need `allowed_bots` on the action instead.
+# A dispatch the App starts reports the App as its actor, not a person.
+# dispatch.yml names exactly this App in claude-code-action's
+# `allowed_bots`, so the action's human-actor check admits it and no
+# other bot.
 name: Orchestrate
 
 on:
@@ -86,18 +87,35 @@ jobs:
       - name: Install PyYAML
         run: python -m pip install --quiet pyyaml
 
+      # ADR-0011: with the Foundry GitHub App configured, its token arms
+      # the loop in place of the PAT. Owner-wide, because a product item's
+      # pull request lives in the product's repo, not this one. The
+      # permissions mirror role-packs/orchestrator/pack.yaml's.
+      - name: Mint the orchestrator's GitHub App token
+        id: app_token
+        if: vars.FOUNDRY_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.FOUNDRY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.FOUNDRY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-actions: write
+          permission-issues: write
+          permission-contents: read
+          permission-pull-requests: read
+
       - name: Decide whether the loop is armed
         id: mode
         env:
-          ORCHESTRATOR_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
+          ORCHESTRATOR_TOKEN: ${{ steps.app_token.outputs.token || secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN }}
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           if [ -z "${ORCHESTRATOR_TOKEN}" ]; then
             echo "armed=false" >> "$GITHUB_OUTPUT"
             {
-              echo "> **Loop is not armed.** Neither \`FOUNDRY_TOKEN\` nor"
-              echo "> \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
+              echo "> **Loop is not armed.** No Foundry GitHub App (\`FOUNDRY_APP_CLIENT_ID\`),"
+              echo "> \`FOUNDRY_TOKEN\` or \`ORCHESTRATOR_TOKEN\` is set, so this run computes the plan and"
               echo "> dispatches nothing. GITHUB_TOKEN cannot start another workflow by"
               echo "> design. See the wiki: Operating the System -> Arming the system."
             } >> "$GITHUB_STEP_SUMMARY"
@@ -112,7 +130,7 @@ jobs:
         env:
           # The PAT when there is one; otherwise the workflow token, which is
           # enough to read the board for a dry run.
-          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token || secrets.FOUNDRY_TOKEN || secrets.ORCHESTRATOR_TOKEN || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail

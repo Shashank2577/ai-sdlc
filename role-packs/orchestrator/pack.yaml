@@ -20,6 +20,17 @@ identity:
   # repo + workflow + project. `workflow` is required to start
   # another workflow run, which is the whole job.
   token_secret: FOUNDRY_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  # Dispatches (actions) and labels; writes no code.
+  github_permissions:
+    contents: read
+    pull-requests: read
+    issues: write
+    actions: write
+    checks: read
+    statuses: read
   signing: gpg
   provisioned: false
 

@@ -6,9 +6,12 @@
 # organization-owned projects have one. That is a platform limitation, not a
 # design choice; moving the project to an org is the only way to use an App.
 #
-# Use FOUNDRY_TOKEN (one PAT for the whole system); PROJECT_TOKEN still works
-# if you would rather scope this separately. Without either it reports what it
-# would change and changes nothing.
+# Use FOUNDRY_PROJECT_TOKEN: a classic PAT with only the `project` scope
+# (plus `repo` if the board holds private repos' items). It is the one PAT
+# left once the Foundry GitHub App replaces the others (ADR-0011), because
+# the App cannot reach a user-owned board. FOUNDRY_TOKEN and PROJECT_TOKEN
+# still work. Without any of them it reports what it would change and
+# changes nothing.
 name: Project sync
 
 on:
@@ -53,8 +56,8 @@ jobs:
 
       - name: Sync the board to the labels
         env:
-          GH_TOKEN: ${{ secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
-          HAS_TOKEN: ${{ (secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN) != '' }}
+          GH_TOKEN: ${{ secrets.FOUNDRY_PROJECT_TOKEN || secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
+          HAS_TOKEN: ${{ (secrets.FOUNDRY_PROJECT_TOKEN || secrets.FOUNDRY_TOKEN || secrets.PROJECT_TOKEN) != '' }}
           REQUESTED_DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail

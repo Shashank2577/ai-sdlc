@@ -128,6 +128,42 @@ class TestValidation(unittest.TestCase):
             out = cp.compile_claude_code(cp.read_pack("widget"))
         self.assertEqual(out["token-secret"].strip(), "WIDGET_TOKEN")
 
+    def test_app_permissions_are_compiled_for_every_harness(self):
+        # ADR-0011: the dispatcher mints the App token from this file.
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] = files["pack.yaml"].replace(
+            "  token_secret: WIDGET_TOKEN\n",
+            "  token_secret: WIDGET_TOKEN\n  github_permissions:\n"
+            "    contents: write\n    issues: write\n")
+        with PackFixture(files):
+            pack = cp.read_pack("widget")
+            for compile_fn in (cp.compile_claude_code, cp.compile_codex, cp.compile_opencode):
+                self.assertEqual(compile_fn(pack)["github-permissions"],
+                                 "contents=write\nissues=write\n")
+
+    def test_no_app_permissions_compiles_to_an_empty_file(self):
+        # Empty, not omitted: the dispatcher refuses to mint from it rather
+        # than inherit the installation's whole permission set.
+        with PackFixture(MINIMAL_PACK):
+            out = cp.compile_claude_code(cp.read_pack("widget"))
+        self.assertEqual(out["github-permissions"], "")
+
+    def test_an_unknown_app_permission_is_rejected(self):
+        files = dict(MINIMAL_PACK)
+        files["pack.yaml"] = files["pack.yaml"].replace(
+            "  token_secret: WIDGET_TOKEN\n",
+            "  token_secret: WIDGET_TOKEN\n  github_permissions:\n    administration: write\n")
+        with PackFixture(files):
+            with self.assertRaises(cp.PackError) as ctx:
+                cp.read_pack("widget")
+            self.assertIn("administration", str(ctx.exception))
+
+    def test_real_packs_keep_workflows_write_to_devops(self):
+        for root in sorted(cp.PACKS_DIR.glob("*/pack.yaml")):
+            pack = cp.read_pack(root.parent.name)
+            has = pack["github_permissions"].get("workflows") == "write"
+            self.assertEqual(has, pack["role"] == "devops", pack["role"])
+
     def test_dispatchable_from_defaults_to_status_ready(self):
         # #67: a pack silent on this inherits today's global behaviour
         # rather than becoming un-dispatchable or wide open.

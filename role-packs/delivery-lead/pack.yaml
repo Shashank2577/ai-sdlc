@@ -29,6 +29,16 @@ identity:
   # carry `workflow` scope — that split belongs to devops alone (#42).
   # repo scope only, same privilege level as developer/QA/PM.
   token_secret: FOUNDRY_DEV_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  github_permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+    actions: read
+    checks: read
+    statuses: read
   signing: gpg          # required_signatures on main is currently off
   provisioned: false
 

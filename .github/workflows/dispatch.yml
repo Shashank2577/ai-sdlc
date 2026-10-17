@@ -222,6 +222,22 @@ jobs:
           echo "token_secret=${token_secret}" >> "$GITHUB_OUTPUT"
           echo "Credential declared by the pack: ${token_secret}" >> "$GITHUB_STEP_SUMMARY"
 
+          # The GitHub App token's permissions (ADR-0011), one output per
+          # key the mint step below names. A key the pack leaves out stays
+          # empty, and create-github-app-token skips an empty permission
+          # input, so the token never carries more than the pack declared.
+          perms="${pack_dir}/github-permissions"
+          for key in contents pull-requests issues workflows actions checks statuses; do
+            level=$(grep -E "^${key}=" "$perms" | cut -d= -f2 || true)
+            echo "perm_${key//-/_}=${level}" >> "$GITHUB_OUTPUT"
+          done
+          if [ -s "$perms" ]; then
+            echo "has_github_permissions=true" >> "$GITHUB_OUTPUT"
+            echo "App token permissions declared by the pack: $(paste -sd, "$perms")" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "has_github_permissions=false" >> "$GITHUB_OUTPUT"
+          fi
+
           # Which status:* labels this role may be dispatched from. Same
           # pattern as token_secret above: the pack declares it, the
           # dispatcher carries no role->state table of its own, and adding
@@ -318,6 +334,16 @@ jobs:
           fi
           repo=$(jq -r '.repo' "${RUNNER_TEMP}/product.json")
           echo "repo=${repo}" >> "$GITHUB_OUTPUT"
+          # What the App token below may reach: the product, plus the
+          # control plane when the same installation covers it, since the
+          # session comments on its work item there.
+          owner="${repo%%/*}"
+          app_repositories="${repo#*/}"
+          if [ "${owner,,}" = "${GITHUB_REPOSITORY_OWNER,,}" ] && [ "${repo,,}" != "${GITHUB_REPOSITORY,,}" ]; then
+            app_repositories="${app_repositories},${GITHUB_REPOSITORY#*/}"
+          fi
+          echo "owner=${owner}" >> "$GITHUB_OUTPUT"
+          echo "app_repositories=${app_repositories}" >> "$GITHUB_OUTPUT"
           echo "Target product: \`${PRODUCT}\` -> \`${repo}\` (resolved from \`policies/products.yaml\`)." \
             >> "$GITHUB_STEP_SUMMARY"
 
@@ -338,6 +364,47 @@ jobs:
       # Moving the control plane there before the product arrives is the
       # only ordering that works: the registry that names the product lives
       # in the control plane, so it cannot be checked out second.
+      # ---------------------------------------------------------------
+      # 2b. The role's GitHub write credential (ADR-0011).
+      # ---------------------------------------------------------------
+      # When the Foundry GitHub App is configured, the session runs with an
+      # installation token minted here, carrying exactly the permissions
+      # the role's pack declares. Only devops declares `workflows: write`,
+      # so GitHub itself refuses any other role's push to
+      # .github/workflows/**, the boundary ADR-0001 drew with separate PATs.
+      # The token expires within the hour and is revoked when the job ends.
+      # Without the App, the pack's `token_secret` PAT is used as before.
+      #
+      # A pack that declares no permissions is refused rather than minted:
+      # create-github-app-token with no permission inputs inherits the
+      # installation's full set, workflows included.
+      - name: Refuse an App token for a pack that declares no permissions
+        if: vars.FOUNDRY_APP_CLIENT_ID != '' && steps.pack.outputs.has_github_permissions != 'true'
+        env:
+          ROLE: ${{ inputs.role }}
+        run: |
+          echo "::error::role-packs/${ROLE}/pack.yaml declares no identity.github_permissions. \
+          With the GitHub App configured, a token minted without them would carry every \
+          permission the installation has. Declare the role's permissions (ADR-0011)."
+          exit 1
+
+      - name: Mint the role's GitHub App token
+        id: app_token
+        if: vars.FOUNDRY_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.FOUNDRY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.FOUNDRY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.product.outputs.owner }}
+          repositories: ${{ steps.product.outputs.app_repositories }}
+          permission-contents: ${{ steps.pack.outputs.perm_contents }}
+          permission-pull-requests: ${{ steps.pack.outputs.perm_pull_requests }}
+          permission-issues: ${{ steps.pack.outputs.perm_issues }}
+          permission-workflows: ${{ steps.pack.outputs.perm_workflows }}
+          permission-actions: ${{ steps.pack.outputs.perm_actions }}
+          permission-checks: ${{ steps.pack.outputs.perm_checks }}
+          permission-statuses: ${{ steps.pack.outputs.perm_statuses }}
+
       - name: Move the control plane out of the workspace
         run: |
           set -euo pipefail
@@ -350,7 +417,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.product.outputs.repo }}
-          token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app_token.outputs.token || secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       # Belt to the move above. If $CP_DIR is ever unreachable again, fail
@@ -633,7 +700,12 @@ jobs:
         run: |
           set -euo pipefail
           comment="${RUNNER_TEMP}/start-comment.md"
+          # The first line is the dispatch record the scope check reads
+          # (ADR-0011). It counts because github-actions[bot] posts it, which
+          # no agent token can, and because it names this run, which the
+          # check confirms is dispatch.yml running this item as this role.
           cat > "$comment" <<EOF
+          <!-- foundry:dispatch-start role=${ROLE} product=${PRODUCT} run=${GITHUB_RUN_ID} -->
           ### Dispatch — session start
 
           | | |
@@ -1059,8 +1131,14 @@ jobs:
           ROLE: ${{ inputs.role }}
           DECLARED: ${{ steps.pack.outputs.token_secret }}
           RESOLVED: ${{ secrets[steps.pack.outputs.token_secret] }}
+          APP_SLUG: ${{ steps.app_token.outputs.app-slug }}
         run: |
           set -euo pipefail
+          if [ -n "${APP_SLUG}" ]; then
+            echo "using=github-app" >> "$GITHUB_OUTPUT"
+            echo "Session credential: GitHub App \`${APP_SLUG}[bot]\` installation token, scoped by the \`${ROLE}\` pack (ADR-0011)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           if [ -n "${RESOLVED}" ]; then
             echo "using=${DECLARED}" >> "$GITHUB_OUTPUT"
             echo "Session credential: \`${DECLARED}\`." >> "$GITHUB_STEP_SUMMARY"
@@ -1120,6 +1198,11 @@ jobs:
           # publish. Leave this on: an agent failure the log cannot
           # explain is the wrong kind of quiet.
           show_full_output: true
+          # A dispatch the orchestrator started with the App's token has the
+          # App as its actor. The action refuses non-human actors unless
+          # they are named here; naming only this App keeps every other bot
+          # out (ADR-0011).
+          allowed_bots: ${{ steps.app_token.outputs.app-slug }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_API_KEY == '' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
           # Per-role, from the pack. Least privilege per role (PRD §13):
@@ -1127,7 +1210,7 @@ jobs:
           # also the credential the product checkout above authenticated
           # with, so a session's git push lands with the same identity its
           # gh calls use.
-          github_token: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app_token.outputs.token || secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
 
       # No published GitHub Action wraps the codex CLI the way
       # claude-code-action wraps claude-code (openai/codex-action exists
@@ -1211,7 +1294,7 @@ jobs:
           ISSUE: ${{ inputs.issue }}
           ROLE: ${{ inputs.role }}
           PRODUCT_REPO: ${{ steps.product.outputs.repo }}
-          PRODUCT_TOKEN: ${{ secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
+          PRODUCT_TOKEN: ${{ steps.app_token.outputs.token || secrets[steps.pack.outputs.token_secret] || secrets.GITHUB_TOKEN }}
           TURNS: ${{ steps.budget.outputs.turns }}
           COST_USD: ${{ steps.budget.outputs.cost_usd }}
           TOKENS: ${{ steps.budget.outputs.tokens }}
