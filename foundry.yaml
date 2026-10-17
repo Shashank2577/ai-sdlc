@@ -1,0 +1,17 @@
+# Who this control plane is (#324). After forking, this is the one file to
+# edit: scripts, dashboards, the portal and the wiki read these values
+# instead of carrying the owner and repo as literals. FOUNDRY_CONTROL_PLANE
+# in the environment overrides `repo` for one run.
+#
+# Configuration only. History keeps the names it was written with: ADRs,
+# commit trailers, issue citations and the registry's own notes say
+# `Shashank2577/foundry-program` or `ai-sdlc` because that is what was true
+# when they were written, and rewriting a citation is not a config change.
+version: 0
+
+control_plane:
+  repo: Shashank2577/ai-sdlc
+  # The control plane's own key in policies/products.yaml.
+  product: foundry-program
+  # `users` or `orgs`: which URL prefix the owner's Projects boards live under.
+  owner_kind: users

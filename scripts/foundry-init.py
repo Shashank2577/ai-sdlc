@@ -59,6 +59,9 @@ from pathlib import Path
 from typing import Callable, Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import foundry_config  # noqa: E402  (#324)
+
 LABELS_PATH = REPO_ROOT / "policies" / "labels.yaml"
 PRODUCTS_PATH = REPO_ROOT / "policies" / "products.yaml"
 ENVIRONMENTS_PATH = REPO_ROOT / "policies" / "environments.yaml"
@@ -837,15 +840,11 @@ def app_installation_repos(app: dict, owner: str) -> set[str]:
 # CLI
 # --------------------------------------------------------------------------
 
-def control_plane_of_checkout() -> str:
-    return gh(["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"]).stdout.strip()
-
-
 def main(argv: list[str] | None = None, world=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("repo", help="owner/name of the product repo")
     ap.add_argument("--key", help="products.yaml key (default: the repo name)")
-    ap.add_argument("--control-plane", help="owner/name of the control plane (default: this checkout's repo)")
+    ap.add_argument("--control-plane", help="owner/name of the control plane (default: foundry.yaml)")
     ap.add_argument("--plan", action="store_true", help="print the plan and readiness; change nothing")
     ap.add_argument("--yes", action="store_true", help="apply without asking")
     ap.add_argument("--create-app", action="store_true", help="create the Foundry GitHub App if it is not configured")
@@ -853,7 +852,7 @@ def main(argv: list[str] | None = None, world=None) -> int:
 
     w = world or GitHub()
     started = time.time()
-    ctx = Ctx(control_plane=args.control_plane or control_plane_of_checkout(), repo=args.repo,
+    ctx = Ctx(control_plane=args.control_plane or foundry_config.control_plane(), repo=args.repo,
               key=args.key or args.repo.split("/")[1], login=w.whoami(), create_app=args.create_app)
     steps = plan(w, ctx)
     print(f"foundry-init {ctx.repo} as `{ctx.key}` (control plane {ctx.control_plane}, as {ctx.login})\n")

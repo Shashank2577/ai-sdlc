@@ -26,6 +26,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import build as B  # noqa: E402  — shared CSS and escaping
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import control_plane  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 REPO_ROOT = HERE.parent
 COVERAGE = REPO_ROOT / "requirements" / "coverage.yaml"
@@ -405,7 +407,7 @@ def render(cov: dict, trace: dict, facts: dict, meta: dict, policy: dict) -> str
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "dashboards" / "site")
-    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
+    ap.add_argument("--repo", default=control_plane())
     ap.add_argument("--no-github", action="store_true")
     args = ap.parse_args()
 
