@@ -3,8 +3,8 @@
 written by a role that was actually dispatched on its work item, and that
 role's `write_scope` allows the file.
 
-    check-write-scope.py --repo Shashank2577/ai-sdlc --pr 123
-    check-write-scope.py --repo owner/product --pr 7 --control-plane Shashank2577/ai-sdlc
+    check-write-scope.py --repo owner/control-plane --pr 123
+    check-write-scope.py --repo owner/product --pr 7 --control-plane owner/control-plane
     check-write-scope.py ... --comment       # post the report on the PR when it fails
 
 Two facts decide it, and an agent can assert neither about itself:

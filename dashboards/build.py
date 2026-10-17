@@ -24,6 +24,8 @@ import sys
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import control_plane  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REQ_INDEX = REPO_ROOT / "requirements" / "index.md"
@@ -435,7 +437,7 @@ def main() -> int:
         pulls = collect_pulls(commits)
 
     rows = build_matrix(requirements, commits, pulls)
-    repo = args.repo or "Shashank2577/foundry-program"
+    repo = args.repo or control_plane()
     meta = {
         "repo": repo,
         "repo_url": f"https://github.com/{repo}",

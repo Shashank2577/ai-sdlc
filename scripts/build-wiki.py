@@ -22,6 +22,8 @@ import re
 import shutil
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import repo_url, pages_url, board_url, control_plane_product  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WIKI_SRC = REPO_ROOT / "wiki"
@@ -83,8 +85,7 @@ def roles_page() -> str:
             "",
             f"**Mission.** {first_paragraph(charter, 'Mission') or pack.get('mission', '')}",
             "",
-            f"- Pack: [`role-packs/{role}/`](https://github.com/Shashank2577/"
-            f"foundry-program/tree/main/role-packs/{role})",
+            f"- Pack: [`role-packs/{role}/`]({repo_url()}/tree/main/role-packs/{role})",
             f"- Skills: {', '.join(f'`{s}`' for s in skills) or '_none_'}",
             f"- Produces: {', '.join(f'`{p}`' for p in pack.get('produces', []))}",
             f"- Bot identity: `{ident.get('git_user', '—')}`"
@@ -140,7 +141,7 @@ def requirements_page(traceability: dict | None) -> str:
         "Every requirement traces to commits and merged pull requests through "
         "the `Requirement:` commit trailer. This table is computed; the live "
         "version with per-commit detail is the "
-        "[traceability matrix](https://shashank2577.github.io/foundry-program/traceability.html).",
+        f"[traceability matrix]({pages_url()}/traceability.html).",
         "", f"**Current state:** {summary}.", "",
         "| ID | Requirement | PRD § | Status | Merged PRs |",
         "|---|---|---|---|---|",
@@ -169,7 +170,18 @@ def home_page(traceability: dict | None) -> str:
             + f"\n_Last generated: {meta.get('generated_at', 'unknown')}._\n")
 
 
-SIDEBAR = """\
+def board_number() -> int | None:
+    """The control plane's own board, from its policies/products.yaml entry."""
+    import yaml
+    products = (yaml.safe_load((REPO_ROOT / "policies" / "products.yaml").read_text()) or {}).get("products") or {}
+    project = (products.get(control_plane_product()) or {}).get("project") or {}
+    return project.get("number")
+
+
+def sidebar() -> str:
+    number = board_number()
+    board = f"- [Board]({board_url(number)})\n" if number else ""
+    return f"""\
 ### Foundry
 
 - [[Home]]
@@ -180,10 +192,9 @@ SIDEBAR = """\
 
 ### Live
 
-- [Board](https://github.com/users/Shashank2577/projects/2)
-- [Traceability](https://shashank2577.github.io/foundry-program/traceability.html)
-- [Standup](https://shashank2577.github.io/foundry-program/standup.html)
-- [Repository](https://github.com/Shashank2577/foundry-program)
+{board}- [Traceability]({pages_url()}/traceability.html)
+- [Standup]({pages_url()}/standup.html)
+- [Repository]({repo_url()})
 """
 
 
@@ -215,7 +226,7 @@ def main() -> int:
     (args.out / "Home.md").write_text(home_page(traceability))
     (args.out / "Roles.md").write_text(roles_page())
     (args.out / "Requirements.md").write_text(requirements_page(traceability))
-    (args.out / "_Sidebar.md").write_text(SIDEBAR)
+    (args.out / "_Sidebar.md").write_text(sidebar())
 
     pages = sorted(p.name for p in args.out.glob("*.md"))
     print(f"wiki: {len(pages)} page(s) -> {args.out}")

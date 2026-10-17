@@ -48,6 +48,8 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from foundry_config import control_plane  # noqa: E402  (#324: owner/repo come from foundry.yaml)
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
@@ -443,7 +445,7 @@ def render_html(delivered: list[Delivered], change_requests: list[ChangeRequest]
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "portal" / "site")
-    ap.add_argument("--repo", default="Shashank2577/ai-sdlc")
+    ap.add_argument("--repo", default=control_plane())
     ap.add_argument("--ref", default="HEAD", help="git ref to scan for delivered work")
     ap.add_argument("--no-github", action="store_true",
                     help="git only — nothing can be confirmed delivered without gh")
@@ -471,7 +473,7 @@ def main() -> int:
     exclude = set(delivered_map) | {c.issue for c in change_requests}
     in_progress = build_in_progress(issues, exclude)
 
-    repo = args.repo or "Shashank2577/ai-sdlc"
+    repo = args.repo or control_plane()
     meta = {
         "repo": repo,
         "repo_url": f"https://github.com/{repo}",
