@@ -1,3 +1,10 @@
+---
+description: 'Writing the pull request: the repo''s PR template, Closes #n,
+  ticking DoD boxes only when true or deferring them properly, real evidence,
+  and walking each acceptance criterion. Use before running gh pr create or
+  editing a PR body.'
+---
+
 # Skill — pull request authoring
 
 The PR is the deliverable. The branch is just how it got there.

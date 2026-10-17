@@ -1,3 +1,9 @@
+---
+description: Writing documentation that explains why rather than restating
+  what the code does, with a test to apply to each paragraph. Use when writing
+  or reviewing any README, wiki page or doc comment.
+---
+
 # Skill — docs that don't drift
 
 ## The failure mode this prevents

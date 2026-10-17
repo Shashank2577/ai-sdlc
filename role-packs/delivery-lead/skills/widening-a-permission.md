@@ -1,3 +1,10 @@
+---
+description: The order of questions before widening a write_scope, a gate
+  rule or a credential. Use when a session is blocked by a permission or a
+  gate and the fix looks like editing policy, especially when the reason is
+  to unblock a story right now.
+---
+
 # Skill — widening a permission
 
 ## The situation this skill is for

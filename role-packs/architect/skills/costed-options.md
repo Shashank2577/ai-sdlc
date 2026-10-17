@@ -1,3 +1,10 @@
+---
+description: 'How to cost the options in an ADR, an escalation or a decision
+  gate: each option gets a number or named quantity, a consequence, an honest
+  do-nothing, and a one-sentence recommendation that names the tradeoff. Use
+  whenever you present options A/B/C for a human to choose between.'
+---
+
 # Skill — costed options
 
 ## A cost is a number or a named quantity, not an adjective
