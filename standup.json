@@ -1,84 +1,11 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-18T10:54:00.084365+00:00",
-  "roles": [
-    {
-      "role": "human",
-      "commits": 1,
-      "requirements": [
-        "REQ-004"
-      ],
-      "harnesses": [
-        "foundry-init"
-      ],
-      "subjects": [
-        {
-          "sha": "6368875",
-          "subject": "chore(products): register foundry-trial (Shashank2577/foundry-trial) (#334)"
-        }
-      ]
-    }
-  ],
-  "commits_total": 1,
+  "generated_at": "2026-10-19T12:56:30.091853+00:00",
+  "roles": [],
+  "commits_total": 0,
   "pulls": {
-    "opened": [
-      {
-        "number": 334,
-        "title": "chore(products): register foundry-trial",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/334",
-        "branch": "foundry-init/foundry-trial"
-      },
-      {
-        "number": 333,
-        "title": "feat(dispatch): codex sessions get the role's skills too, on demand",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/333",
-        "branch": "story/FDY-332-codex-gets-skills"
-      },
-      {
-        "number": 330,
-        "title": "chore(config): the control plane's owner and repo live in foundry.yaml",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/330",
-        "branch": "chore/FDY-324-one-config"
-      },
-      {
-        "number": 329,
-        "title": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/329",
-        "branch": "story/FDY-323-foundry-init"
-      },
-      {
-        "number": 328,
-        "title": "feat(dispatch): agents ask a person and hear the answer (#321)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/328",
-        "branch": "story/FDY-321-ask-and-hear-the-answer"
-      },
-      {
-        "number": 327,
-        "title": "feat(security): one GitHub App with per-role tokens, and a required scope check (ADR-0011)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/327",
-        "branch": "story/FDY-322-github-app-and-scope-check"
-      },
-      {
-        "number": 326,
-        "title": "Work items carry their product; orchestrator and board sync route per product (#290)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/326",
-        "branch": "story/FDY-290-product-routing"
-      },
-      {
-        "number": 325,
-        "title": "feat(dispatch): role-pack skills reach the session, on demand",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/325",
-        "branch": "story/FDY-320-skills-reach-sessions"
-      }
-    ],
-    "merged": [
-      {
-        "number": 334,
-        "title": "chore(products): register foundry-trial",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/334",
-        "branch": "foundry-init/foundry-trial"
-      }
-    ],
+    "opened": [],
+    "merged": [],
     "closed_unmerged": [],
     "open_now": 10
   },
@@ -86,50 +13,74 @@
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39101741338",
-      "at": "2026-10-18T05:47:05Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39217530485",
+      "at": "2026-10-19T07:40:43Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39101739738",
-      "at": "2026-10-18T05:47:04Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39217527825",
+      "at": "2026-10-19T07:40:42Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39084521449",
-      "at": "2026-10-18T00:54:52Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39184018195",
+      "at": "2026-10-19T01:09:11Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39084520051",
-      "at": "2026-10-18T00:54:50Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39184016309",
+      "at": "2026-10-19T01:09:09Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39074146453",
-      "at": "2026-10-17T22:13:00Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39174806097",
+      "at": "2026-10-18T23:02:28Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39074144633",
-      "at": "2026-10-17T22:12:59Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39174804184",
+      "at": "2026-10-18T23:02:26Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39061958559",
-      "at": "2026-10-17T19:19:24Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39163921774",
+      "at": "2026-10-18T20:34:26Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39061956966",
-      "at": "2026-10-17T19:19:23Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39163919982",
+      "at": "2026-10-18T20:34:24Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39152251932",
+      "at": "2026-10-18T18:01:35Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39152250171",
+      "at": "2026-10-18T18:01:34Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39136337903",
+      "at": "2026-10-18T14:30:56Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "main",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39136336050",
+      "at": "2026-10-18T14:30:55Z"
     }
   ],
   "board": {
@@ -156,7 +107,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1044.5,
+      "hours": 1070.5,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -164,7 +115,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 999.8,
+      "hours": 1025.8,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
