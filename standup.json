@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-23T11:28:51.874884+00:00",
+  "generated_at": "2026-10-24T10:48:46.396218+00:00",
   "roles": [],
   "commits_total": 0,
   "pulls": {
@@ -13,62 +13,62 @@
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39935683811",
-      "at": "2026-10-23T09:58:01Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40073233133",
+      "at": "2026-10-24T07:12:39Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39935681101",
-      "at": "2026-10-23T09:57:59Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40073231342",
+      "at": "2026-10-24T07:12:37Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39901299155",
-      "at": "2026-10-23T04:37:24Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40050326341",
+      "at": "2026-10-24T01:33:19Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39901297216",
-      "at": "2026-10-23T04:37:22Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40050324343",
+      "at": "2026-10-24T01:33:17Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39870690201",
-      "at": "2026-10-22T23:16:27Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40037555821",
+      "at": "2026-10-23T23:04:43Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39870687703",
-      "at": "2026-10-22T23:16:26Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40037553080",
+      "at": "2026-10-23T23:04:41Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39844929180",
-      "at": "2026-10-22T19:59:39Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40008775024",
+      "at": "2026-10-23T19:06:32Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39844925300",
-      "at": "2026-10-22T19:59:38Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40008771277",
+      "at": "2026-10-23T19:06:30Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39802601488",
-      "at": "2026-10-22T15:12:20Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39974121068",
+      "at": "2026-10-23T14:57:48Z"
     },
     {
       "name": "Dispatch",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39802596566",
-      "at": "2026-10-22T15:12:18Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/39974116573",
+      "at": "2026-10-23T14:57:46Z"
     }
   ],
   "board": {
@@ -95,7 +95,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1165.0,
+      "hours": 1188.4,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -103,7 +103,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 1120.3,
+      "hours": 1143.7,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
