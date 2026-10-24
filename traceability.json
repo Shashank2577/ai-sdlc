@@ -5,7 +5,7 @@
     "ref": "HEAD",
     "head": "6368875bc55a5226f249f73e2b4c5463f55870a6",
     "commits_scanned": 204,
-    "generated_at": "2026-10-23 11:34 UTC",
+    "generated_at": "2026-10-24 10:54 UTC",
     "note": ""
   },
   "rows": [
@@ -348,6 +348,18 @@
           "number": 43,
           "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
           "url": "https://github.com/Shashank2577/ai-sdlc/pull/43"
+        },
+        {
+          "merged_at": "2026-09-02T06:56:00Z",
+          "number": 41,
+          "title": "P1-1: Product Manager role pack v0",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/41"
+        },
+        {
+          "merged_at": "2026-09-02T04:24:21Z",
+          "number": 36,
+          "title": "BUG: settings defaultMode is ignored; permission mode must be a CLI flag",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/36"
         },
         {
           "merged_at": "2026-09-02T03:56:29Z",
@@ -748,6 +760,12 @@
           "number": 47,
           "title": "P1-2 (prep): declare the refill floor and claim ceremonies/",
           "url": "https://github.com/Shashank2577/ai-sdlc/pull/47"
+        },
+        {
+          "merged_at": "2026-09-02T06:56:00Z",
+          "number": 41,
+          "title": "P1-1: Product Manager role pack v0",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/41"
         },
         {
           "merged_at": "2026-09-02T00:57:25Z",
@@ -1592,6 +1610,12 @@
           "number": 43,
           "title": "P0-17: Per-role dispatch credentials \u2014 least privilege, not one omnibus token",
           "url": "https://github.com/Shashank2577/ai-sdlc/pull/43"
+        },
+        {
+          "merged_at": "2026-09-02T04:24:21Z",
+          "number": 36,
+          "title": "BUG: settings defaultMode is ignored; permission mode must be a CLI flag",
+          "url": "https://github.com/Shashank2577/ai-sdlc/pull/36"
         },
         {
           "merged_at": "2026-09-02T04:12:41Z",
