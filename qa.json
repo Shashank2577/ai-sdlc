@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-25 10:54 UTC"
+    "generated_at": "2026-10-25 11:16 UTC"
   },
   "matrix": {
     "REQ-002": [
@@ -99,7 +99,7 @@
       {
         "number": 320,
         "title": "Role-pack skills reach dispatched sessions, on demand (P0-1)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -247,13 +247,13 @@
       {
         "number": 290,
         "title": "Work items carry their product, so the orchestrator and board sync route per product",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -485,7 +485,7 @@
       {
         "number": 290,
         "title": "Work items carry their product, so the orchestrator and board sync route per product",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -553,7 +553,7 @@
       {
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       }
     ],
@@ -777,7 +777,7 @@
       {
         "number": 320,
         "title": "Role-pack skills reach dispatched sessions, on demand (P0-1)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -789,7 +789,7 @@
       {
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       }
     ],
