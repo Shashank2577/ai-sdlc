@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-25 11:33 UTC"
+    "generated_at": "2026-10-25 11:43 UTC"
   },
   "matrix": {
     "REQ-002": [
@@ -967,7 +967,7 @@
       {
         "number": 321,
         "title": "Agents can ask a human and hear the answer: questions, wake on reply, expiry (P0-2)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       }
     ],
@@ -1077,7 +1077,7 @@
       {
         "number": 321,
         "title": "Agents can ask a human and hear the answer: questions, wake on reply, expiry (P0-2)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       }
     ],

@@ -1,15 +1,19 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-25T11:31:34.187488+00:00",
+  "generated_at": "2026-10-25T11:41:27.433216+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 6,
+      "commits": 7,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "4435193",
+          "subject": "feat(dispatch): agents ask a person and hear the answer (#328)"
+        },
         {
           "sha": "9b19019",
           "subject": "feat(developer): test, fix red checks and slice before opening the PR (#319)"
@@ -25,15 +29,11 @@
         {
           "sha": "e4f8576",
           "subject": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch (#329)"
-        },
-        {
-          "sha": "0632ed3",
-          "subject": "feat(dispatch): role-pack skills reach the session, on demand (#325)"
         }
       ]
     }
   ],
-  "commits_total": 6,
+  "commits_total": 7,
   "pulls": {
     "opened": [],
     "merged": [
@@ -48,6 +48,12 @@
         "title": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/329",
         "branch": "story/FDY-323-foundry-init"
+      },
+      {
+        "number": 328,
+        "title": "feat(dispatch): agents ask a person and hear the answer (#321)",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/328",
+        "branch": "story/FDY-321-ask-and-hear-the-answer"
       },
       {
         "number": 327,
@@ -75,7 +81,7 @@
       }
     ],
     "closed_unmerged": [],
-    "open_now": 4
+    "open_now": 3
   },
   "check_failures": [
     {
@@ -95,29 +101,11 @@
       "branch": "story/FDY-318-developer-proves-before-pr",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686225",
       "at": "2026-10-25T11:23:47Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187770217",
-      "at": "2026-10-25T11:10:42Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187770209",
-      "at": "2026-10-25T11:10:42Z"
-    },
-    {
-      "name": "Packs",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187770186",
-      "at": "2026-10-25T11:10:42Z"
     }
   ],
   "board": {
     "(no status)": 3,
-    "status:in-review": 6,
+    "status:in-review": 5,
     "status:ready": 2,
     "status:needs-refinement": 4,
     "status:blocked": 1
@@ -139,7 +127,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1213.1,
+      "hours": 1213.3,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -147,7 +135,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 1168.4,
+      "hours": 1168.5,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
