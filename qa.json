@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-24 10:50 UTC"
+    "generated_at": "2026-10-25 10:54 UTC"
   },
   "matrix": {
     "REQ-002": [
@@ -100,19 +100,19 @@
         "number": 320,
         "title": "Role-pack skills reach dispatched sessions, on demand (P0-1)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 322,
         "title": "One GitHub App replaces the three PATs; a required check enforces who may write what",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 332,
         "title": "Codex sessions get the role's skills too, on demand",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-003": [
@@ -168,13 +168,13 @@
         "number": 318,
         "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 332,
         "title": "Codex sessions get the role's skills too, on demand",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-004": [
@@ -248,19 +248,19 @@
         "number": 290,
         "title": "Work items carry their product, so the orchestrator and board sync route per product",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 324,
         "title": "Owner and repo constants live in one config file, not ~20 files",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       },
       {
         "number": 331,
@@ -486,13 +486,13 @@
         "number": 290,
         "title": "Work items carry their product, so the orchestrator and board sync route per product",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 324,
         "title": "Owner and repo constants live in one config file, not ~20 files",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "rejected"
       }
     ],
     "REQ-010": [
@@ -554,7 +554,7 @@
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-012": [
@@ -772,25 +772,25 @@
         "number": 318,
         "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 320,
         "title": "Role-pack skills reach dispatched sessions, on demand (P0-1)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       },
       {
         "number": 322,
         "title": "One GitHub App replaces the three PATs; a required check enforces who may write what",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       },
       {
         "number": 323,
         "title": "foundry-init: one idempotent command from empty repo to first dispatched story",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-005": [
@@ -911,8 +911,8 @@
       {
         "number": 322,
         "title": "One GitHub App replaces the three PATs; a required check enforces who may write what",
-        "state": "OPEN",
-        "verdict": "pending"
+        "state": "CLOSED",
+        "verdict": "approved"
       }
     ],
     "REQ-001": [
@@ -968,7 +968,7 @@
         "number": 321,
         "title": "Agents can ask a human and hear the answer: questions, wake on reply, expiry (P0-2)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-007": [
@@ -1078,7 +1078,7 @@
         "number": 321,
         "title": "Agents can ask a human and hear the answer: questions, wake on reply, expiry (P0-2)",
         "state": "OPEN",
-        "verdict": "pending"
+        "verdict": "approved"
       }
     ],
     "REQ-014": [

@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-24 10:49 UTC"
+    "generated_at": "2026-10-25 10:53 UTC"
   },
   "records": [
     {
@@ -400,6 +400,47 @@
         [
           "Consequences",
           "This commits scripts/** (developer-owned, not this pack's write scope) to\nbuilding the detector described above as a follow-up work item, including\nthe fixed-input test that reproduces the seven write-scope occurrences\n(acceptance criterion #2) \u2014 that work is out of `adrs/**`/\n`role-packs/architect/**`, so it is not done in this PR. `requirements/**`\nis product-manager's write scope, not architect's; the REQ-013 coverage\nnotes should gain a line distinguishing \"the store, built and exercised on\n#165/#169\" from \"the loop, decided in ADR-0010, built in #263\" once that follow-up exists \u2014 also a separate work item, filed\nagainst product-manager.\n\nAny future correction-detection work inherits the same two constraints\nthis ADR fixes in place: the count must come from a matcher over the\nrecord, not a model's or a person's judgement call in the moment, and\nnothing this loop produces may land as a write without going through the\nsame reviewed-PR path every other change takes. A detector that instead\nopened its own PR and merged it, or wrote directly to a role pack's\n`skills/`, would need a new ADR superseding this one, not a quiet\nextension of it."
+        ]
+      ],
+      "error": null
+    },
+    {
+      "id": "0011",
+      "filename": "0011-one-github-app-with-per-role-tokens-and-a-required-scope-check.md",
+      "title": "One GitHub App with per-role tokens replaces the three PATs, and a required check enforces who may write what",
+      "status_raw": "accepted",
+      "status": "accepted",
+      "superseded_by": null,
+      "supersedes": [],
+      "work_item": "Shashank2577/ai-sdlc#322",
+      "requirements": [
+        "REQ-002",
+        "REQ-005",
+        "REQ-012"
+      ],
+      "unknown_requirements": [],
+      "decided_by": "Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose \"Full: App + merge #327\" for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.",
+      "date": "2026-10-17",
+      "sections": [
+        [
+          "Context",
+          "ADR-0001 kept workflow edits to devops by handing devops a different\ncredential: `FOUNDRY_DEVOPS_TOKEN` (`repo` + `workflow`), `FOUNDRY_DEV_TOKEN`\n(`repo`) for the other writers, and `FOUNDRY_TOKEN` (`repo` + `workflow` +\n`project`) for the orchestrator. All three are classic PATs minted from the\nowner's own account. Five weeks of running on them (#322, from the\n2026-10-17 gap analysis \u00a77) show four costs that ADR-0001 did not price:\n\n1. **Every agent action is recorded as the owner.** ADR-0007's `is_human()`\n   reads the event sender. When an agent labels an issue with the owner's\n   PAT, the sender is `Shashank2577`, so the human-only gates pass for the\n   agent. That is the forgery ADR-0007 exists to stop, re-entered by the\n   credential.\n2. **Every new product needs the PATs to reach it.** Two of the eight manual\n   steps in the onboarding path (#323) are about credential reach.\n3. **`write_scope` is enforced by nothing.** A role's\n   `policy.yaml:write_scope` is prompt prose. A token cannot express \"may\n   write `adrs/**` but not `scripts/**`\", and no check reads a PR's diff\n   against the role that produced it. Only the workflow boundary has teeth,\n   because only that one maps onto a token scope.\n4. **Three long-lived, account-wide secrets.** A classic PAT reaches every\n   repository the owner can, with no expiry beyond what the owner\n   remembers to set."
+        ],
+        [
+          "Options considered",
+          "### Option A: Keep the three PATs (do nothing)\n\n- **Cost:** none to build. Every new product still needs PAT reach, by hand.\n  The owner keeps rotating three account-wide tokens.\n- **Consequence:** costs 1\u20134 above remain. `is_human()` stays defeated\n  whenever an agent acts, which makes every human gate in the repo advisory.\n\n### Option B: One GitHub App per role (ten Apps, matching `identity.git_user`)\n\n- **Cost:** ten Apps to create, ten private keys to store, ten installations\n  per product. That is the \"20 tokens\" onboarding the gap analysis found\n  nobody will do.\n- **Consequence:** distinct per-role actors and signed commits (REQ-002's\n  \"cryptographic attribution\"). But onboarding gets worse, not better, and\n  `write_scope` is still unenforced, because a per-role App has the same\n  path-blind permissions as a per-role PAT.\n\n### Option C: One GitHub App (`foundry[bot]`), a per-role token minted at dispatch, and a required scope check\n\n- **Cost:**\n  - one App, created from a checked-in manifest (`infra/github-app/`), with\n    its private key in one secret and its client ID in one variable;\n  - a token-minting step in each workflow that writes as an agent;\n  - a new required check, `scope` (`scripts/check-write-scope.py`).\n  - **The board needs a workaround.** Apps cannot write *user-owned* Projects\n    v2, because no App permission covers them; only organization projects\n    have one. On a user account, board sync keeps one optional classic PAT\n    with only the `project` scope. On an organization the App covers it.\n- **Consequence:** three credential boundaries replace one.\n  1. **Token, per role.** `actions/create-github-app-token` mints an\n     installation token with only the permissions the role's pack declares\n     (`pack.yaml:identity.github_permissions`). Only devops's declaration\n     includes `workflows: write`. GitHub itself refuses a non-devops push\n     that touches `.github/workflows/**`, exactly as it refuses one from\n     `FOUNDRY_DEV_TOKEN` today. ADR-0001's guarantee is kept, not traded.\n  2. **Path, per role.** The `scope` check reads every commit's\n     `Agent-Role` trailer. It confirms that role was actually dispatched on\n     the work item, using the dispatch record `dispatch.yml` posts as\n     `github-actions[bot]` and the dispatch run it points to. It then\n     fails any changed file outside that role's `write_scope`, deny before\n     allow. A `.github/workflows/**` change must come from a devops dispatch\n     even if a token were ever over-granted.\n  3. **Actor.** The App acts as `foundry[bot]`, so `is_human()` is true only\n     for people again, with no change to `gate-check.py`.\n\n  Tokens expire after an hour and are revoked when the job ends. Adding a\n  product means installing the App on one more repository.\n\n### Option D: One App with full permissions for every role, and the scope check as the only boundary\n\n- **Cost:** the same as C, minus the per-role permission declaration.\n- **Consequence:** this is what #322's first draft proposed. It is weaker\n  than C for no saving. ADR-0001's own recommendation names the flaw: a\n  check is \"exactly what a wider credential could edit\". A developer token\n  with `workflows: write` could rewrite the workflow that runs the check. C\n  keeps the token boundary and adds the check on top."
+        ],
+        [
+          "Recommendation",
+          "Recommend C. It is the only option that reduces onboarding to two required\ncredentials (the App key and one LLM key) while adding a boundary\n(`write_scope`) instead of removing one. Its single real cost, the\nuser-owned board, is a platform limit that every option shares."
+        ],
+        [
+          "Decision",
+          "**Decided:** Option C: one App, per-role tokens, and the `scope` check\n**Decided by:** Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose \"Full: App + merge #327\" for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.\n**Date:** 2026-10-17\n\nCosts favoured C because it is the only option that cuts the credentials to\ntwo while adding the `write_scope` boundary instead of trading away\nADR-0001's."
+        ],
+        [
+          "Consequences",
+          "- **ADR-0001 is amended, not superseded.** Its decision stands: only devops\n  can change workflows, and least privilege per role. What changes is the\n  mechanism: a permission set declared per role replaces a secret name\n  declared per role. `identity.token_secret` stays as the fallback while the\n  App is not configured, so this lands without breaking a running system.\n  Once `vars.FOUNDRY_APP_CLIENT_ID` is set, the PATs can be deleted.\n- **The scope check guards itself by construction.** It runs on\n  `pull_request_target`, so both the workflow definition and the script are\n  read from the base branch. It never checks out the pull request's code,\n  so a PR cannot weaken the copy that judges it. This is ADR-0009's\n  principle, applied to the workflow file as well as the script.\n- **Commits now need a dispatch to stand behind them.** A commit whose\n  `Agent-Role` names a role with no dispatch record on its work item fails\n  `scope`. So does a file changed only by a merge commit, because no role\n  can be attributed to it. An agent PR may carry a human commit only if it\n  is signed and verified to a human account. This is the one piece of\n  provenance an agent token cannot forge.\n- **Some risk remains:**\n  - **Trailers can still be forged among dispatched roles.** If a work item\n    was dispatched to both developer and devops, a developer session could\n    write a devops trailer. The token boundary still blocks the workflow\n    push itself; what remains is devops's other paths (`infra/**`).\n  - **A human-authored PR is not scope-checked for human commits.** That is\n    deliberate: CODEOWNERS and the human merge cover it.\n- **Product layouts differ from the control plane's.** A product's\n  `products.yaml` entry may add `write_scope_extra` allow patterns per role,\n  for example a root `package.json` for developer. A deny in the pack still\n  wins, so this can widen reach to new paths but never re-open a denied\n  one. Editing `policies/` is a human-reviewed change.\n- **REQ-002's signed per-role identities stay unbuilt.** One App means one\n  actor. Role attribution remains the `Agent-Role` trailer, now\n  cross-checked against the dispatch record instead of trusted. Ten Apps\n  (Option B) remains the path if cryptographic per-role attribution is\n  ever required.\n- **Follow-up work:** #323 (`foundry-init`) creates the App from the\n  manifest, installs it and requires `scope` on each product. #290 routes\n  dispatch per product. #324 moves the owner and repo constants into\n  config."
         ]
       ],
       "error": null
