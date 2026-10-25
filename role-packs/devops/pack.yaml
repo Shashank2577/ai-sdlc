@@ -17,6 +17,18 @@ identity:
   # repo + workflow. The only pack that gets `workflow`, because it is the
   # only role permitted to write .github/workflows/**.
   token_secret: FOUNDRY_DEVOPS_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  # The only pack with `workflows: write` (ADR-0001).
+  github_permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+    workflows: write
+    actions: read
+    checks: read
+    statuses: read
   signing: gpg
   provisioned: false
 

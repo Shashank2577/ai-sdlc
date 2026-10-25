@@ -26,6 +26,16 @@ identity:
   # repo scope only — deliberately NOT `workflow`. A role that
   # writes code must not be able to edit the pipeline that governs it.
   token_secret: FOUNDRY_DEV_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  github_permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+    actions: read
+    checks: read
+    statuses: read
   signing: gpg
   provisioned: false
 

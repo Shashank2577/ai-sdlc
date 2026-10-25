@@ -1,0 +1,56 @@
+# The scope check (ADR-0011). Every file a pull request changes was written
+# by a role actually dispatched on its work item, inside that role's
+# write_scope; a workflow change came from a devops dispatch. Required on
+# `main` alongside `dod`.
+#
+# `pull_request_target`, not `pull_request`, on purpose. GitHub reads this
+# workflow from the base branch, and the step below checks out the control
+# plane's default branch, so neither the definition nor the script is the
+# PR's own copy. A PR cannot weaken what judges it. That is ADR-0009's
+# principle, extended to the workflow file, which `pull_request` would have
+# taken from the PR. The PR's code is never checked out or run: the script
+# reads commits and files through the API.
+#
+# The same file runs in a product repo. foundry-init copies it there and
+# sets `vars.FOUNDRY_CONTROL_PLANE`, so the script, the packs and
+# products.yaml always come from the control plane.
+name: Scope
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write   # the failure report goes on the PR
+  issues: read           # dispatch records live on the work item
+  actions: read          # each record's run is confirmed against dispatch.yml
+
+concurrency:
+  group: scope-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scope:
+    name: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the control plane's default branch, never the PR
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.FOUNDRY_CONTROL_PLANE || github.repository }}
+          ref: ${{ vars.FOUNDRY_CONTROL_PLANE == '' && github.event.repository.default_branch || '' }}
+          persist-credentials: false
+
+      - run: python3 -m pip install --quiet pyyaml
+
+      - name: Check every change against the role that made it
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          CONTROL_PLANE: ${{ vars.FOUNDRY_CONTROL_PLANE || github.repository }}
+        run: |
+          python3 scripts/check-write-scope.py --repo "$REPO" --pr "$PR" \
+            --control-plane "$CONTROL_PLANE" --comment

@@ -19,6 +19,16 @@ identity:
   # as developer and QA, so it shares their credential rather than
   # getting a new one (PRD §13, least privilege per role).
   token_secret: FOUNDRY_DEV_TOKEN
+  # GitHub App installation-token permissions (ADR-0011): the dispatcher
+  # mints a token with exactly these, so GitHub itself refuses anything
+  # wider. `token_secret` above is the fallback until the App is set up.
+  github_permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+    actions: read
+    checks: read
+    statuses: read
   signing: gpg          # required_signatures on main is currently off
   provisioned: false
 
