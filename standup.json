@@ -1,15 +1,19 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-25T11:23:35.333496+00:00",
+  "generated_at": "2026-10-25T11:31:34.187488+00:00",
   "roles": [
     {
       "role": "unknown",
-      "commits": 5,
+      "commits": 6,
       "requirements": [],
       "harnesses": [
         "unknown"
       ],
       "subjects": [
+        {
+          "sha": "9b19019",
+          "subject": "feat(developer): test, fix red checks and slice before opening the PR (#319)"
+        },
         {
           "sha": "1afa327",
           "subject": "feat(dispatch): codex sessions get the role's skills too, on demand (#333)"
@@ -25,15 +29,11 @@
         {
           "sha": "0632ed3",
           "subject": "feat(dispatch): role-pack skills reach the session, on demand (#325)"
-        },
-        {
-          "sha": "6f3d194",
-          "subject": "feat(security): one GitHub App with per-role tokens, and a required scope check (ADR-0011) (#327)"
         }
       ]
     }
   ],
-  "commits_total": 5,
+  "commits_total": 6,
   "pulls": {
     "opened": [],
     "merged": [
@@ -66,12 +66,36 @@
         "title": "feat(dispatch): role-pack skills reach the session, on demand",
         "url": "https://github.com/Shashank2577/ai-sdlc/pull/325",
         "branch": "story/FDY-320-skills-reach-sessions"
+      },
+      {
+        "number": 319,
+        "title": "feat(developer): test, fix red checks and slice before opening the PR",
+        "url": "https://github.com/Shashank2577/ai-sdlc/pull/319",
+        "branch": "story/FDY-318-developer-proves-before-pr"
       }
     ],
     "closed_unmerged": [],
-    "open_now": 5
+    "open_now": 4
   },
   "check_failures": [
+    {
+      "name": "Packs",
+      "branch": "story/FDY-318-developer-proves-before-pr",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686289",
+      "at": "2026-10-25T11:23:47Z"
+    },
+    {
+      "name": "Dispatch",
+      "branch": "story/FDY-318-developer-proves-before-pr",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686249",
+      "at": "2026-10-25T11:23:47Z"
+    },
+    {
+      "name": "Unit tests",
+      "branch": "story/FDY-318-developer-proves-before-pr",
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686225",
+      "at": "2026-10-25T11:23:47Z"
+    },
     {
       "name": "Dispatch",
       "branch": "story/FDY-318-developer-proves-before-pr",
@@ -89,29 +113,11 @@
       "branch": "story/FDY-318-developer-proves-before-pr",
       "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187770186",
       "at": "2026-10-25T11:10:42Z"
-    },
-    {
-      "name": "Scope",
-      "branch": "story/FDY-320-skills-reach-sessions",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187163645",
-      "at": "2026-10-25T11:01:46Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "story/FDY-320-skills-reach-sessions",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187157280",
-      "at": "2026-10-25T11:01:40Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "story/FDY-320-skills-reach-sessions",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40187157266",
-      "at": "2026-10-25T11:01:40Z"
     }
   ],
   "board": {
     "(no status)": 3,
-    "status:in-review": 7,
+    "status:in-review": 6,
     "status:ready": 2,
     "status:needs-refinement": 4,
     "status:blocked": 1
@@ -133,7 +139,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1213.0,
+      "hours": 1213.1,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -141,7 +147,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 1168.2,
+      "hours": 1168.4,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }

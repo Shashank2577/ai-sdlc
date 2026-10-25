@@ -2,7 +2,7 @@
   "meta": {
     "repo": "Shashank2577/ai-sdlc",
     "repo_url": "https://github.com/Shashank2577/ai-sdlc",
-    "generated_at": "2026-10-25 11:25 UTC"
+    "generated_at": "2026-10-25 11:33 UTC"
   },
   "matrix": {
     "REQ-002": [
@@ -167,7 +167,7 @@
       {
         "number": 318,
         "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
@@ -771,7 +771,7 @@
       {
         "number": 318,
         "title": "Developer pack: test, debug and slice before opening the PR (adapted from addyosmani/agent-skills)",
-        "state": "OPEN",
+        "state": "CLOSED",
         "verdict": "approved"
       },
       {
