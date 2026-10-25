@@ -1,3 +1,6 @@
+---
+description: 'Before opening a PR, run the tests that exercise the change, show the exact commands and output in the Evidence section, and make sure each new test fails without the change. Use when finishing any code change.'
+---
 # Skill — proving it with tests
 
 QA re-runs your commands. A PR whose Evidence says "tests pass" when none

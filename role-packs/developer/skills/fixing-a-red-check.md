@@ -1,3 +1,6 @@
+---
+description: 'When a CI check or local test is red, reproduce it, find the root cause, fix it or explain it explicitly in the PR; never end a session with an unexplained red check. Use when a check fails.'
+---
 # Skill — fixing a red check
 
 A session that ends with a check red and no explanation leaves the next

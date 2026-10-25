@@ -1,3 +1,6 @@
+---
+description: 'Build in small slices that each run and test before the next, and keep unrelated cleanups out of the diff so QA reviews one change. Use when a change spans more than one file or exceeds ~100 lines.'
+---
 # Skill — working in thin slices
 
 Writing three hundred lines before anything runs spends the budget on
