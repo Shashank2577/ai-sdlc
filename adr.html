@@ -70,15 +70,15 @@ section ul{margin:.3rem 0;padding-left:1.4rem}
 </p>
 
 <div class="tiles">
-  <div class="tile"><div class="n">10</div><div class="l">records</div></div>
-  <div class="tile"><div class="n" style="color:var(--green)">10</div><div class="l">accepted</div></div>
+  <div class="tile"><div class="n">11</div><div class="l">records</div></div>
+  <div class="tile"><div class="n" style="color:var(--green)">11</div><div class="l">accepted</div></div>
   <div class="tile"><div class="n" style="color:var(--amber)">0</div><div class="l">proposed</div></div>
   <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">superseded</div></div>
   <div class="tile"><div class="n" style="color:var(--red)">0</div><div class="l">parse errors</div></div>
 </div>
 
 <h2>By status</h2>
-<h3 class="status-h">Accepted (10)</h3>
+<h3 class="status-h">Accepted (11)</h3>
 <div class="scroll"><table><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Date</th><th>Decided by</th><th>Work item</th><th>Requirements</th></tr></thead><tbody>
       <tr>
         <td class="req"><a href="#adr-0001">ADR-0001</a></td>
@@ -169,6 +169,15 @@ section ul{margin:.3rem 0;padding-left:1.4rem}
         <td>Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first, then to ADR-0010 (#275) because ADR-0009 (required checks run from `main`) had landed first too</td>
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/212">Shashank2577/ai-sdlc#212</a></td>
         <td><a href="traceability.html#REQ-013">REQ-013</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0011">ADR-0011</a></td>
+        <td>One GitHub App with per-role tokens replaces the three PATs, and a required check enforces who may write what</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-10-17</td>
+        <td>Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose &quot;Full: App + merge #327&quot; for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/322">Shashank2577/ai-sdlc#322</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
       </tr>
 </tbody></table></div>
 
@@ -263,6 +272,15 @@ section ul{margin:.3rem 0;padding-left:1.4rem}
         <td>Shashank2577 — reviewed and accepted on the repository owner's instruction in an interactive Claude Code session; renumbered from ADR-0008 on rebase because ADR-0008 (security and operations roles) had landed first, then to ADR-0010 (#275) because ADR-0009 (required checks run from `main`) had landed first too</td>
         <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/212">Shashank2577/ai-sdlc#212</a></td>
         <td><a href="traceability.html#REQ-013">REQ-013</a></td>
+      </tr>
+      <tr>
+        <td class="req"><a href="#adr-0011">ADR-0011</a></td>
+        <td>One GitHub App with per-role tokens replaces the three PATs, and a required check enforces who may write what</td>
+        <td><span class="pill green">accepted</span></td>
+        <td class="mono">2026-10-17</td>
+        <td>Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose &quot;Full: App + merge #327&quot; for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.</td>
+        <td><a href="https://github.com/Shashank2577/ai-sdlc/issues/322">Shashank2577/ai-sdlc#322</a></td>
+        <td><a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-012">REQ-012</a></td>
       </tr>
 </tbody></table></div>
 
@@ -534,9 +552,39 @@ section ul{margin:.3rem 0;padding-left:1.4rem}
 <p>This commits scripts/** (developer-owned, not this pack's write scope) to building the detector described above as a follow-up work item, including the fixed-input test that reproduces the seven write-scope occurrences (acceptance criterion #2) — that work is out of `adrs/**`/ `role-packs/architect/**`, so it is not done in this PR. `requirements/**` is product-manager's write scope, not architect's; the REQ-013 coverage notes should gain a line distinguishing &quot;the store, built and exercised on #165/#169&quot; from &quot;the loop, decided in ADR-0010, built in #263&quot; once that follow-up exists — also a separate work item, filed against product-manager.</p>
 <p>Any future correction-detection work inherits the same two constraints this ADR fixes in place: the count must come from a matcher over the record, not a model's or a person's judgement call in the moment, and nothing this loop produces may land as a write without going through the same reviewed-PR path every other change takes. A detector that instead opened its own PR and merged it, or wrote directly to a role pack's `skills/`, would need a new ADR superseding this one, not a quiet extension of it.</p>
     </section>
+    <section id="adr-0011">
+      <h3>ADR-0011: One GitHub App with per-role tokens replaces the three PATs, and a required check enforces who may write what</h3>
+      <p><span class="pill green">accepted</span>
+        · date <span class="mono">2026-10-17</span>
+        · decided by Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose &quot;Full: App + merge #327&quot; for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest.
+        · work item <a href="https://github.com/Shashank2577/ai-sdlc/issues/322">Shashank2577/ai-sdlc#322</a>
+        · requirements <a href="traceability.html#REQ-002">REQ-002</a>, <a href="traceability.html#REQ-005">REQ-005</a>, <a href="traceability.html#REQ-012">REQ-012</a>
+      </p>
+      
+      <h4>Context</h4>
+<p>ADR-0001 kept workflow edits to devops by handing devops a different credential: `FOUNDRY_DEVOPS_TOKEN` (`repo` + `workflow`), `FOUNDRY_DEV_TOKEN` (`repo`) for the other writers, and `FOUNDRY_TOKEN` (`repo` + `workflow` + `project`) for the orchestrator. All three are classic PATs minted from the owner's own account. Five weeks of running on them (#322, from the 2026-10-17 gap analysis §7) show four costs that ADR-0001 did not price:</p>
+<p>1. **Every agent action is recorded as the owner.** ADR-0007's `is_human()` reads the event sender. When an agent labels an issue with the owner's PAT, the sender is `Shashank2577`, so the human-only gates pass for the agent. That is the forgery ADR-0007 exists to stop, re-entered by the credential. 2. **Every new product needs the PATs to reach it.** Two of the eight manual steps in the onboarding path (#323) are about credential reach. 3. **`write_scope` is enforced by nothing.** A role's `policy.yaml:write_scope` is prompt prose. A token cannot express &quot;may write `adrs/**` but not `scripts/**`&quot;, and no check reads a PR's diff against the role that produced it. Only the workflow boundary has teeth, because only that one maps onto a token scope. 4. **Three long-lived, account-wide secrets.** A classic PAT reaches every repository the owner can, with no expiry beyond what the owner remembers to set.</p>
+<h4>Options considered</h4>
+<h5>Option A: Keep the three PATs (do nothing)</h5>
+<ul><li><strong>Cost:</strong> none to build. Every new product still needs PAT reach, by hand. The owner keeps rotating three account-wide tokens.</li><li><strong>Consequence:</strong> costs 1–4 above remain. `is_human()` stays defeated whenever an agent acts, which makes every human gate in the repo advisory.</li></ul>
+<h5>Option B: One GitHub App per role (ten Apps, matching `identity.git_user`)</h5>
+<ul><li><strong>Cost:</strong> ten Apps to create, ten private keys to store, ten installations per product. That is the &quot;20 tokens&quot; onboarding the gap analysis found nobody will do.</li><li><strong>Consequence:</strong> distinct per-role actors and signed commits (REQ-002's &quot;cryptographic attribution&quot;). But onboarding gets worse, not better, and `write_scope` is still unenforced, because a per-role App has the same path-blind permissions as a per-role PAT.</li></ul>
+<h5>Option C: One GitHub App (`foundry[bot]`), a per-role token minted at dispatch, and a required scope check</h5>
+<ul><li><strong>Cost:</strong></li><li>one App, created from a checked-in manifest (`infra/github-app/`), with its private key in one secret and its client ID in one variable;</li><li>a token-minting step in each workflow that writes as an agent;</li><li>a new required check, `scope` (`scripts/check-write-scope.py`).</li><li>**The board needs a workaround.** Apps cannot write *user-owned* Projects v2, because no App permission covers them; only organization projects have one. On a user account, board sync keeps one optional classic PAT with only the `project` scope. On an organization the App covers it.</li><li><strong>Consequence:</strong> three credential boundaries replace one. 1. **Token, per role.** `actions/create-github-app-token` mints an installation token with only the permissions the role's pack declares (`pack.yaml:identity.github_permissions`). Only devops's declaration includes `workflows: write`. GitHub itself refuses a non-devops push that touches `.github/workflows/**`, exactly as it refuses one from `FOUNDRY_DEV_TOKEN` today. ADR-0001's guarantee is kept, not traded. 2. **Path, per role.** The `scope` check reads every commit's `Agent-Role` trailer. It confirms that role was actually dispatched on the work item, using the dispatch record `dispatch.yml` posts as `github-actions[bot]` and the dispatch run it points to. It then fails any changed file outside that role's `write_scope`, deny before allow. A `.github/workflows/**` change must come from a devops dispatch even if a token were ever over-granted. 3. **Actor.** The App acts as `foundry[bot]`, so `is_human()` is true only for people again, with no change to `gate-check.py`.</li></ul>
+<p>Tokens expire after an hour and are revoked when the job ends. Adding a product means installing the App on one more repository.</p>
+<h5>Option D: One App with full permissions for every role, and the scope check as the only boundary</h5>
+<ul><li><strong>Cost:</strong> the same as C, minus the per-role permission declaration.</li><li><strong>Consequence:</strong> this is what #322's first draft proposed. It is weaker than C for no saving. ADR-0001's own recommendation names the flaw: a check is &quot;exactly what a wider credential could edit&quot;. A developer token with `workflows: write` could rewrite the workflow that runs the check. C keeps the token boundary and adds the check on top.</li></ul>
+<h4>Recommendation</h4>
+<p>Recommend C. It is the only option that reduces onboarding to two required credentials (the App key and one LLM key) while adding a boundary (`write_scope`) instead of removing one. Its single real cost, the user-owned board, is a platform limit that every option shares.</p>
+<h4>Decision</h4>
+<p><strong>Decided:</strong> Option C: one App, per-role tokens, and the `scope` check **Decided by:** Shashank2577, accepted on the repository owner's instruction in an interactive Claude Code session. The owner chose &quot;Full: App + merge #327&quot; for the onboarding proof under #323, which means merging this ADR and creating the App from its manifest. **Date:** 2026-10-17</p>
+<p>Costs favoured C because it is the only option that cuts the credentials to two while adding the `write_scope` boundary instead of trading away ADR-0001's.</p>
+<h4>Consequences</h4>
+<ul><li>**ADR-0001 is amended, not superseded.** Its decision stands: only devops can change workflows, and least privilege per role. What changes is the mechanism: a permission set declared per role replaces a secret name declared per role. `identity.token_secret` stays as the fallback while the App is not configured, so this lands without breaking a running system. Once `vars.FOUNDRY_APP_CLIENT_ID` is set, the PATs can be deleted.</li><li>**The scope check guards itself by construction.** It runs on `pull_request_target`, so both the workflow definition and the script are read from the base branch. It never checks out the pull request's code, so a PR cannot weaken the copy that judges it. This is ADR-0009's principle, applied to the workflow file as well as the script.</li><li>**Commits now need a dispatch to stand behind them.** A commit whose `Agent-Role` names a role with no dispatch record on its work item fails `scope`. So does a file changed only by a merge commit, because no role can be attributed to it. An agent PR may carry a human commit only if it is signed and verified to a human account. This is the one piece of provenance an agent token cannot forge.</li><li><strong>Some risk remains:</strong></li><li>**Trailers can still be forged among dispatched roles.** If a work item was dispatched to both developer and devops, a developer session could write a devops trailer. The token boundary still blocks the workflow push itself; what remains is devops's other paths (`infra/**`).</li><li>**A human-authored PR is not scope-checked for human commits.** That is deliberate: CODEOWNERS and the human merge cover it.</li><li>**Product layouts differ from the control plane's.** A product's `products.yaml` entry may add `write_scope_extra` allow patterns per role, for example a root `package.json` for developer. A deny in the pack still wins, so this can widen reach to new paths but never re-open a denied one. Editing `policies/` is a human-reviewed change.</li><li>**REQ-002's signed per-role identities stay unbuilt.** One App means one actor. Role attribution remains the `Agent-Role` trailer, now cross-checked against the dispatch record instead of trusted. Ten Apps (Option B) remains the path if cryptographic per-role attribution is ever required.</li><li><strong>Follow-up work:</strong> #323 (`foundry-init`) creates the App from the manifest, installs it and requires `scope` on each product. #290 routes dispatch per product. #324 moves the owner and repo constants into config.</li></ul>
+    </section>
 
 <footer>
-  Generated 2026-10-24 10:49 UTC from
+  Generated 2026-10-25 10:53 UTC from
   <a href="https://github.com/Shashank2577/ai-sdlc">Shashank2577/ai-sdlc</a>.
 </footer>
 </main></body></html>
