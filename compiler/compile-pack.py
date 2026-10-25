@@ -54,7 +54,6 @@ DEFAULT_DISPATCHABLE_FROM = ["status:ready"]
 # their own pack.yaml:produces (#99).
 DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
 
-<<<<<<< HEAD
 # The installation-token permissions a pack may declare (ADR-0011), and the
 # levels each may take. Closed on purpose: dispatch.yml has to name every
 # `permission-*` input literally, so a key outside this set would be
@@ -62,7 +61,7 @@ DEFAULT_PRODUCES = ["branch", "commits", "pull_request", "comments", "status"]
 GITHUB_PERMISSIONS = ("contents", "pull-requests", "issues", "workflows", "actions",
                       "checks", "statuses")
 GITHUB_PERMISSION_LEVELS = ("read", "write")
-=======
+
 # A skill is loaded on demand (#320): the harness lists each skill by its
 # description and reads the body only when the task matches it. A skill
 # with no description never loads, so it is refused rather than shipped
@@ -71,7 +70,6 @@ GITHUB_PERMISSION_LEVELS = ("read", "write")
 # skill portable to the next harness that adopts the format.
 SKILL_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SKILL_DESCRIPTION_MAX = 1024
->>>>>>> eb1125f (feat(dispatch): role-pack skills reach the session, on demand)
 
 
 class PackError(Exception):
