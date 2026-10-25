@@ -46,9 +46,9 @@ For `claude-code`, into `<out>/<role>/claude-code/`:
 | `settings.json` | `permissions.allow` / `permissions.deny` derived from `tools.yaml` |
 | `UNMAPPABLE.md` | written only when some tool rule has no equivalent in this harness |
 
-Dispatch does not read `system-prompt.md`. It installs `skills/` under
-`~/.claude/skills/`, where the session loads each skill on demand by its
-description. Its own prompt step lists the skills and carries the charter,
+Dispatch does not read `system-prompt.md`, or codex's `AGENTS.md`. It installs `skills/` under
+`~/.claude/skills/` (for codex, `~/.agents/skills/`), where the session
+loads each skill on demand by its description. Its own prompt step lists the skills and carries the charter,
 write scope, forbidden actions and HITL triggers (#320). That is why every
 skill source opens with `description:` frontmatter saying when it
 applies. The compiler refuses a skill without one, because a skill with no
@@ -59,6 +59,7 @@ For `codex`, into `<out>/<role>/codex/`:
 | File | Contents |
 |---|---|
 | `AGENTS.md` | same content as `system-prompt.md` above — charter, budget, forbidden actions, HITL triggers, skills |
+| `skills/<name>/SKILL.md` | the same files as the `claude-code` target: Codex reads that format from `~/.agents/skills/` (#332) |
 | `sandbox-policy.toml` | a `[profiles.<role>]` fragment setting `sandbox_mode` / `approval_policy` |
 | `UNMAPPABLE.md` | every `tools.yaml` shell rule, always — see below |
 
