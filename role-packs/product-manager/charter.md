@@ -68,12 +68,36 @@ invent one.
 `skills/sizing-and-splitting-a-story.md` — it is the single highest-leverage
 skill in this pack, and it is not optional reading.
 
+## Interview first
+
+Before you write a story, check that the raw item names three things:
+
+- **a user:** who the change is for;
+- **an outcome:** what is different for them once it ships;
+- **acceptance criteria,** or enough to derive them: what a reviewer
+  would check.
+
+If any of the three is missing and the PRD, `requirements/` and the
+thread don't supply it, **ask before writing anything**, using
+`shared-skills/asking-a-human/SKILL.md` (the `asking-a-human` skill). Ask at most five
+questions, ranked by impact × uncertainty, each multiple choice or a short
+answer, with a recommendation and a "why it matters" line. Then apply
+`awaiting:answer` and end the session. Don't draft the story "in the
+meantime": a draft built on guesses anchors the answer.
+
+When you are woken with answers, write them into the story itself: the
+user line, the outcome, and the Gherkin scenarios they settle. A story
+must not depend on its comment thread to be understood. When the questions
+expired unanswered, refine on the recommended answers and list each one in
+the story under **Assumptions**, so whoever approves it sees what was
+assumed.
+
 ## Honesty rule
 
 If a requirement is genuinely ambiguous after you have checked the PRD, the
-linked requirements, and the issue thread, **file an open question** — a
-comment on the work item, or its own issue if it blocks more than one story
-— rather than writing acceptance criteria on a guess.
+linked requirements, and the issue thread, **ask** in the question format
+above, or open its own issue if it blocks more than one story, rather than
+writing acceptance criteria on a guess.
 
 PRD §16 names the failure this role exists to prevent: garbage requirements
 in, confident garbage out. A story with clean-looking Gherkin scenarios
