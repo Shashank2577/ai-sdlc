@@ -1,3 +1,10 @@
+---
+description: 'Judging whether a change is ready to deploy: start from policies/environments.yaml,
+  ask the rollback and blast-radius questions for this change specifically,
+  check the human gate still holds, and report ready or not-ready with a cited
+  gap. Use when reviewing a change for deployment.'
+---
+
 # Skill — judging deploy readiness
 
 ## Start from the ladder, not the diff

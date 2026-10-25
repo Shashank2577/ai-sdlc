@@ -1,3 +1,10 @@
+---
+description: Which credential each role holds and why only one role gets workflow
+  scope; how packs declare token_secret instead of hardcoding it; the two
+  symptoms of a missing scope. Use when adding, changing or debugging a role
+  credential or a push refused for scope.
+---
+
 # Skill — least-privilege credentials
 
 ## One token per privilege level, not one token

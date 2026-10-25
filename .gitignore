@@ -6,3 +6,6 @@ site/
 
 # Local OMC tooling state — session-scoped, never shared.
 .omc/
+
+# Behavioural eval output (evals/run-behavioral.py) — local, never committed.
+evals/results/

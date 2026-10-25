@@ -1,3 +1,9 @@
+---
+description: 'Decides whether a change needs an ADR at all. Use before writing
+  or asking for an ADR, or when a reviewer asks why one is missing: if reverting
+  the decision takes one commit, it does not need one.'
+---
+
 # Skill — when not to write an ADR
 
 ## The default failure mode is too many, not too few

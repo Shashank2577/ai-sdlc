@@ -1,3 +1,9 @@
+---
+description: Counting work in flight from status:in-progress, honouring the
+  WIP limit and per-role caps, picking items in a deterministic order, and
+  never guessing a role. Use when deciding what to dispatch next.
+---
+
 # Skill — WIP limits and assignment
 
 ## Count what is real
