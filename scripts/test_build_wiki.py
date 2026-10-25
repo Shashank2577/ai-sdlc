@@ -133,10 +133,18 @@ class TestGeneratedPages(unittest.TestCase):
 class TestSourceTree(unittest.TestCase):
     def test_every_wiki_source_page_is_reachable_from_the_sidebar(self):
         # A page nobody can navigate to is a page nobody reads.
-        sidebar = W.SIDEBAR
+        sidebar = W.sidebar()
         for src in (REPO_ROOT / "wiki").glob("*.md"):
             with self.subTest(page=src.name):
                 self.assertIn(f"[[{src.stem}]]", sidebar)
+
+    def test_live_links_come_from_foundry_yaml(self):
+        # #324: these were literals, and three of them pointed at the old
+        # `foundry-program` Pages site after the repo was renamed.
+        sidebar = W.sidebar()
+        self.assertIn(f"({W.pages_url()}/traceability.html)", sidebar)
+        self.assertIn(f"({W.repo_url()})", sidebar)
+        self.assertNotIn("foundry-program/", sidebar)
 
 
 if __name__ == "__main__":
