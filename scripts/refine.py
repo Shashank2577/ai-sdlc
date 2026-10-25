@@ -65,7 +65,8 @@ def load_refill_policy(path: Path = POLICY_PATH) -> tuple[dict, str]:
 # Decision — pure. Board in, plan out.
 # --------------------------------------------------------------------------
 
-def dispatchable_ready(issues: list[dict], orchestrator_policy: dict) -> list[int]:
+def dispatchable_ready(issues: list[dict], orchestrator_policy: dict,
+                       registry: dict | None = None) -> list[int]:
     """Pure. The `status:ready` items `assign.py` would actually dispatch.
 
     A ready label on an item that also carries needs-human, is blocked, or
@@ -75,7 +76,7 @@ def dispatchable_ready(issues: list[dict], orchestrator_policy: dict) -> list[in
     """
     return sorted(i["number"] for i in issues
                   if READY in assign.labels_of(i)
-                  and assign.ineligible_reason(i, orchestrator_policy) is None)
+                  and assign.ineligible_reason(i, orchestrator_policy, registry) is None)
 
 
 def should_refine(ready_count: int, floor: int) -> bool:
@@ -193,7 +194,7 @@ def main() -> int:
 
     orchestrator_policy, _ = assign.load_policy()
     labelled = list_ready()
-    ready_count = len(dispatchable_ready(labelled, orchestrator_policy))
+    ready_count = len(dispatchable_ready(labelled, orchestrator_policy, assign.load_registry()))
     pm_issues = list_role_issues(role) if should_refine(ready_count, policy["ready_floor"]) else []
     p = {**plan_refill(ready_count, policy["ready_floor"], pm_issues), "labelled": len(labelled)}
 

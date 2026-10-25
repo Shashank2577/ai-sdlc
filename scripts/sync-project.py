@@ -5,8 +5,14 @@ Labels are the state machine (CONVENTIONS.md). The board is a view of
 them. This computes every board field from issue state and writes back
 only what differs — so the board can be trusted without being tended.
 
-    sync-project.py --project 2 --owner Shashank2577 --dry-run
-    sync-project.py --project 2 --owner Shashank2577
+Every product in `policies/products.yaml` has its own board (`project`),
+and every work item lives in this repo whatever product it targets. Each
+board gets only its own product's items — the item's `product:<key>`
+label, or the control plane's own product when it has none (#290), the
+same rule `scripts/assign.py` dispatches by.
+
+    sync-project.py --dry-run                     # every product's board
+    sync-project.py --product ai-sdlc-pilot       # one product's board
 
 Writing to a user-level Project v2 needs a token with `project` scope;
 GITHUB_TOKEN does not have it. Without one this reports the plan and
@@ -25,6 +31,7 @@ mean Jira integration works, only that the same algorithm runs against it.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -39,6 +46,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from adapters.tracker.base import BoardRef, Issue, Tracker  # noqa: E402
 from adapters.tracker.github import GitHubTracker  # noqa: E402
+
+# Which product an item belongs to is the orchestrator's rule (#290). A
+# second copy here would let the board and the dispatcher disagree about
+# where an item lives.
+_spec = importlib.util.spec_from_file_location("assign", Path(__file__).resolve().parent / "assign.py")
+assign = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(assign)
 
 REQ = re.compile(r"REQ-\d{3}")
 # Stories end their user-story line with `→ **REQ-002, REQ-003**`. When that
@@ -128,6 +142,38 @@ def plan_additions(issues: dict, on_board: set) -> list:
         key=lambda issue: issue["number"])
 
 
+def issues_for_product(issues: dict, key: str, registry: dict) -> dict:
+    """Only `key`'s items, so a product's board never shows another
+    product's work — a shared board is what `no_duplicate_projects` in
+    `policies/products.yaml` exists to forbid."""
+    return {number: issue for number, issue in issues.items()
+            if assign.product_of(issue, registry) == key}
+
+
+def unroutable(issues: dict, registry: dict) -> list:
+    """(number, reason) for every item whose product labels cannot be
+    resolved. Those go on no board: putting one on the default board would
+    be the guess `assign.py` refuses to make."""
+    out = []
+    for number in sorted(issues):
+        reason = assign.product_reason(issues[number], registry)
+        if reason:
+            out.append((number, reason))
+    return out
+
+
+def board_of(entry: dict) -> BoardRef | None:
+    """A product's board from its own `project: {owner, number}`, or None
+    when the entry does not declare a usable one."""
+    project = (entry or {}).get("project")
+    if not isinstance(project, dict):
+        return None
+    owner, number = project.get("owner"), project.get("number")
+    if not isinstance(owner, str) or not owner or not isinstance(number, int) or number < 1:
+        return None
+    return BoardRef(owner=owner, number=number)
+
+
 def _issue_dict(issue: Issue) -> dict:
     """`desired_fields` was written (and is tested) against the dict shape
     `gh issue list --json` returns. Adapt the Tracker's `Issue` to that
@@ -192,10 +238,12 @@ def apply_fields(tracker: Tracker, board: BoardRef, number: int, board_fields: d
     return None
 
 
-def run_sync(tracker: Tracker, board: BoardRef, *, dry_run: bool) -> tuple[int, str]:
+def run_sync(tracker: Tracker, board: BoardRef, *, dry_run: bool,
+             issues: dict | None = None) -> tuple[int, str]:
     """The whole sync algorithm, independent of argv — so `main()` and tests
     can drive it against any `Tracker`. Returns (exit code, summary line);
-    the summary is empty on early failure.
+    the summary is empty on early failure. `issues` is what this board
+    shows — one product's items; None means every issue the tracker lists.
 
     Only the board-schema read is wrapped against a permission failure —
     that matches the original script, where a `gh` failure anywhere past
@@ -211,7 +259,8 @@ def run_sync(tracker: Tracker, board: BoardRef, *, dry_run: bool) -> tuple[int, 
               "have it. Set PROJECT_TOKEN.", file=sys.stderr)
         return 2, ""
 
-    issues = {i.number: _issue_dict(i) for i in tracker.list_issues(state="all", limit=200)}
+    if issues is None:
+        issues = {i.number: _issue_dict(i) for i in tracker.list_issues(state="all", limit=200)}
 
     changes = 0
     unchanged = 0
@@ -256,16 +305,37 @@ def run_sync(tracker: Tracker, board: BoardRef, *, dry_run: bool) -> tuple[int, 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--project", type=int, required=True)
-    ap.add_argument("--owner", required=True)
+    ap.add_argument("--product", help="sync only this policies/products.yaml key "
+                                      "(default: every product)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
+    registry = assign.load_registry()
     tracker = make_tracker()
-    board = BoardRef(owner=args.owner, number=args.project)
-    code, summary = run_sync(tracker, board, dry_run=args.dry_run)
-    if code == 0:
-        print(summary)
+    issues = {i.number: _issue_dict(i) for i in tracker.list_issues(state="all", limit=200)}
+    for number, reason in unroutable(issues, registry):
+        print(f"  #{number}: on no board — {reason}")
+
+    code = 0
+    for key in [args.product] if args.product else sorted(registry["products"]):
+        if key not in registry["products"]:
+            print(f"sync-project: `{key}` is not in policies/products.yaml", file=sys.stderr)
+            code = max(code, 2)
+            continue
+        board = board_of(registry["products"][key])
+        if board is None:
+            # Fail closed: a product with no board is a broken registry
+            # entry, not a reason to borrow another product's board.
+            print(f"sync-project: `{key}` has no `project: {{owner, number}}` in "
+                  "policies/products.yaml", file=sys.stderr)
+            code = max(code, 1)
+            continue
+        print(f"{key} -> project {board.owner}/{board.number}")
+        result, summary = run_sync(tracker, board, dry_run=args.dry_run,
+                                   issues=issues_for_product(issues, key, registry))
+        if result == 0:
+            print(summary)
+        code = max(code, result)
     return code
 
 
