@@ -1,108 +1,15 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-10-25T11:41:27.433216+00:00",
-  "roles": [
-    {
-      "role": "unknown",
-      "commits": 7,
-      "requirements": [],
-      "harnesses": [
-        "unknown"
-      ],
-      "subjects": [
-        {
-          "sha": "4435193",
-          "subject": "feat(dispatch): agents ask a person and hear the answer (#328)"
-        },
-        {
-          "sha": "9b19019",
-          "subject": "feat(developer): test, fix red checks and slice before opening the PR (#319)"
-        },
-        {
-          "sha": "1afa327",
-          "subject": "feat(dispatch): codex sessions get the role's skills too, on demand (#333)"
-        },
-        {
-          "sha": "9fcf06b",
-          "subject": "Route work items to their own product in assign.py and board sync (#326)"
-        },
-        {
-          "sha": "e4f8576",
-          "subject": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch (#329)"
-        }
-      ]
-    }
-  ],
-  "commits_total": 7,
+  "generated_at": "2026-10-26T12:47:55.746559+00:00",
+  "roles": [],
+  "commits_total": 0,
   "pulls": {
     "opened": [],
-    "merged": [
-      {
-        "number": 333,
-        "title": "feat(dispatch): codex sessions get the role's skills too, on demand",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/333",
-        "branch": "story/FDY-332-codex-gets-skills"
-      },
-      {
-        "number": 329,
-        "title": "feat(onboarding): foundry-init takes a product from empty repo to first dispatch",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/329",
-        "branch": "story/FDY-323-foundry-init"
-      },
-      {
-        "number": 328,
-        "title": "feat(dispatch): agents ask a person and hear the answer (#321)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/328",
-        "branch": "story/FDY-321-ask-and-hear-the-answer"
-      },
-      {
-        "number": 327,
-        "title": "feat(security): one GitHub App with per-role tokens, and a required scope check (ADR-0011)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/327",
-        "branch": "story/FDY-322-github-app-and-scope-check"
-      },
-      {
-        "number": 326,
-        "title": "Work items carry their product; orchestrator and board sync route per product (#290)",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/326",
-        "branch": "story/FDY-290-product-routing"
-      },
-      {
-        "number": 325,
-        "title": "feat(dispatch): role-pack skills reach the session, on demand",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/325",
-        "branch": "story/FDY-320-skills-reach-sessions"
-      },
-      {
-        "number": 319,
-        "title": "feat(developer): test, fix red checks and slice before opening the PR",
-        "url": "https://github.com/Shashank2577/ai-sdlc/pull/319",
-        "branch": "story/FDY-318-developer-proves-before-pr"
-      }
-    ],
+    "merged": [],
     "closed_unmerged": [],
     "open_now": 3
   },
-  "check_failures": [
-    {
-      "name": "Packs",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686289",
-      "at": "2026-10-25T11:23:47Z"
-    },
-    {
-      "name": "Dispatch",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686249",
-      "at": "2026-10-25T11:23:47Z"
-    },
-    {
-      "name": "Unit tests",
-      "branch": "story/FDY-318-developer-proves-before-pr",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/40188686225",
-      "at": "2026-10-25T11:23:47Z"
-    }
-  ],
+  "check_failures": [],
   "board": {
     "(no status)": 3,
     "status:in-review": 5,
@@ -127,7 +34,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1213.3,
+      "hours": 1238.4,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -135,7 +42,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 1168.5,
+      "hours": 1193.7,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
