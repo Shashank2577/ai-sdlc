@@ -1,12 +1,8 @@
 {
   "window_days": 60,
-  "generated_at": "2026-10-28T12:41:27.695992+00:00",
+  "generated_at": "2026-10-29T12:50:15.556564+00:00",
   "story_count": 71,
   "burndown": [
-    {
-      "date": "2026-08-29",
-      "open": 0
-    },
     {
       "date": "2026-08-30",
       "open": 0
@@ -246,53 +242,57 @@
     {
       "date": "2026-10-28",
       "open": 3
+    },
+    {
+      "date": "2026-10-29",
+      "open": 3
     }
   ],
   "velocity": [
     {
-      "week_start": "2026-08-29",
-      "week_end": "2026-09-05",
-      "closed": 49
+      "week_start": "2026-08-30",
+      "week_end": "2026-09-06",
+      "closed": 57
     },
     {
-      "week_start": "2026-09-05",
-      "week_end": "2026-09-12",
-      "closed": 9
+      "week_start": "2026-09-06",
+      "week_end": "2026-09-13",
+      "closed": 1
     },
     {
-      "week_start": "2026-09-12",
-      "week_end": "2026-09-19",
+      "week_start": "2026-09-13",
+      "week_end": "2026-09-20",
       "closed": 0
     },
     {
-      "week_start": "2026-09-19",
-      "week_end": "2026-09-26",
+      "week_start": "2026-09-20",
+      "week_end": "2026-09-27",
       "closed": 3
     },
     {
-      "week_start": "2026-09-26",
-      "week_end": "2026-10-03",
+      "week_start": "2026-09-27",
+      "week_end": "2026-10-04",
       "closed": 0
     },
     {
-      "week_start": "2026-10-03",
-      "week_end": "2026-10-10",
+      "week_start": "2026-10-04",
+      "week_end": "2026-10-11",
       "closed": 0
     },
     {
-      "week_start": "2026-10-10",
-      "week_end": "2026-10-17",
+      "week_start": "2026-10-11",
+      "week_end": "2026-10-18",
       "closed": 0
     },
     {
-      "week_start": "2026-10-17",
-      "week_end": "2026-10-24",
-      "closed": 0
-    },
-    {
-      "week_start": "2026-10-24",
-      "week_end": "2026-10-28",
+      "week_start": "2026-10-18",
+      "week_end": "2026-10-25",
       "closed": 7
+    },
+    {
+      "week_start": "2026-10-25",
+      "week_end": "2026-10-29",
+      "closed": 0
     }
   ]
 }
