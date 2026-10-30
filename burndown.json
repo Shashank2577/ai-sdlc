@@ -1,12 +1,8 @@
 {
   "window_days": 60,
-  "generated_at": "2026-10-29T12:50:15.556564+00:00",
+  "generated_at": "2026-10-30T12:42:36.990790+00:00",
   "story_count": 71,
   "burndown": [
-    {
-      "date": "2026-08-30",
-      "open": 0
-    },
     {
       "date": "2026-08-31",
       "open": 0
@@ -246,52 +242,56 @@
     {
       "date": "2026-10-29",
       "open": 3
+    },
+    {
+      "date": "2026-10-30",
+      "open": 3
     }
   ],
   "velocity": [
     {
-      "week_start": "2026-08-30",
-      "week_end": "2026-09-06",
-      "closed": 57
+      "week_start": "2026-08-31",
+      "week_end": "2026-09-07",
+      "closed": 58
     },
     {
-      "week_start": "2026-09-06",
-      "week_end": "2026-09-13",
-      "closed": 1
-    },
-    {
-      "week_start": "2026-09-13",
-      "week_end": "2026-09-20",
+      "week_start": "2026-09-07",
+      "week_end": "2026-09-14",
       "closed": 0
     },
     {
-      "week_start": "2026-09-20",
-      "week_end": "2026-09-27",
+      "week_start": "2026-09-14",
+      "week_end": "2026-09-21",
+      "closed": 0
+    },
+    {
+      "week_start": "2026-09-21",
+      "week_end": "2026-09-28",
       "closed": 3
     },
     {
-      "week_start": "2026-09-27",
-      "week_end": "2026-10-04",
+      "week_start": "2026-09-28",
+      "week_end": "2026-10-05",
       "closed": 0
     },
     {
-      "week_start": "2026-10-04",
-      "week_end": "2026-10-11",
+      "week_start": "2026-10-05",
+      "week_end": "2026-10-12",
       "closed": 0
     },
     {
-      "week_start": "2026-10-11",
-      "week_end": "2026-10-18",
+      "week_start": "2026-10-12",
+      "week_end": "2026-10-19",
       "closed": 0
     },
     {
-      "week_start": "2026-10-18",
-      "week_end": "2026-10-25",
+      "week_start": "2026-10-19",
+      "week_end": "2026-10-26",
       "closed": 7
     },
     {
-      "week_start": "2026-10-25",
-      "week_end": "2026-10-29",
+      "week_start": "2026-10-26",
+      "week_end": "2026-10-30",
       "closed": 0
     }
   ]
