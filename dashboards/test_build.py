@@ -251,5 +251,15 @@ class TestAgainstThisRepo(unittest.TestCase):
         self.assertGreater(len(payload), 100)
 
 
+class TestSquashTrailers(unittest.TestCase):
+    def test_merge_recovers_requirements_from_pr_commits(self):
+        c = B.Commit("a" * 40, "feat: x (#9)", "2026-01-01", {"Agent-Role": "developer"})
+        B.merge_pr_trailers(c, [{"Requirement": "REQ-005"},
+                                {"Requirement": "REQ-011, REQ-005"}])
+        self.assertEqual(c.requirements, ["REQ-005", "REQ-011"])
+        self.assertEqual(c.role, "developer")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

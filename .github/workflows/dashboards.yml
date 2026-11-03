@@ -113,6 +113,9 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read   # commits/{sha}/pulls is rejected without it (#235)
     steps:
       - uses: actions/checkout@v4
         with:
