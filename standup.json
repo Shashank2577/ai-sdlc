@@ -1,6 +1,6 @@
 {
   "window_hours": 24,
-  "generated_at": "2026-11-25T17:04:14.902624+00:00",
+  "generated_at": "2026-11-26T16:45:02.108315+00:00",
   "roles": [],
   "commits_total": 0,
   "pulls": {
@@ -11,16 +11,10 @@
   },
   "check_failures": [
     {
-      "name": "Project sync",
-      "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/45510928397",
-      "at": "2026-11-24T23:33:13Z"
-    },
-    {
       "name": "Dashboards",
       "branch": "main",
-      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/45449179099",
-      "at": "2026-11-24T17:29:43Z"
+      "url": "https://github.com/Shashank2577/ai-sdlc/actions/runs/45660726395",
+      "at": "2026-11-25T17:04:06Z"
     }
   ],
   "board": {
@@ -47,7 +41,7 @@
       "number": 194,
       "title": "P3-9: Exercise the engineering memory round trip \u2014 no note has ever been written",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/194",
-      "hours": 1962.6,
+      "hours": 1986.3,
       "since": "2026-09-04T22:26:05Z",
       "already_flagged": true
     },
@@ -55,7 +49,7 @@
       "number": 224,
       "title": "Register a second product and run one story against it \u2014 the two-repo path has never executed",
       "url": "https://github.com/Shashank2577/ai-sdlc/issues/224",
-      "hours": 1917.9,
+      "hours": 1941.6,
       "since": "2026-09-06T19:08:52Z",
       "already_flagged": true
     }
